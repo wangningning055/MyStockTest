@@ -1,0 +1,24 @@
+key=Code, val=1, name= Code, disc = 股票代码
+key=Date, val=2024-01-01, name= Date, disc = 交易日期
+key=Open_Price, val=10.5, name= Open_Price, disc = 开盘价
+key=Close_Price, val=10.8, name= Close_Price, disc = 收盘价
+key=High_Price, val=11.0, name= High_Price, disc = 最高价
+key=Low_Price, val=10.2, name= Low_Price, disc = 最低价
+key=Change_Num, val=0.3, name= Change_Num, disc = 涨跌额
+key=Change_Ratio, val=2.86, name= Change_Ratio, disc = 涨跌幅（%）
+key=Amount, val=1000, name= Amount, disc = 成交量（手）
+key=Amount_Price, val=10500, name= Amount_Price, disc = 成交额（千元）
+key=Hand, val=1.5, name= Hand, disc = 换手率（%）
+key=Hand_All, val=2.0, name= Hand_All, disc = 换手率（%），总股本口径
+key=Volume_Ratio, val=1.2, name= Volume_Ratio, disc = 量比（按日线口径，Tushare 提供日均量比）
+key=Earn_Static, val=15.0, name= Earn_Static, disc = 市盈率（静态）
+key=Earn_TTM, val=14.5, name= Earn_TTM, disc = 市盈率（TTM）
+key=Clean, val=1.8, name= Clean, disc = 市净率
+key=Sale, val=2.5, name= Sale, disc = 市销率
+key=Sale_TTM, val=2.3, name= Sale_TTM, disc = 市销率（TTM）
+key=All_Hand, val=50000, name= All_Hand, disc = 总股本（万股）
+key=Flow_Hand, val=30000, name= Flow_Hand, disc = 流通股本（万股）
+key=Free_Flow_Hand, val=20000, name= Free_Flow_Hand, disc = 自由流通股本（万股）
+key=Total_Market_Price, val=550000, name= Total_Market_Price, disc = 总市值（万元）
+key=Flow_Market_Price, val=330000, name= Flow_Market_Price, disc = 流通市值（万元
+key=Name, val=TestStock, name= Name, disc = 股票名
