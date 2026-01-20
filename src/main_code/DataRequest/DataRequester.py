@@ -1,4 +1,5 @@
 import tushare as ts
+import pandas as pd
 from db.Define import BasicDBStruct
 from db.Define import DailyDBStruct
 
@@ -11,7 +12,19 @@ class DataRequesterClass:
         ts.set_token(self.token)
         self.pro = ts.pro_api()
 
+    #获取股票的交易日历
+    def GetStockTradeDaily(self, start_date, end_date):
+        start = "2025-01-01"
+        end = "2026-01-19"
 
+        # 生成工作日（周一到周五）
+        calendar = pd.bdate_range(start=start, end=end)
+
+        # 转成 DataFrame 并格式化为 YYYYMMDD
+        df = pd.DataFrame(calendar, columns=["date"])
+        df["date"] = df["date"].dt.strftime("%Y%m%d")  # 转为 20250103 格式
+        df.to_csv("trading_days_local.csv", index=False)
+        return df
 
     #获取股票的基本数据
     def GetStockBasicData(self):
