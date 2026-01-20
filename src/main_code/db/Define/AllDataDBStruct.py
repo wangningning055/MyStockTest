@@ -31,6 +31,9 @@ class DBStructClass :
     def __init__(self):
         self.CreateDic()
 
+    def GetDBTypeByEnum(self, enum):
+        return "TEXT"
+
     def CreateDic(self):
         self.dic = {
             ColumnEnum.Code : 0,
