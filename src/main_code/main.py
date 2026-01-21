@@ -12,16 +12,42 @@ def main():
     dbHandler.CreateTable()
 
     requester = DataRequest.DataRequester.DataRequesterClass()
-    #requester.GetStockBasicData()
 
     #获取测试的股票数据并写入数据库
-    #classList = requester.GetStockDailyData()
-    #for dataClass in classList:
-    #    dbHandler.WriteRow(dataClass, db.DBHandle.TableEnum.Daily)
+    #classList = requester.GetStockBasicData()
+    #for data in classList:
+    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Basic)
 
-    # 获取交易日历
-    tradeDaysDf = requester.GetStockTradeDaily("20250101", "20260119")
-    print(tradeDaysDf.head())
+    #dataClassList = requester.GetStockDailyData()
+    #for data in dataClassList:
+    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)
+
+    codeList = requester.GetBaoStockCodeByBasicDataBase()
+
+
+    #print(f"获取第一组测试数据: {codeList[0]}")
+
+    
+    #dataClassList1 = requester.GetStockDailyData(codeList[0], "2025-01-01", "2026-01-20")
+    #for data in dataClassList1:
+    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)
+    #print("获取完成")
+
+
+    #print(f"获取第二组测试数据: {codeList[1]}")
+    #dataClassList2 = requester.GetStockDailyData(codeList[1], "2025-01-01", "2026-01-20")
+    #for data in dataClassList2:
+    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)
+    #print("获取完成")
+
+
+    #print(f"获取第三组测试数据: {codeList[2]}")
+    #dataClassList3 = requester.GetStockDailyData(codeList[2], "2025-01-01", "2026-01-20")
+    #for data in dataClassList3:
+    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)
+    #print("全部获取完成")
+
+    print("程序结束")
 
 if __name__ == "__main__":
     main()

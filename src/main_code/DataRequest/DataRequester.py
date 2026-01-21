@@ -1,5 +1,7 @@
 import tushare as ts
+import baostock as bs
 import pandas as pd
+import csv
 from db.Define import BasicDBStruct
 from db.Define import DailyDBStruct
 
@@ -11,11 +13,16 @@ class DataRequesterClass:
     def InitShare(self):
         ts.set_token(self.token)
         self.pro = ts.pro_api()
+        self.bao = bs.login()
+        # 显示登陆返回信息
+        print('login respond error_code:'+self.bao.error_code)
+        print('login respond  error_msg:'+self.bao.error_msg)
+        print("登录流程结束")
 
     #获取股票的交易日历
     def GetStockTradeDaily(self, start_date, end_date):
         start = "2025-01-01"
-        end = "2026-01-19"
+        end = "2026-01-20"
 
         # 生成工作日（周一到周五）
         calendar = pd.bdate_range(start=start, end=end)
@@ -33,34 +40,124 @@ class DataRequesterClass:
             list_status='L',   # L = 上市中
             fields=''
         )
-        print(df.head())
-        print(print(df.tail()))
-        #self.LogTxt(df)
+        df.to_csv("allStock_base1.csv", index=False)
+        alldic = {}
+        classList = []
+        for _, row in df.iterrows():
+            testClass = BasicDBStruct.BasicDBStructClass()
+            alldic[row['ts_code']] = testClass
+            testClass.dic[BasicDBStruct.ColumnEnum.Ts_code] = row['ts_code']
+            testClass.dic[BasicDBStruct.ColumnEnum.Code] = row['symbol']
+            testClass.dic[BasicDBStruct.ColumnEnum.Name] = row['name']
+            testClass.dic[BasicDBStruct.ColumnEnum.Area] = row['area']
+            testClass.dic[BasicDBStruct.ColumnEnum.Industry] = row['industry']
+            testClass.dic[BasicDBStruct.ColumnEnum.Cn_spell] = row['cnspell']
+            testClass.dic[BasicDBStruct.ColumnEnum.Market] = row['market']
+            testClass.dic[BasicDBStruct.ColumnEnum.List_date] = row['list_date']
+            testClass.dic[BasicDBStruct.ColumnEnum.Act_name] = row['act_name']
+            testClass.dic[BasicDBStruct.ColumnEnum.Act_ent_type] = row['act_ent_type']
+            classList.append(testClass)
 
+        df2_1 = self.pro.stock_company(exchange='SZSE')
+        df2_1.to_csv("allStock_base2_SZSE.csv", index=False)
+        for _,row in df2_1.iterrows():
+            testClass = alldic.get(row['ts_code'])
+            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
 
+        df2_2 = self.pro.stock_company(exchange='SSE')
+        df2_2.to_csv("allStock_base2_SSE.csv", index=False)
+        for _,row in df2_2.iterrows():
+            testClass = alldic.get(row['ts_code'])
+            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
+
+        df2_3 = self.pro.stock_company(exchange='BSE')
+        df2_3.to_csv("allStock_base2_BSE.csv", index=False)
+        for _,row in df2_3.iterrows():
+            testClass = alldic.get(row['ts_code'])
+            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
+
+        return classList
+
+    #把baoStock里面的sh.600000股票代码变为600000.SH格式
+    def baostock_to_tushare(self, dataStr):
+        """
+        sh.600000 -> 600000.SH
+        sz.000001 -> 000001.SZ
+        """
+        exchange, num = dataStr.split(".")
+        return f"{num}.{exchange.upper()}"
+    
+    #把baoStock里面的sh.600000股票代码变为600000.SH格式
+    def tushare_to_baostock(self, dataStr):
+        """
+         600000.SH ->sh.600000
+        """
+        if(dataStr.__contains__(".")):
+            num, exchange = dataStr.split(".")
+            return f"{exchange.lower()}.{num}"
+        else:
+            return""
+    
+    def Time_Convert(self, timestr):
+        date_num = timestr.replace("-", "")
+        return date_num
     #获取股票的日线行情
-    def GetStockDailyData(self):
-        df = self.pro.daily(
-            ts_code="000001.SZ",
-            start_date="20260115",
-            end_date="20260119"
+    def GetStockDailyData(self, baoStockCode, startData, endData):
+        rs = bs.query_history_k_data_plus(
+            baoStockCode,
+            fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
+            start_date=startData,
+            end_date=endData,
+            frequency="d",
+            adjustflag="3"
         )
+        data_list = []
+        while rs.next():
+            data_list.append(rs.get_row_data())
+
+        df = pd.DataFrame(data_list, columns=rs.fields)
+        df.to_csv("stock_daily_baostock.csv", index=False)
+
         dataClassList = []
         for _, row in df.iterrows():
-            testClass = DailyDBStruct.DailyDBStructClass()
-            testClass.dic[DailyDBStruct.ColumnEnum.Code] = row['ts_code']
-            testClass.dic[DailyDBStruct.ColumnEnum.Date] = row['trade_date']
-            testClass.dic[DailyDBStruct.ColumnEnum.Open_Price] = row['open']
-            testClass.dic[DailyDBStruct.ColumnEnum.Close_Price] = row['close']
-            testClass.dic[DailyDBStruct.ColumnEnum.High_Price] = row['high']
-            testClass.dic[DailyDBStruct.ColumnEnum.Low_Price] = row['low']
-            testClass.dic[DailyDBStruct.ColumnEnum.Change_Num] = row['change']
-            testClass.dic[DailyDBStruct.ColumnEnum.Change_Ratio] = row['pct_chg']
-            testClass.dic[DailyDBStruct.ColumnEnum.Amount] = row['vol']
-            testClass.dic[DailyDBStruct.ColumnEnum.Amount_Price] = row['amount']
-            testClass.dic[DailyDBStruct.ColumnEnum.Last_Close_Price] = row['pre_close']
-            dataClassList.append(testClass)
+            dataClass = DailyDBStruct.DailyDBStructClass()
+            dataClass.dic[DailyDBStruct.ColumnEnum.Code] = self.baostock_to_tushare(row['code'])
+            dataClass.dic[DailyDBStruct.ColumnEnum.Date] = self.Time_Convert(row['date'])
+            dataClass.dic[DailyDBStruct.ColumnEnum.Open_Price] = self.CleanData(row['open'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Close_Price] = self.CleanData(row['close'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.High_Price] = self.CleanData(row['high'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Low_Price] = self.CleanData(row['low'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Exchange_Hand] = self.CleanData(row['turn'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Change_Ratio] = self.CleanData(row['pctChg'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Amount] = self.CleanData(row['volume'], 2)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Amount_Price] = self.CleanData(row['amount'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Earn_TTM] = self.CleanData(row['peTTM'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Clean] = self.CleanData(row['pbMRQ'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Cash_TTM] = self.CleanData(row['pcfNcfTTM'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Sale_TTM] = self.CleanData(row['psTTM'], 1)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Is_ST] = self.CleanData(row['isST'], 2)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Is_Trading] = self.CleanData(row['tradestatus'], 2)
+            dataClass.dic[DailyDBStruct.ColumnEnum.Last_Close_Price] = self.CleanData(row['preclose'], 1)
+            dataClassList.append(dataClass)
         return dataClassList
+
+    #可能存在空的情况，这个时候转换不成功，需要主动置空，type：1是float， 2是int
+    def CleanData(self, rowData, type):
+        if rowData in (None, '', 'nan', 'NaN'):
+            return 0
+        else:
+            if type == 1:
+                return float(rowData)
+            elif type == 2:
+                return int(rowData)
+            else:
+                return rowData
 
     def LogTxt(self, msg):
         txt_file_path = "output.txt"
@@ -69,3 +166,18 @@ class DataRequesterClass:
             f.write(msg)
 
         print(f"write Success {txt_file_path}")
+
+    #通过basic表来获取股票代码，然后转换为baoStock的代码格式
+    def GetBaoStockCodeByBasicDataBase(self):
+        list_code = []
+        with open("allStock_base1.csv", "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row:
+                    if(row[0].__contains__("BJ")):
+                        pass
+                    else:
+                        newstr = self.tushare_to_baostock(row[0])
+                        if newstr != "":
+                            list_code.append(newstr)
+        return list_code

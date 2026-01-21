@@ -1,17 +1,23 @@
 from enum import Enum
 
 class ColumnEnum(Enum):
-    Code = 1,                                   #股票代码
-    Date = 2,                                   #交易日期
-    Open_Price = 3,                             #开盘价
-    Close_Price = 4,                            #收盘价
-    High_Price = 5,                             #最高价
-    Low_Price = 6,                               #最低价
-    Change_Num = 7,                              #涨跌额
-    Change_Ratio = 8,                             #涨跌幅（%）
-    Amount = 9,                                  #成交量（手）
-    Amount_Price = 10,                           #成交额（千元）
-    Last_Close_Price = 11,                        #昨日收盘价
+    Code = 1,                                   #股票代码1
+    Date = 2,                                   #交易日期1
+    Open_Price = 3,                             #开盘价1
+    Close_Price = 4,                            #收盘价1
+    High_Price = 5,                             #最高价1
+    Low_Price = 6,                               #最低价1
+    Exchange_Hand = 7,                           #换手率
+    Change_Ratio = 8,                            #涨跌幅（%）1
+    Amount = 9,                                  #成交量（股）1
+    Amount_Price = 10,                           #成交额（元）1
+    Earn_TTM = 11,                               #滚动市盈率（TTM）（市值和近十二个月的公司利润的比值），市盈率越小，公司利润越高，稳定赚钱的公司才有参考价值（公共事业，医疗）
+    Clean = 12,                                  #市净率（市值和公司的净资产的比值），重资产的公司指标，（钢铁，煤炭，化工）
+    Cash_TTM = 13,                               #滚动市现率（TTM）（市值和近十二个月的公司现金流的比值），现金流充裕的公司才有参考价值（互联网，轻资产公司），市盈率低市现率高说明被人欠债了
+    Sale_TTM = 14,                               #滚动市销率（TTM）（市值和公司的营收的比值）（扩张型公司）
+    Is_ST = 15,                                   #是否ST股，1是0否
+    Is_Trading = 16                               #交易状态 1正常交易， 0停牌
+    Last_Close_Price = 17                         #昨收价1
 
 class DailyDBStructClass:
     def __init__(self):
@@ -30,14 +36,24 @@ class DailyDBStructClass:
             return "REAL"
         elif enum == ColumnEnum.Low_Price:
             return "REAL"
-        elif enum == ColumnEnum.Change_Num:
+        elif enum == ColumnEnum.Exchange_Hand:
             return "REAL"
         elif enum == ColumnEnum.Change_Ratio:
             return "REAL"
         elif enum == ColumnEnum.Amount:
             return "INTEGER"
-        elif enum == ColumnEnum.Amount_Price:
+        elif enum == ColumnEnum.Earn_TTM:
             return "REAL"
+        elif enum == ColumnEnum.Clean:
+            return "REAL"
+        elif enum == ColumnEnum.Cash_TTM:
+            return "REAL"
+        elif enum == ColumnEnum.Sale_TTM:
+            return "REAL"
+        elif enum == ColumnEnum.Is_ST:
+            return "INTEGER"
+        elif enum == ColumnEnum.Is_Trading:
+            return "INTEGER"
         elif enum == ColumnEnum.Last_Close_Price:
             return "REAL"
 
@@ -49,61 +65,58 @@ class DailyDBStructClass:
             ColumnEnum.Close_Price : 0,
             ColumnEnum.High_Price : 0,
             ColumnEnum.Low_Price : 0,
-            ColumnEnum.Change_Num : 0,
+            ColumnEnum.Exchange_Hand : 0,
             ColumnEnum.Change_Ratio : 0,
             ColumnEnum.Amount : 0,
             ColumnEnum.Amount_Price : 0,
-            ColumnEnum.Last_Close_Price : 0
+            ColumnEnum.Earn_TTM : 0,
+            ColumnEnum.Clean : 0,
+            ColumnEnum.Cash_TTM : 0,
+            ColumnEnum.Sale_TTM : 0,
+            ColumnEnum.Is_ST : 0,
+            ColumnEnum.Is_Trading : 0,
+            ColumnEnum.Last_Close_Price : 0,
         }
 
 
     def GetNameByEnum(self, enum):
         if enum == ColumnEnum.Code:
-            return "code"
+            return "ts_code"
         elif enum == ColumnEnum.Date:
-            return "date"
+            return "trade_date"
         elif enum == ColumnEnum.Open_Price:
-            return "open_price"
+            return "open"
         elif enum == ColumnEnum.Close_Price:
-            return "close_price"
+            return "close"
         elif enum == ColumnEnum.High_Price:
-            return "high_price"
+            return "high"
         elif enum == ColumnEnum.Low_Price:
-            return "low_price"
-        elif enum == ColumnEnum.Change_Num:
-            return "change_num"
+            return "low"
+        elif enum == ColumnEnum.Exchange_Hand:
+            return "turn"
         elif enum == ColumnEnum.Change_Ratio:
             return "change_ratio"
         elif enum == ColumnEnum.Amount:
             return "amount"
         elif enum == ColumnEnum.Amount_Price:
             return "amount_price"
+        elif enum == ColumnEnum.Earn_TTM:
+            return "earn_TTM"
+        elif enum == ColumnEnum.Clean:
+            return "Clean"
+        elif enum == ColumnEnum.Cash_TTM:
+            return "cash_TTM"
+        elif enum == ColumnEnum.Sale_TTM:
+            return "sale_TTM"
+        elif enum == ColumnEnum.Is_ST:
+            return "is_st"
+        elif enum == ColumnEnum.Is_Trading:
+            return "is_trading"
         elif enum == ColumnEnum.Last_Close_Price:
-            return "last_close_price"
+            return "last_close_Price"
 
     def GetDiscByEnum(self, enum):
-        if enum == ColumnEnum.Code:
-            return "股票代码"
-        elif enum == ColumnEnum.Date:
-            return "交易日期"
-        elif enum == ColumnEnum.Open_Price:
-            return "开盘价"
-        elif enum == ColumnEnum.Close_Price:
-            return "收盘价"
-        elif enum == ColumnEnum.High_Price:
-            return "最高价"
-        elif enum == ColumnEnum.Low_Price:
-            return "最低价"
-        elif enum == ColumnEnum.Change_Num:
-            return "涨跌额"
-        elif enum == ColumnEnum.Change_Ratio:
-            return "涨跌幅（%）"
-        elif enum == ColumnEnum.Amount:
-            return "成交量（手）"
-        elif enum == ColumnEnum.Amount_Price:
-            return "成交额（千元）"
-        elif enum == ColumnEnum.Last_Close_Price:
-            return "昨收价"
+        pass
 
     def GetValueByEnum(self, enum):
         return self.dic[enum]

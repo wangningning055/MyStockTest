@@ -113,7 +113,6 @@ class DBHandler:
         self.dbConnect.commit()
 
 
-
     #def TestWrite(self):
     #    structClass = DBStruct.DBStructClass()
     #    structClass.CreateDic()
