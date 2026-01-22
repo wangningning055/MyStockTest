@@ -134,45 +134,51 @@ class DataRequesterClass:
     def Time_Convert(self, timestr):
         date_num = timestr.replace("-", "")
         return date_num
+    #获得季度数据，总股本流通股本
+    def GetStockQuarterData(self, baoStockCode, year, quarter, isNeedPull):
+        if isNeedPull:
+            profit_list = []
+            rs_profit = bs.query_profit_data(code=baoStockCode, year=year, quarter=quarter)
+            while (rs_profit.error_code == '0') & rs_profit.next():
+                profit_list.append(rs_profit.get_row_data())
+            result_profit = pd.DataFrame(profit_list, columns=rs_profit.fields)
+            result_profit.to_csv(f"stock_quarter_baostock_profit1111111_{baoStockCode}_{year}Q{quarter}.csv", index=False)
+            result_profit["year"] = year
+            result_profit["quarter"] = quarter
+            return result_profit
+    
     #获取股票的日线行情
-    def GetStockDailyData(self, baoStockCode, startData, endData):
+    def GetStockDailyData(self, baoStockCode, startData, endData, isNeedPull):
         #拉取一次日线行情
         #拉取一次复权信息
         #拉取一次季频盈利信息（总股本，流通股本）
         #计算总市值，流通市值，涨跌额，量比，均价，振幅
-        rs = bs.query_history_k_data_plus(
-            baoStockCode,
-            fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
-            start_date=startData,
-            end_date=endData,
-            frequency="d",
-            adjustflag="3"
-        )
-        data_list = []
-        while rs.next():
-            data_list.append(rs.get_row_data())
+        if isNeedPull:
+            rs = bs.query_history_k_data_plus(
+                baoStockCode,
+                fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
+                start_date=startData,
+                end_date=endData,
+                frequency="d",
+                adjustflag="3"
+            )
+            data_list = []
+            while rs.next():
+                data_list.append(rs.get_row_data())
 
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        df.to_csv("stock_daily_baostock_Basic.csv", index=False)
+            df = pd.DataFrame(data_list, columns=rs.fields)
+            df.to_csv("stock_daily_baostock_Basic_{baoStockCode}.csv", index=False)
 
 
-        #获取复权因子
-        rs_list = []
-        rs_factor = bs.query_adjust_factor(code=baoStockCode, start_date= startData, end_date=endData)
-        while (rs_factor.error_code == '0') & rs_factor.next():
-            rs_list.append(rs_factor.get_row_data())
+            #获取复权因子
+            rs_list = []
+            rs_factor = bs.query_adjust_factor(code=baoStockCode, start_date= startData, end_date=endData)
+            while (rs_factor.error_code == '0') & rs_factor.next():
+                rs_list.append(rs_factor.get_row_data())
 
-        result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
-        result_factor.to_csv("stock_daily_baostock_adjst.csv", index=False)
+            result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
+            result_factor.to_csv("stock_daily_baostock_adjst_{baoStockCode}.csv", index=False)
 
-        #获取股本和流通股本
-        profit_list = []
-        rs_profit = bs.query_profit_data(code=baoStockCode, year=2017, quarter=2)
-        while (rs_profit.error_code == '0') & rs_profit.next():
-            profit_list.append(rs_profit.get_row_data())
-        result_profit = pd.DataFrame(profit_list, columns=rs_profit.fields)
-        # 结果集输出到csv文件
-        result_profit.to_csv("stock_daily_baostock_value.csv", encoding="gbk", index=False)
 
         #计算量比均价和振幅
 
@@ -234,3 +240,44 @@ class DataRequesterClass:
                         if newstr != "":
                             list_code.append(newstr)
         return list_code
+    
+    def date_to_year_quarter(self, date_int: int):
+        """
+        20200115 -> (2020, 1)
+        """
+        date_str = str(date_int)
+        year = int(date_str[:4])
+        month = int(date_str[4:6])
+
+        if month <= 3:
+            quarter = 1
+        elif month <= 6:
+            quarter = 2
+        elif month <= 9:
+            quarter = 3
+        else:
+            quarter = 4
+
+        return year, quarter
+    
+
+
+    def gen_year_quarter_range(self, start_date: int, end_date: int):
+        sy, sq = self.date_to_year_quarter(start_date)
+        ey, eq = self.date_to_year_quarter(end_date)
+
+        result = []
+
+        y, q = sy, sq
+        while True:
+            result.append((y, q))
+
+            if y == ey and q == eq:
+                break
+
+            q += 1
+            if q == 5:
+                q = 1
+                y += 1
+
+        return result

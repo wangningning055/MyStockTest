@@ -3,7 +3,6 @@ from db.Define import AllDataDBStruct
 from db.Define import BasicDBStruct
 from db.Define import DailyDBStruct
 from enum import Enum
-
 class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
@@ -111,6 +110,15 @@ class DBHandler:
 
         self.dbCursor.execute(sql, tuple(values))
         self.dbConnect.commit()
+
+    def GetAllStockCodeFromBasicTable(self):
+        sql = f'SELECT {self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.Ts_code)} FROM {self.BasicTableName}'
+        self.dbCursor.execute(sql)
+        allRow = self.dbCursor.fetchall()
+        codeList = []
+        for row in allRow:
+            codeList.append(row[0])
+        return codeList
 
 
     #def TestWrite(self):
