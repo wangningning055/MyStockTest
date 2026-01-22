@@ -6,7 +6,10 @@ from db.Define import BasicDBStruct
 from db.Define import DailyDBStruct
 
 class DataRequesterClass:
+    #token = "b067c471d2ee1b3875e75d01169b8a64d0707e4d1e2cb42d2ca502be"
+    #token = "323752147f60806f5823e0209c317ce5aa507863fa9184b3cd7d5839"
     token = "b067c471d2ee1b3875e75d01169b8a64d0707e4d1e2cb42d2ca502be"
+    
     def __init__(self):
         self.InitShare()
 
@@ -34,16 +37,36 @@ class DataRequesterClass:
         return df
 
     #获取股票的基本数据
-    def GetStockBasicData(self):
-        df = self.pro.stock_basic(
-            exchange='',       # 空表示所有交易所
-            list_status='L',   # L = 上市中
-            fields=''
-        )
-        df.to_csv("allStock_base1.csv", index=False)
+    def GetStockBasicData(self, isNeedPull):
+        if isNeedPull:
+            print("拉取基本数据")
+            df = self.pro.stock_basic(
+                exchange='',       # 空表示所有交易所
+                list_status='L',   # L = 上市中
+                fields='ts_code,symbol,name,area,industry,market,cnspell,list_date,act_name,act_ent_type,list_status'
+            )
+            df.to_csv("allStock_base1.csv", index=False)
+
+            print("拉取交易所SZSE数据")
+            df2_1 = self.pro.stock_company(exchange='SZSE')
+            df2_1.to_csv("allStock_base2_SZSE.csv", index=False)
+
+            print("拉取交易所SSE数据")
+            df2_2 = self.pro.stock_company(exchange='SSE')
+            df2_2.to_csv("allStock_base2_SSE.csv", index=False)
+
+            print("拉取交易所BSE数据")
+            df2_3 = self.pro.stock_company(exchange='BSE')
+            df2_3.to_csv("allStock_base2_BSE.csv", index=False)
+
+        
         alldic = {}
         classList = []
-        for _, row in df.iterrows():
+        df_basic = pd.read_csv("allStock_base1.csv")
+        df_1 = pd.read_csv("allStock_base2_SZSE.csv")
+        df_2 = pd.read_csv("allStock_base2_SSE.csv")
+        df_3 = pd.read_csv("allStock_base2_BSE.csv")
+        for _, row in df_basic.iterrows():
             testClass = BasicDBStruct.BasicDBStructClass()
             alldic[row['ts_code']] = testClass
             testClass.dic[BasicDBStruct.ColumnEnum.Ts_code] = row['ts_code']
@@ -53,34 +76,38 @@ class DataRequesterClass:
             testClass.dic[BasicDBStruct.ColumnEnum.Industry] = row['industry']
             testClass.dic[BasicDBStruct.ColumnEnum.Cn_spell] = row['cnspell']
             testClass.dic[BasicDBStruct.ColumnEnum.Market] = row['market']
+            testClass.dic[BasicDBStruct.ColumnEnum.List_Status] = row['list_status']
             testClass.dic[BasicDBStruct.ColumnEnum.List_date] = row['list_date']
             testClass.dic[BasicDBStruct.ColumnEnum.Act_name] = row['act_name']
             testClass.dic[BasicDBStruct.ColumnEnum.Act_ent_type] = row['act_ent_type']
             classList.append(testClass)
+        print(f"基本数据处理完毕,数据长度是:{len(alldic)}")
+        print("开始单独处理深交所")
 
-        df2_1 = self.pro.stock_company(exchange='SZSE')
-        df2_1.to_csv("allStock_base2_SZSE.csv", index=False)
-        for _,row in df2_1.iterrows():
+        for _,row in df_1.iterrows():
             testClass = alldic.get(row['ts_code'])
-            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
-            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
-            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
+            if(testClass is not None):
+                testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+                testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+                testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
 
-        df2_2 = self.pro.stock_company(exchange='SSE')
-        df2_2.to_csv("allStock_base2_SSE.csv", index=False)
-        for _,row in df2_2.iterrows():
-            testClass = alldic.get(row['ts_code'])
-            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
-            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
-            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
 
-        df2_3 = self.pro.stock_company(exchange='BSE')
-        df2_3.to_csv("allStock_base2_BSE.csv", index=False)
-        for _,row in df2_3.iterrows():
+        print("开始单独处理上交所")
+        for _,row in df_2.iterrows():
             testClass = alldic.get(row['ts_code'])
-            testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
-            testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
-            testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
+            if(testClass is not None):
+                testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+                testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+                testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
+
+
+        print("开始单独处理北交所")
+        for _,row in df_3.iterrows():
+            testClass = alldic.get(row['ts_code'])
+            if(testClass is not None):
+                testClass.dic[BasicDBStruct.ColumnEnum.Product] = row['main_business']
+                testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
+                testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
 
         return classList
 
@@ -109,6 +136,10 @@ class DataRequesterClass:
         return date_num
     #获取股票的日线行情
     def GetStockDailyData(self, baoStockCode, startData, endData):
+        #拉取一次日线行情
+        #拉取一次复权信息
+        #拉取一次季频盈利信息（总股本，流通股本）
+        #计算总市值，流通市值，涨跌额，量比，均价，振幅
         rs = bs.query_history_k_data_plus(
             baoStockCode,
             fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
@@ -122,29 +153,51 @@ class DataRequesterClass:
             data_list.append(rs.get_row_data())
 
         df = pd.DataFrame(data_list, columns=rs.fields)
-        df.to_csv("stock_daily_baostock.csv", index=False)
+        df.to_csv("stock_daily_baostock_Basic.csv", index=False)
 
+
+        #获取复权因子
+        rs_list = []
+        rs_factor = bs.query_adjust_factor(code=baoStockCode, start_date= startData, end_date=endData)
+        while (rs_factor.error_code == '0') & rs_factor.next():
+            rs_list.append(rs_factor.get_row_data())
+
+        result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
+        result_factor.to_csv("stock_daily_baostock_adjst.csv", index=False)
+
+        #获取股本和流通股本
+        profit_list = []
+        rs_profit = bs.query_profit_data(code=baoStockCode, year=2017, quarter=2)
+        while (rs_profit.error_code == '0') & rs_profit.next():
+            profit_list.append(rs_profit.get_row_data())
+        result_profit = pd.DataFrame(profit_list, columns=rs_profit.fields)
+        # 结果集输出到csv文件
+        result_profit.to_csv("stock_daily_baostock_value.csv", encoding="gbk", index=False)
+
+        #计算量比均价和振幅
+
+        #封装数据类
         dataClassList = []
-        for _, row in df.iterrows():
-            dataClass = DailyDBStruct.DailyDBStructClass()
-            dataClass.dic[DailyDBStruct.ColumnEnum.Code] = self.baostock_to_tushare(row['code'])
-            dataClass.dic[DailyDBStruct.ColumnEnum.Date] = self.Time_Convert(row['date'])
-            dataClass.dic[DailyDBStruct.ColumnEnum.Open_Price] = self.CleanData(row['open'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Close_Price] = self.CleanData(row['close'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.High_Price] = self.CleanData(row['high'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Low_Price] = self.CleanData(row['low'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Exchange_Hand] = self.CleanData(row['turn'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Change_Ratio] = self.CleanData(row['pctChg'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Amount] = self.CleanData(row['volume'], 2)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Amount_Price] = self.CleanData(row['amount'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Earn_TTM] = self.CleanData(row['peTTM'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Clean] = self.CleanData(row['pbMRQ'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Cash_TTM] = self.CleanData(row['pcfNcfTTM'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Sale_TTM] = self.CleanData(row['psTTM'], 1)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Is_ST] = self.CleanData(row['isST'], 2)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Is_Trading] = self.CleanData(row['tradestatus'], 2)
-            dataClass.dic[DailyDBStruct.ColumnEnum.Last_Close_Price] = self.CleanData(row['preclose'], 1)
-            dataClassList.append(dataClass)
+        #for _, row in df.iterrows():
+        #    dataClass = DailyDBStruct.DailyDBStructClass()
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Code] = self.baostock_to_tushare(row['code'])
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Date] = self.Time_Convert(row['date'])
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Open_Price] = self.CleanData(row['open'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Close_Price] = self.CleanData(row['close'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.High_Price] = self.CleanData(row['high'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Low_Price] = self.CleanData(row['low'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Exchange_Hand] = self.CleanData(row['turn'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Change_Ratio] = self.CleanData(row['pctChg'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Amount] = self.CleanData(row['volume'], 2)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Amount_Price] = self.CleanData(row['amount'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Earn_TTM] = self.CleanData(row['peTTM'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Clean] = self.CleanData(row['pbMRQ'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Cash_TTM] = self.CleanData(row['pcfNcfTTM'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Sale_TTM] = self.CleanData(row['psTTM'], 1)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Is_ST] = self.CleanData(row['isST'], 2)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Is_Trading] = self.CleanData(row['tradestatus'], 2)
+        #    dataClass.dic[DailyDBStruct.ColumnEnum.Last_Close_Price] = self.CleanData(row['preclose'], 1)
+        #    dataClassList.append(dataClass)
         return dataClassList
 
     #可能存在空的情况，这个时候转换不成功，需要主动置空，type：1是float， 2是int

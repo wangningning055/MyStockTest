@@ -14,20 +14,23 @@ def main():
     requester = DataRequest.DataRequester.DataRequesterClass()
 
     #获取测试的股票数据并写入数据库
-    #classList = requester.GetStockBasicData()
-    #for data in classList:
-    #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Basic)
+    classList = requester.GetStockBasicData(True)
+    count = 1
+    for data in classList:
+        print(f"正在写入第{count}条基本数据,数据长度为:{len(classList)}")
+        count = count + 1
+        dbHandler.WriteRow(data, db.DBHandle.TableEnum.Basic)
 
     #dataClassList = requester.GetStockDailyData()
     #for data in dataClassList:
     #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)
 
-    codeList = requester.GetBaoStockCodeByBasicDataBase()
+    #codeList = requester.GetBaoStockCodeByBasicDataBase()
 
 
     #print(f"获取第一组测试数据: {codeList[0]}")
 
-    
+
     #dataClassList1 = requester.GetStockDailyData(codeList[0], "2025-01-01", "2026-01-20")
     #for data in dataClassList1:
     #    dbHandler.WriteRow(data, db.DBHandle.TableEnum.Daily)

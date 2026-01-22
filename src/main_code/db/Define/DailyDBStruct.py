@@ -18,7 +18,13 @@ class ColumnEnum(Enum):
     Is_ST = 15,                                   #是否ST股，1是0否
     Is_Trading = 16                               #交易状态 1正常交易， 0停牌
     Last_Close_Price = 17                         #昨收价1
-
+    All_Amount = 18                         #总股本
+    Current_Amount = 19                         #流通股本
+    Adjst = 20                         #复权因子
+    Volume = 21                         #量比
+    Average_Price = 22                         #均价
+    Amplitude = 23                         #振幅
+    
 class DailyDBStructClass:
     def __init__(self):
         self.CreateDic()
@@ -56,6 +62,20 @@ class DailyDBStructClass:
             return "INTEGER"
         elif enum == ColumnEnum.Last_Close_Price:
             return "REAL"
+        elif enum == ColumnEnum.Amount_Price:
+            return "REAL"
+        elif enum == ColumnEnum.All_Amount:
+            return "INTEGER"
+        elif enum == ColumnEnum.Current_Amount:
+            return "INTEGER"
+        elif enum == ColumnEnum.Adjst:
+            return "REAL"
+        elif enum == ColumnEnum.Volume:
+            return "REAL"
+        elif enum == ColumnEnum.Average_Price:
+            return "REAL"
+        elif enum == ColumnEnum.Amplitude:
+            return "REAL"
 
     def CreateDic(self):
         self.dic = {
@@ -76,6 +96,13 @@ class DailyDBStructClass:
             ColumnEnum.Is_ST : 0,
             ColumnEnum.Is_Trading : 0,
             ColumnEnum.Last_Close_Price : 0,
+            ColumnEnum.All_Amount : 0,
+            ColumnEnum.Current_Amount : 0, 
+            ColumnEnum.Adjst : 0,
+            ColumnEnum.Volume : 0,
+            ColumnEnum.Average_Price : 0,
+            ColumnEnum.Amplitude : 0
+
         }
 
 
@@ -114,6 +141,18 @@ class DailyDBStructClass:
             return "is_trading"
         elif enum == ColumnEnum.Last_Close_Price:
             return "last_close_Price"
+        elif enum == ColumnEnum.All_Amount:
+            return "all_amount"
+        elif enum == ColumnEnum.Current_Amount:
+            return "current_amount"
+        elif enum == ColumnEnum.Adjst:
+            return "adjst"
+        elif enum == ColumnEnum.Volume:
+            return "volume"
+        elif enum == ColumnEnum.Average_Price:
+            return "average_price"
+        elif enum == ColumnEnum.Amplitude:
+            return "amplitude"
 
     def GetDiscByEnum(self, enum):
         pass
