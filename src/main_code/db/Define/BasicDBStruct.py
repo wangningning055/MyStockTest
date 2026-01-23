@@ -1,23 +1,23 @@
 from enum import Enum
 
 class ColumnEnum(Enum):
-    Ts_code = 1,                                 #股票TS代码1
-    Code = 2,                                    #股票代码1
-    Name = 3,                                    #股票名称1
-    Area = 4,                                    #地域1
-    Industry = 5,                                #所属行业1
-    Cn_spell = 6,                                #拼音缩写1
-    Market = 7,                                  #市场类型（主板/创业板/科创板/CDR）1
-    List_Status = 8,                           #上市状态 L上市 D退市 P暂停上市1
-    List_date = 9,                            #上市日期1
-    Act_name = 10,                              #实控人名称1
-    Act_ent_type = 11,                            #实际企业类型1
-    Product = 12                                 #主要产品1
-    Business_Scope = 13,                            #经营范围1
-    Introduction = 14,                             #公司简介1
-    Com_name = 15                                   #公司名称
+    Ts_code = 1,                                 #股票TS代码(已有)
+    Code = 2,                                    #股票代码(已有)
+    Name = 3,                                    #股票名称(已有)
+    Area = 4,                                    #地域(已有)
+    Industry = 5,                                #所属行业(已有)
+    Cn_spell = 6,                                #拼音缩写(已有)
+    Market = 7,                                  #市场类型（主板/创业板/科创板/CDR）(已有)
+    List_Status = 8,                           #上市状态 L上市 D退市 P暂停上市(已有)
+    List_date = 9,                            #上市日期(已有)
+    Act_name = 10,                              #实控人名称(已有)
+    Act_ent_type = 11,                            #实际企业类型(已有)
+    Product = 12                                 #主要产品(已有)
+    Business_Scope = 13,                            #经营范围(已有)
+    Introduction = 14,                             #公司简介(已有)
+    Com_name = 15                                   #公司名称(已有)
 
-class BasicDBStructClass:
+class DBStructClass:
     def __init__(self):
         self.CreateDic()
     def GetDBTypeByEnum(self, enum):

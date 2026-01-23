@@ -1,17 +1,17 @@
 import sqlite3
-from db.Define import AllDataDBStruct
+from db.Define import AdjustDBStruct
 from db.Define import BasicDBStruct
 from db.Define import DailyDBStruct
 from enum import Enum
 class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
-    Total = 3,
+    Adjust = 3,
 
 class DBHandler:
     BasicTableName = "Basic"
     DailyTableName = "Daily"
-    DbName = "TotalDB"
+    AdjustTableName = "Adjust"
 
     def __init__(self, dbPath):
         self.dbPath = dbPath
@@ -28,10 +28,11 @@ class DBHandler:
     def CreateTable(self):
         self.CreateBasicTable()
         self.CreateDailyTable()
+        self.CreateAdjustTable()
 
     #创建基础股市表
     def CreateBasicTable(self):
-        self.basicDbStruct = BasicDBStruct.BasicDBStructClass()
+        self.basicDbStruct = BasicDBStruct.DBStructClass()
         columns = []
         for key, value in self.basicDbStruct.dic.items():
             columnName = self.basicDbStruct.GetNameByEnum(key)
@@ -46,9 +47,30 @@ class DBHandler:
         self.dbCursor.execute(sql)
         self.dbConnect.commit()
 
+
+    #创建复权数据表
+    def CreateAdjustTable(self):
+        self.adjustDbStruct = AdjustDBStruct.DBStructClass()
+        columns = []
+
+        for key in self.adjustDbStruct.dic.keys():
+            columnName = self.adjustDbStruct.GetNameByEnum(key)
+            dbType = self.adjustDbStruct.GetDBTypeByEnum(key)
+            columns.append(f"{columnName} {dbType}")
+
+        columns.append(f"PRIMARY KEY ({self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)}, {self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)})")
+        sql = f"""
+        CREATE TABLE IF NOT EXISTS {self.AdjustTableName} (
+            {', '.join(columns)}
+        )
+        """
+        self.dbCursor.execute(sql)
+        self.dbConnect.commit()
+
+
     #创建日线股市表
     def CreateDailyTable(self):
-        self.dailyDbStruct = DailyDBStruct.DailyDBStructClass()
+        self.dailyDbStruct = DailyDBStruct.DBStructClass()
         columns = []
 
         for key in self.dailyDbStruct.dic.keys():
@@ -72,8 +94,8 @@ class DBHandler:
             return self.BasicTableName
         elif tableEnum == TableEnum.Daily:
             return self.DailyTableName
-        elif tableEnum == TableEnum.Total:
-            return self.DbName
+        elif tableEnum == TableEnum.Adjust:
+            return self.AdjustTableName
 
     #读入行
     def ReadRow(self, table_name):
