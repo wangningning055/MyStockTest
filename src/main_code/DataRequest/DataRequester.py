@@ -1,5 +1,5 @@
-import tushare as ts
 import baostock as bs
+import tushare as ts
 import pandas as pd
 import csv
 from db.Define import BasicDBStruct
