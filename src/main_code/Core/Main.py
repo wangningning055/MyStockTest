@@ -1,30 +1,35 @@
-import pandas as pd
 import sys
 import os
+import pandas as pd
 import time
 import datetime
 import threading
-from Core.Plan import Planner,PlanStruct
-from Core.FileProcess import FileProcessor
-from Core.Request import Requestor
-from Core.DB import DBHandler
-import Core.Const as const_proj
+from fastapi import FastAPI
+from src.main_code.Core.Plan import Planner,PlanStruct
+from src.main_code.Core.FileProcess import FileProcessor
+from src.main_code.Core.Request import Requestor
+from src.main_code.Core.DB import DBHandler
+from src.main_code.Core.Message import MessageHandle
+import src.main_code.Core.Const as const_proj
+from fastapi.responses import FileResponse
 
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
 class processor:
     def Init(self):
+        print("开始进行初始化")
+        plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
         self.dbHandler = self.InitDB()
         self.requestor = self.InitRequest()
+        self.messageHandler = self.InitMessageHandler()
+        plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
 
-
-        plane = PlanStruct.PlaneClass()
-        plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "02:00:00")
         #self.planner.AddPlane(plane)
-        self.RequestData()
+        #self.RequestData()
+
 
     def planeFunc(self):
         self.RequestData()
@@ -54,6 +59,10 @@ class processor:
         instance.Init()
         return instance
     
+    #初始化消息收发
+    def InitMessageHandler(self):
+        instance = MessageHandle.MessageHandlerClass()
+        return instance
 
     def RequestData(self):
         #获取当天的日期
@@ -81,34 +90,6 @@ class processor:
             f.write(today_str)
         print("基本数据和日线数据拉取流程完成，数据已全部写入数据库")
 
-stop_flag = False
-
-def newMain():
-    process = processor()
-    process.Init()
-
-    def listen_input():
-        global stop_flag
-        while True:
-            cmd = input()
-            if cmd.strip().lower() == "-q":
-                stop_flag = True
-                print("收到退出指令")
-                break
-
-    t = threading.Thread(target=listen_input, daemon=True)
-    t.start()
-    while not stop_flag:
-        process.planner.UpdatePlane()
-        time.sleep(1)
-
-    print("程序安全退出")
-
-
-
-
-if __name__ == "__main__":
-    newMain()
 
 
 

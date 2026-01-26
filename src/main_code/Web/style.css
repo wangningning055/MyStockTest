@@ -1,0 +1,154 @@
+/* ================== 全局样式 ================== */
+body {
+    background: linear-gradient(135deg, #1e1e2f, #2c2c44);
+    color: #e0e0e0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2, h5, h6 {
+    color: #ffffff;
+}
+
+.container-fluid {
+    max-width: 1400px;
+}
+
+/* ================== 按钮样式 ================== */
+.btn {
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #5a5ade;
+    transform: translateY(-2px);
+}
+
+.btn-danger:hover {
+    background-color: #e74c4c;
+    transform: translateY(-2px);
+}
+
+.btn-success:hover {
+    background-color: #42c967;
+    transform: translateY(-2px);
+}
+
+.btn-warning:hover {
+    background-color: #ffae42;
+    transform: translateY(-2px);
+}
+
+.btn-secondary:hover {
+    background-color: #8888ff;
+    transform: translateY(-2px);
+}
+
+/* ================== 页签样式 ================== */
+.nav-tabs .nav-link {
+    color: #ccccff;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #4b4b70;
+    color: #ffffff;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #ffffff;
+    background-color: #5a5ade80;
+}
+
+/* ================== 条件卡样式 ================== */
+#conditionList .card {
+    background-color: #2b2b50;
+    border: 1px solid #444477;
+    border-left: 4px solid #5a5ade;
+    transition: all 0.3s ease;
+    cursor: grab;
+}
+
+#conditionList .card:hover {
+    box-shadow: 0 0 15px #5a5adeaa;
+    transform: translateY(-2px);
+}
+
+#conditionList .form-control, 
+#conditionList .form-select {
+    background-color: #3a3a60;
+    color: #ffffff;
+    border: 1px solid #5555aa;
+}
+
+/* ================== 表格样式 ================== */
+table.table {
+    background-color: #2a2a40;
+    color: #ffffff;
+}
+
+table.table th {
+    background-color: #3a3a60;
+    color: #ffffff;
+}
+
+table.table td {
+    background-color: #2a2a40;
+}
+
+/* ================== 日志窗口 ================== */
+#logWindow {
+    background-color: #1c1c2f;
+    color: #00ff99;
+    font-family: monospace;
+    border: 1px solid #444477;
+    resize: none;
+    box-shadow: inset 0 0 10px #5a5ade55;
+}
+
+/* ================== 图表容器 ================== */
+canvas {
+    background-color: #1e1e2f;
+    border: 1px solid #444477;
+    border-radius: 0.5rem;
+}
+
+/* ================== 输入框 ================== */
+input.form-control, 
+input.form-select {
+    background-color: #2a2a50;
+    color: #ffffff;
+    border: 1px solid #5555aa;
+}
+
+input.form-control::placeholder {
+    color: #bbbbff;
+}
+
+/* ================== 动效 ================== */
+#conditionList .card {
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.3s forwards;
+}
+
+@keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ================== 滚动条 ================== */
+#logWindow::-webkit-scrollbar {
+    width: 8px;
+}
+#logWindow::-webkit-scrollbar-track {
+    background: #1c1c2f;
+}
+#logWindow::-webkit-scrollbar-thumb {
+    background: #5a5ade80;
+    border-radius: 4px;
+}
+#logWindow::-webkit-scrollbar-thumb:hover {
+    background: #5a5ade;
+}

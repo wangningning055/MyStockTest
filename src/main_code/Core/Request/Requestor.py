@@ -1,7 +1,7 @@
-from Core.Request.API import RequestAPI
-import Core.Const as const_proj
-from Core.FileProcess import FileProcessor
-from Core.DB import DBHandler
+from src.main_code.Core.Request.API import RequestAPI
+import src.main_code.Core.Const as const_proj
+from src.main_code.Core.FileProcess import FileProcessor
+from src.main_code.Core.DB import DBHandler
 import time
 import os
 import pandas as pd

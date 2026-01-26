@@ -10,6 +10,7 @@ class PlannerClass:
         self.planeList.append(plane)
 
     def UpdatePlane(self):
+        #print("更新心跳")
         for v in self.planeList:
             v.Check()
 

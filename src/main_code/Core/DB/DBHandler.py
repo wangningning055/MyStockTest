@@ -1,10 +1,10 @@
 import sqlite3
 import time
 from enum import Enum
-from Core.DataStruct.DB import AdjustDBStruct
-from Core.DataStruct.DB import BasicDBStruct
-from Core.DataStruct.DB import DailyDBStruct
-import Core.Const as const_proj
+from src.main_code.Core.DataStruct.DB import AdjustDBStruct
+from src.main_code.Core.DataStruct.DB import BasicDBStruct
+from src.main_code.Core.DataStruct.DB import DailyDBStruct
+from src.main_code.Core import Const as const_proj
 class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
