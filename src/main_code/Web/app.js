@@ -1,16 +1,4 @@
-/**
- * ============================================================
- * 哇哈哈量化系统 Pro v3.1 - 修复版
- * ============================================================
- * 
- * 主要改进：
- * ✅ 修复图表显示宽度过窄问题
- * ✅ 修复图表纵向显示不全问题
- * ✅ 添加ST股、科创板、创业板勾选过滤
- * ✅ 添加选股说明文字区域
- * ✅ 选股结果添加行业列，移除操作列
- * ✅ 点击股票可在说明区域显示内容
- */
+import * as webSocket from "./socket.js"
 
 const CONFIG = {
     factorTypes: ["市盈率 PE", "市净率 PB", "均线金叉", "MACD底背离", "RSI超卖", "自定义公式"],
@@ -31,11 +19,13 @@ const ChartInstances = {
 };
 const Message_Action = "/action"
 const MessageType = {
-    UPDATE_DATA : "update_data",
-    SELECT_STOCKS : "select_stocks",
-    BACK_TEST : "back_test",
-    DIAGNOSE : "diagnose"
+    CS_UPDATE_DATA : "cs_update_data",               //#客户端请求拉取数据
+    CS_SELECT_STOCKS : "cs_select_stocks",           //#客户端请求执行股票筛选
+    CS_BACK_TEST : "cs_back_test",                   //#客户端请求执行回测
+    CS_DIAGNOSE : "cs_diagnose",                     //#客户端请求出仓判断
+    CS_SEND_LAST_UPDATE_DATA : "sc_last_update_data"//#服务器发送上次更新日期
 }
+
 
 /**
  * UIManager - UI 数据接口
@@ -189,6 +179,9 @@ const UIManager = {
 
     getDiagnosisOutput() { return document.getElementById('diagnosis-output').innerHTML; },
     setDiagnosisOutput(content) { document.getElementById('diagnosis-output').innerHTML = content; }
+
+
+    
 };
 
 document.addEventListener('DOMContentLoaded', () => App.init());
@@ -201,6 +194,7 @@ const App = {
         this.bindBacktestEvents();
         this.initCharts();
         this.log("系统引擎启动成功，等待指令...", "system");
+        webSocket.SocketInit()
     },
 
     bindTabs() {
@@ -221,13 +215,7 @@ const App = {
     },
 
     bindGlobalEvents() {
-        data = {
-            type:MessageType.UPDATE_DATA,
-            payload: {
-                reason: "我是金额达到",
-                threshold: 100000
-            }
-        }
+        let data = {}
         document.getElementById('api-update-data').addEventListener('click', () => this.callBackend(Message_Action, 'POST', data));
         //document.getElementById('api-stop-backend').addEventListener('click', () => {
         //    if(confirm("确定要停止后台服务吗？")) this.callBackend('/stop', 'POST');
@@ -683,30 +671,37 @@ const App = {
     },
 
     async callBackend(endpoint, method, data = null) {
-        try {
-            this.log(`发起请求: ${data.type}`, "system");
+        webSocket.sendMsg()
+        //try 
+        //{
+        //    let Cur_data = {
+        //    type:MessageType.CS_UPDATE_DATA,
+        //    payload: {
+        //        reason: "我是金额达到",
+        //        threshold: 100000
+        //    }}
+        //    this.log(`发起请求: ${endpoint},   ${method},    ${Cur_data.type}`, "system");
+        //    const resp = await fetch(endpoint, {
+        //        method: method,
+        //        headers: {
+        //            "Content-Type": "application/json"
+        //        },
+        //        body: Cur_data ? JSON.stringify(Cur_data) : null
+        //    });
 
-            const resp = await fetch(endpoint, {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: data ? JSON.stringify(data) : null
-            });
+        //    if (!resp.ok) {
+        //        throw new Error(`HTTP ${resp.status}`);
+        //    }
 
-            if (!resp.ok) {
-                throw new Error(`HTTP ${resp.status}`);
-            }
+        //    const result = await resp.json();
 
-            const result = await resp.json();
+        //    this.log(`后端响应: ${endpoint} 成功`, "success");
+        //    return result;
 
-            this.log(`后端响应: ${endpoint} 成功`, "success");
-            return result;
-
-        } catch (error) {
-            this.log(`请求失败: ${error.message}`, "error");
-            return null;
-        }
+        //} catch (error) {
+        //    this.log(`请求失败: ${error.message}`, "error");
+        //    return null;
+        //}
     },
 
 

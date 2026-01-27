@@ -36,7 +36,8 @@ Request_Data_rec_FileName = "../TempFile/RequestRecorderData.txt"
 IndexHtmlPath = "Web/index.html"
 
 class MessageType(str, Enum):
-    UPDATE_DATA = "update_data"
-    SELECT_STOCKS = "select_stocks"
-    BACK_TEST = "back_test"
-    DIAGNOSE = "diagnose"
+    CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
+    CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
+    CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
+    CS_DIAGNOSE = "cs_diagnose"                     #客户端请求出仓判断
+    CS_SEND_LAST_UPDATE_DATA = "sc_last_update_data"#服务器发送上次更新日期

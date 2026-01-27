@@ -1,6 +1,6 @@
 import sys
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket,WebSocketDisconnect
 from pydantic import BaseModel
 import pandas as pd
 import time
@@ -12,12 +12,32 @@ from fastapi.responses import FileResponse
 import src.main_code.Core.Const as const_proj
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
-from src.main_code.Core.Message.MessageHandle import router as action_router
 from typing import Optional, Dict, Any
-
+import asyncio
+from src.main_code.Core.Message.MessageHandle import router as action_router
+from src.main_code.Core.Message.WebSocketHandle import register_ws
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="src/main_code/Web"), name="static")
-app.include_router(action_router)
+app.include_router(action_router, prefix="/api")
+register_ws(app)
+
+#@app.websocket("/ws")
+#async def websocket_endpoint(ws: WebSocket):
+#    await ws.accept()
+#    print("客户端已连接")
+
+#    try:
+#        while True:
+#            # 接收前端消息
+#            data = await ws.receive_text()
+#            print("收到前端:", data)
+
+#            # 回传消息
+#            await ws.send_text(f"后端已收到：{data}")
+
+#    except WebSocketDisconnect:
+#        print("客户端断开连接")
+
 
 process = None
 
@@ -38,62 +58,44 @@ def startup_event():
     t = threading.Thread(target=update_loop, daemon=True)
     t.start()
 
-# 提供接口来控制停止
-@app.post("/stop")
-def stop():
-    global stop_flag
-    stop_flag = True
-    return {"msg": "程序已设置停止"}
+
+
+## 提供接口来控制停止
+#@app.post("/stop")
+#def stop():
+#    global stop_flag
+#    stop_flag = True
+#    return {"msg": "程序已设置停止"}
 
 
 
 
 
-class ActionMessage(BaseModel):
-    type: str              # 动作类型
-    #payload: Optional[Dict[str, Any]] = None
-@app.post("/action")
-async def act(data: ActionMessage):
-    print(f"接受到了数据 {data.type}")
-    return {"response": "执行动作aaaaaa"}
+#class actData(BaseModel):
+#    message:str
+
+## 服务器接受数据
+#@app.post("/To_Server")
+#async def act(data: actData):
+#    print(f"接受到了数据  {data.message}")
+#    return {"response": "执行动作aaaaaa"}
+
+##服务器发送数据
+#@app.get("/To_Web")
+#def get_messages():
+#    if process is None: return ""
+#async def to_frontend():
+#    return {
+#        "code": "000001.SZ",
+#        "price": 12.34
+#    }
 
 
-
-
-
-
-
-
-
-
-
-class actData(BaseModel):
-    message:str
-
-# 服务器接受数据
-@app.post("/To_Server")
-async def act(data: actData):
-    print(f"接受到了数据  {data.message}")
-    return {"response": "执行动作aaaaaa"}
-
-#服务器发送数据
-@app.get("/To_Web")
-def get_messages():
-    if process is None: return ""
-async def to_frontend():
-    return {
-        "code": "000001.SZ",
-        "price": 12.34
-    }
-
-
-
-
-@app.post("/send")
-def send(msg: str):
-    if process is None: return ""
-    [process.messageHandler].send_message(msg)
-    return {"msg": f"消息已发送: {msg}"}
+#@app.post("/send")
+#def send(msg: str):
+#    if process is None: return ""
+#    [process.messageHandler].send_message(msg)
+#    return {"msg": f"消息已发送: {msg}"}
 
 
 
