@@ -12,12 +12,14 @@ from fastapi.responses import FileResponse
 import src.main_code.Core.Const as const_proj
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
+from src.main_code.Core.Message.MessageHandle import router as action_router
+from typing import Optional, Dict, Any
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="src/main_code/Web"), name="static")
+app.include_router(action_router)
 
 process = None
-
 
 def update_loop():
     global stop_flag, process
@@ -45,6 +47,26 @@ def stop():
 
 
 
+
+
+class ActionMessage(BaseModel):
+    type: str              # 动作类型
+    #payload: Optional[Dict[str, Any]] = None
+@app.post("/action")
+async def act(data: ActionMessage):
+    print(f"接受到了数据 {data.type}")
+    return {"response": "执行动作aaaaaa"}
+
+
+
+
+
+
+
+
+
+
+
 class actData(BaseModel):
     message:str
 
@@ -63,6 +85,9 @@ async def to_frontend():
         "code": "000001.SZ",
         "price": 12.34
     }
+
+
+
 
 @app.post("/send")
 def send(msg: str):

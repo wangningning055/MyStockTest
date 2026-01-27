@@ -9,7 +9,6 @@ from src.main_code.Core.Plan import Planner,PlanStruct
 from src.main_code.Core.FileProcess import FileProcessor
 from src.main_code.Core.Request import Requestor
 from src.main_code.Core.DB import DBHandler
-from src.main_code.Core.Message import MessageHandle
 import src.main_code.Core.Const as const_proj
 from fastapi.responses import FileResponse
 
@@ -24,7 +23,6 @@ class processor:
         self.fileProcessor = self.InitFile()
         self.dbHandler = self.InitDB()
         self.requestor = self.InitRequest()
-        self.messageHandler = self.InitMessageHandler()
         plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
 
         #self.planner.AddPlane(plane)
@@ -59,11 +57,6 @@ class processor:
         instance.Init()
         return instance
     
-    #初始化消息收发
-    def InitMessageHandler(self):
-        instance = MessageHandle.MessageHandlerClass()
-        return instance
-
     def RequestData(self):
         #获取当天的日期
         print("开始进行数据拉取")

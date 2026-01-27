@@ -25,7 +25,7 @@
     --blur-bg: blur(14px);
     --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-width: 300px;
+    --sidebar-width: 350px;
     --header-height: 60px;
     --footer-height: 180px;
 }
@@ -131,16 +131,20 @@ body {
     border-right: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .panel-header {
     padding: 14px 16px;
     font-weight: 600;
     border-bottom: 1px solid var(--border-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* ============================================================
-   6. 因子卡片（重点重做）
+   6. 因子卡片（重新设计）
    ============================================================ */
 .config-list {
     flex: 1;
@@ -156,6 +160,13 @@ body {
     margin-bottom: 16px;
     overflow: hidden;
     transition: var(--transition);
+    animation: cardBounce 0.5s ease-out;
+}
+
+@keyframes cardBounce {
+    0% { transform: scale(0.8); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 .factor-card:hover {
@@ -171,7 +182,7 @@ body {
         rgba(79,172,254,0.18),
         rgba(0,242,254,0.05)
     );
-    padding: 10px 14px;
+    padding: 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -181,6 +192,37 @@ body {
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--primary);
+    flex: 1;
+    word-break: break-word;
+    max-width: none;
+}
+
+.card-weight-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+.card-weight-group label {
+    font-size: 0.85rem;
+}
+
+.card-weight-input {
+    width: 60px;
+    padding: 4px;
+    text-align: center;
+}
+
+.btn-remove-card {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 2px 6px;
+    margin-left: 8px;
 }
 
 /* 内容区 */
@@ -188,30 +230,129 @@ body {
     padding: 12px;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+}
+
+/* 单条件行 - 重新设计为多行展示 */
+.condition-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: var(--radius-sm);
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* 第一行：逻辑符 + 因子名称 + 删除按钮 */
+.condition-row__header {
+    display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-/* 单条件行 */
-.condition-row {
+.cond-logic {
     display: flex;
-    gap: 6px;
     align-items: center;
-    padding: 8px;
-    background: rgba(255,255,255,0.04);
-    border-radius: var(--radius-sm);
+    gap: 4px;
+    min-width: fit-content;
 }
 
-/* 防越界 */
-.condition-row > * {
-    max-width: 100%;
-    min-width: 0;
+.first-tag {
+    background: rgba(79, 172, 254, 0.2);
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cond-rel {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border-main);
+    color: var(--text-main);
+    min-width: 50px;
+    font-size: 0.85rem;
 }
 
 .cond-name {
     flex: 1;
+    word-break: break-word;
+    font-weight: 500;
+    color: var(--text-main);
+    min-width: 0;
+    padding: 0 4px;
+}
+
+.btn-del-cond {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 1rem;
+}
+
+/* 第二行：日期区间 */
+.condition-row__date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 0;
+}
+
+.condition-row__date-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+.date-range-input {
+    width: 55px;
+    padding: 4px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.date-range-separator {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* 第三行：条件操作符 + 数值 */
+.condition-row__condition {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cond-op {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border-main);
+    color: var(--text-main);
+    min-width: 50px;
+    font-size: 0.85rem;
+}
+
+.cond-val {
+    flex: 1;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border-main);
+    color: var(--text-main);
+    font-size: 0.85rem;
 }
 
 /* 底部操作区 */
@@ -219,7 +360,23 @@ body {
     padding: 10px 12px;
     background: rgba(0,0,0,0.2);
     border-top: 1px solid var(--border-main);
-    text-align: right;
+    text-align: center;
+}
+
+.btn-add-cond {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-main);
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.85rem;
+}
+
+.btn-add-cond:hover {
+    background: rgba(79,172,254,0.25);
+    border-color: var(--primary);
 }
 
 /* ============================================================
@@ -237,6 +394,7 @@ button {
     color: var(--text-main);
     cursor: pointer;
     transition: var(--transition);
+    font-size: 0.9rem;
 }
 
 .btn:hover {
@@ -248,6 +406,46 @@ button {
     color: var(--danger);
 }
 
+.btn-primary {
+    background: rgba(79,172,254,0.25);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-success {
+    background: rgba(0,200,83,0.25);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-main);
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.06);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    transition: var(--transition);
+}
+
+.icon-btn:hover {
+    color: var(--primary);
+}
+
 input, select {
     background: rgba(0,0,0,0.35);
     border: 1px solid var(--border-main);
@@ -255,10 +453,23 @@ input, select {
     border-radius: var(--radius-sm);
     padding: 4px 6px;
     outline: none;
+    font-size: 0.9rem;
 }
 
 input:focus, select:focus {
     border-color: var(--primary);
+}
+
+input::placeholder {
+    color: var(--text-dim);
+}
+
+.input-dark {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border-main);
+    color: var(--text-main);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
 }
 
 /* ============================================================
@@ -282,6 +493,50 @@ input:focus, select:focus {
     backdrop-filter: var(--blur-bg);
 }
 
+.section-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--primary);
+}
+
+.result-area {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-main);
+    padding: 16px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.data-table th {
+    background: rgba(79,172,254,0.1);
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-main);
+    font-weight: 600;
+}
+
+.data-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border-main);
+}
+
+.data-table tr:hover {
+    background: rgba(79,172,254,0.08);
+}
+
 /* ============================================================
    9. 日志区
    ============================================================ */
@@ -293,6 +548,16 @@ input:focus, select:focus {
     flex-direction: column;
 }
 
+.log-header {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 .log-body {
     flex: 1;
     overflow-y: auto;
@@ -300,8 +565,50 @@ input:focus, select:focus {
     font-family: Consolas, monospace;
     font-size: 0.8rem;
 }
+
+.log-item {
+    padding: 4px 0;
+    line-height: 1.4;
+}
+
+.log-item.info {
+    color: var(--primary);
+}
+
+.log-item.success {
+    color: var(--success);
+}
+
+.log-item.warning {
+    color: var(--warning);
+}
+
+.log-item.error {
+    color: var(--danger);
+}
+
+.log-item.system {
+    color: var(--text-dim);
+}
+
+.btn-clear {
+    background: none;
+    border: 1px solid var(--border-main);
+    color: var(--text-dim);
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.8rem;
+}
+
+.btn-clear:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
 /* ============================================================
-   Modal（因子选择弹窗）- 必须存在的基础样式
+   10. Modal（因子选择弹窗）
    ============================================================ */
 
 .modal-overlay {
@@ -343,6 +650,11 @@ input:focus, select:focus {
     animation: modalPopIn 0.25s ease-out;
 }
 
+.modal-content h3 {
+    margin-bottom: 16px;
+    color: var(--primary);
+}
+
 @keyframes modalPopIn {
     from {
         opacity: 0;
@@ -361,3 +673,185 @@ input:focus, select:focus {
     gap: 10px;
     margin: 20px 0;
 }
+
+/* ============================================================
+   11. 回测和持仓特定样式
+   ============================================================ */
+
+.initial-fund-section {
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    border: 1px solid var(--border-main);
+}
+
+.fund-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.fund-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border-main);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-main);
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tool-group label {
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.portfolio-chart {
+    height: 300px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.portfolio-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    text-align: center;
+}
+
+.label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.value.highlight {
+    color: var(--success);
+}
+
+.value.down {
+    color: var(--danger);
+}
+
+.table-area {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-main);
+    padding: 16px;
+}
+
+.holdings-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.diagnosis-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-main);
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.diagnosis-content {
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+}
+
+/* ============================================================
+   12. 全局操作栏
+   ============================================================ */
+.global-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ============================================================
+   13. 响应式设计
+   ============================================================ */
+@media (max-width: 1200px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .factor-type-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(79,172,254,0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(79,172,254,0.5);
+}
+.last-update-time {
+    margin-left: 12px;
+    font-size: 12px;
+    color: #9aa0b5;
+    white-space: nowrap;
+}
+/*.last-update-time {
+    display: block;
+    margin-top: 4px;
+}*/

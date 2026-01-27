@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>哇哈哈量化系统 Pro</title>
     <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/chart-fix.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
 <body>
 
@@ -23,7 +25,9 @@
         <div class="global-actions">
             <input type="password" id="tushareToken" placeholder="Tushare Token" class="input-dark">
             <button class="btn btn-success" id="api-update-data">🔄 更新数据</button>
-            <button class="btn btn-danger" id="api-stop-backend">⏹ 关闭后台</button>
+            <span class="last-update-time">
+                ⏱ 上次更新：<span id="last-update-text">--</span>
+            </span>
         </div>
     </header>
 
@@ -34,25 +38,53 @@
                 <div class="panel-header">
                     <span>📝 买入条件配置</span>
                     <div class="mini-tools">
-                        <button class="icon-btn" id="api-export-buy-config" title="导出条件配置">💾</button>
-                        <button class="icon-btn" id="api-import-buy-config" title="导入条件配置">📥</button>
+                        <button class="icon-btn" id="api-export-buy-config">💾</button>
+                        <button class="icon-btn" id="api-import-buy-config">📥</button>
                     </div>
                 </div>
-                <div class="config-list" id="buy-factor-container">
+                
+                <!-- 筛选条件 -->
+                <div class="filter-section">
+                    <div class="section-title">🔍 股票筛选</div>
+                    <div class="filter-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-exclude-st" checked> 剔除ST股
+                        </label>
                     </div>
+                    <div class="filter-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-exclude-kc" checked> 剔除科创板
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="config-list" id="buy-factor-container"></div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary" id="btn-add-buy-factor" onclick="App.showFactorModal('buy')">
+                    <button class="btn btn-primary" id="btn-add-buy-factor">
                         <i class="fas fa-plus"></i> 添加买入因子组合
                     </button>
-                    <!--<button class="btn btn-primary full-width" id="btn-add-buy-factor">+ 添加买入因子</button>-->
                 </div>
             </aside>
 
             <main class="main-content">
-                <div class="chart-area">
-                    <div class="section-title">📉 行情预览 (选股专用)</div>
-                    <canvas id="klineCanvas" width="1000" height="400"></canvas>
+                <div class="chart-wrapper">
+                    <div class="chart-area">
+                        <div class="section-title">📉 K线走势图</div>
+                        <div id="klineChart" class="echarts-full-container"></div>
+                    </div>
                 </div>
+                
+                <!-- 说明区域 -->
+                <div class="stock-description-area">
+                    <div class="section-title">📌 股票说明</div>
+                    <textarea id="stock-description" class="description-textarea" placeholder="点击下方股票后在此输入分析说明..."></textarea>
+                </div>
+                
                 <div class="result-area">
                     <div class="table-header">
                         <span>选股结果</span>
@@ -60,7 +92,7 @@
                     </div>
                     <table class="data-table">
                         <thead>
-                            <tr><th>代码</th><th>名称</th><th>现价</th><th>综合得分</th><th>操作</th></tr>
+                            <tr><th>代码</th><th>名称</th><th>现价</th><th>综合得分</th><th>行业</th></tr>
                         </thead>
                         <tbody id="selection-result-table"></tbody>
                     </table>
@@ -73,18 +105,26 @@
                 <div class="panel-header">⚙️ 回测策略源</div>
                 <div class="config-form">
                     <div class="form-item">
-                        <label>买入策略 (选股导出数据)</label>
+                        <label>买入策略</label>
                         <select id="backtest-buy-source" class="input-dark">
                             <option value="current">使用当前选股页配置</option>
                         </select>
                         <button class="btn btn-sm btn-outline" id="api-load-buy-file">📂 加载文件</button>
                     </div>
                     <div class="form-item">
-                        <label>卖出策略 (持仓导出数据)</label>
+                        <label>卖出策略</label>
                         <select id="backtest-sell-source" class="input-dark">
                             <option value="current">使用当前持仓页配置</option>
                         </select>
                         <button class="btn btn-sm btn-outline" id="api-load-sell-file">📂 加载文件</button>
+                    </div>
+                </div>
+                
+                <div class="initial-fund-section">
+                    <div class="section-title">💰 初始本金设置</div>
+                    <div class="fund-input-group">
+                        <input type="number" id="initialFundInput" class="fund-input" value="100000">
+                        <button class="btn" id="setInitialFundBtn">设置</button>
                     </div>
                 </div>
             </aside>
@@ -104,6 +144,13 @@
                     </div>
                     <button class="btn btn-primary" id="api-run-backtest">▶ 开始回测</button>
                 </div>
+                
+                <div class="chart-wrapper">
+                    <div class="chart-area portfolio-chart">
+                        <div class="section-title">📈 收益走势图</div>
+                        <div id="portfolioChart" class="echarts-full-container"></div>
+                    </div>
+                </div>
 
                 <div class="summary-grid">
                     <div class="summary-card">
@@ -121,7 +168,7 @@
                 </div>
 
                 <div class="table-area">
-                    <div class="section-title">📃 回测交易流水 (买入/卖出/盈亏)</div>
+                    <div class="section-title">📃 回测交易流水</div>
                     <table class="data-table">
                         <thead>
                             <tr><th>日期</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th></tr>
@@ -141,13 +188,11 @@
                         <button class="icon-btn" id="api-import-sell-config">📥</button>
                     </div>
                 </div>
-                <div class="config-list" id="sell-factor-container">
-                    </div>
+                <div class="config-list" id="sell-factor-container"></div>
                 <div class="panel-footer">
-                    <button class="btn btn-primary" id="btn-add-sell-factor" onclick="App.showFactorModal('sell')">
+                    <button class="btn btn-primary" id="btn-add-sell-factor">
                         <i class="fas fa-plus"></i> 添加卖出因子组合
                     </button>
-                    <!--<button class="btn btn-warning full-width" id="btn-add-sell-factor">+ 添加卖出因子</button>-->
                 </div>
             </aside>
 
@@ -193,8 +238,7 @@
 <div class="modal-overlay" id="factor-modal">
     <div class="modal-content">
         <h3>选择因子类型</h3>
-        <div class="factor-type-grid" id="factor-type-list">
-            </div>
+        <div class="factor-type-grid" id="factor-type-list"></div>
         <button class="btn btn-secondary" id="btn-close-modal">取消</button>
     </div>
 </div>

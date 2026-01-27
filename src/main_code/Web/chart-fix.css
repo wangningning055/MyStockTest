@@ -1,0 +1,184 @@
+/* ============================================================ */
+/* 图表尺寸修复 - 解决宽度显示不全和高度超出的问题 */
+/* ============================================================ */
+
+/* 修复K线图和收益曲线的宽度和高度 */
+#klineChart,
+#portfolioChart {
+    width: 100% !important;
+    height: 400px !important;
+    min-height: 400px !important;
+    max-height: 450px !important;
+    margin: 12px 0;
+    position: relative;
+    display: block;
+}
+
+.echarts-full-container {
+    width: 100% !important;
+    height: 400px !important;
+    min-height: 400px !important;
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+}
+
+.chart-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.chart-area {
+    width: 100%;
+    padding: 15px;
+    background: rgba(20, 25, 35, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* 修复ECharts容器在不同浏览器中的表现 */
+.chart-area > div {
+    width: 100% !important;
+}
+
+/* 股票说明区域 */
+.stock-description-area {
+    width: 100%;
+    padding: 15px;
+    background: rgba(20, 25, 35, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.description-textarea {
+    width: 100%;
+    min-height: 300px;        /* 大幅增加最小高度 */
+    max-height: 400px;        /* 设置最大高度 */
+    padding: 12px;
+    background: rgba(11, 14, 20, 0.9);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 4px;
+    color: #e6eaf2;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    resize: vertical;           /* 允许用户调整高度 */
+    transition: border-color 0.3s, background-color 0.3s;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.description-textarea:focus {
+    outline: none;
+    border-color: #4facfe;
+    background: rgba(11, 14, 20, 1);
+    box-shadow: 0 0 8px rgba(79, 172, 254, 0.3);
+}
+
+.description-textarea::placeholder {
+    color: #8b95aa;
+}
+
+/* 文字说明区域 */
+.explanation-section {
+    width: 100%;
+    padding: 15px;
+    background: rgba(20, 25, 35, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.explanation-wrapper {
+    margin-top: 10px;
+}
+
+.explanation-textarea {
+    width: 100%;
+    min-height: 100px;
+    max-height: 200px;
+    padding: 12px;
+    background: rgba(11, 14, 20, 0.9);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 4px;
+    color: #e6eaf2;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    resize: vertical;
+    transition: border-color 0.3s, background-color 0.3s;
+    box-sizing: border-box;
+}
+
+.explanation-textarea:focus {
+    outline: none;
+    border-color: #4facfe;
+    background: rgba(11, 14, 20, 1);
+    box-shadow: 0 0 8px rgba(79, 172, 254, 0.3);
+}
+
+.explanation-textarea::placeholder {
+    color: #8b95aa;
+}
+
+/* 筛选选项区域 */
+.filter-section {
+    padding: 15px;
+    background: rgba(20, 25, 35, 0.6);
+    border-radius: 6px;
+    border: 1px solid rgba(79, 172, 254, 0.15);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.filter-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(79, 172, 254, 0.1);
+}
+
+.filter-item:last-child {
+    border-bottom: none;
+}
+
+.filter-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.filter-item label:hover {
+    color: #4facfe;
+}
+
+.filter-item input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: #4facfe;
+    width: 16px;
+    height: 16px;
+}
+
+/* 修复表格行点击效果 */
+.data-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(79, 172, 254, 0.1) !important;
+}
+
+/* 确保main-content的flex布局 */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+

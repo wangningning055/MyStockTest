@@ -1,3 +1,6 @@
+from enum import Enum
+
+
     #token = "b067c471d2ee1b3875e75d01169b8a64d0707e4d1e2cb42d2ca502be"
     #token = "323752147f60806f5823e0209c317ce5aa507863fa9184b3cd7d5839"
 ##tushare的私钥
@@ -31,3 +34,9 @@ TradeNameBSE = "BSE"
 Request_Data_rec_FileName = "../TempFile/RequestRecorderData.txt"
 
 IndexHtmlPath = "Web/index.html"
+
+class MessageType(str, Enum):
+    UPDATE_DATA = "update_data"
+    SELECT_STOCKS = "select_stocks"
+    BACK_TEST = "back_test"
+    DIAGNOSE = "diagnose"
