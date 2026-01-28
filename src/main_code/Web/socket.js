@@ -36,3 +36,47 @@ export function sendMsg()
     let data = {type:"ping", msg : "你好 后端"}
     ws.send(JSON.stringify(data));
 }
+
+// UIManager.setConnectionStatus(true);设置连接状态
+//UIManager.setLastUpdateTime(new Date().toLocaleString('zh-CN')); 设置上次更新日期
+//UIManager.updateIndustryAnalysisTable(response.industryAnalysis);更新选股结果的行业状态
+
+
+//// 股票查询相关事件
+//document.getElementById('btn-query-stock')?.addEventListener('click', () => {
+//    const code = UIManager.getStockQueryInput();
+//    if (!code.trim()) {
+//        UIManager.log('请输入股票代码或名称', 'warning');
+//        return;
+//    }
+//    // 调用后端API查询
+//    queryStockInfo(code);
+//});
+
+//document.getElementById('quick-query-input')?.addEventListener('input', (e) => {
+//    const keyword = e.target.value;
+//    if (keyword.length >= 1) {
+//        // 调用后端API进行快速搜索
+//        quickSearchStocks(keyword);
+//    }
+//});
+
+//// 快速查询结果点击事件
+//document.addEventListener('click', (e) => {
+//    if (e.target.closest('.query-item')) {
+//        const code = e.target.closest('.query-item').dataset.code;
+//        document.getElementById('query-stock-input').value = code;
+//        queryStockInfo(code);
+//    }
+//});
+
+//// 辅助函数（需要根据后端API实现）
+//async function queryStockInfo(code) {
+//    // TODO: 调用后端API获取股票信息
+//    // UIManager.setStockQueryResult(data);
+//}
+
+//async function quickSearchStocks(keyword) {
+//    // TODO: 调用后端API进行快速搜索
+//    // UIManager.setQuickQueryResults(results);
+//}

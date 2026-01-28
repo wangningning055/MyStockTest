@@ -855,3 +855,333 @@ input::placeholder {
     display: block;
     margin-top: 4px;
 }*/
+/* ============================================================
+   连接状态指示器
+   ============================================================ */
+.connection-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ff5252;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.status-dot.connected {
+    background-color: var(--success);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.status-text {
+    white-space: nowrap;
+}
+
+/* ============================================================
+   权重阈值滑条样式
+   ============================================================ */
+.threshold-section {
+    padding: 15px;
+    background: rgba(20, 25, 35, 0.6);
+    border-radius: 6px;
+    border: 1px solid rgba(79, 172, 254, 0.15);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+
+
+.threshold-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(79, 172, 254, 0.2);
+    border-radius: 3px;
+}
+
+.threshold-slider::-moz-range-track {
+    background: transparent;
+    border: none;
+}
+
+.threshold-slider::-moz-range-progress {
+    background-color: #4facfe;
+    height: 6px;
+    border-radius: 3px;
+}
+
+/* ========== 修改现有的 .threshold-slider ========== */
+.threshold-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(79, 172, 254, 0.2);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin-bottom: 8px;
+    padding: 8px 0;           /* ← 添加这行 */
+}
+
+.threshold-slider-group {
+    margin-top: 10px;
+}
+
+.threshold-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.threshold-label {
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.threshold-value-display {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+
+
+.threshold-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(79, 172, 254, 0.4);
+    transition: box-shadow 0.2s;
+}
+
+.threshold-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+}
+
+.threshold-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 6px rgba(79, 172, 254, 0.4);
+    transition: box-shadow 0.2s;
+}
+
+.threshold-slider::-moz-range-thumb:hover {
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+}
+
+.threshold-info {
+    color: var(--text-dim);
+    text-align: center;
+    font-size: 0.8rem;
+}
+/* ============================================================
+   股票查询页签样式
+   ============================================================ */
+.stock-query-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-main);
+    padding: 20px;
+    width: 100%;
+}
+
+.stock-info-container {
+    margin-top: 16px;
+}
+
+.stock-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-main);
+}
+
+.stock-name-code {
+    flex: 1;
+}
+
+.stock-name-code h2 {
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.stock-code-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(79, 172, 254, 0.2);
+    border-radius: 4px;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stock-price-info {
+    display: flex;
+    gap: 30px;
+}
+
+.price-item {
+    text-align: right;
+}
+
+.price-item .label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+}
+
+.price-item .value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stock-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.info-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-main);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+}
+
+.info-card .label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+
+.info-card .value {
+    display: block;
+    font-size: 1.1rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.company-section,
+.products-section,
+.business-section {
+    margin-bottom: 20px;
+}
+
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.product-item {
+    padding: 10px;
+    background: rgba(79, 172, 254, 0.1);
+    border-left: 3px solid var(--primary);
+    border-radius: 4px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.empty-state {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.quick-query-list {
+    margin-top: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-main);
+    border-radius: var(--radius-sm);
+}
+
+.query-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-main);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.query-item:last-child {
+    border-bottom: none;
+}
+
+.query-item:hover {
+    background-color: rgba(79, 172, 254, 0.15);
+}
+
+.query-item-code {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.query-item-name {
+    color: var(--text-main);
+    margin-left: 8px;
+}
+
+@media (max-width: 1200px) {
+    .stock-price-info {
+        flex-direction: column;
+    }
+
+    .price-item {
+        text-align: left;
+    }
+
+    .stock-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stock-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* 筛选和权重阈值面板布局 */
+.filter-and-threshold-panel {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .filter-and-threshold-panel {
+        grid-template-columns: 1fr;
+    }
+}

@@ -55,6 +55,169 @@ const UIManager = {
     getBacktestSellSource() { return document.getElementById('backtest-sell-source').value; },
     setBacktestSellSource(source) { document.getElementById('backtest-sell-source').value = source; },
 
+    //设置连接状态
+    setConnectionStatus(isConnected) {
+        const dot = document.querySelector('.status-dot');
+        const text = document.querySelector('.status-text');
+        if (dot && text) {
+            if (isConnected) {
+                dot.classList.add('connected');
+                text.textContent = '已连接';
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = '未连接';
+            }
+        }
+    },
+    //设置上次更新日期
+    setLastUpdateTime(dateTime) {
+    const elem = document.getElementById('last-update-text');
+    if (elem) {
+        if (dateTime) {
+            elem.textContent = dateTime;
+        } else {
+            elem.textContent = '--';
+        }
+    }
+    },
+
+    //设置权重阈值
+    getWeightThreshold() {
+    const elem = document.getElementById('weight-threshold-slider');
+    return elem ? parseFloat(elem.value) : 0.5;
+    },
+
+
+    //获取持仓页面的权重阈值
+    getHoldingsWeightThreshold() {
+        const elem = document.getElementById('holdings-weight-threshold-slider');
+        return elem ? parseFloat(elem.value) : 0.5;
+    },
+
+    //设置持仓页面的权重阈值
+    setHoldingsWeightThreshold(value) {
+        const elem = document.getElementById('holdings-weight-threshold-slider');
+        const display = document.getElementById('holdings-threshold-value-display');
+        if (elem) {
+            elem.value = Math.max(0, Math.min(1, value));
+            if (display) display.textContent = elem.value;
+        }
+    },
+
+    //选股结果
+    updateIndustryAnalysisTable(data) {
+    const tbody = document.getElementById('industry-analysis-table');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    (data || []).forEach(item => {
+        const row = document.createElement('tr');
+        const changeRatio = item.riseCount + item.fallCount > 0 
+            ? ((item.riseCount / (item.riseCount + item.fallCount)) * 100).toFixed(2)
+            : '0.00';
+        
+        row.innerHTML = `
+            <td>${item.industryName || '-'}</td>
+            <td>${item.stockCount || 0}</td>
+            <td>${item.volumeGrowth ? (item.volumeGrowth * 100).toFixed(2) + '%' : '-'}</td>
+            <td>${item.riseCount || 0} / ${item.fallCount || 0}</td>
+            <td>${changeRatio}%</td>
+            <td>${item.avgRiseRate ? (item.avgRiseRate * 100).toFixed(2) + '%' : '-'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+    },
+
+
+//股票查询
+// 股票查询相关方法
+    setStockQueryResult(data) {
+        if (!data) {
+            document.getElementById('query-stock-name').textContent = '-';
+            return;
+        }
+
+        document.getElementById('query-stock-name').textContent = data.name || '-';
+        document.getElementById('query-stock-code').textContent = data.code || '-';
+        document.getElementById('query-stock-price').textContent = data.price ? `¥${data.price.toFixed(2)}` : '-';
+        document.getElementById('query-stock-change').textContent = data.changePercent ? `${data.changePercent.toFixed(2)}%` : '-';
+        document.getElementById('query-stock-industry').textContent = data.industry || '-';
+        document.getElementById('query-stock-pe').textContent = data.pe ? data.pe.toFixed(2) : '-';
+        document.getElementById('query-stock-pb').textContent = data.pb ? data.pb.toFixed(2) : '-';
+        document.getElementById('query-stock-market-cap').textContent = data.marketCap ? this.formatNumber(data.marketCap) : '-';
+        document.getElementById('query-stock-circulate-cap').textContent = data.circulateCap ? this.formatNumber(data.circulateCap) : '-';
+        document.getElementById('query-stock-52high').textContent = data.high52 ? `¥${data.high52.toFixed(2)}` : '-';
+        document.getElementById('query-company-intro').value = data.companyIntro || '';
+        document.getElementById('query-business-analysis').value = data.businessAnalysis || '';
+        
+        this.setProductsList(data.products || []);
+    },
+
+    setProductsList(products) {
+        const container = document.getElementById('query-products-list');
+        if (!container) return;
+        
+        if (!products || products.length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无产品信息</div>';
+            return;
+        }
+        
+        container.innerHTML = products.map(product => 
+            `<div class="product-item">${product}</div>`
+        ).join('');
+    },
+
+    setQuickQueryResults(results) {
+        const container = document.getElementById('quick-query-results');
+        if (!container) return;
+        
+        if (!results || results.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        container.innerHTML = results.map(item => 
+            `<div class="query-item" data-code="${item.code}">
+                <span class="query-item-code">${item.code}</span>
+                <span class="query-item-name">${item.name}</span>
+            </div>`
+        ).join('');
+    },
+
+    formatNumber(num) {
+        if (!num) return '-';
+        if (num >= 100000000) {
+            return (num / 100000000).toFixed(2) + '亿';
+        } else if (num >= 10000) {
+            return (num / 10000).toFixed(2) + '万';
+        }
+        return num.toFixed(2);
+    },
+
+    getStockQueryInput() {
+        return document.getElementById('query-stock-input').value;
+    },
+
+    getQuickQueryInput() {
+        return document.getElementById('quick-query-input').value;
+    },
+
+
+
+
+
+    setWeightThreshold(value) {
+        const elem = document.getElementById('weight-threshold-slider');
+        const display = document.getElementById('threshold-value-display');
+        if (elem) {
+            elem.value = Math.max(0, Math.min(1, value));
+            if (display) display.textContent = elem.value;
+        }
+    },
+
+    getLastUpdateTime() {
+        const elem = document.getElementById('last-update-text');
+        return elem ? elem.textContent : null;
+    },
     // 股票过滤选项
     getFilterExcludeST() { 
         const elem = document.getElementById('filter-exclude-st');
@@ -184,7 +347,6 @@ const UIManager = {
     
 };
 
-document.addEventListener('DOMContentLoaded', () => App.init());
 
 const App = {
     init() {
@@ -193,6 +355,18 @@ const App = {
         this.bindFactorEvents();
         this.bindBacktestEvents();
         this.initCharts();
+        //初始化滑动条
+        document.getElementById('weight-threshold-slider')?.addEventListener('input', (e) => {
+            const display = document.getElementById('threshold-value-display');
+            if (display) display.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        //持仓页面的滑动条
+        document.getElementById('holdings-weight-threshold-slider')?.addEventListener('input', (e) => {
+            const display = document.getElementById('holdings-threshold-value-display');
+            if (display) display.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
         this.log("系统引擎启动成功，等待指令...", "system");
         webSocket.SocketInit()
     },
@@ -250,7 +424,6 @@ const App = {
         document.getElementById('api-load-buy-file').addEventListener('click', () => this.loadConfigFile('backtest-buy-source'));
         document.getElementById('api-load-sell-file').addEventListener('click', () => this.loadConfigFile('backtest-sell-source'));
     },
-
     renderFactorCard(type, containerId, side) {
         const container = document.getElementById(containerId);
         const cardId = `card-${Date.now()}`;
@@ -264,22 +437,47 @@ const App = {
                     <label>权重:</label>
                     <input type="number" class="card-weight-input" value="10" min="0">
                 </div>
-                <button class="btn-remove-card" onclick="App.removeCard(this)">✕</button>
+                <button class="btn-remove-card" data-action="remove-card">✕</button>
             </div>
             <div class="conditions-list"></div>
             <div class="card-footer">
-                <button class="btn-add-cond" onclick="App.showFactorModal('${side}', '${cardId}')">
+                <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}">
                     <i class="fas fa-plus"></i> 插入新判定条件
                 </button>
             </div>
         `;
         container.appendChild(card);
+        // ========== 关键修改：立即为这张卡片的按钮绑定事件 ==========
+        const removeBtn = card.querySelector('.btn-remove-card');
+        const addCondBtn = card.querySelector('.btn-add-cond');
+        
+        // 删除卡片
+        removeBtn.addEventListener('click', () => {
+            card.remove();
+            App.log('因子卡片已删除', 'info');
+        });
+        
+        // 添加条件按钮
+        addCondBtn.addEventListener('click', () => {
+            console.log("娃娃啊哇哇")
+            App.showFactorModal(side, cardId);
+        });
         this.addConditionToCard(cardId, type, true);
     },
     
     addConditionToCard(cardId, factorName, isFirst = false) {
         const card = document.getElementById(cardId);
+        if (!card) {
+            this.log(`错误：找不到卡片 ID: ${cardId}`, "error");
+            return;
+        }
         const list = card.querySelector('.conditions-list');
+        if (!list) {
+            this.log(`错误：卡片结构异常，找不到条件列表`, "error");
+            return;
+        }
+        //const card = document.getElementById(cardId);
+        //const list = card.querySelector('.conditions-list');
         const row = document.createElement('div');
         row.className = 'condition-row';
         const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `<select class="cond-rel"><option value="AND">且</option><option value="OR">或</option></select>`;
@@ -287,7 +485,7 @@ const App = {
             <div class="condition-row__header">
                 <div class="cond-logic">${headerHtml}</div>
                 <div class="cond-name" title="${factorName}">${factorName}</div>
-                ${isFirst ? '' : '<button class="btn-del-cond" onclick="App.removeCondition(this)">✕</button>'}
+                ${isFirst ? '' : '<button class="btn-del-cond" data-action="remove-condition">✕</button>'}
             </div>
             <div class="condition-row__date">
                 <span class="condition-row__date-label">日期范围:</span>
@@ -307,6 +505,14 @@ const App = {
             </div>
         `;
         list.appendChild(row);
+            // ========== 关键修改：如果不是首行，立即为删除按钮绑定事件 ==========
+        if (!isFirst) {
+            const delBtn = row.querySelector('.btn-del-cond');
+            delBtn.addEventListener('click', () => {
+                row.remove();
+                this.log('条件行已删除', 'info');
+            });
+        }
     },
 
     removeCard(button) { button.closest('.factor-card').remove(); },
@@ -388,16 +594,29 @@ const App = {
                         <label>权重:</label>
                         <input type="number" class="card-weight-input" value="${factorGroup.weight}" min="0">
                     </div>
-                    <button class="btn-remove-card" onclick="App.removeCard(this)">✕</button>
+                    <button class="btn-remove-card" data-action="remove-card">✕</button>
                 </div>
                 <div class="conditions-list"></div>
                 <div class="card-footer">
-                    <button class="btn-add-cond" onclick="App.showFactorModal('${side}', '${cardId}')">
+                    <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}">
                         <i class="fas fa-plus"></i> 插入新判定条件
                     </button>
                 </div>
             `;
             document.getElementById(containerId).appendChild(card);
+            // ========== 立即绑定事件 ==========
+            const removeBtn = card.querySelector('.btn-remove-card');
+            const addCondBtn = card.querySelector('.btn-add-cond');
+            
+            removeBtn.addEventListener('click', () => {
+                card.remove();
+                App.log('因子卡片已删除', 'info');
+            });
+            
+            addCondBtn.addEventListener('click', () => {
+                App.showFactorModal(side, cardId);
+            });
+
             const list = card.querySelector('.conditions-list');
             factorGroup.logic_tree.forEach((condition, index) => {
                 const isFirst = index === 0;
@@ -409,7 +628,7 @@ const App = {
                             ${isFirst ? '<span class="first-tag">首选</span>' : `<select class="cond-rel"><option value="AND" ${condition.relation === 'AND' ? 'selected' : ''}>且</option><option value="OR" ${condition.relation === 'OR' ? 'selected' : ''}>或</option></select>`}
                         </div>
                         <div class="cond-name" title="${condition.factor_name}">${condition.factor_name}</div>
-                        ${isFirst ? '' : '<button class="btn-del-cond" onclick="App.removeCondition(this)">✕</button>'}
+                        ${isFirst ? '' : '<button class="btn-del-cond" data-action="remove-condition">✕</button>'}
                     </div>
                     <div class="condition-row__date">
                         <span class="condition-row__date-label">日期范围:</span>
@@ -429,6 +648,14 @@ const App = {
                     </div>
                 `;
                 list.appendChild(row);
+                            // ========== 如果不是首行，立即绑定删除事件 ==========
+                if (!isFirst) {
+                    const delBtn = row.querySelector('.btn-del-cond');
+                    delBtn.addEventListener('click', () => {
+                        row.remove();
+                        App.log('条件行已删除', 'info');
+                    });
+                }
             });
         });
     },
@@ -452,9 +679,9 @@ const App = {
                     option.textContent = `📄 ${file.name}`;
                     selectElement.appendChild(option);
                     selectElement.value = fileKey;
-                    this.log(`已加载文件：${file.name}`, "success");
+                    App.log(`已加载文件：${file.name}`, "success");
                 } catch (error) {
-                    this.log(`文件加载失败：${error.message}`, "error");
+                    App.log(`文件加载失败：${error.message}`, "error");
                 }
             };
             reader.readAsText(file);
@@ -756,14 +983,25 @@ const App = {
             const btn = document.createElement('button');
             btn.className = 'btn btn-outline';
             btn.innerText = type;
-            btn.onclick = () => {
-                if (targetCardId) {
-                    this.addConditionToCard(targetCardId, type);
-                } else {
-                    const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-                    this.renderFactorCard(type, containerId, side);
+            btn.onclick = () => 
+                console.log("点击添加条件")
+                {
+                try {
+                    if (targetCardId) {
+                        const targetCard = document.getElementById(targetCardId);
+                        if (!targetCard) {
+                            App.log(`目标卡片不存在`, "error");
+                            return;
+                        }
+                        App.addConditionToCard(targetCardId, type);
+                    } else {
+                        const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
+                        App.renderFactorCard(type, containerId, side);
+                    }
+                    modal.classList.remove('active');
+                } catch (error) {
+                    App.log(`添加条件失败: ${error.message}`, "error");
                 }
-                modal.classList.remove('active');
             };
             list.appendChild(btn);
         });
@@ -771,3 +1009,6 @@ const App = {
         document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('active'));
     }
 };
+
+// ========== 关键修复：DOMContentLoaded 必须在 App 对象定义之后 ==========
+document.addEventListener('DOMContentLoaded', () => App.init());
