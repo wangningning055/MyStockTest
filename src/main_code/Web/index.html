@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>哇哈哈量化系统 Pro</title>
+    <title>哇哈哈系统 Pro</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/chart-fix.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -413,7 +413,13 @@
     </div>
 </div>
 
-<script type="module" src="static/socket.js"></script>
-<script type="module" src="static/app.js"></script>
+    <script type="module">
+        import AppManager from "./static/AppManager.js";
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            AppManager.init();
+            window.AppManager = AppManager;  // 便于在onclick中使用
+        });
+    </script>
 </body>
 </html>
