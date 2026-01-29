@@ -5,14 +5,16 @@ from src.main_code.Core.DB import DBHandler
 import time
 import os
 import pandas as pd
+import asyncio
 class RequestorClass:
     def Init(self, main):
         self.api = RequestAPI.RequestAPIClass()
         self.main = main
-        self.api.init()
+        self.api.init(main)
 
     def RequestBasic(self):
-        print("处理基础数据")
+        self.main.BoardCast("处理基础数据")
+        self.main.isInBase = True
         df_Basic = self.api.Request_Basic()
         df_Company_SZSE = self.api.Request_Company(const_proj.TradeNameSZSE)
         df_Company_SSE = self.api.Request_Company(const_proj.TradeNameSSE)
@@ -22,11 +24,12 @@ class RequestorClass:
         self.main.fileProcessor.SaveCSV(df_Company_SSE, "SSE", FileProcessor.FileEnum.Basic)
         self.main.fileProcessor.SaveCSV(df_Company_BSE, "BSE", FileProcessor.FileEnum.Basic)
         classList = self.api.Df_To_BasicClass(df_Basic, df_Company_SZSE, df_Company_SSE, df_Company_BSE)
-        self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic)
-        print("处理基础数据完成")
+        asyncio.get_running_loop().create_task(self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic))
+        self.main.BoardCast("处理基础数据完成")
 
     def RequestBasic_ByCSV(self):
-        print("处理基础数据")
+        self.main.isInBase = True
+        self.main.BoardCast("处理基础数据")
         pathBase = self.main.fileProcessor.GetCSVPath("Base", FileProcessor.FileEnum.Basic)
         path1 = self.main.fileProcessor.GetCSVPath("SZSE", FileProcessor.FileEnum.Basic)
         path2 = self.main.fileProcessor.GetCSVPath("SSE", FileProcessor.FileEnum.Basic)
@@ -45,12 +48,15 @@ class RequestorClass:
         df_2 = pd.read_csv(path2)
         df_3 = pd.read_csv(path3)
         classList = self.api.Df_To_BasicClass(df_basic, df_1, df_2, df_3)
-        print(f"基础数据长度为：{len(classList)}")
-        self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic)
-        print("处理基础数据完成")
+        self.main.BoardCast(f"基础数据长度为：{len(classList)}")
+        #self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic)
+        task = asyncio.get_running_loop().create_task(self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic))
+        task.add_done_callback(self.main.task_finished_callback_Basic)
+        #self.main.BoardCast("处理基础数据完成")
 
     def RequestAdjust(self):
-        print("处理复权数据")
+        self.main.isInFactor = True
+        self.main.BoardCast("处理复权数据")
         count_stock = 0
         dfList = []
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
@@ -65,7 +71,7 @@ class RequestorClass:
 
         for code in codeList:
             if code in sameList:
-                print("已经拉取过，跳过")
+                self.main.BoardCast("已经拉取过，跳过")
                 continue
 
             t0 = time.perf_counter()
@@ -82,7 +88,7 @@ class RequestorClass:
             preCostTime = (totalCostTime / count_stock) * (len(codeList) - count_stock)
             totalCostTimeStr = self.format_seconds(totalCostTime)
             preCostTimeStr = self.format_seconds(preCostTime)
-            print(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
+            self.main.BoardCast(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
 
 
@@ -90,13 +96,16 @@ class RequestorClass:
         classList = self.api.Df_To_AdjustClass(df_all)
         if classList is None :
             return
-        self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Adjust)
-        print("处理复权数据完成")
+        
+        task = asyncio.get_running_loop().create_task(self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Adjust))
+        task.add_done_callback(self.main.task_finished_callback_Factor)
+        self.main.BoardCast("处理复权数据完成")
 
 
 
     def RequestDaily(self, startData, endData):
-        print("处理日线数据")
+        self.main.isInDaily = True
+        self.main.BoardCast("处理日线数据")
         #获取股票代码列表
         count_stock = 0
         totalCostTime = 0
@@ -109,7 +118,7 @@ class RequestorClass:
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         for code in codeList:
             if code in sameList:
-                print("已经拉取过，跳过")
+                self.main.BoardCast("已经拉取过，跳过")
                 continue
 
             
@@ -127,7 +136,7 @@ class RequestorClass:
             preCostTime = (totalCostTime / count_stock) * (len(codeList) - count_stock)
             totalCostTimeStr = self.format_seconds(totalCostTime)
             preCostTimeStr = self.format_seconds(preCostTime)
-            print(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
+            self.main.BoardCast(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
 
         
@@ -136,8 +145,9 @@ class RequestorClass:
         classList = self.api.Df_To_DailyClass(df_all)
         if classList is None:
             return
-        self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Daily)
-        print("处理日线数据完成")
+        task = asyncio.get_running_loop().create_task(self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Daily))
+        task.add_done_callback(self.main.task_finished_callback_Daily)
+        self.main.BoardCast("处理日线数据完成")
 
 
 

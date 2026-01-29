@@ -12,6 +12,7 @@ import * as SocketModule from "./socket.js";
 import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
 
+
 class AppManager {
     constructor() {
         // 实例引用
@@ -64,7 +65,7 @@ class AppManager {
             sendMessage: (type, payload = {}) => this._sendMessage(type, payload),
             onMessage: (callback) => this._registerMessageHandler(callback),
             getStatus: () => this.isConnected,
-            SetManager:SocketModule.SetManager
+            SetManager:SocketModule.SetManager,
         };
     }
 
@@ -92,10 +93,6 @@ class AppManager {
      */
     registerDefaultHandlers() {
         // 处理ping消息
-        this.registerHandler('ping', (data) => {
-            this.app.log("📥 收到ping消息:", data);
-            this.app.log(`收到后端消息: ${data.msg}`, "info");
-        });
 
         // 处理数据更新消息
         this.registerHandler('sc_update_data', (data) => {
@@ -229,10 +226,10 @@ class AppManager {
      * ==================== 快捷请求方法 ====================
      */
 
-    requestUpdateData(reason = "") {
-        this.app.log("📤 发送更新数据请求...", "system");
-        return this.socket.sendMessage('cs_update_data', {
-            reason: reason || "用户手动请求",
+    requestUpdateData(data = None) {
+        this.app.log("📤 发送请求...", "system");
+        return this.socket.sendMessage(SocketModule.MessageType.CS_UPDATE_DATA, {
+            reason: data || "用户手动请求",
             timestamp: new Date().toISOString()
         });
     }
@@ -323,14 +320,15 @@ class AppManager {
         };
 
         this.app.log("📤 发送消息:", message);
-        SocketModule.sendMsg();
+        SocketModule.sendMessage(message);
         return true;
     }
 
+
+
+    
     _registerMessageHandler(callback) {
-        if (typeof callback === 'function') {
-            // 这里可以添加全局消息处理
-        }
+        console.log("j接收消息处理")
     }
 
     /**

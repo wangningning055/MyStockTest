@@ -893,6 +893,7 @@ input::placeholder {
 /* ============================================================
    权重阈值滑条样式
    ============================================================ */
+
 .threshold-section {
     padding: 15px;
     background: rgba(20, 25, 35, 0.6);
@@ -902,14 +903,6 @@ input::placeholder {
     box-sizing: border-box;
 }
 
-
-
-.threshold-slider::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 6px;
-    background: rgba(79, 172, 254, 0.2);
-    border-radius: 3px;
-}
 
 .threshold-slider::-moz-range-track {
     background: transparent;
@@ -989,7 +982,7 @@ input::placeholder {
 
 .threshold-slider::-moz-range-thumb:hover {
     box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
-}
+}*/
 
 .threshold-info {
     color: var(--text-dim);

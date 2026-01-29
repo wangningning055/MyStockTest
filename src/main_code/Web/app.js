@@ -392,7 +392,7 @@ export const App = {
     },
 
     bindGlobalEvents() {
-        document.getElementById('api-update-data').addEventListener('click', () => this.callBackend(Message_Action, 'POST', null));
+        document.getElementById('api-update-data').addEventListener('click', () => this.callBackend(Message_Action, 'POST', manager.socket.MessageTypeCS_UPDATE_DATA ));
         //document.getElementById('api-stop-backend').addEventListener('click', () => {
         //    if(confirm("确定要停止后台服务吗？")) this.callBackend('/stop', 'POST');
         //});
@@ -900,37 +900,7 @@ export const App = {
     },
 
     async callBackend(endpoint, method, data = null) {
-        manager.requestUpdateData()
-        //try 
-        //{
-        //    let Cur_data = {
-        //    type:MessageType.CS_UPDATE_DATA,
-        //    payload: {
-        //        reason: "我是金额达到",
-        //        threshold: 100000
-        //    }}
-        //    this.log(`发起请求: ${endpoint},   ${method},    ${Cur_data.type}`, "system");
-        //    const resp = await fetch(endpoint, {
-        //        method: method,
-        //        headers: {
-        //            "Content-Type": "application/json"
-        //        },
-        //        body: Cur_data ? JSON.stringify(Cur_data) : null
-        //    });
-
-        //    if (!resp.ok) {
-        //        throw new Error(`HTTP ${resp.status}`);
-        //    }
-
-        //    const result = await resp.json();
-
-        //    this.log(`后端响应: ${endpoint} 成功`, "success");
-        //    return result;
-
-        //} catch (error) {
-        //    this.log(`请求失败: ${error.message}`, "error");
-        //    return null;
-        //}
+        manager.requestUpdateData(data)
     },
 
 

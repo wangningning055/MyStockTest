@@ -11,15 +11,16 @@ import src.main_code.Core as Core
 from datetime import datetime
 
 class RequestAPIClass:
-    def init(self):
+    def init(self, main):
         self.tuShareToken = Core.Const.token2
         ts.set_token(self.tuShareToken)
+        self.main =main
         self.pro = ts.pro_api()
         self.bao = bs.login()
         # 显示登陆返回信息
-        print('login respond error_code:'+self.bao.error_code)
-        print('login respond  error_msg:'+self.bao.error_msg)
-        print("登录流程结束")
+        self.main.BoardCast('login respond error_code:'+self.bao.error_code)
+        self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
+        self.main.BoardCast("登录流程结束")
 
 
 
@@ -63,7 +64,7 @@ class RequestAPIClass:
             return None
         if(baoStockCode.__contains__("BJ")):
             return None
-            #print("北交所的行情暂不支持:", baoStockCode)
+            #self.main.BoardCast("北交所的行情暂不支持:", baoStockCode)
         code = self.TuShare_to_BaoStock(baoStockCode)
         startData = self.Time_Convert_Base_To_Bao(startData_Base)
         endData = self.Time_Convert_Base_To_Bao(endData_Base)
@@ -77,7 +78,7 @@ class RequestAPIClass:
         )
         data_list = []
         if rs.error_code !='0':
-            print("接口调用失败：", rs.error_msg)
+            self.main.BoardCast("接口调用失败：", rs.error_msg)
             return
         while rs.next():
             data_list.append(rs.get_row_data())
@@ -120,8 +121,8 @@ class RequestAPIClass:
             testClass.dic[BasicDBStruct.ColumnEnum.Act_name] = row['act_name']
             testClass.dic[BasicDBStruct.ColumnEnum.Act_ent_type] = row['act_ent_type']
             classList.append(testClass)
-        print(f"基本数据处理完毕,数据长度是:{len(alldic)}")
-        print("开始单独处理深交所")
+        self.main.BoardCast(f"基本数据处理完毕,数据长度是:{len(alldic)}")
+        self.main.BoardCast("开始单独处理深交所")
 
         for _,row in dfSZSE.iterrows():
             testClass = alldic.get(row['ts_code'])
@@ -132,7 +133,7 @@ class RequestAPIClass:
                 testClass.dic[BasicDBStruct.ColumnEnum.Introduction] = row['introduction']
 
 
-        print("开始单独处理上交所")
+        self.main.BoardCast("开始单独处理上交所")
         for _,row in dfSSE.iterrows():
             testClass = alldic.get(row['ts_code'])
             if(testClass is not None):
@@ -142,7 +143,7 @@ class RequestAPIClass:
                 testClass.dic[BasicDBStruct.ColumnEnum.Introduction] = row['introduction']
 
 
-        print("开始单独处理北交所")
+        self.main.BoardCast("开始单独处理北交所")
         for _,row in dfBSE.iterrows():
             testClass = alldic.get(row['ts_code'])
             if(testClass is not None):

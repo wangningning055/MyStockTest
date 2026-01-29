@@ -20,6 +20,16 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_DELAY = 3000; // 3秒
 const MESSAGE_QUEUE = []; // 离线消息队列
 let manager = null;
+
+export const MessageType = Object.freeze({
+    CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
+    CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选
+    CS_BACK_TEST: "cs_back_test",                  // 客户端请求执行回测
+    CS_DIAGNOSE: "cs_diagnose",                    // 客户端请求出仓判断
+    CS_SEND_LAST_UPDATE_DATA: "sc_last_update_data",// 服务器发送上次更新日期
+    LOG : "log"
+});
+
 export function SetManager(_manager)
 {
     manager = _manager;
@@ -79,6 +89,23 @@ export function SocketInit() {
     }
 }
 
+function HandleMessage(data){
+    console.log("📨 收到后端消息:", data.type);
+    if(data.type = MessageType.CS_UPDATE_DATA)
+    {
+        manager.app.log(data.msg)
+    }
+    else if(data.type == MessageType.CS_SELECT_STOCKS){}
+    else if(data.type == MessageType.CS_BACK_TEST){}
+    else if(data.type == MessageType.CS_DIAGNOSE){}
+    else if(data.type == MessageType.CS_SEND_LAST_UPDATE_DATA){}
+    else if(data.type == MessageType.LOG)
+    {
+        manager.app.log(data.msg)
+    }
+}
+
+
 /**
  * 处理接收到的WebSocket消息
  * @param {string} data - 消息数据（JSON字符串）
@@ -86,7 +113,10 @@ export function SocketInit() {
 function handleWebSocketMessage(data) {
     try {
         const message = JSON.parse(data);
-        console.log("📨 收到后端消息:", message);
+
+        HandleMessage(message)
+
+
 
         // 触发所有注册的处理器
         messageHandlers.forEach(handler => {
@@ -125,19 +155,19 @@ export function offMessage(handler) {
     }
 }
 
-/**
- * 发送消息到后端（兼容旧API）
- * 仅发送简单的ping消息
- */
-export function sendMsg() {
-    console.log("📤 发送测试消息");
-    const data = { 
-        type: "ping", 
-        msg: "你好 后端",
-        timestamp: new Date().toISOString()
-    };
-    sendMessage(data);
-}
+///**
+// * 发送消息到后端（兼容旧API）
+// * 仅发送简单的ping消息
+// */
+//export function sendMsg() {
+//    console.log("📤 发送测试消息");
+//    const data = { 
+//        type: "ping", 
+//        msg: "你好 后端",
+//        timestamp: new Date().toISOString()
+//    };
+//    sendMessage(data);
+//}
 
 /**
  * 发送消息到后端（新API）

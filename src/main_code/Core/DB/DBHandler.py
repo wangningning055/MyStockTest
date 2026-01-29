@@ -5,6 +5,7 @@ from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core import Const as const_proj
+import asyncio
 class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
@@ -13,12 +14,13 @@ class TableEnum(Enum):
 
 class DBHandlerClass:
 
-    def Init(self):
+    def Init(self, main):
+        self.main = main
         self.dbPath = const_proj.DBPath
         self.ConnectDb()
-        print("链接数据库成功:", self.dbPath)
+        self.main.BoardCast(f"链接数据库成功:{self.dbPath}")
         self.CreateTable()
-        print("创建数据表成功:", self.dbPath)
+        self.main.BoardCast(f"创建数据表成功:{self.dbPath}")
 
 
     #读取数据库
@@ -116,7 +118,7 @@ class DBHandlerClass:
         else:
             return None
 
-    def WriteTable(self, classList, table_enum):
+    async def WriteTable(self, classList, table_enum):
         str = "正在处理"
         if table_enum == TableEnum.Basic:
             str = "正在往数据库写入基本数据，"
@@ -129,9 +131,11 @@ class DBHandlerClass:
         preCostTime = 0
         totalCostTimeStr = ""
         preCostTimeStr = ""
+        classLen = len(classList)
         for data in classList:
             t0 = time.perf_counter()
             count_stock = count_stock + 1
+
             self.WriteRow(data, table_enum)
             t1 = time.perf_counter()
 
@@ -139,7 +143,9 @@ class DBHandlerClass:
             preCostTime = (totalCostTime / count_stock) * (len(classList) - count_stock)
             totalCostTimeStr = self.format_seconds(totalCostTime)
             preCostTimeStr = self.format_seconds(preCostTime)
-            print(f"{str}当前第{count_stock}条,数据长度为:{len(classList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
+            self.main.BoardCast(f"{str}当前第{count_stock}条,数据长度为:{classLen}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
+            print(f"{str}当前第{count_stock}条,数据长度为:{classLen}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
+            await asyncio.sleep(0)
 
     #写入行
     def WriteRow(self, structClass, table_enum):
