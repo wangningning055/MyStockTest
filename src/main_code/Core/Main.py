@@ -20,12 +20,14 @@ class processor:
     isInBase = False
     isInFactor = False
     isInDaily = False
+    lastDayStr = const_proj.first_Data
     def BoardCast(self, message: str):
         asyncio.get_running_loop().create_task(ws.broadcast(message))
 
 
     def Init(self):
         print("开始进行初始化")
+        self.InitLastUpdateTime()
         plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
@@ -35,7 +37,15 @@ class processor:
         ws.mainProcessor = self
         #self.planner.AddPlane(plane)
         #self.RequestData()
+        print("初始化完毕")
 
+    def InitLastUpdateTime(self):
+        if not os.path.exists(const_proj.Request_Data_rec_FileName):
+            self.lastDayStr = const_proj.first_Data
+        else:
+            with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                self.lastDayStr = f.read().strip()
+        print("日期读取完毕")
 
     def planeFunc(self):
         self.RequestData()
@@ -69,8 +79,6 @@ class processor:
 
     def RequestData(self):
         #获取当天的日期
-        self.BoardCast("开始进行数据拉取")
-        print("开始进行数据拉取")
         today_str = datetime.date.today().strftime("%Y%m%d")
         lastDayStr = const_proj.first_Data
         if not os.path.exists(const_proj.Request_Data_rec_FileName):
@@ -80,9 +88,10 @@ class processor:
                 lastDayStr = f.read().strip()
 
         #lastDayStr = first_Data
-        if lastDayStr == today_str:
+        if lastDayStr != today_str:
             self.BoardCast("是最新数据，无需拉取")
         else:
+            self.BoardCast("开始进行数据拉取")
             self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
             #self.isInDaily = True
             self.isInBase = True
@@ -92,7 +101,7 @@ class processor:
             #self.requestor.RequestBasic()
             #self.requestor.RequestAdjust()
             #self.requestor.RequestDaily(lastDayStr, today_str)
-
+        self.lastDayStr = today_str
         with open(const_proj.Request_Data_rec_FileName, "w", encoding="utf-8") as f:
             f.write(today_str)
 

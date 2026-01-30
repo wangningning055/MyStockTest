@@ -80,6 +80,7 @@ class AppManager {
                 this.isConnected = true;
                 this.ui.setConnectionStatus(true);
                 this.app.log("✅ WebSocket 已连接", "success");
+                this.requestLastUpdateDataTime()
             }, 500);
         } catch (error) {
             this.app.log(`❌ WebSocket 连接失败: ${error.message}`, "error");
@@ -92,7 +93,19 @@ class AppManager {
      * 注册默认的消息处理器
      */
     registerDefaultHandlers() {
-        // 处理ping消息
+        this.registerHandler(SocketModule.MessageType.LOG, (data) =>{
+            this.app.log(`📊 后端log:${data.msg}`);
+        });
+
+        this.registerHandler(SocketModule.MessageType.LAST_UPDATE_DATA, (data) =>{
+            this.app.log(`📊 收到日期更新:${data.msg}`);
+            if (!/^\d{8}$/.test(data.msg)) {
+                throw new Error("非法日期格式，应为 YYYYMMDD");
+            }
+            let timeStr = `${data.msg.slice(0, 4)}/${data.msg.slice(4, 6)}/${data.msg.slice(6, 8)}`;
+            this.ui.setLastUpdateTime(timeStr)
+        });
+
 
         // 处理数据更新消息
         this.registerHandler('sc_update_data', (data) => {
@@ -226,8 +239,16 @@ class AppManager {
      * ==================== 快捷请求方法 ====================
      */
 
+    //请求上次更新时间
+    requestLastUpdateDataTime(self){
+        return this.socket.sendMessage(SocketModule.MessageType.LAST_UPDATE_DATA, {
+            reason:"用户手动请求",
+            timestamp: new Date().toISOString()
+        });
+    }
+
     requestUpdateData(data = None) {
-        this.app.log("📤 发送请求...", "system");
+        //this.app.log("📤 发送拉取数据请求...", "system");
         return this.socket.sendMessage(SocketModule.MessageType.CS_UPDATE_DATA, {
             reason: data || "用户手动请求",
             timestamp: new Date().toISOString()
@@ -235,7 +256,7 @@ class AppManager {
     }
 
     requestSelectStocks() {
-        this.app.log("📤 发送选股请求...", "system");
+        //this.app.log("📤 发送选股请求...", "system");
         const payload = {
             buyFactors: this.state.buyFactors,
             sellFactors: this.state.sellFactors,
@@ -245,7 +266,7 @@ class AppManager {
     }
 
     requestBacktest() {
-        this.app.log("📤 发送回测请求...", "system");
+        //this.app.log("📤 发送回测请求...", "system");
         const dateRange = this.ui.getBacktestDateRange();
         const payload = {
             buyFactors: this.state.buyFactors,
@@ -261,7 +282,7 @@ class AppManager {
     }
 
     requestDiagnose() {
-        this.app.log("📤 发送出仓判断请求...", "system");
+        //this.app.log("📤 发送出仓判断请求...", "system");
         const payload = {
             holdings: this.state.holdings,
             weightThreshold: this.ui.getHoldingsWeightThreshold()
@@ -270,7 +291,7 @@ class AppManager {
     }
 
     queryStockInfo(code) {
-        this.app.log(`📤 查询股票 ${code}...`, "system");
+        //this.app.log(`📤 查询股票 ${code}...`, "system");
         return this.socket.sendMessage('cs_query_stock', {
             code: code,
             type: 'query'
@@ -319,7 +340,7 @@ class AppManager {
             timestamp: new Date().toISOString()
         };
 
-        this.app.log("📤 发送消息:", message);
+        //this.app.log("📤 发送消息:", message);
         SocketModule.sendMessage(message);
         return true;
     }
