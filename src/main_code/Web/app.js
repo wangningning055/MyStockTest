@@ -1,6 +1,6 @@
 
 export const CONFIG = {
-    factorTypes: ["市盈率 PE", "市净率 PB", "均线金叉", "MACD底背离", "RSI超卖", "自定义公式"],
+    factorTypes: ["市盈率 PE", "市净率 PB", "均线金叉", "MACD底背离", "RSI超卖", "自定义公式","成交量",],
     apiBase: "http://127.0.0.1:5000/api" 
 };
 

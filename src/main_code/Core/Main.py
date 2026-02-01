@@ -1,6 +1,7 @@
 import sys
 import os
 import pandas as pd
+import traceback
 import time
 import datetime
 import threading
@@ -15,12 +16,12 @@ import src.main_code.Core.Message.WebSocketHandle as ws
 import asyncio
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
-
 class processor:
     isInBase = False
     isInFactor = False
     isInDaily = False
     lastDayStr = const_proj.first_Data
+    tuShareToken = 0000000
     def BoardCast(self, message: str):
         asyncio.get_running_loop().create_task(ws.broadcast(message))
 
@@ -77,67 +78,96 @@ class processor:
     
 
 
-    def RequestData(self):
-        #获取当天的日期
-        today_str = datetime.date.today().strftime("%Y%m%d")
-        lastDayStr = const_proj.first_Data
-        if not os.path.exists(const_proj.Request_Data_rec_FileName):
+    async def RequestData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
             lastDayStr = const_proj.first_Data
-        else:
-            with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                lastDayStr = f.read().strip()
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
 
-        #lastDayStr = first_Data
-        if lastDayStr != today_str:
-            self.BoardCast("是最新数据，无需拉取")
-        else:
-            self.BoardCast("开始进行数据拉取")
-            self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
-            #self.isInDaily = True
-            self.isInBase = True
-            #self.isInFactor = True
-            self.requestor.RequestBasic_ByCSV()
+            lastDayStr = "20260101"
+            today_str = "20260130"
+            if lastDayStr == today_str:
+                self.BoardCast("是最新数据，无需拉取")
+            else:
+                self.BoardCast("开始进行数据拉取")
+                self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
 
-            #self.requestor.RequestBasic()
-            #self.requestor.RequestAdjust()
-            #self.requestor.RequestDaily(lastDayStr, today_str)
+                self.isInDaily = True
+                self.isInBase = True
+                self.isInFactor = True
+                
+                #await self.requestor.RequestBasic_ByCSV()
+                #await self.requestor.RequestBasic()
+                self.isInBase = False
+                #await self.requestor.RequestAdjust()
+                self.isInFactor = False
+                await self.requestor.RequestDaily(lastDayStr, today_str)
+                self.isInDaily = False
+
+        except Exception as e:
+            print(f"拉取失败失败: {e}")
+            full_trace = traceback.format_exc()
+            print(f"拉取失败失败: {full_trace}")
+            self.BoardCast(f"拉取失败失败: {e}")
+
+
+
+    def pullOver(self):
+        today_str = datetime.date.today().strftime("%Y%m%d")
         self.lastDayStr = today_str
         with open(const_proj.Request_Data_rec_FileName, "w", encoding="utf-8") as f:
             f.write(today_str)
+        ws.SendLastUpdateTime()
 
+    def task_finished_callback(self,task):
+        #print("基础数据拉取 执行完毕")
+        #self.BoardCast("基础数据拉取 执行完毕")
+        print("股票信息拉取流程结束")
 
-
-    def task_finished_callback_Basic(self,task):
-        print("基础数据拉取 执行完毕")
-        self.isInBase = False
         if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-            self.BoardCast("股票信息已经拉取完毕")
-            print("股票信息已经拉取完毕")
+            self.BoardCast("股票信息拉取流程结束")
+            print("股票信息拉取流程结束")
+            self.pullOver()
+        else:
+            print("股票信息拉取流程异常结束")
+            self.BoardCast(f"股票信息拉取流程异常结束:{self.isInBase}{self.isInDaily}{self.isInDaily}")
+            
         try:
             result = task.result()  # 捕获返回值或异常
         except Exception as e:
             print("任务异常:", e)
+            full_trace = traceback.format_exc()
+            print("任务异常:", full_trace)
 
-    def task_finished_callback_Factor(self,task):
-        print("复权因子数据拉取执行完毕 ")
-        self.isInFactor = False
-        if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-            self.BoardCast("股票信息已经拉取完毕")
-            print("股票信息已经拉取完毕")
-        try:
-            result = task.result()  # 捕获返回值或异常
-        except Exception as e:
-            print("任务异常:", e)
+    #def task_finished_callback_Factor(self,task):
+    #    print("复权因子数据拉取执行完毕 ")
+    #    self.BoardCast("复权因子数据拉取执行完毕 ")
+    #    self.isInFactor = False
+    #    if(not (self.isInBase or self.isInDaily or self.isInFactor)):
+    #        self.BoardCast("股票信息已经拉取完毕")
+    #        print("股票信息已经拉取完毕")
+    #        self.pullOver()
+    #    try:
+    #        result = task.result()  # 捕获返回值或异常
+    #    except Exception as e:
+    #        print("任务异常:", e)
 
 
 
-    def task_finished_callback_Daily(self,task):
-        print("日线数据拉取 执行完毕")
-        self.isInDaily = False
-        if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-            self.BoardCast("股票信息已经拉取完毕")
-            print("股票信息已经拉取完毕")
-        try:
-            result = task.result()  # 捕获返回值或异常
-        except Exception as e:
-            print("任务异常:", e)
+    #def task_finished_callback_Daily(self,task):
+    #    print("日线数据拉取 执行完毕")
+    #    self.BoardCast("日线数据拉取 执行完毕")
+    #    self.isInDaily = False
+    #    if(not (self.isInBase or self.isInDaily or self.isInFactor)):
+    #        self.BoardCast("股票信息已经拉取完毕")
+    #        print("股票信息已经拉取完毕")
+    #        self.pullOver()
+    #    try:
+    #        result = task.result()  # 捕获返回值或异常
+    #    except Exception as e:
+    #        print("任务异常:", e)

@@ -2,64 +2,64 @@ import src.main_code.Core.Const
 import baostock as bs
 import tushare as ts
 import pandas as pd
-
+import akshare as ak
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 import src.main_code.Core.Const as const_proj
 import src.main_code.Core as Core
 from datetime import datetime
+import asyncio
 
 class RequestAPIClass:
     def init(self, main):
-        self.tuShareToken = Core.Const.token2
-        ts.set_token(self.tuShareToken)
         self.main =main
-        self.pro = ts.pro_api()
         self.bao = bs.login()
+        self.isInitShare = False
         # 显示登陆返回信息
         self.main.BoardCast('login respond error_code:'+self.bao.error_code)
         self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
         self.main.BoardCast("登录流程结束")
 
-
+    def initShare(self):
+        try:
+            self.tuShareToken = self.main.tuShareToken
+            ts.set_token(self.tuShareToken)
+            self.pro = ts.pro_api()
+            self.isInitShare = True
+        except Exception as e:
+            print(f"tuShare初始化失败: {e}")
+            self.isInitShare = False
+            self.main.BoardCast(f"tuShare初始化失败: {e}")
 
     #拉取基本数据
-    def Request_Basic(self):
+    async def Request_Basic(self):
+        if self.pro is None or not  self.isInitShare:
+            print("tushare尚未初始化")
+            self.main.BoardCast("tushare尚未初始化")
+            return
         df = self.pro.stock_basic(
         exchange='',       # 空表示所有交易所
         list_status='L',   # L = 上市中
         fields='ts_code,symbol,name,area,industry,market,cnspell,list_date,act_name,act_ent_type,list_status')
+        await asyncio.sleep(0)
         return df
 
 
     #拉取基本数据
-    def Request_Company(self, exchangeName):
+    async def Request_Company(self, exchangeName):
+        if self.pro is None:
+            print("tushare尚未初始化")
+            self.main.BoardCast("tushare尚未初始化")
+            return
         df = self.pro.stock_company(exchange=exchangeName)
+        await asyncio.sleep(0)
         return df
 
 
 
-    # 拉取复权因子 code的形式是xxxxxxx.SZ
-    def Request_Adjust(self, stockCode):
-        #获取复权因子
-        code = self.TuShare_to_BaoStock(stockCode)
-        rs_list = []
-        rs_factor = bs.query_adjust_factor(code=code)
-        while (rs_factor.error_code == '0') & rs_factor.next():
-            rs_list.append(rs_factor.get_row_data())
-
-        if rs_list.__len__() != 0:
-            result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
-        else:
-            return None
-
-        return result_factor
-    
-
-
     #拉取日线信息StockCode为xxxxx.SZ的格式
-    def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):
+    async def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):
         if(baoStockCode.__contains__("bj")):
             return None
         if(baoStockCode.__contains__("BJ")):
@@ -89,6 +89,7 @@ class RequestAPIClass:
         else:
             return None
 
+        await asyncio.sleep(0)
         return df
     
 
@@ -233,56 +234,9 @@ class RequestAPIClass:
         else:
             return""
 
-    ##获得季度数据，总股本流通股本
-    #def GetStockQuarterData(self, baoStockCode, year, quarter, isNeedPull):
-    #    if isNeedPull:
-    #        profit_list = []
-    #        rs_profit = bs.query_profit_data(code=baoStockCode, year=year, quarter=quarter)
-    #        while (rs_profit.error_code == '0') & rs_profit.next():
-    #            profit_list.append(rs_profit.get_row_data())
-    #        result_profit = pd.DataFrame(profit_list, columns=rs_profit.fields)
-    #        result_profit.to_csv(f"stock_quarter_baostock_profit1111111_{baoStockCode}_{year}Q{quarter}.csv", index=False)
-    #        result_profit["year"] = year
-    #        result_profit["quarter"] = quarter
-
-    
-    #def date_to_year_quarter(self, date_int: int):
-    #    """
-    #    20200115 -> (2020, 1)
-    #    """
-    #    date_str = str(date_int)
-    #    year = int(date_str[:4])
-    #    month = int(date_str[4:6])
-
-    #    if month <= 3:
-    #        quarter = 1
-    #    elif month <= 6:
-    #        quarter = 2
-    #    elif month <= 9:
-    #        quarter = 3
-    #    else:
-    #        quarter = 4
-
-    #    return year, quarter
-    
-
-
-    #def gen_year_quarter_range(self, start_date: int, end_date: int):
-    #    sy, sq = self.date_to_year_quarter(start_date)
-    #    ey, eq = self.date_to_year_quarter(end_date)
-
-    #    result = []
-
-    #    y, q = sy, sq
-    #    while True:
-    #        result.append((y, q))
-
-    #        if y == ey and q == eq:
-    #            break
-
-    #        q += 1
-    #        if q == 5:
-    #            q = 1
-    #            y += 1
-
-    #    return result
+    def TuShare_to_BaoAKShare(self, dataStr):
+        if(dataStr.__contains__(".")):
+            num, exchange = dataStr.split(".")
+            return f"{exchange.lower()}.{num}"
+        else:
+            return""

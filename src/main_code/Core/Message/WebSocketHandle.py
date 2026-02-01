@@ -72,6 +72,7 @@ def register_ws(app: FastAPI):
         clients.add(ws)
         await ws.accept()
         print("客户端已连接")
+        SendLastUpdateTime()
         try:
             while True:
                 data = await ws.receive_text()
@@ -96,9 +97,13 @@ def HandleMsg(msg):
         return
     print("处理消息，消息类型是：" + msg["type"])
     msgType = msg["type"]
+    data = msg["payload"]
     if(msgType == MessageType.CS_UPDATE_DATA):
-        #pass
-        mainProcessor.RequestData()
+        print(f"收到的token是：{data["token"]}")
+        mainProcessor.tuShareToken = data["token"]
+        task = asyncio.get_running_loop().create_task(mainProcessor.RequestData())
+        task.add_done_callback(mainProcessor.task_finished_callback)
+        
     elif(msgType == MessageType.CS_SELECT_STOCKS):
         pass
     elif(msgType == MessageType.CS_BACK_TEST):

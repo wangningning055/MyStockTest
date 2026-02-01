@@ -247,10 +247,13 @@ class AppManager {
         });
     }
 
+    //请求更新数据
     requestUpdateData(data = None) {
-        //this.app.log("📤 发送拉取数据请求...", "system");
+        this.app.log("📤 发送拉取数据请求...", "system");
+        let token = this.ui.getTushareToken()
+        this.app.log(`📤 ${token}`, "system");
         return this.socket.sendMessage(SocketModule.MessageType.CS_UPDATE_DATA, {
-            reason: data || "用户手动请求",
+            token: token || "0000000000",
             timestamp: new Date().toISOString()
         });
     }
