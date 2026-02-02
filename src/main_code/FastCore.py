@@ -18,6 +18,11 @@ from src.main_code.Core.Message.MessageHandle import router as action_router
 from src.main_code.Core.Message.WebSocketHandle import register_ws
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="src/main_code/Web"), name="static")
+#app.mount(
+#    "/web",
+#    StaticFiles(directory="src/main_code/Web"),
+#    name="web"
+#)
 app.include_router(action_router, prefix="/api")
 register_ws(app)
 

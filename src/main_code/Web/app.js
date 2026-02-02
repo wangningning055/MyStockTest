@@ -1,8 +1,9 @@
-
 export const CONFIG = {
-    factorTypes: ["市盈率 PE", "市净率 PB", "均线金叉", "MACD底背离", "RSI超卖", "自定义公式","成交量",],
+    factorsUrl: "/static/factors.json",
     apiBase: "http://127.0.0.1:5000/api" 
 };
+let FACTORS_DATA = null;
+
 
 export const State = {
     buyFactors: [],
@@ -23,7 +24,45 @@ export function SetManager(_manager)
 {
     manager = _manager;
 }
+// 打开帮助弹窗
+function openHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
 
+// 关闭帮助弹窗
+function closeHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// 切换页签
+function switchHelpTab(tabName) {
+    // 隐藏所有页签内容
+    const tabPanes = document.querySelectorAll('.help-tab-pane');
+    tabPanes.forEach(pane => {
+        pane.classList.remove('active');
+    });
+    
+    // 取消所有按钮的激活状态
+    const tabBtns = document.querySelectorAll('.help-tab-btn');
+    tabBtns.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 显示选中的页签
+    const selectedPane = document.getElementById(`help-tab-${tabName}`);
+    if (selectedPane) {
+        selectedPane.classList.add('active');
+    }
+    
+    // 激活对应的按钮
+    event.target.classList.add('active');
+}
 /**
  * UIManager - UI 数据接口
  */
@@ -343,8 +382,36 @@ export const UIManager = {
 
     
 };
-
-
+//加载所有因子
+async function loadFactorsData() {
+    if (FACTORS_DATA) return FACTORS_DATA;
+    try {
+        const response = await fetch(CONFIG.factorsUrl);
+        FACTORS_DATA = await response.json();
+        console.log("FACTORS_DATA")
+        console.log(FACTORS_DATA)
+        console.log("✅ 因子数据加载成功");
+        return FACTORS_DATA;
+    } catch (error) {
+        console.error("❌ 因子数据加载失败:", error);
+        return null;
+    }
+}
+// 获取所有因子（返回平铺列表）
+function getAllFactors() {
+    if (!FACTORS_DATA) return [];
+    const allFactors = [];
+    Object.values(FACTORS_DATA.factors).forEach(category => {
+        category.items.forEach(item => {
+            allFactors.push({
+                ...item,
+                category: category.name,
+                categoryIcon: category.icon
+            });
+        });
+    });
+    return allFactors;
+}
 export const App = {
     init() {
         this.bindTabs();
@@ -386,6 +453,7 @@ export const App = {
 
     bindGlobalEvents() {
         document.getElementById('api-update-data').addEventListener('click', () => this.callBackend(Message_Action, 'POST', manager.socket.MessageTypeCS_UPDATE_DATA ));
+        //document.getElementById('help-btn').addEventListener('click', () => openHelpModal());
         //document.getElementById('api-stop-backend').addEventListener('click', () => {
         //    if(confirm("确定要停止后台服务吗？")) this.callBackend('/stop', 'POST');
         //});
@@ -940,29 +1008,125 @@ export const App = {
         });
     },
 
-    showFactorModal(side, targetCardId = null) {
+    //showFactorModal(side, targetCardId = null) {
+    //    const modal = document.getElementById('factor-modal');
+    //    const list = document.getElementById('factor-type-list');
+    //    list.innerHTML = '';
+    //    CONFIG.factorTypes.forEach(type => {
+    //        const btn = document.createElement('button');
+    //        btn.className = 'btn btn-outline';
+    //        btn.innerText = type;
+    //        btn.onclick = () => {
+    //            if (targetCardId) {
+    //                this.addConditionToCard(targetCardId, type);
+    //            } else {
+    //                const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
+    //                this.renderFactorCard(type, containerId, side);
+    //            }
+    //            modal.classList.remove('active');
+    //        };
+    //        list.appendChild(btn);
+    //    });
+    //    modal.classList.add('active');
+    //    document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('active'));
+    //}
+
+    async showFactorModal(side, targetCardId = null) {
         const modal = document.getElementById('factor-modal');
-        const list = document.getElementById('factor-type-list');
-        list.innerHTML = '';
-        CONFIG.factorTypes.forEach(type => {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-outline';
-            btn.innerText = type;
-            btn.onclick = () => {
-                if (targetCardId) {
-                    this.addConditionToCard(targetCardId, type);
-                } else {
-                    const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-                    this.renderFactorCard(type, containerId, side);
-                }
-                modal.classList.remove('active');
-            };
-            list.appendChild(btn);
-        });
+        const categoriesContainer = document.getElementById('factor-categories-container');
+
+
+        if (!categoriesContainer) {
+            console.error("❌ factor-categories-container 元素不存在！");
+            console.log("页面中的所有 div id:", Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+            return;
+        }
+    
+        // 清空容器
+        categoriesContainer.innerHTML = '';
         modal.classList.add('active');
-        document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('active'));
+        const self = this;
+        // 确保数据已加载
+        (async () => {
+        if (!FACTORS_DATA) {
+            await loadFactorsData();
+        }
+        
+        if (!FACTORS_DATA) {
+            alert("因子数据加载失败，请检查 factors.json 文件");
+            return;
+        }
+        //这里可以打印
+
+        // 创建分类标签页
+        Object.entries(FACTORS_DATA.factors).forEach(([categoryKey, category]) => {
+            const categorySection = document.createElement('div');
+            categorySection.className = 'factor-category-section';
+            categorySection.dataset.category = categoryKey;
+            if(side == "buy")
+            {
+                if(category.isSold == 1)
+                {
+                    return
+                }
+            }
+            // 分类标题
+            const categoryTitle = document.createElement('div');
+            categoryTitle.className = 'factor-category-title';
+            categoryTitle.innerHTML = `${category.icon} ${category.name}`;
+            categorySection.appendChild(categoryTitle);
+            
+            // 分类描述
+            const categoryDesc = document.createElement('div');
+            categoryDesc.className = 'factor-category-desc';
+            categoryDesc.textContent = category.description;
+            categorySection.appendChild(categoryDesc);
+            
+            // 因子按钮容器
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'factor-items-container';
+            
+            category.items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-factor-item';
+                btn.title = item.description;
+                btn.innerHTML = `<span class="factor-name">${item.name}</span>`;
+                
+                btn.onclick = () => {
+                    // 使用 item.name 作为因子名称
+                    console.log("点击了添加因子")
+                    if (targetCardId) {
+                        self.addConditionToCard(targetCardId, item.name);
+                    } else {
+                        const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
+                        self.renderFactorCard(item.name, containerId, side);
+                    }
+                    modal.classList.remove('active');
+                };
+                
+                itemsContainer.appendChild(btn);
+            });
+            
+            categorySection.appendChild(itemsContainer);
+            categoriesContainer.appendChild(categorySection);
+            //console.log("分类创建完成:", categoryKey);  // 打印完成信息
+        });
+            //console.log("所有分类创建完成");
+            //console.log("categoriesContainer 内容数:", categoriesContainer.children.length);
+        })();
+        
+        // 关闭按钮
+        const closeBtn = document.getElementById('btn-close-modal');
+        if (closeBtn) {
+            closeBtn.onclick = () => modal.classList.remove('active');
+        }
     }
+
+
 };
 
 // ========== 关键修复：DOMContentLoaded 必须在 App 对象定义之后 ==========
-document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('DOMContentLoaded', async () => { 
+    await loadFactorsData();
+    App.init()
+});

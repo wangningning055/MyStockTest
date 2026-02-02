@@ -24,6 +24,7 @@
         </nav>
 
         <div class="global-actions">
+            <!--<button class="help-btn" id="help-btn" title="查看系统说明">❓</button>-->
             <input type="password" id="tushareToken" placeholder="Tushare Token" class="input-dark">
             <button class="btn btn-success" id="api-update-data">🔄 更新数据</button>
             <div class="connection-status-indicator">
@@ -405,14 +406,120 @@
 
 </div>
 
-<div class="modal-overlay" id="factor-modal">
+<!--<div class="modal-overlay" id="factor-modal">
     <div class="modal-content">
         <h3>选择因子类型</h3>
         <div class="factor-type-grid" id="factor-type-list"></div>
         <button class="btn btn-secondary" id="btn-close-modal">取消</button>
     </div>
 </div>
+-->
 
+<!-- 因子选择模态框（改进版 - 支持分类和滚动） -->
+<div id="factor-modal" class="modal">
+    <div class="modal-content factor-modal-content">
+        <div class="modal-header">
+            <h3>📊 选择筛选因子（“当日”开头的指标只会计算最新日期，不会考虑因子设置的日期区间）</h3>
+            <span class="close" id="btn-close-modal">&times;</span>
+        </div>
+        
+        <!-- 分类容器（可滚动） -->
+        <div id="factor-categories-container" class="factor-categories-container">
+            <!-- 分类和因子列表会动态生成在这里 -->
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    <!-- 说明弹窗（静态） -->
+    <div id="help-modal" class="help-modal">
+        <div class="help-modal-overlay" onclick="closeHelpModal()"></div>
+        
+        <div class="help-modal-content">
+            <!-- 头部 -->
+            <div class="help-modal-header">
+                <h2>❓ 系统说明</h2>
+                <button class="help-modal-close" onclick="closeHelpModal()">✕</button>
+            </div>
+            
+            <!-- 页签导航 -->
+            <div class="help-tabs-nav">
+                <button class="help-tab-btn active" onclick="switchHelpTab('overview')">
+                    📋 概览
+                </button>
+                <button class="help-tab-btn" onclick="switchHelpTab('selection')">
+                    🎯 选股说明
+                </button>
+                <button class="help-tab-btn" onclick="switchHelpTab('backtest')">
+                    📊 回测说明
+                </button>
+                <button class="help-tab-btn" onclick="switchHelpTab('holdings')">
+                    💼 持仓管理
+                </button>
+                <button class="help-tab-btn" onclick="switchHelpTab('factors')">
+                    🔧 因子详解
+                </button>
+            </div>
+            
+            <!-- 页签内容 -->
+            <div class="help-tabs-content">
+                
+                <!-- 页签1：概览 -->
+                <div id="help-tab-overview" class="help-tab-pane active">
+                    <div class="help-content">
+                        <h3>🎯 系统功能概览</h3>
+                        <p>你的文本内容在这里...</p>
+                        <!-- 更多内容 -->
+                    </div>
+                </div>
+                
+                <!-- 页签2：选股说明 -->
+                <div id="help-tab-selection" class="help-tab-pane">
+                    <div class="help-content">
+                        <h3>🎯 选股系统使用说明</h3>
+                        <p>你的文本内容在这里...</p>
+                    </div>
+                </div>
+                
+                <!-- 页签3：回测说明 -->
+                <div id="help-tab-backtest" class="help-tab-pane">
+                    <div class="help-content">
+                        <h3>📊 回测系统使用说明</h3>
+                        <p>你的文本内容在这里...</p>
+                    </div>
+                </div>
+                
+                <!-- 页签4：持仓管理 -->
+                <div id="help-tab-holdings" class="help-tab-pane">
+                    <div class="help-content">
+                        <h3>💼 持仓管理说明</h3>
+                        <p>你的文本内容在这里...</p>
+                    </div>
+                </div>
+                
+                <!-- 页签5：因子详解 -->
+                <div id="help-tab-factors" class="help-tab-pane">
+                    <div class="help-content">
+                        <h3>🔧 因子系统详解</h3>
+                        <p>你的文本内容在这里...</p>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- 底部 -->
+            <div class="help-modal-footer">
+                <button class="btn btn-secondary" onclick="closeHelpModal()">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
     <script type="module">
         import AppManager from "./static/AppManager.js";
         
