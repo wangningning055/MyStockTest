@@ -245,12 +245,19 @@ class DBHandlerClass:
         sql = f'SELECT * FROM {const_proj.DBBasicTableName}'
         self.dbCursor.execute(sql)
         allRow = self.dbCursor.fetchall()
+        columns = [desc[0] for desc in self.dbCursor.description]
         sameList = set()
         codeList = {}
         for row in allRow:
+            row_dict = {col: row[i] for i, col in enumerate(columns)}
             ts_code = row[0]
             if(ts_code in sameList):
                 continue
+            stateName = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.List_Status)
+            if(row_dict[stateName] != "L"):
+                print(f"这是是退市的股票：{ts_code}")
+                continue
+            
             rowDic = dict(row)
             codeList[ts_code] = rowDic
             #sameList.add(ts_code)
@@ -267,7 +274,7 @@ class DBHandlerClass:
             row_dict = {col: row[i] for i, col in enumerate(columns)}
             codeColumStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
             dateColumnStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
-            key = (row_dict[codeColumStr], row_dict[codeColumStr])  # 双主键 tuple
+            key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
             data_dict[key] = row_dict
 
         return data_dict

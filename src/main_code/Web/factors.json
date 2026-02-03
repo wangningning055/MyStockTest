@@ -234,32 +234,32 @@
         },
 
         {
-          "id": "ma_vs_ma30_ratio",
-          "name": "当日均价与30日均价的比",
+          "id": "ma_vs_ma20_ratio",
+          "name": "当日均价与20日均价的比",
           "type": "float",
           "description": "当日均价 / 30日均价"
         },
         {
-          "id": "open_vs_ma30_ratio",
-          "name": "当日开盘价与30日均价的比",
+          "id": "open_vs_ma20_ratio",
+          "name": "当日开盘价与20日均价的比",
           "type": "float",
           "description": "当日开盘价 / 30日均价"
         },
         {
-          "id": "close_vs_ma30_ratio",
-          "name": "当日收盘价与30日均价的比",
+          "id": "close_vs_ma20_ratio",
+          "name": "当日收盘价与20日均价的比",
           "type": "float",
           "description": "当日收盘价 / 30日均价"
         },
         {
-          "id": "high_vs_ma30_ratio",
-          "name": "当日最高价与30日均价的比",
+          "id": "high_vs_ma20_ratio",
+          "name": "当日最高价与20日均价的比",
           "type": "float",
           "description": "当日最高价 / 30日均价"
         },
         {
-          "id": "low_vs_ma30_ratio",
-          "name": "当日最低价与30日均价的比",
+          "id": "low_vs_ma20_ratio",
+          "name": "当日最低价与20日均价的比",
           "type": "float",
           "description": "当日最低价 / 30日均价"
         },

@@ -2,7 +2,6 @@ from datetime import date
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 
-@dataclass(slots=True)
 class BaseClass :
     def __init__(self):
         pass
@@ -14,7 +13,9 @@ class BaseClass :
     def ReadDBDataInMemory(self):
         print("开始载入数据库数据，这需要花上一段时间......")
         self.main.BoardCast("开始载入数据库数据，这需要花上一段时间.....")
-
+        basicData = self.main.dbHandler.GetAllBasicData()
+        #self.main.dbHandler.GetAllDailyData()
+        #self.main.dbHandler.GetAllAdjustData()
 
 
         self.main.BoardCast("数据库数据载入完成")
