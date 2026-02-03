@@ -10,6 +10,7 @@ from src.main_code.Core.Plan import Planner,PlanStruct
 from src.main_code.Core.FileProcess import FileProcessor
 from src.main_code.Core.Request import Requestor
 from src.main_code.Core.DB import DBHandler
+from src.main_code.Core.Select import CalculationDataHandle
 import src.main_code.Core.Const as const_proj
 from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
@@ -17,6 +18,7 @@ import asyncio
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 class processor:
+    isInit = False
     isInBase = False
     isInFactor = False
     isInDaily = False
@@ -33,12 +35,14 @@ class processor:
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
         self.dbHandler = self.InitDB()
+        self.calculationDataHandle = self.InitCalculationDataHandle()
         self.requestor = self.InitRequest()
         plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
         ws.mainProcessor = self
         #self.planner.AddPlane(plane)
         #self.RequestData()
         print("初始化完毕")
+        self.isInit = True
 
     def InitLastUpdateTime(self):
         if not os.path.exists(const_proj.Request_Data_rec_FileName):
@@ -75,8 +79,11 @@ class processor:
         instance = DBHandler.DBHandlerClass()
         instance.Init(self)
         return instance
-    
-
+    #初始化数据处理模块
+    def InitCalculationDataHandle(self):
+        instance = CalculationDataHandle.BaseClass()
+        instance.Init(self)
+        return instance
 
     async def RequestData(self):
         try:
@@ -94,6 +101,7 @@ class processor:
             if lastDayStr == today_str:
                 self.BoardCast("是最新数据，无需拉取")
             else:
+                self.isInit = False
                 self.BoardCast("开始进行数据拉取")
                 self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
 
@@ -108,8 +116,11 @@ class processor:
                 self.isInFactor = False
                 await self.requestor.RequestDaily(lastDayStr, today_str)
                 self.isInDaily = False
+                self.calculationDataHandle.ReadDBDataInMemory()
+                self.isInit = True
 
         except Exception as e:
+            self.isInit = True
             print(f"拉取失败失败: {e}")
             full_trace = traceback.format_exc()
             print(f"拉取失败失败: {full_trace}")

@@ -26,7 +26,9 @@ class DBHandlerClass:
     #读取数据库
     def ConnectDb(self):
         self.dbConnect = sqlite3.connect(self.dbPath)
+        self.dbConnect.row_factory = sqlite3.Row
         self.dbCursor = self.dbConnect.cursor()
+        
     #创建数据库表
     def CreateTable(self):
         self.CreateBasicTable()
@@ -237,10 +239,54 @@ class DBHandlerClass:
                 continue
             codeList.append(row[0])
             sameList.add(row[0])
-
-
         return codeList
     
+    def GetAllBasicData(self):
+        sql = f'SELECT * FROM {const_proj.DBBasicTableName}'
+        self.dbCursor.execute(sql)
+        allRow = self.dbCursor.fetchall()
+        sameList = set()
+        codeList = {}
+        for row in allRow:
+            ts_code = row[0]
+            if(ts_code in sameList):
+                continue
+            rowDic = dict(row)
+            codeList[ts_code] = rowDic
+            #sameList.add(ts_code)
+        return codeList
+    
+    def GetAllDailyData(self):
+        sql = f"SELECT * FROM {const_proj.DBDailyTableName}"
+        self.dbCursor.execute(sql)
+        # 先拿列名
+        columns = [desc[0] for desc in self.dbCursor.description]
+        # 准备结果字典
+        data_dict = {}
+        for row in self.dbCursor.fetchall():   # row 是 tuple
+            row_dict = {col: row[i] for i, col in enumerate(columns)}
+            codeColumStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+            dateColumnStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+            key = (row_dict[codeColumStr], row_dict[codeColumStr])  # 双主键 tuple
+            data_dict[key] = row_dict
+
+        return data_dict
+    
+    def GetAllAdjustData(self):
+        sql = f"SELECT * FROM {const_proj.DBAdjustTableName}"
+        self.dbCursor.execute(sql)
+        # 先拿列名
+        columns = [desc[0] for desc in self.dbCursor.description]
+        # 准备结果字典
+        data_dict = {}
+        for row in self.dbCursor.fetchall():   # row 是 tuple
+            row_dict = {col: row[i] for i, col in enumerate(columns)}
+            codeColumStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
+            dateColumnStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
+            key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
+            data_dict[key] = row_dict
+
+        return data_dict
 
 
     def format_seconds(self, seconds: float) -> str:

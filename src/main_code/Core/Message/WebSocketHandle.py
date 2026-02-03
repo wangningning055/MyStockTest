@@ -92,6 +92,11 @@ def HandleMsg(msg):
     if(mainProcessor == None):
         print("主程序没有初始化完成")
         return
+    if(mainProcessor.isInit == False):
+        mainProcessor.BoardCast("主程序数据没有初始化完成")
+        print("主程序数据没有初始化完成")
+        return
+
     if(mainProcessor.isInBase or mainProcessor.isInFactor or mainProcessor.isInDaily ):
         mainProcessor.BoardCast("正在拉取，请勿操作")
         return
@@ -99,7 +104,7 @@ def HandleMsg(msg):
     msgType = msg["type"]
     data = msg["payload"]
     if(msgType == MessageType.CS_UPDATE_DATA):
-        print(f"收到的token是：{data["token"]}")
+        #print(f"收到的token是：{data["token"]}")
         mainProcessor.tuShareToken = data["token"]
         task = asyncio.get_running_loop().create_task(mainProcessor.RequestData())
         task.add_done_callback(mainProcessor.task_finished_callback)
