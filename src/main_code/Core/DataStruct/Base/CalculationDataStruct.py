@@ -40,6 +40,8 @@ class StructBaseClass :
     clean_ratio:float             #市净率排行业前%
     cash_ratio:float              #市销率排行业前%
     sale_ratio:float              #市现率排行业前%
+    value_flow_ratio:float        #流通市值排行业前%
+    value_ratio:float              #总市值排行业前%
 
     amplitude:float         #振幅
     industry:str            #行业
@@ -47,8 +49,9 @@ class StructBaseClass :
     trade_state:int         #交易状态1正常交易，0停牌
     adjust:float            #复权因子
     avg:float               #当日均价
-    avg_7:float             #均价
+    avg_10:float             #均价
     avg_20:float
+    avg_40:float             #均价
     avg_60:float
     avg_120:float
 
@@ -63,6 +66,26 @@ class StructBaseClass :
     #振幅排名
     #换手率涨跌幅排名
     #均价涨跌幅排名
+
+
+    #快捷指标
+    #是否放量增长
+    #是否缩量增长
+    #是否放量降低
+    #是否缩量降低
+    #是否放量横盘
+    #是否缩量横盘
+    #是否平量增长
+    #是否平量降低
+    #是否处于10日低位
+    #是否处于20日低位
+    #是否处于40日低位
+    #是否处于60日低位
+    #是否处于120日低位
+
+
+    #快捷技术指标（布林线，macd，rsi）
+
 
 #这里包装一段时间的base
 class StructBaseWindowClass :
@@ -136,6 +159,20 @@ class StructBaseWindowClass :
     #整体换手率涨跌幅排名
     #均价涨跌幅排名
 
+    #快捷指标
+    #是否放量增长
+    #是否缩量增长
+    #是否放量降低
+    #是否缩量降低
+    #是否放量横盘
+    #是否缩量横盘
+    #是否平量增长
+    #是否平量降低
+    #是否震荡上行
+    #是否震荡下行
+
+    #快捷技术指标（布林线，macd，rsi）
+
 
 
 class StructIndustryClass():
@@ -171,4 +208,5 @@ class StructIndustryWindowClass():
 
     decrease_price:float  #这段时间的行业跌价总和
     increase_price:float  #这段时间的行业涨价总和
+
 
