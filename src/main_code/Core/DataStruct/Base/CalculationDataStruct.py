@@ -54,34 +54,36 @@ class StructBaseClass :
     avg_40:float             #均价
     avg_60:float
     avg_120:float
+    avg_240:float
 
+    avg_ratio_10:float             #当日均价与其他日均价的比
+    avg_ratio_20:float
+    avg_ratio_40:float             #均价
+    avg_ratio_60:float
+    avg_ratio_120:float
+    avg_ratio_240:float
     
     
     #这下面还有行业相关的排名数据没有写
-    #成交量排名
-    #成交额排名
-    #成交额涨跌幅排名
-    #成交量涨跌幅排名
-    #涨跌幅排名
-    #振幅排名
-    #换手率涨跌幅排名
-    #均价涨跌幅排名
+    volume_industry_rank:float #成交量排名(前%)
+    total_price_industry_rank:float #成交额排名(前%)
+    total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
+    volume_ratio_industry_rank:float #成交量涨跌幅排名(前%)
+    ratio_industry_rank:float#涨跌幅排名(前%)
+    amplitude_industry_rank:float#振幅排名(前%)
+    turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
+    avg_industry_rank:float#均价涨跌幅排名(前%)
 
 
     #快捷指标
-    #是否放量增长
-    #是否缩量增长
-    #是否放量降低
-    #是否缩量降低
-    #是否放量横盘
-    #是否缩量横盘
-    #是否平量增长
-    #是否平量降低
-    #是否处于10日低位
-    #是否处于20日低位
-    #是否处于40日低位
-    #是否处于60日低位
-    #是否处于120日低位
+    is_up_up:float#是否放量增长(>或小于1)
+    is_low_up:float#是否缩量增长
+    is_up_low:float#是否放量降低
+    is_low_low:float#是否缩量降低
+    is_up_mid:float#是否放量横盘
+    is_low_mid:float#是否缩量横盘
+    is_mid_up:float#是否平量增长
+    is_mid_low:float#是否平量降低
 
 
     #快捷技术指标（布林线，macd，rsi）
@@ -210,3 +212,13 @@ class StructIndustryWindowClass():
     increase_price:float  #这段时间的行业涨价总和
 
 
+    #是否放量增长
+    #是否缩量增长
+    #是否放量降低
+    #是否缩量降低
+    #是否放量横盘
+    #是否缩量横盘
+    #是否平量增长
+    #是否平量降低
+    #是否震荡上行
+    #是否震荡下行
