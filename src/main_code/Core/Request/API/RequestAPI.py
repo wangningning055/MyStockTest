@@ -56,7 +56,22 @@ class RequestAPIClass:
         await asyncio.sleep(0)
         return df
 
+    # 拉取复权因子 code的形式是xxxxxxx.SZ
+    async def Request_Adjust(self, stockCode):
+        #获取复权因子
+        code = self.TuShare_to_BaoStock(stockCode)
+        rs_list = []
+        rs_factor = bs.query_adjust_factor(code=code)
+        while (rs_factor.error_code == '0') & rs_factor.next():
+            rs_list.append(rs_factor.get_row_data())
 
+        if rs_list.__len__() != 0:
+            result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
+        else:
+            return None
+
+        await asyncio.sleep(0)
+        return result_factor
 
     #拉取日线信息StockCode为xxxxx.SZ的格式
     async def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):

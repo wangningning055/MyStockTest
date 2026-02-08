@@ -6,6 +6,7 @@ from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core import Const as const_proj
 import asyncio
+from collections import defaultdict
 class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
@@ -263,35 +264,86 @@ class DBHandlerClass:
             #sameList.add(ts_code)
         return codeList
     
-    def GetAllDailyData(self):
-        sql = f"SELECT * FROM {const_proj.DBDailyTableName}"
-        self.dbCursor.execute(sql)
-        # 先拿列名
-        columns = [desc[0] for desc in self.dbCursor.description]
-        # 准备结果字典
-        data_dict = {}
-        for row in self.dbCursor.fetchall():   # row 是 tuple
-            row_dict = {col: row[i] for i, col in enumerate(columns)}
-            codeColumStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
-            dateColumnStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
-            key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
-            data_dict[key] = row_dict
-
-        return data_dict
+    #def GetAllDailyData(self):
+    #    sql = f"SELECT * FROM {const_proj.DBDailyTableName}"
+    #    self.dbCursor.execute(sql)
+    #    # 先拿列名
+    #    columns = [desc[0] for desc in self.dbCursor.description]
+    #    # 准备结果字典
+    #    data_dict = {}
+    #    for row in self.dbCursor.fetchall():   # row 是 tuple
+    #        row_dict = {col: row[i] for i, col in enumerate(columns)}
+    #        codeColumStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+    #        dateColumnStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+    #        key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
+    #        data_dict[key] = row_dict
+    #    #data_dict.__len__()
+    #    return data_dict
     
-    def GetAllAdjustData(self):
-        sql = f"SELECT * FROM {const_proj.DBAdjustTableName}"
+    #def GetAllAdjustData(self):
+    #    sql = f"SELECT * FROM {const_proj.DBAdjustTableName}"
+    #    self.dbCursor.execute(sql)
+    #    # 先拿列名
+    #    columns = [desc[0] for desc in self.dbCursor.description]
+    #    # 准备结果字典
+    #    data_dict = {}
+    #    for row in self.dbCursor.fetchall():   # row 是 tuple
+    #        row_dict = {col: row[i] for i, col in enumerate(columns)}
+    #        codeColumStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
+    #        dateColumnStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
+    #        key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
+    #        data_dict[key] = row_dict
+
+    #    return data_dict
+    
+    async def GetAllDailyData(self):
+        count_sql = f"SELECT COUNT(*) FROM {const_proj.DBDailyTableName}"
+        self.dbCursor.execute(count_sql)
+        total_count = self.dbCursor.fetchone()[0]
+        sql = f"""
+        SELECT *
+        FROM {const_proj.DBDailyTableName}
+        ORDER BY
+            {self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)},
+            {self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)}
+        """
         self.dbCursor.execute(sql)
-        # 先拿列名
+
+        # 列名
         columns = [desc[0] for desc in self.dbCursor.description]
-        # 准备结果字典
-        data_dict = {}
-        for row in self.dbCursor.fetchall():   # row 是 tuple
-            row_dict = {col: row[i] for i, col in enumerate(columns)}
-            codeColumStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
-            dateColumnStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
-            key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
-            data_dict[key] = row_dict
+
+        # 外层 code，内层 date
+        data_dict = defaultdict(dict)
+
+        code_col = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+        date_col = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+        count = 0
+        countSend = 0
+        for row in self.dbCursor:   # ❗ 不用 fetchall
+            count = count + 1
+            countSend = countSend + 1
+            #if count > 10000:
+            #    break
+
+ 
+
+
+
+            row_dict = dict(zip(columns, row))
+
+            code = row_dict[code_col]
+            trade_date = row_dict[date_col]
+
+            data_dict[code][trade_date] = row_dict
+
+            percentage = count * 100 / total_count
+            formatted = round(percentage, 2) 
+            if(countSend > 1000):
+
+                self.main.BoardCast(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}% ")
+                countSend = 0
+            print(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}%")
+            await asyncio.sleep(0)
 
         return data_dict
 

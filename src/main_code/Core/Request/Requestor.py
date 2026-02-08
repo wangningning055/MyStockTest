@@ -20,7 +20,7 @@ class RequestorClass:
             print("tushare没有正确初始化")
             self.main.BoardCast("tushare没有正确初始化")
             return
-        self.main.BoardCast("处理基础数据")
+        self.main.BoardCast("开始拉取基础数据")
         df_Basic = await self.api.Request_Basic()
         df_Company_SZSE =await self.api.Request_Company(const_proj.TradeNameSZSE)
         df_Company_SSE =await self.api.Request_Company(const_proj.TradeNameSSE)
@@ -142,9 +142,9 @@ class RequestorClass:
 
         count = 0
         for code in codeList:
-            if count > 21:
-                break
-            count = count + 1
+            #if count > 21:
+            #    break
+            #count = count + 1
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue

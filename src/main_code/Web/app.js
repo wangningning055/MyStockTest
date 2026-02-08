@@ -1,9 +1,26 @@
+/**
+ * app.js - 主应用入口（拆分后版本）
+ * 
+ * 职责：
+ * - 导入所有功能模块
+ * - 暴露统一的 App 和 UIManager 接口
+ * - 保持向后兼容性
+ * - 维护全局状态
+ */
+
+// ============ 导入所有功能模块 ============
+import { UIManagerUtils } from './uiManager.js';
+import { FactorManager, setFactorManager } from './factorManager.js';
+import { ConditionManager, setConditionManager } from './conditionManager.js';
+import { ConfigManager, setConfigManager } from './configManager.js';
+import { ChartManager, setChartManager } from './chartManager.js';
+import { EventManager, setEventManager } from './eventManager.js';
+
+// ============ 配置和状态 ============
 export const CONFIG = {
     factorsUrl: "/static/factors.json",
     apiBase: "http://127.0.0.1:5000/api" 
 };
-let FACTORS_DATA = null;
-
 
 export const State = {
     buyFactors: [],
@@ -13,939 +30,125 @@ export const State = {
     selectedStock: null
 };
 
-const ChartInstances = {
-    klineChart: null,
-    portfolioChart: null
-};
-const Message_Action = "/action"
+let manager = null;
 
-let manager = null
-export function SetManager(_manager)
-{
+export function SetManager(_manager) {
     manager = _manager;
-}
-// 打开帮助弹窗
-function openHelpModal() {
-    const modal = document.getElementById('help-modal');
-    if (modal) {
-        modal.classList.add('active');
-    }
-}
-
-// 关闭帮助弹窗
-function closeHelpModal() {
-    const modal = document.getElementById('help-modal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    // 为各个模块注入 manager 实例
+    setFactorManager(_manager);
+    setConditionManager(_manager);
+    setConfigManager(_manager);
+    setChartManager(_manager);
+    setEventManager(_manager);
 }
 
-// 切换页签
-function switchHelpTab(tabName) {
-    // 隐藏所有页签内容
-    const tabPanes = document.querySelectorAll('.help-tab-pane');
-    tabPanes.forEach(pane => {
-        pane.classList.remove('active');
-    });
-    
-    // 取消所有按钮的激活状态
-    const tabBtns = document.querySelectorAll('.help-tab-btn');
-    tabBtns.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // 显示选中的页签
-    const selectedPane = document.getElementById(`help-tab-${tabName}`);
-    if (selectedPane) {
-        selectedPane.classList.add('active');
-    }
-    
-    // 激活对应的按钮
-    event.target.classList.add('active');
-}
-/**
- * UIManager - UI 数据接口
- */
+// ============ 合并 UIManager（为了向后兼容） ============
 export const UIManager = {
-    getTushareToken() { return document.getElementById('tushareToken').value; },
-    setTushareToken(token) { document.getElementById('tushareToken').value = token; },
-    getInitialFund() { return parseFloat(document.getElementById('initialFundInput').value) || 100000; },
-    setInitialFund(amount) { 
-        document.getElementById('initialFundInput').value = amount;
-        State.initialFund = amount;
-    },
-    getBacktestDateRange() {
-        return {
-            startDate: document.getElementById('bt-start-date').value,
-            endDate: document.getElementById('bt-end-date').value
-        };
-    },
-    setBacktestDateRange(startDate, endDate) {
-        document.getElementById('bt-start-date').value = startDate;
-        document.getElementById('bt-end-date').value = endDate;
-    },
-    getBacktestIsIdeal() { return document.getElementById('bt-is-ideal').checked; },
-    setBacktestIsIdeal(checked) { document.getElementById('bt-is-ideal').checked = checked; },
-    getBacktestBuySource() { return document.getElementById('backtest-buy-source').value; },
-    setBacktestBuySource(source) { document.getElementById('backtest-buy-source').value = source; },
-    getBacktestSellSource() { return document.getElementById('backtest-sell-source').value; },
-    setBacktestSellSource(source) { document.getElementById('backtest-sell-source').value = source; },
-
-    //设置连接状态
-    setConnectionStatus(isConnected) {
-        const dot = document.querySelector('.status-dot');
-        const text = document.querySelector('.status-text');
-        if (dot && text) {
-            if (isConnected) {
-                dot.classList.add('connected');
-                text.textContent = '已连接';
-            } else {
-                dot.classList.remove('connected');
-                text.textContent = '未连接';
-            }
-        }
-    },
-    //设置上次更新日期
-    setLastUpdateTime(dateTime) {
-    const elem = document.getElementById('last-update-text');
-    if (elem) {
-        if (dateTime) {
-            elem.textContent = dateTime;
-        } else {
-            elem.textContent = '--';
-        }
-    }
-    },
-
-    //设置权重阈值
-    getWeightThreshold() {
-    const elem = document.getElementById('weight-threshold-slider');
-    return elem ? parseFloat(elem.value) : 0.5;
-    },
-
-
-    //获取持仓页面的权重阈值
-    getHoldingsWeightThreshold() {
-        const elem = document.getElementById('holdings-weight-threshold-slider');
-        return elem ? parseFloat(elem.value) : 0.5;
-    },
-
-    //设置持仓页面的权重阈值
-    setHoldingsWeightThreshold(value) {
-        const elem = document.getElementById('holdings-weight-threshold-slider');
-        const display = document.getElementById('holdings-threshold-value-display');
-        if (elem) {
-            elem.value = Math.max(0, Math.min(1, value));
-            if (display) display.textContent = elem.value;
-        }
-    },
-
-    //选股结果
-    updateIndustryAnalysisTable(data) {
-    const tbody = document.getElementById('industry-analysis-table');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    (data || []).forEach(item => {
-        const row = document.createElement('tr');
-        const changeRatio = item.riseCount + item.fallCount > 0 
-            ? ((item.riseCount / (item.riseCount + item.fallCount)) * 100).toFixed(2)
-            : '0.00';
-        
-        row.innerHTML = `
-            <td>${item.industryName || '-'}</td>
-            <td>${item.stockCount || 0}</td>
-            <td>${item.volumeGrowth ? (item.volumeGrowth * 100).toFixed(2) + '%' : '-'}</td>
-            <td>${item.riseCount || 0} / ${item.fallCount || 0}</td>
-            <td>${changeRatio}%</td>
-            <td>${item.avgRiseRate ? (item.avgRiseRate * 100).toFixed(2) + '%' : '-'}</td>
-        `;
-        tbody.appendChild(row);
-    });
-    },
-
-
-//股票查询
-// 股票查询相关方法
-    setStockQueryResult(data) {
-        if (!data) {
-            document.getElementById('query-stock-name').textContent = '-';
-            return;
-        }
-
-        document.getElementById('query-stock-name').textContent = data.name || '-';
-        document.getElementById('query-stock-code').textContent = data.code || '-';
-        document.getElementById('query-stock-price').textContent = data.price ? `¥${data.price.toFixed(2)}` : '-';
-        document.getElementById('query-stock-change').textContent = data.changePercent ? `${data.changePercent.toFixed(2)}%` : '-';
-        document.getElementById('query-stock-industry').textContent = data.industry || '-';
-        document.getElementById('query-stock-pe').textContent = data.pe ? data.pe.toFixed(2) : '-';
-        document.getElementById('query-stock-pb').textContent = data.pb ? data.pb.toFixed(2) : '-';
-        document.getElementById('query-stock-market-cap').textContent = data.marketCap ? this.formatNumber(data.marketCap) : '-';
-        document.getElementById('query-stock-circulate-cap').textContent = data.circulateCap ? this.formatNumber(data.circulateCap) : '-';
-        document.getElementById('query-stock-52high').textContent = data.high52 ? `¥${data.high52.toFixed(2)}` : '-';
-        document.getElementById('query-company-intro').value = data.companyIntro || '';
-        document.getElementById('query-business-analysis').value = data.businessAnalysis || '';
-        
-        this.setProductsList(data.products || []);
-    },
-
-    setProductsList(products) {
-        const container = document.getElementById('query-products-list');
-        if (!container) return;
-        
-        if (!products || products.length === 0) {
-            container.innerHTML = '<div class="empty-state">暂无产品信息</div>';
-            return;
-        }
-        
-        container.innerHTML = products.map(product => 
-            `<div class="product-item">${product}</div>`
-        ).join('');
-    },
-
-    setQuickQueryResults(results) {
-        const container = document.getElementById('quick-query-results');
-        if (!container) return;
-        
-        if (!results || results.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        
-        container.innerHTML = results.map(item => 
-            `<div class="query-item" data-code="${item.code}">
-                <span class="query-item-code">${item.code}</span>
-                <span class="query-item-name">${item.name}</span>
-            </div>`
-        ).join('');
-    },
-
-    formatNumber(num) {
-        if (!num) return '-';
-        if (num >= 100000000) {
-            return (num / 100000000).toFixed(2) + '亿';
-        } else if (num >= 10000) {
-            return (num / 10000).toFixed(2) + '万';
-        }
-        return num.toFixed(2);
-    },
-
-    getStockQueryInput() {
-        return document.getElementById('query-stock-input').value;
-    },
-
-    getQuickQueryInput() {
-        return document.getElementById('quick-query-input').value;
-    },
-
-
-
-
-
-    setWeightThreshold(value) {
-        const elem = document.getElementById('weight-threshold-slider');
-        const display = document.getElementById('threshold-value-display');
-        if (elem) {
-            elem.value = Math.max(0, Math.min(1, value));
-            if (display) display.textContent = elem.value;
-        }
-    },
-
-    getLastUpdateTime() {
-        const elem = document.getElementById('last-update-text');
-        return elem ? elem.textContent : null;
-    },
-    // 股票过滤选项
-    getFilterExcludeST() { 
-        const elem = document.getElementById('filter-exclude-st');
-        return elem ? elem.checked : false;
-    },
-    setFilterExcludeST(checked) { 
-        const elem = document.getElementById('filter-exclude-st');
-        if (elem) elem.checked = checked;
-    },
-    
-    getFilterExcludeKC() { 
-        const elem = document.getElementById('filter-exclude-kc');
-        return elem ? elem.checked : false;
-    },
-    setFilterExcludeKC(checked) { 
-        const elem = document.getElementById('filter-exclude-kc');
-        if (elem) elem.checked = checked;
-    },
-    
-    getFilterExcludeCY() { 
-        const elem = document.getElementById('filter-exclude-cy');
-        return elem ? elem.checked : false;
-    },
-    setFilterExcludeCY(checked) { 
-        const elem = document.getElementById('filter-exclude-cy');
-        if (elem) elem.checked = checked;
-    },
-
-    // 股票说明
-    getSelectionDescription() { 
-        const elem = document.getElementById('stock-description');
-        return elem ? elem.value : '';
-    },
-    setSelectionDescription(text) { 
-        const elem = document.getElementById('stock-description');
-        if (elem) elem.value = text;
-    },
-
-    getCardWeight(cardId) {
-        const card = document.getElementById(cardId);
-        if (!card) return null;
-        return parseFloat(card.querySelector('.card-weight-input').value) || 0;
-    },
-    setCardWeight(cardId, weight) {
-        const card = document.getElementById(cardId);
-        if (!card) return false;
-        card.querySelector('.card-weight-input').value = weight;
-        return true;
-    },
-
-    getCardTitle(cardId) {
-        const card = document.getElementById(cardId);
-        return card ? card.querySelector('.card-title').textContent : null;
-    },
-    setCardTitle(cardId, title) {
-        const card = document.getElementById(cardId);
-        if (card) card.querySelector('.card-title').textContent = title;
-        return !!card;
-    },
-
-    getConditionOperator(row) { 
-        const select = row.querySelector('.cond-op');
-        return select ? select.value : null;
-    },
-    setConditionOperator(row, operator) {
-        const select = row.querySelector('.cond-op');
-        if (select) select.value = operator;
-        return !!select;
-    },
-
-    getConditionValue(row) {
-        const input = row.querySelector('.cond-val');
-        return input ? parseFloat(input.value) : null;
-    },
-    setConditionValue(row, value) {
-        const input = row.querySelector('.cond-val');
-        if (input) input.value = value;
-        return !!input;
-    },
-
-    getConditionDateRange(row) {
-        const inputs = row.querySelectorAll('.date-range-input');
-        return inputs.length >= 2 ? {
-            fromDays: parseInt(inputs[0].value) || 30,
-            toDays: parseInt(inputs[1].value) || 0
-        } : null;
-    },
-    setConditionDateRange(row, fromDays, toDays) {
-        const inputs = row.querySelectorAll('.date-range-input');
-        if (inputs.length >= 2) {
-            inputs[0].value = fromDays;
-            inputs[1].value = toDays;
-            return true;
-        }
-        return false;
-    },
-
-    getFactorCardIds(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return [];
-        return Array.from(container.querySelectorAll('.factor-card')).map(card => card.id);
-    },
-
-    clearFactorCards(containerId) {
-        const container = document.getElementById(containerId);
-        if (container) container.innerHTML = '';
-        return !!container;
-    },
-
-    getBacktestSummary() {
-        return {
-            totalPnL: document.getElementById('res-total-pnl').textContent,
-            winRate: document.getElementById('res-win-rate').textContent,
-            maxDrawdown: document.getElementById('res-max-drawdown').textContent
-        };
-    },
-    setBacktestSummary(totalPnL, winRate, maxDrawdown) {
-        document.getElementById('res-total-pnl').textContent = totalPnL;
-        document.getElementById('res-win-rate').textContent = winRate;
-        document.getElementById('res-max-drawdown').textContent = maxDrawdown;
-    },
-
-    getDiagnosisOutput() { return document.getElementById('diagnosis-output').innerHTML; },
-    setDiagnosisOutput(content) { document.getElementById('diagnosis-output').innerHTML = content; }
-
-
-    
+    ...UIManagerUtils,
+    // 所有 get/set 方法都从 UIManagerUtils 继承
 };
-//加载所有因子
-async function loadFactorsData() {
-    if (FACTORS_DATA) return FACTORS_DATA;
-    try {
-        const response = await fetch(CONFIG.factorsUrl);
-        FACTORS_DATA = await response.json();
-        console.log("FACTORS_DATA")
-        console.log(FACTORS_DATA)
-        console.log("✅ 因子数据加载成功");
-        return FACTORS_DATA;
-    } catch (error) {
-        console.error("❌ 因子数据加载失败:", error);
-        return null;
-    }
-}
-// 获取所有因子（返回平铺列表）
-function getAllFactors() {
-    if (!FACTORS_DATA) return [];
-    const allFactors = [];
-    Object.values(FACTORS_DATA.factors).forEach(category => {
-        category.items.forEach(item => {
-            allFactors.push({
-                ...item,
-                category: category.name,
-                categoryIcon: category.icon
-            });
-        });
-    });
-    return allFactors;
-}
+
+// ============ App 对象 - 合并所有模块的接口 ============
 export const App = {
+    // -------- 初始化 --------
     init() {
-        this.bindTabs();
-        this.bindGlobalEvents();
-        this.bindFactorEvents();
-        this.bindBacktestEvents();
-        this.initCharts();
-        //初始化滑动条
-        document.getElementById('weight-threshold-slider')?.addEventListener('input', (e) => {
-            const display = document.getElementById('threshold-value-display');
-            if (display) display.textContent = parseFloat(e.target.value).toFixed(2);
-        });
-
-        //持仓页面的滑动条
-        document.getElementById('holdings-weight-threshold-slider')?.addEventListener('input', (e) => {
-            const display = document.getElementById('holdings-threshold-value-display');
-            if (display) display.textContent = parseFloat(e.target.value).toFixed(2);
-        });
-
+        console.log("初始化！！！！")
+        EventManager.init();
+        this.bindFactorEvents()
         this.log("系统引擎启动成功，等待指令...", "system");
     },
 
-    bindTabs() {
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const target = tab.dataset.target;
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-                document.getElementById(target).classList.add('active');
-                this.log(`切换至视图: ${tab.innerText}`, "system");
-                setTimeout(() => {
-                    if (ChartInstances.klineChart) ChartInstances.klineChart.resize();
-                    if (ChartInstances.portfolioChart) ChartInstances.portfolioChart.resize();
-                }, 100);
-            });
-        });
+    // -------- 事件管理相关 --------
+    bindTabs() { 
+        return EventManager.bindTabs(); 
+    },
+    bindGlobalEvents() { 
+        return EventManager.bindGlobalEvents(); 
+    },
+    bindBacktestEvents() { 
+        return EventManager.bindBacktestEvents(); 
+    },
+    bindFactorEvents() { 
+        return FactorManager.bindFactorEvents(); 
     },
 
-    bindGlobalEvents() {
-        document.getElementById('api-update-data').addEventListener('click', () => this.callBackend(Message_Action, 'POST', manager.socket.MessageTypeCS_UPDATE_DATA ));
-        //document.getElementById('help-btn').addEventListener('click', () => openHelpModal());
-        //document.getElementById('api-stop-backend').addEventListener('click', () => {
-        //    if(confirm("确定要停止后台服务吗？")) this.callBackend('/stop', 'POST');
-        //});
-        document.getElementById('api-run-selection').addEventListener('click', () => this.runSelection());
-        document.getElementById('api-run-backtest').addEventListener('click', () => this.runBacktest());
-        document.getElementById('api-diagnose-holdings').addEventListener('click', () => this.runDiagnosis());
-        document.getElementById('btn-clear-log').addEventListener('click', () => {
-            document.getElementById('global-log-container').innerHTML = '';
-        });
+    // -------- 因子管理相关 --------
+    showFactorModal(side, targetCardId) { 
+        return FactorManager.showFactorModal(side, targetCardId); 
+    },
+    renderFactorCard(type, containerId, side) { 
+        return FactorManager.renderFactorCard(type, containerId, side); 
+    },
+    addConditionToCard(cardId, factorName, isFirst) { 
+        return FactorManager.addConditionToCard(cardId, factorName, isFirst); 
     },
 
-    bindBacktestEvents() {
-        document.getElementById('setInitialFundBtn').addEventListener('click', () => {
-            const fundValue = UIManager.getInitialFund();
-            if (!isNaN(fundValue) && fundValue > 0) {
-                UIManager.setInitialFund(fundValue);
-                this.log(`初始本金设置为: ¥${fundValue.toLocaleString()}`, "success");
-            } else {
-                this.log("请输入有效的初始本金金额", "error");
-            }
-        });
+    // -------- 条件分组相关 --------
+    bindConditionRowEvents(row, list) { 
+        return ConditionManager.bindConditionRowEvents(row, list); 
+    },
+    createConditionGroup(relation) { 
+        return ConditionManager.createConditionGroup(relation); 
+    },
+    wrapConditionInGroup(row) { 
+        return ConditionManager.wrapConditionInGroup(row); 
+    },
+    deleteGroup(group) { 
+        return ConditionManager.deleteGroup(group); 
+    },
+    collectConditionsTree(container) { 
+        return ConditionManager.collectConditionsTree(container); 
+    },
+    buildUIFromTree(nodes, container) { 
+        return ConditionManager.buildUIFromTree(nodes, container); 
     },
 
-    bindFactorEvents() {
-        document.getElementById('btn-add-buy-factor').addEventListener('click', () => this.showFactorModal('buy'));
-        document.getElementById('btn-add-sell-factor').addEventListener('click', () => this.showFactorModal('sell'));
-        document.getElementById('api-export-buy-config').addEventListener('click', () => this.exportConfig('buy'));
-        document.getElementById('api-export-sell-config').addEventListener('click', () => this.exportConfig('sell'));
-        document.getElementById('api-import-buy-config').addEventListener('click', () => this.importConfig('buy'));
-        document.getElementById('api-import-sell-config').addEventListener('click', () => this.importConfig('sell'));
-        document.getElementById('api-load-buy-file').addEventListener('click', () => this.loadConfigFile('backtest-buy-source'));
-        document.getElementById('api-load-sell-file').addEventListener('click', () => this.loadConfigFile('backtest-sell-source'));
+    // -------- 配置管理相关 --------
+    getFactorData(containerId) { 
+        return ConfigManager.getFactorData(containerId); 
     },
-    renderFactorCard(type, containerId, side) {
-        const container = document.getElementById(containerId);
-        const cardId = `card-${Date.now()}`;
-        const card = document.createElement('div');
-        card.className = 'factor-card';
-        card.id = cardId;
-        card.innerHTML = `
-            <div class="card-header">
-                <span class="card-title">${type}</span>
-                <div class="card-weight-group">
-                    <label>权重:</label>
-                    <input type="number" class="card-weight-input" value="10" min="0">
-                </div>
-                <button class="btn-remove-card" data-action="remove-card">✕</button>
-            </div>
-            <div class="conditions-list"></div>
-            <div class="card-footer">
-                <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}">
-                    <i class="fas fa-plus"></i> 插入新判定条件
-                </button>
-            </div>
-        `;
-        container.appendChild(card);
-        // ========== 关键修改：立即为这张卡片的按钮绑定事件 ==========
-        const removeBtn = card.querySelector('.btn-remove-card');
-        const addCondBtn = card.querySelector('.btn-add-cond');
-        
-        // 删除卡片
-        removeBtn.addEventListener('click', () => {
-            card.remove();
-            App.log('因子卡片已删除', 'info');
-        });
-        
-        // 添加条件按钮
-        addCondBtn.addEventListener('click', () => {
-            console.log("娃娃啊哇哇")
-            App.showFactorModal(side, cardId);
-        });
-        this.addConditionToCard(cardId, type, true);
+    exportConfig(side) { 
+        return ConfigManager.exportConfig(side); 
     },
-    
-    addConditionToCard(cardId, factorName, isFirst = false) {
-        const card = document.getElementById(cardId);
-        if (!card) {
-            this.log(`错误：找不到卡片 ID: ${cardId}`, "error");
-            return;
-        }
-        const list = card.querySelector('.conditions-list');
-        if (!list) {
-            this.log(`错误：卡片结构异常，找不到条件列表`, "error");
-            return;
-        }
-        //const card = document.getElementById(cardId);
-        //const list = card.querySelector('.conditions-list');
-        const row = document.createElement('div');
-        row.className = 'condition-row';
-        const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `<select class="cond-rel"><option value="AND">且</option><option value="OR">或</option></select>`;
-        row.innerHTML = `
-            <div class="condition-row__header">
-                <div class="cond-logic">${headerHtml}</div>
-                <div class="cond-name" title="${factorName}">${factorName}</div>
-                ${isFirst ? '' : '<button class="btn-del-cond" data-action="remove-condition">✕</button>'}
-            </div>
-            <div class="condition-row__date">
-                <span class="condition-row__date-label">日期范围:</span>
-                <input type="number" class="date-range-input" value="30" placeholder="天前">
-                <span class="date-range-separator">～</span>
-                <input type="number" class="date-range-input" value="0" placeholder="天前">
-            </div>
-            <div class="condition-row__condition">
-                <select class="cond-op">
-                    <option value="gt">></option>
-                    <option value="lt"><</option>
-                    <option value="eq">=</option>
-                    <option value="ge">≥</option>
-                    <option value="le">≤</option>
-                </select>
-                <input type="number" class="cond-val" value="0" placeholder="条件值">
-            </div>
-        `;
-        list.appendChild(row);
-            // ========== 关键修改：如果不是首行，立即为删除按钮绑定事件 ==========
-        if (!isFirst) {
-            const delBtn = row.querySelector('.btn-del-cond');
-            delBtn.addEventListener('click', () => {
-                row.remove();
-                this.log('条件行已删除', 'info');
-            });
+    importConfig(side) { 
+        return ConfigManager.importConfig(side); 
+    },
+    applyConfigToContainer(data, side) { 
+        return ConfigManager.applyConfigToContainer(data, side); 
+    },
+    loadConfigFile(selectId) { 
+        return ConfigManager.loadConfigFile(selectId); 
+    },
+
+    // -------- 业务逻辑相关 --------
+    runSelection() {
+        State.buyFactors = this.getFactorData('buy-factor-container');
+        if (manager) {
+            manager.requestSelectStocks();
         }
     },
 
-    removeCard(button) { button.closest('.factor-card').remove(); },
-    removeCondition(button) { button.parentElement.remove(); },
-
-    getFactorData(containerId) {
-        const cards = document.querySelectorAll(`#${containerId} .factor-card`);
-        const data = [];
-        cards.forEach(card => {
-            const weight = UIManager.getCardWeight(card.id);
-            const conditions = [];
-            card.querySelectorAll('.condition-row').forEach((row, index) => {
-                const dateRange = UIManager.getConditionDateRange(row);
-                conditions.push({
-                    factor_name: row.querySelector('.cond-name').textContent,
-                    relation: index === 0 ? "START" : (row.querySelector('.cond-rel')?.value || "AND"),
-                    operator: UIManager.getConditionOperator(row),
-                    value: UIManager.getConditionValue(row),
-                    dateFrom: dateRange?.fromDays || 30,
-                    dateTo: dateRange?.toDays || 0
-                });
-            });
-            data.push({
-                factor_group_name: UIManager.getCardTitle(card.id),
-                weight: weight,
-                logic_tree: conditions
-            });
-        });
-        return data;
-    },
-
-    exportConfig(side) {
-        const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-        const data = this.getFactorData(containerId);
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${side}_strategy_${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        this.log(`${side === 'buy' ? '买入' : '卖出'}策略已导出`, "success");
-    },
-
-    importConfig(side) {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    this.applyConfigToContainer(data, side);
-                    this.log(`${side === 'buy' ? '买入' : '卖出'}策略已导入`, "success");
-                } catch (error) {
-                    this.log(`导入失败：${error.message}`, "error");
-                }
-            };
-            reader.readAsText(file);
-        });
-        input.click();
-    },
-
-    applyConfigToContainer(configData, side) {
-        const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-        UIManager.clearFactorCards(containerId);
-        configData.forEach(factorGroup => {
-            const cardId = `card-${Date.now()}-${Math.random()}`;
-            const card = document.createElement('div');
-            card.className = 'factor-card';
-            card.id = cardId;
-            card.innerHTML = `
-                <div class="card-header">
-                    <span class="card-title">${factorGroup.factor_group_name}</span>
-                    <div class="card-weight-group">
-                        <label>权重:</label>
-                        <input type="number" class="card-weight-input" value="${factorGroup.weight}" min="0">
-                    </div>
-                    <button class="btn-remove-card" data-action="remove-card">✕</button>
-                </div>
-                <div class="conditions-list"></div>
-                <div class="card-footer">
-                    <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}">
-                        <i class="fas fa-plus"></i> 插入新判定条件
-                    </button>
-                </div>
-            `;
-            document.getElementById(containerId).appendChild(card);
-            // ========== 立即绑定事件 ==========
-            const removeBtn = card.querySelector('.btn-remove-card');
-            const addCondBtn = card.querySelector('.btn-add-cond');
-            
-            removeBtn.addEventListener('click', () => {
-                card.remove();
-                App.log('因子卡片已删除', 'info');
-            });
-            
-            addCondBtn.addEventListener('click', () => {
-                App.showFactorModal(side, cardId);
-            });
-
-            const list = card.querySelector('.conditions-list');
-            factorGroup.logic_tree.forEach((condition, index) => {
-                const isFirst = index === 0;
-                const row = document.createElement('div');
-                row.className = 'condition-row';
-                row.innerHTML = `
-                    <div class="condition-row__header">
-                        <div class="cond-logic">
-                            ${isFirst ? '<span class="first-tag">首选</span>' : `<select class="cond-rel"><option value="AND" ${condition.relation === 'AND' ? 'selected' : ''}>且</option><option value="OR" ${condition.relation === 'OR' ? 'selected' : ''}>或</option></select>`}
-                        </div>
-                        <div class="cond-name" title="${condition.factor_name}">${condition.factor_name}</div>
-                        ${isFirst ? '' : '<button class="btn-del-cond" data-action="remove-condition">✕</button>'}
-                    </div>
-                    <div class="condition-row__date">
-                        <span class="condition-row__date-label">日期范围:</span>
-                        <input type="number" class="date-range-input" value="${condition.dateFrom || 30}" placeholder="天前">
-                        <span class="date-range-separator">～</span>
-                        <input type="number" class="date-range-input" value="${condition.dateTo || 0}" placeholder="天前">
-                    </div>
-                    <div class="condition-row__condition">
-                        <select class="cond-op">
-                            <option value="gt" ${condition.operator === 'gt' ? 'selected' : ''}>></option>
-                            <option value="lt" ${condition.operator === 'lt' ? 'selected' : ''}><</option>
-                            <option value="eq" ${condition.operator === 'eq' ? 'selected' : ''}>=</option>
-                            <option value="ge" ${condition.operator === 'ge' ? 'selected' : ''}>≥</option>
-                            <option value="le" ${condition.operator === 'le' ? 'selected' : ''}>≤</option>
-                        </select>
-                        <input type="number" class="cond-val" value="${condition.value}" placeholder="条件值">
-                    </div>
-                `;
-                list.appendChild(row);
-                            // ========== 如果不是首行，立即绑定删除事件 ==========
-                if (!isFirst) {
-                    const delBtn = row.querySelector('.btn-del-cond');
-                    delBtn.addEventListener('click', () => {
-                        row.remove();
-                        App.log('条件行已删除', 'info');
-                    });
-                }
-            });
-        });
-    },
-
-    loadConfigFile(selectId) {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    const fileKey = `config_${Date.now()}`;
-                    sessionStorage.setItem(fileKey, JSON.stringify(data));
-                    const selectElement = document.getElementById(selectId);
-                    const option = document.createElement('option');
-                    option.value = fileKey;
-                    option.textContent = `📄 ${file.name}`;
-                    selectElement.appendChild(option);
-                    selectElement.value = fileKey;
-                    App.log(`已加载文件：${file.name}`, "success");
-                } catch (error) {
-                    App.log(`文件加载失败：${error.message}`, "error");
-                }
-            };
-            reader.readAsText(file);
-        });
-        input.click();
-    },
-
-    async runSelection() {
-        const buyConfig = this.getFactorData('buy-factor-container');
-        const token = UIManager.getTushareToken();
-        const filters = {
-            excludeST: UIManager.getFilterExcludeST(),
-            excludeKC: UIManager.getFilterExcludeKC(),
-            excludeCY: UIManager.getFilterExcludeCY()
-        };
-        this.log("正在执行选股...", "system");
-        const result = await this.callBackend(Message_Action, 'POST', {
-            token: token,
-            strategies: buyConfig,
-            filters: filters
-        });
-        if(result) {
-            this.updateSelectionTable(result.data);
-            if(result.klineData) {
-                this.drawKlineChart(result.klineData);
-            }
+    runBacktest() {
+        State.buyFactors = this.getFactorData('buy-factor-container');
+        State.sellFactors = this.getFactorData('sell-factor-container');
+        if (manager) {
+            manager.requestBacktest();
         }
     },
 
-    async runBacktest() {
-        const dateRange = UIManager.getBacktestDateRange();
-        const payload = {
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-            isIdeal: UIManager.getBacktestIsIdeal(),
-            buySource: UIManager.getBacktestBuySource(),
-            sellSource: UIManager.getBacktestSellSource(),
-            initialFund: UIManager.getInitialFund()
-        };
-        this.log("启动回测引擎...", "info");
-        const result = await this.callBackend(Message_Action, 'POST', payload);
-        if(result) {
-            this.updateBacktestUI(result);
-            if(result.portfolioData) {
-                this.drawPortfolioChart(result.portfolioData);
-            }
+    runDiagnosis() {
+        if (manager) {
+            manager.requestDiagnose();
         }
     },
 
-    async runDiagnosis() {
-        const sellConfig = this.getFactorData('sell-factor-container');
-        this.log("执行持仓诊断...", "warning");
-        const result = await this.callBackend(Message_Action, 'POST', { sell_strategy: sellConfig });
-        if(result) {
-            UIManager.setDiagnosisOutput(`<p class="highlight">${result.message}</p>`);
-            this.log("诊断完成", "success");
+    callBackend(endpoint, method, data = null) {
+        if (manager) {
+            manager.requestUpdateData(data);
         }
     },
 
-    initCharts() {
-        const klineContainer = document.getElementById('klineChart');
-        if (klineContainer) {
-            ChartInstances.klineChart = echarts.init(klineContainer, null, { renderer: 'canvas', useDirtyRect: true, locale: 'ZH' });
-            ChartInstances.klineChart.setOption({
-                backgroundColor: 'transparent',
-                graphic: { elements: [{ type: 'text', left: 'center', top: 'center', style: { text: '等待数据加载...', fontSize: 16, fill: '#8b95aa' } }] }
-            });
-        }
-        const portfolioContainer = document.getElementById('portfolioChart');
-        if (portfolioContainer) {
-            ChartInstances.portfolioChart = echarts.init(portfolioContainer, null, { renderer: 'canvas', useDirtyRect: true, locale: 'ZH' });
-            ChartInstances.portfolioChart.setOption({
-                backgroundColor: 'transparent',
-                graphic: { elements: [{ type: 'text', left: 'center', top: 'center', style: { text: '等待数据加载...', fontSize: 16, fill: '#8b95aa' } }] }
-            });
-        }
-        window.addEventListener('resize', () => {
-            if (ChartInstances.klineChart) ChartInstances.klineChart.resize();
-            if (ChartInstances.portfolioChart) ChartInstances.portfolioChart.resize();
-        });
-    },
-
-    drawKlineChart(klineData) {
-        if (!ChartInstances.klineChart || !klineData || klineData.length === 0) {
-            this.log("K线数据无效或图表未初始化", "error");
-            return;
-        }
-        const dates = [];
-        const ohlcData = [];
-        const volumeData = [];
-        klineData.forEach(item => {
-            dates.push(item.date);
-            ohlcData.push([item.open, item.close, item.low, item.high]);
-            volumeData.push(item.volume || 0);
-        });
-
-        const option = {
-            backgroundColor: 'transparent',
-            title: { text: 'K线走势图', left: 'center', textStyle: { color: '#4facfe', fontSize: 14, fontWeight: 'bold' } },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'cross' },
-                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                borderColor: '#4facfe',
-                borderWidth: 1,
-                textStyle: { color: '#fff', fontSize: 12 },
-                formatter: (params) => {
-                    if (!params || params.length === 0) return '';
-                    const idx = params[0].dataIndex;
-                    const item = klineData[idx];
-                    if (!item) return '';
-                    const change = ((item.close - item.open) / item.open * 100).toFixed(2);
-                    const changeColor = item.close >= item.open ? '#00c853' : '#ff5252';
-                    return `<div style="font-weight: bold; margin-bottom: 5px;">${item.date}</div>
-                        <div style="color: #4facfe;">开盘: ${item.open.toFixed(2)}</div>
-                        <div style="color: #00c853;">最高: ${item.high.toFixed(2)}</div>
-                        <div style="color: #ff5252;">最低: ${item.low.toFixed(2)}</div>
-                        <div style="color: ${changeColor}; font-weight: bold;">收盘: ${item.close.toFixed(2)} (${change}%)</div>
-                        <div style="color: #8b95aa; margin-top: 5px;">成交量: ${(item.volume / 1000000).toFixed(2)}M</div>`;
-                }
-            },
-            legend: { data: ['K线', '成交量'], textStyle: { color: '#e6eaf2' }, top: '35px' },
-            grid: [
-                { left: '8%', right: '8%', top: '70px', height: '60%', containLabel: true },
-                { left: '8%', right: '8%', top: '73%', height: '15%', containLabel: true }
-            ],
-            xAxis: [
-                { type: 'category', data: dates, gridIndex: 0, axisLine: { lineStyle: { color: '#8b95aa' } }, axisLabel: { color: '#8b95aa', rotate: 45, fontSize: 11 }, splitLine: { show: false } },
-                { type: 'category', data: dates, gridIndex: 1, axisLine: { lineStyle: { color: '#8b95aa' } }, axisLabel: { show: false } }
-            ],
-            yAxis: [
-                { type: 'value', gridIndex: 0, axisLine: { lineStyle: { color: '#8b95aa' } }, axisLabel: { color: '#8b95aa', fontSize: 11 }, splitLine: { lineStyle: { color: 'rgba(120, 130, 160, 0.2)' } } },
-                { type: 'value', gridIndex: 1, axisLine: { lineStyle: { color: '#8b95aa' } }, axisLabel: { color: '#8b95aa', fontSize: 11 } }
-            ],
-            series: [
-                { name: 'K线', type: 'candlestick', xAxisIndex: 0, yAxisIndex: 0, data: ohlcData, itemStyle: { color: '#00c853', color0: '#ff5252', borderColor: '#00c853', borderColor0: '#ff5252', borderWidth: 1 } },
-                { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: volumeData, itemStyle: { color: (params) => { const idx = params.dataIndex; return klineData[idx].close >= klineData[idx].open ? 'rgba(0, 200, 83, 0.4)' : 'rgba(255, 82, 82, 0.4)'; } } }
-            ],
-            dataZoom: [
-                { type: 'slider', show: true, xAxisIndex: [0, 1], start: Math.max(0, 100 - Math.min(50, klineData.length * 2)), end: 100, backgroundColor: 'rgba(79, 172, 254, 0.1)', fillerColor: 'rgba(79, 172, 254, 0.2)', handleStyle: { color: '#4facfe' }, textStyle: { color: '#8b95aa', fontSize: 11 }, borderColor: '#4facfe' },
-                { type: 'inside', xAxisIndex: [0, 1], start: Math.max(0, 100 - Math.min(50, klineData.length * 2)), end: 100, zoomOnMouseWheel: true, moveOnMouseMove: true, moveOnMouseWheel: false }
-            ]
-        };
-        ChartInstances.klineChart.setOption(option);
-        this.log(`K线图已绘制，共 ${klineData.length} 条数据`, "success");
-    },
-
-    drawPortfolioChart(portfolioData) {
-        if (!ChartInstances.portfolioChart || !portfolioData || portfolioData.length === 0) {
-            this.log("收益数据无效或图表未初始化", "error");
-            return;
-        }
-        const dates = [];
-        const equityData = [];
-        const profitRateData = [];
-        portfolioData.forEach(item => {
-            dates.push(item.date);
-            equityData.push(item.equity);
-            profitRateData.push(item.profitRate);
-        });
-
-        const option = {
-            backgroundColor: 'transparent',
-            title: { text: '收益走势图', left: 'center', textStyle: { color: '#4facfe', fontSize: 14, fontWeight: 'bold' } },
-            tooltip: {
-                trigger: 'axis',
-                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                borderColor: '#4facfe',
-                borderWidth: 1,
-                textStyle: { color: '#fff', fontSize: 12 },
-                formatter: (params) => {
-                    if (!params || params.length === 0) return '';
-                    const idx = params[0].dataIndex;
-                    const item = portfolioData[idx];
-                    if (!item) return '';
-                    return `<div style="font-weight: bold; margin-bottom: 8px;">${item.date}</div>
-                        <div style="color: #4facfe; margin-bottom: 3px;">💰 账户权益: <strong>¥${item.equity.toFixed(2)}</strong></div>
-                        <div style="color: #00c853; margin-bottom: 3px;">✅ 累计盈利: <strong>¥${item.profit.toFixed(2)}</strong></div>
-                        <div style="color: #00f2fe; font-weight: bold;">📈 收益率: <strong>${item.profitRate.toFixed(2)}%</strong></div>`;
-                }
-            },
-            legend: { data: ['账户权益', '收益率'], textStyle: { color: '#e6eaf2' }, top: '35px' },
-            grid: { left: '8%', right: '8%', top: '70px', bottom: '15%', containLabel: true },
-            xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#8b95aa' } }, axisLabel: { color: '#8b95aa', rotate: 45, fontSize: 11 }, splitLine: { show: false } },
-            yAxis: [
-                { type: 'value', name: '账户权益 (¥)', position: 'left', nameTextStyle: { color: '#4facfe', fontSize: 11 }, axisLine: { lineStyle: { color: '#4facfe' } }, axisLabel: { color: '#8b95aa', fontSize: 11 }, splitLine: { lineStyle: { color: 'rgba(120, 130, 160, 0.2)' } } },
-                { type: 'value', name: '收益率 (%)', position: 'right', nameTextStyle: { color: '#00f2fe', fontSize: 11 }, axisLine: { lineStyle: { color: '#00f2fe' } }, axisLabel: { color: '#8b95aa', fontSize: 11 } }
-            ],
-            series: [
-                { name: '账户权益', type: 'line', yAxisIndex: 0, data: equityData, smooth: true, lineStyle: { color: '#4facfe', width: 2.5 }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(79, 172, 254, 0.3)' }, { offset: 1, color: 'rgba(79, 172, 254, 0.05)' }]) }, itemStyle: { color: '#4facfe', borderColor: '#fff', borderWidth: 2 }, symbolSize: 6, emphasis: { itemStyle: { borderWidth: 3 } } },
-                { name: '收益率', type: 'line', yAxisIndex: 1, data: profitRateData, smooth: true, lineStyle: { color: '#00f2fe', width: 2.5 }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(0, 242, 254, 0.2)' }, { offset: 1, color: 'rgba(0, 242, 254, 0.02)' }]) }, itemStyle: { color: '#00f2fe', borderColor: '#fff', borderWidth: 2 }, symbolSize: 6, emphasis: { itemStyle: { borderWidth: 3 } } }
-            ],
-            dataZoom: [
-                { type: 'slider', show: true, start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), end: 100, backgroundColor: 'rgba(79, 172, 254, 0.1)', fillerColor: 'rgba(79, 172, 254, 0.2)', handleStyle: { color: '#4facfe' }, textStyle: { color: '#8b95aa', fontSize: 11 }, borderColor: '#4facfe' },
-                { type: 'inside', start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), end: 100, zoomOnMouseWheel: true, moveOnMouseMove: true }
-            ]
-        };
-        ChartInstances.portfolioChart.setOption(option);
-        this.log(`收益曲线图已绘制，共 ${portfolioData.length} 个交易日`, "success");
-    },
-
+    // -------- 日志相关 --------
     log(msg, type = 'info') {
         const container = document.getElementById('global-log-container');
         if (!container) {
@@ -958,175 +161,14 @@ export const App = {
         item.innerHTML = `[${time}] ${msg}`;
         container.appendChild(item);
         container.scrollTop = container.scrollHeight;
-    },
-
-    async callBackend(endpoint, method, data = null) {
-        manager.requestUpdateData(data)
-    },
-
-
-    updateSelectionTable(data) {
-        const tbody = document.getElementById('selection-result-table');
-        tbody.innerHTML = '';
-        (data || []).forEach(item => {
-            const row = document.createElement('tr');
-            row.style.cursor = 'pointer';
-            row.innerHTML = `
-                <td>${item.code}</td>
-                <td>${item.name}</td>
-                <td>¥${item.price.toFixed(2)}</td>
-                <td>${item.score.toFixed(2)}</td>
-                <td>${item.industry || '-'}</td>
-            `;
-            row.addEventListener('click', () => {
-                UIManager.setSelectionDescription(`【${item.code}】${item.name}\n行业：${item.industry || '-'}\n现价：¥${item.price.toFixed(2)}\n综合得分：${item.score.toFixed(2)}\n\n您的分析：\n`);
-                State.selectedStock = item;
-            });
-            tbody.appendChild(row);
-        });
-    },
-
-    updateBacktestUI(result) {
-        UIManager.setBacktestSummary(
-            result.totalPnL || '0.00%',
-            result.winRate || '0%',
-            result.maxDrawdown || '0.00%'
-        );
-        const tbody = document.getElementById('backtest-log-table');
-        tbody.innerHTML = '';
-        (result.transactions || []).forEach(tx => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${tx.date}</td>
-                <td>${tx.stock}</td>
-                <td>${tx.action}</td>
-                <td>¥${tx.price.toFixed(2)}</td>
-                <td>${tx.profit ? `¥${tx.profit.toFixed(2)}` : '-'}</td>
-                <td>¥${tx.balance.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
-        });
-    },
-
-    //showFactorModal(side, targetCardId = null) {
-    //    const modal = document.getElementById('factor-modal');
-    //    const list = document.getElementById('factor-type-list');
-    //    list.innerHTML = '';
-    //    CONFIG.factorTypes.forEach(type => {
-    //        const btn = document.createElement('button');
-    //        btn.className = 'btn btn-outline';
-    //        btn.innerText = type;
-    //        btn.onclick = () => {
-    //            if (targetCardId) {
-    //                this.addConditionToCard(targetCardId, type);
-    //            } else {
-    //                const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-    //                this.renderFactorCard(type, containerId, side);
-    //            }
-    //            modal.classList.remove('active');
-    //        };
-    //        list.appendChild(btn);
-    //    });
-    //    modal.classList.add('active');
-    //    document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.remove('active'));
-    //}
-
-    async showFactorModal(side, targetCardId = null) {
-        const modal = document.getElementById('factor-modal');
-        const categoriesContainer = document.getElementById('factor-categories-container');
-
-
-        if (!categoriesContainer) {
-            console.error("❌ factor-categories-container 元素不存在！");
-            console.log("页面中的所有 div id:", Array.from(document.querySelectorAll('[id]')).map(el => el.id));
-            return;
-        }
-    
-        // 清空容器
-        categoriesContainer.innerHTML = '';
-        modal.classList.add('active');
-        const self = this;
-        // 确保数据已加载
-        (async () => {
-        if (!FACTORS_DATA) {
-            await loadFactorsData();
-        }
-        
-        if (!FACTORS_DATA) {
-            alert("因子数据加载失败，请检查 factors.json 文件");
-            return;
-        }
-        //这里可以打印
-
-        // 创建分类标签页
-        Object.entries(FACTORS_DATA.factors).forEach(([categoryKey, category]) => {
-            const categorySection = document.createElement('div');
-            categorySection.className = 'factor-category-section';
-            categorySection.dataset.category = categoryKey;
-            if(side == "buy")
-            {
-                if(category.isSold == 1)
-                {
-                    return
-                }
-            }
-            // 分类标题
-            const categoryTitle = document.createElement('div');
-            categoryTitle.className = 'factor-category-title';
-            categoryTitle.innerHTML = `${category.icon} ${category.name}`;
-            categorySection.appendChild(categoryTitle);
-            
-            // 分类描述
-            const categoryDesc = document.createElement('div');
-            categoryDesc.className = 'factor-category-desc';
-            categoryDesc.textContent = category.description;
-            categorySection.appendChild(categoryDesc);
-            
-            // 因子按钮容器
-            const itemsContainer = document.createElement('div');
-            itemsContainer.className = 'factor-items-container';
-            
-            category.items.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-factor-item';
-                btn.title = item.description;
-                btn.innerHTML = `<span class="factor-name">${item.name}</span>`;
-                
-                btn.onclick = () => {
-                    // 使用 item.name 作为因子名称
-                    console.log("点击了添加因子")
-                    if (targetCardId) {
-                        self.addConditionToCard(targetCardId, item.name);
-                    } else {
-                        const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-                        self.renderFactorCard(item.name, containerId, side);
-                    }
-                    modal.classList.remove('active');
-                };
-                
-                itemsContainer.appendChild(btn);
-            });
-            
-            categorySection.appendChild(itemsContainer);
-            categoriesContainer.appendChild(categorySection);
-            //console.log("分类创建完成:", categoryKey);  // 打印完成信息
-        });
-            //console.log("所有分类创建完成");
-            //console.log("categoriesContainer 内容数:", categoriesContainer.children.length);
-        })();
-        
-        // 关闭按钮
-        const closeBtn = document.getElementById('btn-close-modal');
-        if (closeBtn) {
-            closeBtn.onclick = () => modal.classList.remove('active');
-        }
     }
-
-
 };
 
-// ========== 关键修复：DOMContentLoaded 必须在 App 对象定义之后 ==========
+// ============ 生命周期初始化 ============
 document.addEventListener('DOMContentLoaded', async () => { 
-    await loadFactorsData();
-    App.init()
+    // 加载因子数据
+    await FactorManager.loadFactorsData();
+    
+    // 初始化应用
+    App.init();
 });

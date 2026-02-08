@@ -96,27 +96,26 @@ class processor:
                 with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
                     lastDayStr = f.read().strip()
 
-            lastDayStr = "20260101"
-            today_str = "20260130"
             if lastDayStr == today_str:
-                self.BoardCast("是最新数据，无需拉取")
+                self.BoardCast("是最新数据，无需拉取,开始读入数据")
+                await self.calculationDataHandle.ReadDBDataInMemory()
             else:
                 self.isInit = False
                 self.BoardCast("开始进行数据拉取")
                 self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
 
-                self.isInDaily = True
-                self.isInBase = True
-                self.isInFactor = True
+                #self.isInDaily = True
+                #self.isInBase = True
+                #self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
                 #await self.requestor.RequestBasic()
                 self.isInBase = False
                 #await self.requestor.RequestAdjust()
                 self.isInFactor = False
-                await self.requestor.RequestDaily(lastDayStr, today_str)
+                #await self.requestor.RequestDaily(lastDayStr, today_str)
                 self.isInDaily = False
-                self.calculationDataHandle.ReadDBDataInMemory()
+                #await self.calculationDataHandle.ReadDBDataInMemory()
                 self.isInit = True
 
         except Exception as e:

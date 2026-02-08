@@ -1,636 +1,229 @@
 {
   "factors": {
-    "daily_basics": {
-      "isSold":0,
-      "name": "日线基本数据",
-      "icon": "📊",
-      "description": "当日和历史涨跌幅、成交量、换手率等基础数据",
-      "items": [
-        {
-          "id": "daily_price_gain",
-          "name": "当日涨幅（%）",
-          "type": "%",
-          "description": "当天股票相比前一个交易日的涨幅百分比"
-        },
-        {
-          "id": "total_price_gain",
-          "name": "总共涨幅（%）",
-          "type": "float",
-          "description": "从起始日期到当前的累计涨幅"
-        },
-        {
-          "id": "avg_price_gain",
-          "name": "平均涨幅（%）",
-          "type": "float",
-          "description": "指定周期内的平均涨幅"
-        },
-        {
-          "id": "max_price_gain",
-          "name": "最高涨幅（%）",
-          "type": "float",
-          "description": "指定周期内的最高单日涨幅"
-        },
-        {
-          "id": "daily_price_loss",
-          "name": "当日跌幅（%）",
-          "type": "float",
-          "description": "当天股票相比前一个交易日的跌幅百分比"
-        },
-        {
-          "id": "total_price_loss",
-          "name": "总共跌幅（%）",
-          "type": "float",
-          "description": "从起始日期到当前的累计跌幅"
-        },
-        {
-          "id": "avg_price_loss",
-          "name": "平均跌幅（%）",
-          "type": "float",
-          "description": "指定周期内的平均跌幅"
-        },
-        {
-          "id": "max_price_loss",
-          "name": "最高跌幅（%）",
-          "type": "float",
-          "description": "指定周期内的最高单日跌幅"
-        }
-      ]
-    },
-    "volume_data": {
-      "isSold":0,
-      "name": "成交量数据",
-      "icon": "📈",
-      "description": "成交量、量比、成交量增幅等数据",
-      "items": [
-        {
-          "id": "daily_volume",
-          "name": "当日成交量（手）",
-          "type": "float",
-          "description": "当天的成交量总数（单位：手）"
-        },
-        {
-          "id": "avg_volume",
-          "name": "平均成交量（手）",
-          "type": "float",
-          "description": "指定周期内的平均成交量"
-        },
-        {
-          "id": "max_volume",
-          "name": "最大成交量（手）",
-          "type": "float",
-          "description": "指定周期内的最大成交量"
-        },
-        {
-          "id": "min_volume",
-          "name": "最小成交量（手）",
-          "type": "float",
-          "description": "指定周期内的最小成交量"
-        },
-        {
-          "id": "avg_volume_gain",
-          "name": "平均成交量增幅（%）",
-          "type": "float",
-          "description": "指定周期内成交量的平均增幅"
-        },
-        {
-          "id": "daily_volume_gain",
-          "name": "当日成交量增幅（%）",
-          "type": "float",
-          "description": "当天相比前一个交易日的成交量增幅"
-        },
-        {
-          "id": "avg_volume_loss",
-          "name": "平均成交量跌幅（%）",
-          "type": "float",
-          "description": "指定周期内成交量的平均跌幅"
-        },
-        {
-          "id": "daily_volume_loss",
-          "name": "当日成交量跌幅（%）",
-          "type": "float",
-          "description": "当天相比前一个交易日的成交量跌幅"
-        }
-      ]
-    },
-    "turnover_data": {
-      "isSold":0,
-      "name": "换手率与量比数据",
-      "icon": "🔄",
-      "description": "换手率、量比等市场活跃度指标",
-      "items": [
-        {
-          "id": "daily_turnover_growth",
-          "name": "当日换手率的增长率（%）",
-          "type": "float",
-          "description": "当天换手率相比前一交易日的增长率"
-        },
-        {
-          "id": "avg_turnover_growth",
-          "name": "平均换手率的增长率（%）",
-          "type": "float",
-          "description": "指定周期内换手率的平均增长率"
-        },
-        {
-          "id": "daily_volume_ratio",
-          "name": "当日量比(float)",
-          "type": "float",
-          "description": "当日成交量与过去5日平均成交量的比值"
-        },
-        {
-          "id": "avg_volume_ratio",
-          "name": "平均量比(float)",
-          "type": "float",
-          "description": "指定周期内的平均量比"
-        },
-        {
-          "id": "volume_ratio_gain",
-          "name": "量比增幅（%）",
-          "type": "float",
-          "description": "量比的增幅百分比"
-        },
-        {
-          "id": "volume_ratio_loss",
-          "name": "量比跌幅（%）",
-          "type": "float",
-          "description": "量比的跌幅百分比"
-        }
-      ]
-    },
-    "volatility_data": {
-      "isSold":0,
-      "name": "振幅数据",
-      "icon": "〰️",
-      "description": "股票价格波动幅度数据",
-      "items": [
-        {
-          "id": "avg_amplitude",
-          "name": "平均振幅(%)",
-          "type": "float",
-          "description": "指定周期内的平均振幅（最高价-最低价）/最低价"
-        },
-        {
-          "id": "daily_amplitude",
-          "name": "当日振幅(%)",
-          "type": "float",
-          "description": "当日的价格振幅"
-        }
-      ]
-    },
-    "limit_up_down": {
-      "isSold":0,
-      "name": "涨停跌停数据",
-      "icon": "🛑",
-      "description": "涨停和跌停次数统计",
-      "items": [
-        {
-          "id": "limit_up_count",
-          "name": "涨停次数",
-          "type": "int",
-          "description": "指定周期内涨停的次数"
-        },
-        {
-          "id": "limit_down_count",
-          "name": "跌停次数",
-          "type": "int",
-          "description": "指定周期内跌停的次数"
-        }
-      ]
-    },
-    "moving_average": {
-      "isSold":0,
-      "name": "均线对比数据",
-      "icon": "📉",
-      "description": "当前价格与各均线的比值关系",
-      "items": [
-        {
-          "id": "ma_vs_ma7_ratio",
-          "name": "当日均价与7日均价的比",
-          "type": "float",
-          "description": "当日均价 / 7日均价"
-        },
-        {
-          "id": "open_vs_ma7_ratio",
-          "name": "当日开盘价与7日均价的比",
-          "type": "float",
-          "description": "当日开盘价 / 7日均价"
-        },
-        {
-          "id": "close_vs_ma7_ratio",
-          "name": "当日收盘价与7日均价的比",
-          "type": "float",
-          "description": "当日收盘价 / 7日均价"
-        },
-        {
-          "id": "high_vs_ma7_ratio",
-          "name": "当日最高价与7日均价的比",
-          "type": "float",
-          "description": "当日最高价 / 7日均价"
-        },
-        {
-          "id": "low_vs_ma7_ratio",
-          "name": "当日最低价与7日均价的比",
-          "type": "float",
-          "description": "当日最低价 / 7日均价"
-        },
 
-        {
-          "id": "ma_vs_ma20_ratio",
-          "name": "当日均价与20日均价的比",
-          "type": "float",
-          "description": "当日均价 / 30日均价"
-        },
-        {
-          "id": "open_vs_ma20_ratio",
-          "name": "当日开盘价与20日均价的比",
-          "type": "float",
-          "description": "当日开盘价 / 30日均价"
-        },
-        {
-          "id": "close_vs_ma20_ratio",
-          "name": "当日收盘价与20日均价的比",
-          "type": "float",
-          "description": "当日收盘价 / 30日均价"
-        },
-        {
-          "id": "high_vs_ma20_ratio",
-          "name": "当日最高价与20日均价的比",
-          "type": "float",
-          "description": "当日最高价 / 30日均价"
-        },
-        {
-          "id": "low_vs_ma20_ratio",
-          "name": "当日最低价与20日均价的比",
-          "type": "float",
-          "description": "当日最低价 / 30日均价"
-        },
+    "stock_daily": {
+      "name": "个股当日条件",
+      "description": "股票在单一交易日内的行情、成交、估值及排名数据",
+      "items": [
+        { "id": "open", "name": "开盘价", "type": "float", "description": "股票当日的开盘成交价格" },
+        { "id": "close", "name": "收盘价", "type": "float", "description": "股票当日的收盘成交价格" },
+        { "id": "last_close", "name": "昨收价", "type": "float", "description": "股票上一交易日的收盘价" },
+        { "id": "high", "name": "最高价", "type": "float", "description": "股票当日成交的最高价格" },
+        { "id": "low", "name": "最低价", "type": "float", "description": "股票当日成交的最低价格" },
 
-        {
-          "id": "ma_vs_ma60_ratio",
-          "name": "当日均价与60日均价的比",
-          "type": "float",
-          "description": "当日均价 / 60日均价"
-        },
-        {
-          "id": "open_vs_ma60_ratio",
-          "name": "当日开盘价与60日均价的比",
-          "type": "float",
-          "description": "当日开盘价 / 60日均价"
-        },
+        { "id": "volume", "name": "成交量", "type": "float", "description": "股票当日的成交数量" },
+        { "id": "volume_ratio", "name": "成交量涨跌幅", "type": "float", "description": "成交量相较上一交易日的变化比例" },
+        { "id": "volume_price", "name": "成交额", "type": "float", "description": "股票当日的成交金额总和" },
+        { "id": "volume_price_ratio", "name": "成交额涨跌幅", "type": "float", "description": "成交额相较上一交易日的变化比例" },
+        { "id": "volume_ratio_5", "name": "量比", "type": "float", "description": "当日成交量与前五日平均成交量的比值" },
 
-        {
-          "id": "close_vs_ma60_ratio",
-          "name": "当日收盘价与60日均价的比",
-          "type": "float",
-          "description": "当日收盘价 / 60日均价"
-        },
-        {
-          "id": "high_vs_ma60_ratio",
-          "name": "当日最高价与60日均价的比",
-          "type": "float",
-          "description": "当日最高价 / 60日均价"
-        },
-        {
-          "id": "low_vs_ma60_ratio",
-          "name": "当日最低价与60日均价的比",
-          "type": "float",
-          "description": "当日最低价 / 60日均价"
-        },
+        { "id": "turn", "name": "换手率", "type": "float", "description": "当日成交量占流通股本的比例" },
+        { "id": "turn_ratio", "name": "换手率涨跌幅", "type": "float", "description": "换手率相较上一交易日的变化比例" },
+
+        { "id": "change_Ratio", "name": "涨跌幅", "type": "float", "description": "当日收盘价相对昨收价的涨跌幅" },
+        { "id": "amplitude", "name": "振幅", "type": "float", "description": "当日最高价与最低价的价格波动幅度" },
+
+        { "id": "avg", "name": "当日均价", "type": "float", "description": "当日成交价格的加权平均值" },
+        { "id": "avg_10", "name": "10日均价", "type": "float", "description": "最近10个交易日的平均价格" },
+        { "id": "avg_20", "name": "20日均价", "type": "float", "description": "最近20个交易日的平均价格" },
+        { "id": "avg_40", "name": "40日均价", "type": "float", "description": "最近40个交易日的平均价格" },
+        { "id": "avg_60", "name": "60日均价", "type": "float", "description": "最近60个交易日的平均价格" },
+        { "id": "avg_120", "name": "120日均价", "type": "float", "description": "最近120个交易日的平均价格" },
+        { "id": "avg_240", "name": "240日均价", "type": "float", "description": "最近240个交易日的平均价格" },
+
+        { "id": "avg_ratio_10", "name": "均价/10日均价", "type": "float", "description": "当日均价与10日均价的比值" },
+        { "id": "avg_ratio_20", "name": "均价/20日均价", "type": "float", "description": "当日均价与20日均价的比值" },
+        { "id": "avg_ratio_40", "name": "均价/40日均价", "type": "float", "description": "当日均价与40日均价的比值" },
+        { "id": "avg_ratio_60", "name": "均价/60日均价", "type": "float", "description": "当日均价与60日均价的比值" },
+        { "id": "avg_ratio_120", "name": "均价/120日均价", "type": "float", "description": "当日均价与120日均价的比值" },
+        { "id": "avg_ratio_240", "name": "均价/240日均价", "type": "float", "description": "当日均价与240日均价的比值" },
+
+        { "id": "earn", "name": "市盈率", "type": "float", "description": "股票当日对应的市盈率" },
+        { "id": "clean", "name": "市净率", "type": "float", "description": "股票当日对应的市净率" },
+        { "id": "cash", "name": "市销率", "type": "float", "description": "股票当日对应的市销率" },
+        { "id": "sale", "name": "市现率", "type": "float", "description": "股票当日对应的市现率" },
+
+        { "id": "earn_ratio", "name": "市盈率行业排名", "type": "float", "description": "市盈率在行业内的前百分比排名" },
+        { "id": "clean_ratio", "name": "市净率行业排名", "type": "float", "description": "市净率在行业内的前百分比排名" },
+        { "id": "cash_ratio", "name": "市销率行业排名", "type": "float", "description": "市销率在行业内的前百分比排名" },
+        { "id": "sale_ratio", "name": "市现率行业排名", "type": "float", "description": "市现率在行业内的前百分比排名" },
+        { "id": "value_flow_ratio", "name": "流通市值行业排名", "type": "float", "description": "流通市值在行业内的前百分比排名" },
+        { "id": "value_ratio", "name": "总市值行业排名", "type": "float", "description": "总市值在行业内的前百分比排名" },
+
+        { "id": "volume_industry_rank", "name": "成交量行业排名", "type": "float", "description": "成交量在所属行业内的前百分比排名" },
+        { "id": "total_price_industry_rank", "name": "成交额行业排名", "type": "float", "description": "成交额在所属行业内的前百分比排名" },
+        { "id": "total_price_ratio_industry_rank", "name": "成交额涨跌幅行业排名", "type": "float", "description": "成交额涨跌幅在所属行业内的前百分比排名" },
+        { "id": "volume_ratio_industry_rank", "name": "成交量涨跌幅行业排名", "type": "float", "description": "成交量涨跌幅在所属行业内的前百分比排名" },
+        { "id": "ratio_industry_rank", "name": "涨跌幅行业排名", "type": "float", "description": "涨跌幅在所属行业内的前百分比排名" },
+        { "id": "amplitude_industry_rank", "name": "振幅行业排名", "type": "float", "description": "振幅在所属行业内的前百分比排名" },
+        { "id": "turn_ratio_industry_rank", "name": "换手率涨跌幅行业排名", "type": "float", "description": "换手率涨跌幅在所属行业内的前百分比排名" },
+        { "id": "avg_industry_rank", "name": "均价涨跌幅行业排名", "type": "float", "description": "均价涨跌幅在所属行业内的前百分比排名" },
 
 
-        {
-          "id": "ma_vs_ma120_ratio",
-          "name": "当日均价与120日均价的比",
-          "type": "float",
-          "description": "当日均价 / 120日均价"
-        },
-        {
-          "id": "open_vs_ma120_ratio",
-          "name": "当日开盘价与120日均价的比",
-          "type": "float",
-          "description": "当日开盘价 / 120日均价"
-        },
-        {
-          "id": "close_vs_ma120_ratio",
-          "name": "当日收盘价与120日均价的比",
-          "type": "float",
-          "description": "当日收盘价 / 120日均价"
-        },
-        {
-          "id": "high_vs_ma120_ratio",
-          "name": "当日最高价与120日均价的比",
-          "type": "float",
-          "description": "当日最高价 / 120日均价"
-        },
-        {
-          "id": "low_vs_ma120_ratio",
-          "name": "当日最低价与120日均价的比",
-          "type": "float",
-          "description": "当日最低价 / 120日均价"
-        }
+        
+
+        { "id": "is_up_up", "name": "放量上涨", "type": "float", "description": "成交量放大且价格上涨的状态标记" },
+        { "id": "is_low_up", "name": "缩量上涨", "type": "float", "description": "成交量缩小且价格上涨的状态标记" },
+        { "id": "is_up_low", "name": "放量下跌", "type": "float", "description": "成交量放大且价格下跌的状态标记" },
+        { "id": "is_low_low", "name": "缩量下跌", "type": "float", "description": "成交量缩小且价格下跌的状态标记" },
+        { "id": "is_up_mid", "name": "放量横盘", "type": "float", "description": "成交量放大但价格波动不大的状态标记" },
+        { "id": "is_low_mid", "name": "缩量横盘", "type": "float", "description": "成交量缩小且价格波动不大的状态标记" },
+        { "id": "is_mid_up", "name": "平量上涨", "type": "float", "description": "成交量变化不大且价格上涨的状态标记" },
+        { "id": "is_mid_low", "name": "平量下跌", "type": "float", "description": "成交量变化不大且价格下跌的状态标记" }
+
       ]
     },
-    "moving_average_avg": {
-      "isSold":0,
-      "name": "平均价格与均线对比",
-      "icon": "📊",
-      "description": "平均价格与各均线的比值关系",
+
+    "stock_window": {
+      "name": "个股日期区间条件",
+      "description": "股票在指定时间区间内的整体统计表现",
       "items": [
-        {
-          "id": "avg_close_vs_ma7_ratio",
-          "name": "平均收盘价与7日均价的比",
-          "type": "float",
-          "description": "周期平均收盘价 / 7日均价"
-        },
-        {
-          "id": "avg_high_vs_ma7_ratio",
-          "name": "平均最高价与7日均价的比",
-          "type": "float",
-          "description": "周期平均最高价 / 7日均价"
-        },
-        {
-          "id": "avg_low_vs_ma7_ratio",
-          "name": "平均最低价与7日均价的比",
-          "type": "float",
-          "description": "周期平均最低价 / 7日均价"
-        },
-        {
-          "id": "avg_close_vs_ma30_ratio",
-          "name": "平均收盘价与30日均价的比",
-          "type": "float",
-          "description": "周期平均收盘价 / 30日均价"
-        },
-        {
-          "id": "avg_high_vs_ma30_ratio",
-          "name": "平均最高价与30日均价的比",
-          "type": "float",
-          "description": "周期平均最高价 / 30日均价"
-        },
-        {
-          "id": "avg_low_vs_ma30_ratio",
-          "name": "平均最低价与30日均价的比",
-          "type": "float",
-          "description": "周期平均最低价 / 30日均价"
-        },
-        {
-          "id": "avg_close_vs_ma60_ratio",
-          "name": "平均收盘价与60日均价的比",
-          "type": "float",
-          "description": "周期平均收盘价 / 60日均价"
-        },
-        {
-          "id": "avg_high_vs_ma60_ratio",
-          "name": "平均最高价与60日均价的比",
-          "type": "float",
-          "description": "周期平均最高价 / 60日均价"
-        },
-        {
-          "id": "avg_low_vs_ma60_ratio",
-          "name": "平均最低价与60日均价的比",
-          "type": "float",
-          "description": "周期平均最低价 / 60日均价"
-        },
-        {
-          "id": "avg_close_vs_ma120_ratio",
-          "name": "平均收盘价与120日均价的比",
-          "type": "float",
-          "description": "周期平均收盘价 / 120日均价"
-        },
-        {
-          "id": "avg_high_vs_ma120_ratio",
-          "name": "平均最高价与120日均价的比",
-          "type": "float",
-          "description": "周期平均最高价 / 120日均价"
-        },
-        {
-          "id": "avg_low_vs_ma120_ratio",
-          "name": "平均最低价与120日均价的比",
-          "type": "float",
-          "description": "周期平均最低价 / 120日均价"
-        }
+        { "id": "up_stopCount", "name": "整体涨停次数", "type": "int", "description": "区间内股票涨停出现的次数" },
+        { "id": "down_stopCount", "name": "整体跌停次数", "type": "int", "description": "区间内股票跌停出现的次数" },
+
+        { "id": "volume", "name": "整体区间成交量", "type": "float", "description": "区间内成交量的累计值" },
+        { "id": "volume_price", "name": "整体区间成交额", "type": "float", "description": "区间内成交额的累计值" },
+
+        { "id": "volume_ratio", "name": "整体区间成交量涨跌幅", "type": "float", "description": "区间成交量相较前一区间的变化比例" },
+        { "id": "volume_price_ratio", "name": "整体区间成交额涨跌幅", "type": "float", "description": "区间成交额相较前一区间的变化比例" },
+
+        { "id": "turn_ratio", "name": "整体区间换手率涨跌幅", "type": "float", "description": "区间换手率的变化比例" },
+        { "id": "change_Ratio", "name": "整体区间涨跌幅", "type": "float", "description": "区间整体价格涨跌幅" },
+        { "id": "avg_Ratio", "name": "整体区间均价涨跌幅", "type": "float", "description": "区间均价的涨跌幅变化" },
+
+
+        { "id": "avg_open", "name": "区间平均开盘价", "type": "float", "description": "统计区间内每日开盘价的平均值" },
+        { "id": "avg_close", "name": "区间平均收盘价", "type": "float", "description": "统计区间内每日收盘价的平均值" },
+        { "id": "avg_last_close", "name": "区间平均昨收价", "type": "float", "description": "统计区间内每日昨收价的平均值" },
+        { "id": "avg_high", "name": "区间平均最高价", "type": "float", "description": "统计区间内每日最高价的平均值" },
+        { "id": "avg_low", "name": "区间平均最低价", "type": "float", "description": "统计区间内每日最低价的平均值" },
+        { "id": "avg_volume", "name": "区间平均成交量", "type": "float", "description": "统计区间内每日成交量的平均值" },
+        { "id": "avg_volume_price", "name": "区间平均成交额", "type": "float", "description": "统计区间内每日成交额的平均值" },
+        { "id": "avg_volume_rito", "name": "区间平均量比", "type": "float", "description": "统计区间内每日量比的平均值" },
+        { "id": "avg_turn", "name": "区间平均换手率", "type": "float", "description": "统计区间内每日换手率的平均值" },
+        { "id": "avg_change_Ratio", "name": "区间平均涨跌幅", "type": "float", "description": "统计区间内每日涨跌幅的平均值" },
+        { "id": "avg_amplitude", "name": "区间平均振幅", "type": "float", "description": "统计区间内每日振幅的平均值" },
+        { "id": "avg_avg", "name": "区间平均均价", "type": "float", "description": "统计区间内每日均价的平均值" },
+
+
+        { "id": "min_open", "name": "区间最低开盘价", "type": "float", "description": "统计区间内出现的最低开盘价" },
+        { "id": "min_close", "name": "区间最低收盘价", "type": "float", "description": "统计区间内出现的最低收盘价" },
+        { "id": "min_last_close", "name": "区间最低昨收价", "type": "float", "description": "统计区间内出现的最低昨收价" },
+        { "id": "min_high", "name": "区间最低最高价", "type": "float", "description": "统计区间内每日最高价中的最小值" },
+        { "id": "min_low", "name": "区间最低最低价", "type": "float", "description": "统计区间内每日最低价中的最小值" },
+        { "id": "min_volume", "name": "区间最低成交量", "type": "float", "description": "统计区间内出现的最低成交量" },
+        { "id": "min_volume_price", "name": "区间最低成交额", "type": "float", "description": "统计区间内出现的最低成交额" },
+        { "id": "min_volume_rito", "name": "区间最低量比", "type": "float", "description": "统计区间内出现的最低量比" },
+        { "id": "min_turn", "name": "区间最低换手率", "type": "float", "description": "统计区间内出现的最低换手率" },
+        { "id": "min_change_Ratio", "name": "区间最低涨跌幅", "type": "float", "description": "统计区间内出现的最低涨跌幅" },
+        { "id": "min_amplitude", "name": "区间最低振幅", "type": "float", "description": "统计区间内出现的最低振幅" },
+        { "id": "min_avg", "name": "区间最低均价", "type": "float", "description": "统计区间内出现的最低均价" },
+
+
+        { "id": "max_open", "name": "区间最高开盘价", "type": "float", "description": "统计区间内出现的最高开盘价" },
+        { "id": "max_close", "name": "区间最高收盘价", "type": "float", "description": "统计区间内出现的最高收盘价" },
+        { "id": "max_last_close", "name": "区间最高昨收价", "type": "float", "description": "统计区间内出现的最高昨收价" },
+        { "id": "max_high", "name": "区间最高最高价", "type": "float", "description": "统计区间内每日最高价中的最大值" },
+        { "id": "max_low", "name": "区间最高最低价", "type": "float", "description": "统计区间内每日最低价中的最大值" },
+        { "id": "max_volume", "name": "区间最高成交量", "type": "float", "description": "统计区间内出现的最高成交量" },
+        { "id": "max_volume_price", "name": "区间最高成交额", "type": "float", "description": "统计区间内出现的最高成交额" },
+        { "id": "max_volume_rito", "name": "区间最高量比", "type": "float", "description": "统计区间内出现的最高量比" },
+        { "id": "max_turn", "name": "区间最高换手率", "type": "float", "description": "统计区间内出现的最高换手率" },
+        { "id": "max_change_Ratio", "name": "区间最高涨跌幅", "type": "float", "description": "统计区间内出现的最高涨跌幅" },
+        { "id": "max_amplitude", "name": "区间最高振幅", "type": "float", "description": "统计区间内出现的最高振幅" },
+        { "id": "max_avg", "name": "区间最高均价", "type": "float", "description": "统计区间内出现的最高均价" },
+
+
+        { "id": "is_up_up", "name": "放量上涨", "type": "float", "description": "成交量放大且价格上涨的状态标记" },
+        { "id": "is_low_up", "name": "缩量上涨", "type": "float", "description": "成交量缩小且价格上涨的状态标记" },
+        { "id": "is_up_low", "name": "放量下跌", "type": "float", "description": "成交量放大且价格下跌的状态标记" },
+        { "id": "is_low_low", "name": "缩量下跌", "type": "float", "description": "成交量缩小且价格下跌的状态标记" },
+        { "id": "is_up_mid", "name": "放量横盘", "type": "float", "description": "成交量放大但价格波动不大的状态标记" },
+        { "id": "is_low_mid", "name": "缩量横盘", "type": "float", "description": "成交量缩小且价格波动不大的状态标记" },
+        { "id": "is_mid_up", "name": "平量上涨", "type": "float", "description": "成交量变化不大且价格上涨的状态标记" },
+        { "id": "is_mid_low", "name": "平量下跌", "type": "float", "description": "成交量变化不大且价格下跌的状态标记" },
+
+        { "id": "volume_industry_rank", "name": "成交量行业排名", "type": "float", "description": "成交量在所属行业内的前百分比排名" },
+        { "id": "total_price_industry_rank", "name": "成交额行业排名", "type": "float", "description": "成交额在所属行业内的前百分比排名" },
+        { "id": "total_price_ratio_industry_rank", "name": "成交额涨跌幅行业排名", "type": "float", "description": "成交额涨跌幅在所属行业内的前百分比排名" },
+        { "id": "volume_ratio_industry_rank", "name": "成交量涨跌幅行业排名", "type": "float", "description": "成交量涨跌幅在所属行业内的前百分比排名" },
+        { "id": "ratio_industry_rank", "name": "涨跌幅行业排名", "type": "float", "description": "涨跌幅在所属行业内的前百分比排名" },
+        { "id": "amplitude_industry_rank", "name": "振幅行业排名", "type": "float", "description": "振幅在所属行业内的前百分比排名" },
+        { "id": "turn_ratio_industry_rank", "name": "换手率涨跌幅行业排名", "type": "float", "description": "换手率涨跌幅在所属行业内的前百分比排名" },
+        { "id": "avg_industry_rank", "name": "均价涨跌幅行业排名", "type": "float", "description": "均价涨跌幅在所属行业内的前百分比排名" },
+
+        { "id": "increase_price", "name": "整体累计上涨价格", "type": "float", "description": "区间内上涨价格变动的累计值" },
+        { "id": "decrease_price", "name": "整体累计下跌价格", "type": "float", "description": "区间内下跌价格变动的累计值" }
       ]
     },
-    "price_ratio": {
-      "isSold":0,
-      "name": "价格比值数据",
-      "icon": "💹",
-      "description": "开盘价、收盘价与最高/最低价的比值",
+
+
+
+    "industry_daily": {
+      "name": "当日行业条件",
+      "description": "行业在单一交易日内的整体表现",
       "items": [
-        {
-          "id": "close_high_ratio",
-          "name": "收盘价与最高价的比",
-          "type": "float",
-          "description": "收盘价 / 最高价（衡量当日上涨力度）"
-        },
-        {
-          "id": "open_high_ratio",
-          "name": "开盘价与最高价的比",
-          "type": "float",
-          "description": "开盘价 / 最高价"
-        },
-        {
-          "id": "close_low_ratio",
-          "name": "收盘价与最低价的比",
-          "type": "float",
-          "description": "收盘价 / 最低价（衡量当日下跌抗性）"
-        },
-        {
-          "id": "open_low_ratio",
-          "name": "开盘价与最低价的比",
-          "type": "float",
-          "description": "开盘价 / 最低价"
-        }
+        { "id": "volume", "name": "行业成交量", "type": "float", "description": "行业内所有股票的成交量总和" },
+        { "id": "volume_ratio", "name": "行业成交量涨跌幅", "type": "float", "description": "行业成交量相较上一交易日的变化比例" },
+        { "id": "volume_price", "name": "行业成交额", "type": "float", "description": "行业内所有股票的成交金额总和" },
+        { "id": "volume_price_ratio", "name": "行业成交额涨跌幅", "type": "float", "description": "行业成交额相较上一交易日的变化比例" },
+        { "id": "volume_ratio_5", "name": "行业量比", "type": "float", "description": "行业内所有股票的成交量总和" },
+
+        { "id": "change_Ratio", "name": "行业涨跌幅", "type": "float", "description": "行业整体价格涨跌幅" },
+
+        { "id": "stockNum", "name": "行业股票数量", "type": "int", "description": "行业中包含的股票总数量" },
+        { "id": "stockNum_up", "name": "上涨股票数量", "type": "int", "description": "当日行业中上涨的股票数量" },
+        { "id": "stockNum_down", "name": "下跌股票数量", "type": "int", "description": "当日行业中下跌的股票数量" },
+
+        { "id": "industry_inflow", "name": "行业净流入", "type": "float", "description": "行业层面的资金净流入金额" },
+        { "id": "industry_outflow", "name": "行业净流出", "type": "float", "description": "行业层面的资金净流出金额" },
+        { "id": "industry_outflow_ratio", "name": "行业资金流动涨跌幅", "type": "float", "description": "行业净流入相较前一日的变化比例" },
+        { "id": "is_pop_up", "name": "震荡上行", "type": "float", "description": "行业呈现震荡但整体向上的状态" },
+        { "id": "is_pop_down", "name": "震荡下行", "type": "float", "description": "行业呈现震荡但整体向下的状态" },
+
+
+        { "id": "is_up_up", "name": "放量上涨", "type": "float", "description": "成交量放大且价格上涨的状态标记" },
+        { "id": "is_low_up", "name": "缩量上涨", "type": "float", "description": "成交量缩小且价格上涨的状态标记" },
+        { "id": "is_up_low", "name": "放量下跌", "type": "float", "description": "成交量放大且价格下跌的状态标记" },
+        { "id": "is_low_low", "name": "缩量下跌", "type": "float", "description": "成交量缩小且价格下跌的状态标记" },
+        { "id": "is_up_mid", "name": "放量横盘", "type": "float", "description": "成交量放大但价格波动不大的状态标记" },
+        { "id": "is_low_mid", "name": "缩量横盘", "type": "float", "description": "成交量缩小且价格波动不大的状态标记" },
+        { "id": "is_mid_up", "name": "平量上涨", "type": "float", "description": "成交量变化不大且价格上涨的状态标记" },
+        { "id": "is_mid_low", "name": "平量下跌", "type": "float", "description": "成交量变化不大且价格下跌的状态标记" }
+
       ]
     },
-    "industry_data": {
-      "isSold":0,
-      "name": "行业数据对比",
-      "icon": "🏢",
-      "description": "与所属行业的对比数据",
+
+    "industry_window": {
+      "name": "当日行业日期区间条件",
+      "description": "行业在指定时间区间内的统计数据",
       "items": [
-        {
-          "id": "industry_max_gain",
-          "name": "所属行业最高涨幅",
-          "type": "float",
-          "description": "行业内其他股票的最高涨幅"
-        },
-        {
-          "id": "industry_min_gain",
-          "name": "所属行业的最低涨幅",
-          "type": "float",
-          "description": "行业内其他股票的最低涨幅"
-        },
-        {
-          "id": "industry_avg_gain",
-          "name": "所属行业平均涨幅",
-          "type": "float",
-          "description": "行业的平均涨幅"
-        },
-        {
-          "id": "industry_total_gain",
-          "name": "所属行业整体涨幅",
-          "type": "float",
-          "description": "行业整体的累计涨幅"
-        },
-        {
-          "id": "industry_daily_gain",
-          "name": "所属行业的当日涨幅",
-          "type": "float",
-          "description": "行业当日的平均涨幅"
-        },
-        {
-          "id": "industry_daily_volume_growth",
-          "name": "所属行业成交量当日增长率",
-          "type": "float",
-          "description": "行业当日成交量相比前日的增长率"
-        },
-        {
-          "id": "industry_avg_volume_growth",
-          "name": "所属行业成交量平均增长率",
-          "type": "float",
-          "description": "行业期间成交量平均增长率"
-        },
-        {
-          "id": "industry_max_volume_growth",
-          "name": "所属行业成交量最高增长率",
-          "type": "float",
-          "description": "行业期间成交量最高增长率"
-        },
-        {
-          "id": "industry_daily_volume_rank",
-          "name": "所属行业成交量当日增长率排名（%）",
-          "type": "float",
-          "description": "该股在行业内的成交量增长排名百分比"
-        },
-        {
-          "id": "industry_avg_volume_rank",
-          "name": "所属行业成交量平均增长率排名（%）",
-          "type": "float",
-          "description": "该股在行业内的成交量平均增长排名百分比"
-        },
-        {
-          "id": "industry_avg_gain_ratio",
-          "name": "所属行业平均上涨股比例",
-          "type": "float",
-          "description": "行业内上涨股票的比例"
-        },
-        {
-          "id": "industry_avg_loss_ratio",
-          "name": "所属行业平均下跌股比例",
-          "type": "float",
-          "description": "行业内下跌股票的比例"
-        },
-        {
-          "id": "industry_total_gain_rank",
-          "name": "整体涨幅在行业前（%）",
-          "type": "float",
-          "description": "该股涨幅在行业中的排名百分比"
-        },
-        {
-          "id": "industry_total_loss_rank",
-          "name": "整体跌幅在行业前（%）",
-          "type": "float",
-          "description": "该股跌幅在行业中的排名百分比"
-        },
-        {
-          "id": "industry_daily_gain_ratio",
-          "name": "所属行业当日上涨股比例",
-          "type": "float",
-          "description": "行业当日上涨股票的比例"
-        },
-        {
-          "id": "industry_daily_loss_ratio",
-          "name": "所属行业当日下跌股比例",
-          "type": "float",
-          "description": "行业当日下跌股票的比例"
-        },
-        {
-          "id": "industry_daily_gain_rank",
-          "name": "当日涨幅在行业前（%）",
-          "type": "float",
-          "description": "该股当日涨幅在行业中的排名百分比"
-        },
-        {
-          "id": "industry_daily_loss_rank",
-          "name": "当日跌幅在行业前（%）",
-          "type": "float",
-          "description": "该股当日跌幅在行业中的排名百分比"
-        }
-      ]
-    },
-    "valuation_data": {
-      "isSold":0,
-      "name": "基本估值数据",
-      "icon": "💰",
-      "description": "市盈率、市净率、市销率等估值指标",
-      "items": [
-        {
-          "id": "market_cap",
-          "name": "流通股本总值（万元）",
-          "type": "float",
-          "description": "流通股本总市值"
-        },
-        {
-          "id": "pe_ratio",
-          "name": "市盈率",
-          "type": "float",
-          "description": "股价 / 每股收益"
-        },
-        {
-          "id": "pb_ratio",
-          "name": "市净率",
-          "type": "float",
-          "description": "股价 / 每股净资产"
-        },
-        {
-          "id": "ps_ratio",
-          "name": "市销率",
-          "type": "float",
-          "description": "股价 / 每股销售收入"
-        },
-        {
-          "id": "pe_vs_industry_ratio",
-          "name": "市盈率与同行业平均市盈率的比",
-          "type": "float",
-          "description": "该股PE / 行业平均PE"
-        },
-        {
-          "id": "pb_vs_industry_ratio",
-          "name": "市净率与同行业平均市净率的比",
-          "type": "float",
-          "description": "该股PB / 行业平均PB"
-        },
-        {
-          "id": "ps_vs_industry_ratio",
-          "name": "市销率与同行业平均市销率的比",
-          "type": "float",
-          "description": "该股PS / 行业平均PS"
-        }
-      ]
-    },
-    "position_data": {
-      "isSold":1,
-      "name": "持仓管理数据（卖出）",
-      "icon": "📋",
-      "description": "持仓时间、亏损率、盈利率等数据",
-      "items": [
-        {
-          "id": "holding_duration",
-          "name": "持仓时间（天）",
-          "type": "int",
-          "description": "从买入到当前的持仓天数"
-        },
-        {
-          "id": "position_loss_rate",
-          "name": "仓位亏损率（%）",
-          "type": "float",
-          "description": "当前持仓的亏损百分比"
-        },
-        {
-          "id": "position_profit_rate",
-          "name": "仓位盈利率（%）",
-          "type": "float",
-          "description": "当前持仓的盈利百分比"
-        }
+        { "id": "stockNum", "name": "行业股票数量", "type": "int", "description": "区间内行业包含的股票数量" },
+        { "id": "volume", "name": "区间成交量", "type": "float", "description": "行业在区间内的成交量累计值" },
+        { "id": "volume_ratio", "name": "区间成交量涨跌幅", "type": "float", "description": "行业成交量在区间内的变化比例" },
+        { "id": "volume_price", "name": "区间成交额", "type": "float", "description": "行业在区间内的成交额累计值" },
+        { "id": "volume_price_ratio", "name": "区间成交额涨跌幅", "type": "float", "description": "行业成交额在区间内的变化比例" },
+
+        { "id": "change_Ratio", "name": "区间行业涨跌幅", "type": "float", "description": "行业在区间内的整体涨跌幅" },
+        { "id": "stockNum_up", "name": "平均上涨股票数量", "type": "int", "description": "平均行业中上涨的股票数量" },
+        { "id": "stockNum_down", "name": "平均下跌股票数量", "type": "int", "description": "平均行业中下跌的股票数量" },
+
+        { "id": "increase_price", "name": "累计上涨值", "type": "float", "description": "行业区间内上涨幅度的累计值" },
+        { "id": "decrease_price", "name": "累计下跌值", "type": "float", "description": "行业区间内下跌幅度的累计值" },
+
+        { "id": "is_pop_up", "name": "震荡上行", "type": "float", "description": "行业呈现震荡但整体向上的状态" },
+        { "id": "is_pop_down", "name": "震荡下行", "type": "float", "description": "行业呈现震荡但整体向下的状态" },
+
+
+        { "id": "is_up_up", "name": "放量上涨", "type": "float", "description": "成交量放大且价格上涨的状态标记" },
+        { "id": "is_low_up", "name": "缩量上涨", "type": "float", "description": "成交量缩小且价格上涨的状态标记" },
+        { "id": "is_up_low", "name": "放量下跌", "type": "float", "description": "成交量放大且价格下跌的状态标记" },
+        { "id": "is_low_low", "name": "缩量下跌", "type": "float", "description": "成交量缩小且价格下跌的状态标记" },
+        { "id": "is_up_mid", "name": "放量横盘", "type": "float", "description": "成交量放大但价格波动不大的状态标记" },
+        { "id": "is_low_mid", "name": "缩量横盘", "type": "float", "description": "成交量缩小且价格波动不大的状态标记" },
+        { "id": "is_mid_up", "name": "平量上涨", "type": "float", "description": "成交量变化不大且价格上涨的状态标记" },
+        { "id": "is_mid_low", "name": "平量下跌", "type": "float", "description": "成交量变化不大且价格下跌的状态标记" }
+
       ]
     }
   }
