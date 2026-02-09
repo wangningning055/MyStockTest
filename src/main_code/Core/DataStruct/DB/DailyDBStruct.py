@@ -20,10 +20,10 @@ class ColumnEnum(Enum):
     Last_Close_Price = 17                         #昨收价1
     All_Amount = 18                               #总股本(数据暂无)
     Current_Amount = 19                           #流通股本（数据暂无）
-    Adjst = 20                                    #复权因子
-    Volume = 21                                   #量比
-    Average_Price = 22                            #均价（前复权后的价格）
-    Amplitude = 23                                #振幅
+    Adjst = 20                                    #复权因子(数据暂无)
+    Volume = 21                                   #量比(数据暂无)
+    Average_Price = 22                            #均价（前复权后的价格）(数据暂无)
+    Amplitude = 23                                #振幅(数据暂无)
     
 class DBStructClass:
     def __init__(self):

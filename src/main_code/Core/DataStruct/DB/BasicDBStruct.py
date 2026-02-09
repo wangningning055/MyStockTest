@@ -16,6 +16,7 @@ class ColumnEnum(Enum):
     Business_Scope = 13,                            #经营范围(已有)
     Introduction = 14,                             #公司简介(已有)
     Com_name = 15                                   #公司名称(已有)
+    Total_Value = 16                                   #总市值
 
 class DBStructClass:
     def __init__(self):
@@ -39,7 +40,8 @@ class DBStructClass:
             ColumnEnum.Product : 0,
             ColumnEnum.Business_Scope : 0,
             ColumnEnum.Introduction : 0,
-            ColumnEnum.Com_name : 0
+            ColumnEnum.Com_name : 0,
+            ColumnEnum.Total_Value : 0
         }
 
 
@@ -74,6 +76,8 @@ class DBStructClass:
             return "introduction"
         elif enum == ColumnEnum.Com_name:
             return "com_name"
+        elif enum == ColumnEnum.Total_Value:
+            return "total_value"
 
     def GetDiscByEnum(self, enum):
         if enum == ColumnEnum.Ts_code:
@@ -106,6 +110,8 @@ class DBStructClass:
             return "公司简介"
         elif enum == ColumnEnum.Com_name:
             return "公司名称"
+        elif enum == ColumnEnum.Total_Value:
+            return "公司总市值"
         
     def GetValueByEnum(self, enum):
         return self.dic[enum]

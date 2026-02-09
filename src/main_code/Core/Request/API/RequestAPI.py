@@ -55,6 +55,42 @@ class RequestAPIClass:
         df = self.pro.stock_company(exchange=exchangeName)
         await asyncio.sleep(0)
         return df
+    
+
+
+
+
+    def get_last_quarter(self, ref_date=None):
+        """
+        返回 (year, quarter)，表示 ref_date 的上一个季度
+        """
+        if ref_date is None:
+            ref_date = datetime.now()
+
+        year = ref_date.year
+        month = ref_date.month
+
+        # 当前季度（1~4）
+        current_quarter = (month - 1) // 3 + 1
+
+        if current_quarter == 1:
+            return year - 1, 4
+        else:
+            return year - 1, current_quarter - 1
+
+
+
+    #拉取股本数据  code的形式是xxxxxxx.SZ
+    async def Request_TotalValue(self, stockCode):
+        year, quarter = self.get_last_quarter()
+        code = self.TuShare_to_BaoStock(stockCode)
+        profit_list = []
+        rs_profit = bs.query_profit_data(code=stockCode, year=year)
+        while (rs_profit.error_code == '0') & rs_profit.next():
+            profit_list.append(rs_profit.get_row_data())
+        result_profit = pd.DataFrame(profit_list, columns=rs_profit.fields)
+        return result_profit
+
 
     # 拉取复权因子 code的形式是xxxxxxx.SZ
     async def Request_Adjust(self, stockCode):
@@ -106,12 +142,23 @@ class RequestAPIClass:
 
         await asyncio.sleep(0)
         return df
+
+
+    def Df_To_BasicClass_TotalValue(self, dfValue):
+        if dfValue is None:
+            return None
+        classList = []
+        for _, row in dfValue.iterrows():
+            testClass = BasicDBStruct.DBStructClass()
+            testClass.dic[BasicDBStruct.ColumnEnum.Ts_code] = self.BaoStock_to_TuShare(row['code'])
+            testClass.dic[BasicDBStruct.ColumnEnum.Total_Value] = row['totalShare']
+            val = row['totalShare']
+            print(f"code是{testClass.dic[BasicDBStruct.ColumnEnum.Ts_code]} 股本是：{val}")
+            classList.append(testClass)
+        return classList
     
 
-
-        
-
-    def Df_To_BasicClass(self, dfBasic, dfSZSE, dfSSE, dfBSE):
+    def Df_To_BasicClass(self, dfBasic, dfSZSE, dfSSE, dfBSE, df_Total):
         if dfBasic is None:
             return None
         if dfSZSE is None:
@@ -167,6 +214,14 @@ class RequestAPIClass:
                 testClass.dic[BasicDBStruct.ColumnEnum.Business_Scope] = row['business_scope']
                 testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
                 testClass.dic[BasicDBStruct.ColumnEnum.Introduction] = row['introduction']
+
+        print("开始单独处理总股本")
+        self.main.BoardCast("开始单独处理总股本")
+        for _,row in df_Total.iterrows():
+            code = self.BaoStock_to_TuShare(row['code'])
+            testClass = alldic.get(code)
+            if(testClass is not None):
+                testClass.dic[BasicDBStruct.ColumnEnum.Total_Value] = row['totalShare']
         return classList
 
     def Df_To_AdjustClass(self, df):

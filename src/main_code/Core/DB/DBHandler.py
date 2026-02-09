@@ -46,7 +46,7 @@ class DBHandlerClass:
             dbType = self.basicDbStruct.GetDBTypeByEnum(key)
             if key == BasicDBStruct.ColumnEnum.Code:
                 columns.append(f"{columnName} {dbType} PRIMARY KEY")
-            else:
+            else: 
                 columns.append(f"{columnName} {dbType}")
         sql = f"""CREATE TABLE IF NOT EXISTS {const_proj.DBBasicTableName} (
             {', '.join(columns)}
@@ -142,8 +142,9 @@ class DBHandlerClass:
 
         # 获取列名（所有 structClass 结构相同，取第一个即可）
         first_row = classList[0]
+        column_keys = list(first_row.dic.keys())
         columns = []
-        for k in first_row.dic.keys():
+        for k in column_keys:
             name = first_row.GetNameByEnum(k)
             columns.append(f'"{name}"')
         columns_sql = ", ".join(columns)
@@ -163,7 +164,7 @@ class DBHandlerClass:
 
                 for data in batch:
                     # 构造值元组
-                    vals = tuple(str(data.dic[k]) for k in data.dic.keys())
+                    vals = tuple(data.dic.get(k) for k in column_keys)
                     values_list.append(vals)
 
                 # 批量插入
@@ -322,11 +323,8 @@ class DBHandlerClass:
         for row in self.dbCursor:   # ❗ 不用 fetchall
             count = count + 1
             countSend = countSend + 1
-            #if count > 10000:
-            #    break
-
- 
-
+            if count > 10000:
+                break
 
 
             row_dict = dict(zip(columns, row))
@@ -339,14 +337,58 @@ class DBHandlerClass:
             percentage = count * 100 / total_count
             formatted = round(percentage, 2) 
             if(countSend > 1000):
-
                 self.main.BoardCast(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}% ")
                 countSend = 0
             print(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}%")
             await asyncio.sleep(0)
 
         return data_dict
+    
 
+    def GetAllDailyDataNoWait(self):
+        count_sql = f"SELECT COUNT(*) FROM {const_proj.DBDailyTableName}"
+        self.dbCursor.execute(count_sql)
+        total_count = self.dbCursor.fetchone()[0]
+        sql = f"""
+        SELECT *
+        FROM {const_proj.DBDailyTableName}
+        ORDER BY
+            {self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)},
+            {self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)}
+        """
+        self.dbCursor.execute(sql)
+
+        # 列名
+        columns = [desc[0] for desc in self.dbCursor.description]
+
+        # 外层 code，内层 date
+        data_dict = defaultdict(dict)
+
+        code_col = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+        date_col = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+        count = 0
+        countSend = 0
+        for row in self.dbCursor:   # ❗ 不用 fetchall
+            count = count + 1
+            countSend = countSend + 1
+            if count > 10000:
+                break
+
+
+            row_dict = dict(zip(columns, row))
+
+            code = row_dict[code_col]
+            trade_date = row_dict[date_col]
+
+            data_dict[code][trade_date] = row_dict
+
+            percentage = count * 100 / total_count
+            formatted = round(percentage, 2) 
+            if(countSend > 1000):
+                self.main.BoardCast(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}% ")
+                countSend = 0
+            print(f"{count}读入中，共 {total_count} 条， 已读取：{formatted}%")
+        return data_dict
 
     def format_seconds(self, seconds: float) -> str:
         seconds = int(seconds)
@@ -354,3 +396,114 @@ class DBHandlerClass:
         m = (seconds % 3600) // 60
         s = seconds % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
+    
+
+    # ==================== 高效单行查询方法 ====================
+    
+    def GetBasicRowByCode(self, code):
+        """
+        按股票代码查询Basic表中的一行数据
+        
+        Args:
+            code (str): 股票代码，例如 "600000" 或 "000001"
+            
+        Returns:
+            dict or None: 返回一个字典，键为列名(str)，值为对应的数据
+                          例如: {'ts_code': '600000.SH', 'code': '600000', 'name': '浦发银行', ...}
+                          如果未找到则返回 None
+                          
+        Usage:
+            row = db_handler.GetBasicRowByCode("600000")
+            if row:
+                print(row['name'])  # 打印股票名称
+                print(row['industry'])  # 打印所属行业
+        """
+        column_name = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.Code)
+        sql = f'SELECT * FROM {const_proj.DBBasicTableName} WHERE {column_name} = ?'
+        self.dbCursor.execute(sql, (code,))
+        row = self.dbCursor.fetchone()
+        
+        if row:
+            return dict(row)
+        return None
+    
+    
+    def GetDailyRowByCodeAndDate(self, code, date):
+        """
+        按股票代码和交易日期查询Daily表中的一行数据（双主键查询）
+        
+        Args:
+            code (str): 股票代码，例如 "600000.SH" 或 "000001.SZ"
+            date (str): 交易日期，格式为 "YYYYMMDD"，例如 "20240115"
+            
+        Returns:
+            dict or None: 返回一个字典，键为列名(str)，值为对应的数据
+                          例如: {'ts_code': '600000.SH', 'trade_date': '20240115', 'open': 10.5, ...}
+                          如果未找到则返回 None
+                          
+        Usage:
+            row = db_handler.GetDailyRowByCodeAndDate("600000.SH", "20240115")
+            if row:
+                print(row['close'])  # 打印收盘价
+                print(row['open'])  # 打印开盘价
+                print(row['amount'])  # 打印成交量
+                high_price = float(row['high'])  # 类型转换
+        """
+        code_column = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+        date_column = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+        
+        sql = f'''SELECT * FROM {const_proj.DBDailyTableName} 
+                  WHERE {code_column} = ? AND {date_column} = ?'''
+        self.dbCursor.execute(sql, (code, date))
+        row = self.dbCursor.fetchone()
+        
+        if row:
+            return dict(row)
+        return None
+    
+    
+    def GetAdjustRowByCodeAndDate(self, code, date):
+            """
+            按股票代码查询在指定日期或之前的最新复权因子数据
+            
+            说明：由于复权数据不连续（只在有除权除息事件时才有数据），
+            本方法返回小于等于指定日期的最新复权数据。
+            例如：查询 2023-08-09，会返回 2023-06-14 的复权因子。
+            
+            Args:
+                code (str): 股票代码，例如 "000001.SZ" 或 "600000.SH"
+                date (str): 查询日期，格式为 "YYYY-MM-DD"，例如 "2023-08-09" 或 "YYYYMMDD"，例如 "20230809"
+                
+            Returns:
+                dict or None: 返回一个字典，键为列名(str)，值为对应的数据
+                            例如: {'Code': '000001.SZ', 'Date': '2023-06-14', 
+                                    'For_Adjust': 0.867238, 'Back_Adjust': 104.876880}
+                            如果未找到则返回 None
+                            
+            Usage:
+                row = db_handler.GetAdjustRowByCodeAndDate("000001.SZ", "2023-08-09")
+                if row:
+                    for_adjust = float(row['For_Adjust'])      # 前复权因子
+                    back_adjust = float(row['Back_Adjust'])    # 后复权因子
+                    adjust_date = row['Date']                  # 实际的复权日期
+                    print(f"使用 {adjust_date} 的复权因子: {for_adjust}")
+            """
+            # 处理日期格式：支持 "YYYYMMDD" 和 "YYYY-MM-DD" 两种格式
+            if len(date) == 8 and date.isdigit():
+                # "20230809" 转换为 "2023-08-09"
+                date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+            
+            code_column = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
+            date_column = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
+            
+            # 查询 <= 指定日期的最新复权数据
+            sql = f'''SELECT * FROM {const_proj.DBAdjustTableName} 
+                    WHERE {code_column} = ? AND {date_column} <= ?
+                    ORDER BY {date_column} DESC
+                    LIMIT 1'''
+            self.dbCursor.execute(sql, (code, date))
+            row = self.dbCursor.fetchone()
+            
+            if row:
+                return dict(row)
+            return 1

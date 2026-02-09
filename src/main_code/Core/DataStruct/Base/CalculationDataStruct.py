@@ -3,6 +3,7 @@ from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 
 
+
 class AllDateStructBaseClass:
     def __init__(self, code: str, today:str):
         self.code: str = code
@@ -17,6 +18,7 @@ class StructBaseClass :
         pass
 
     code:str
+    adjst:float #前复权因子
     trade_date:date #交易日期
     open: float     #当日开盘价
     close: float     #当日收盘价
@@ -31,10 +33,12 @@ class StructBaseClass :
     volume_ratio_5:float       #当日量比 
     turn: float             #当日换手率
     turn_ratio:float        #当日换手率涨跌幅
+    total_value:float       #总市值
     earn:float              #当日市盈率
     clean:float             #当日市净率
     cash:float              #当日市销率
     sale:float              #当日市现率
+    total_value_ratio:float       #总市值排行业前%
     earn_ratio:float              #当日市盈率排行业前%
     clean_ratio:float             #当日市净率排行业前%
     cash_ratio:float              #当日市销率排行业前%
@@ -219,3 +223,22 @@ class StructIndustryWindowClass():
     industry_inflow:float #行业净流入
     industry_outflow:float#行业净流出
     industry_outflow_ratio:float#行业净流入涨跌幅
+
+
+class StructComponyInfoClass:
+    Ts_code:str                                 #股票TS代码(已有)
+    Code:str                                    #股票代码(已有)
+    Name:str                                    #股票名称(已有)
+    Area:str                                    #地域(已有)
+    Industry:str                                #所属行业(已有)
+    Cn_spell:str                                #拼音缩写(已有)
+    Market:str                                  #市场类型（主板/创业板/科创板/CDR）(已有)
+    List_Status:str                           #上市状态 L上市 D退市 P暂停上市(已有)
+    List_date:str                            #上市日期(已有)
+    Act_name:str                              #实控人名称(已有)
+    Act_ent_type:str                            #实际企业类型(已有)
+    Product:str                                 #主要产品(已有)
+    Business_Scope:str                            #经营范围(已有)
+    Introduction:str                             #公司简介(已有)
+    Com_name:str                                   #公司名称(已有)
+    Total_Value:int                                   #总股本

@@ -248,7 +248,7 @@ class AppManager {
     }
 
     //请求更新数据
-    requestUpdateData(data = None) {
+    requestUpdateData() {
         this.app.log("📤 发送拉取数据请求...", "system");
         let token = this.ui.getTushareToken()
         this.app.log(`📤 ${token}`, "system");

@@ -95,10 +95,10 @@ class processor:
             else:
                 with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
                     lastDayStr = f.read().strip()
-
+            lastDayStr = "20251201"
             if lastDayStr == today_str:
                 self.BoardCast("是最新数据，无需拉取,开始读入数据")
-                await self.calculationDataHandle.ReadDBDataInMemory()
+                #await self.calculationDataHandle.ReadDBDataInMemory()
             else:
                 self.isInit = False
                 self.BoardCast("开始进行数据拉取")
@@ -108,9 +108,10 @@ class processor:
                 #self.isInBase = True
                 #self.isInFactor = True
                 
-                #await self.requestor.RequestBasic_ByCSV()
+                await self.requestor.RequestBasic_ByCSV()
                 #await self.requestor.RequestBasic()
                 self.isInBase = False
+
                 #await self.requestor.RequestAdjust()
                 self.isInFactor = False
                 #await self.requestor.RequestDaily(lastDayStr, today_str)
