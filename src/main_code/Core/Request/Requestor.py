@@ -39,6 +39,13 @@ class RequestorClass:
         self.main.BoardCast("处理基础数据完成")
 
 
+
+    async def RequestTotalValue_Ak(self):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        df =await self.api.Request_Company_AK()
+        self.main.fileProcessor.SaveCSV(df, "TotalValue_AK", FileProcessor.FileEnum.Basic)
+        
+
     async def RequestTotalValue(self):
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         count_stock = 0
@@ -51,8 +58,8 @@ class RequestorClass:
         df_list = []
         for code in codeList:
             count = count + 1
-            if(count > 30):
-                break
+            #if(count > 30):
+            #    break
             if code in sameList:
                 continue
             df = await self.api.Request_TotalValue(code)

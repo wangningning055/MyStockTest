@@ -46,7 +46,7 @@ class RequestAPIClass:
         return df
 
 
-    #拉取基本数据
+    #拉取基本信息数据
     async def Request_Company(self, exchangeName):
         if self.pro is None:
             print("tushare尚未初始化")
@@ -56,8 +56,11 @@ class RequestAPIClass:
         await asyncio.sleep(0)
         return df
     
-
-
+    #akshare拉取基本数据
+    async def Request_Company_AK(self):
+        stock_individual_info_em_df = ak.stock_individual_info_em(symbol="000001")
+        await asyncio.sleep(0)
+        return stock_individual_info_em_df
 
 
     def get_last_quarter(self, ref_date=None):

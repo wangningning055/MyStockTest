@@ -13,6 +13,20 @@ class BaseClass :
         self.totalComponyData = {}
         self.totalBaseDailyData = {}
 
+
+
+    def GetBaseDataClass(self, stockCode, date):
+        pass
+
+    def GetWindowDataClass(self, stockCode, startDate, toDate):
+        pass
+
+    def GetIndustryBaseData(self, industryStr):
+        pass
+
+    def GetIndustryWindowData(self, industryStr, startDate, toDate):
+        pass
+
     def ReadDBDataInMemoryNoWait(self):
         print("开始载入数据库数据，这需要花上一段时间......")
         #self.main.BoardCast("开始载入数据库数据，这需要花上一段时间.....")
@@ -82,9 +96,6 @@ class BaseClass :
 
 
 
-
-
-
     async def ReadDBDataInMemory(self):
         print("开始载入数据库数据，这需要花上一段时间......")
         #self.main.BoardCast("开始载入数据库数据，这需要花上一段时间.....")
@@ -137,11 +148,3 @@ class BaseClass :
         self.main.BoardCast("数据库数据载入完成")
         print("数据库数据载入完成")
 
-
-    def GetBaseData(self, stockCode, dataStr):
-
-        pass
-
-
-    def GetWindowData(self, stockCode, dataStr1, dataStr2):
-        pass

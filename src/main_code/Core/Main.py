@@ -108,8 +108,9 @@ class processor:
                 #self.isInBase = True
                 #self.isInFactor = True
                 
-                await self.requestor.RequestBasic_ByCSV()
+                #await self.requestor.RequestBasic_ByCSV()
                 #await self.requestor.RequestBasic()
+                await self.requestor.RequestTotalValue_Ak()
                 self.isInBase = False
 
                 #await self.requestor.RequestAdjust()
