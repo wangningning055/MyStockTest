@@ -57,11 +57,15 @@ class RequestAPIClass:
         return df
     
     #akshare拉取基本数据
-    async def Request_Company_AK(self):
+    async def Request_Company_Value_AK(self):
         stock_individual_info_em_df = ak.stock_individual_info_em(symbol="000001")
         await asyncio.sleep(0)
         return stock_individual_info_em_df
-
+    
+    async def Request_Company_Info_AK(self):
+        stock_individual_info_em_df = ak.stock_zyjs_ths(symbol="000001")
+        await asyncio.sleep(0)
+        return stock_individual_info_em_df
 
     def get_last_quarter(self, ref_date=None):
         """
