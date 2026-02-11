@@ -506,4 +506,5 @@ class DBHandlerClass:
             
             if row:
                 return dict(row)
-            return 1
+            
+            return {"Open_Price" : 1}

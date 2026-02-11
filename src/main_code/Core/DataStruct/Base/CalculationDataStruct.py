@@ -2,19 +2,16 @@ from datetime import date
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 
-
-
 class AllDateStructBaseClass:
-    def __init__(self, code: str, today:str):
-        self.code: str = code
-        self.latest_date = today
-        self.dateDic: Dict[date, StructBaseClass] = {}
+    def __init__(self):
+        self.allDic = {} #{code, date}:StructBaseClass
 
-    def GetTodayData(self):
-        return self.dateDic[self.latest_date]
+    def GetBaseClass(self, code, data):
+        return self.allDic[code, data]
 
 class StructBaseClass :
     def __init__(self):
+        self.isCalculate = False
         pass
 
     code:str
@@ -52,6 +49,7 @@ class StructBaseClass :
     trade_state:int         #交易状态1正常交易，0停牌
     adjust:float            #当日复权因子
     avg:float               #当日均价
+    avg_5:float             #十日均价
     avg_10:float             #十日均价
     avg_20:float            #20日均价
     avg_40:float             #40均价
@@ -59,6 +57,7 @@ class StructBaseClass :
     avg_120:float           #120日均价
     avg_240:float           #240日均价
 
+    avg_ratio_5:float             #当日均价与其他日均价的比
     avg_ratio_10:float             #当日均价与其他日均价的比
     avg_ratio_20:float              #20日均价
     avg_ratio_40:float             #40均价
@@ -92,7 +91,6 @@ class StructBaseClass :
     #快捷技术指标（布林线，macd，rsi，均价交叉）
 
 
-#这里包装一段时间的base
 class StructBaseWindowClass :
     code:str
     trade_date_from:date    #交易日期
@@ -225,7 +223,15 @@ class StructIndustryWindowClass():
     industry_outflow_ratio:float#行业净流入涨跌幅
 
 
+
+
+
+
+
+
+
 class StructComponyInfoClass:
+    
     Ts_code:str                                 #股票TS代码(已有)
     Code:str                                    #股票代码(已有)
     Name:str                                    #股票名称(已有)
@@ -242,3 +248,34 @@ class StructComponyInfoClass:
     Introduction:str                             #公司简介(已有)
     Com_name:str                                   #公司名称(已有)
     Total_Value:int                                   #总股本
+    def __init__(self):
+        self.Total_Value = 0
+
+    
+class StructIndustryInfoClass:
+    industryName : str
+    def __init__(self):
+        self.stockList = {}
+    
+
+
+class StructIndustryTotalInfoClass:
+    def __init__(self):
+        self.industryList:StructIndustryInfoClass = {}
+        self.allStockList:StructComponyInfoClass = {}
+        self.code_industryStr_List = {}  #{code : industry}
+
+
+    def GetComponyInfo(self, code:str) -> StructComponyInfoClass:
+        return self.allStockList[code]
+
+    def GetIndustryStrByCode(self, code:str) -> str:
+        return self.code_industryStr_List[code]
+
+
+    def GetIndustryClsByCode(self, code:str) -> StructIndustryInfoClass:
+        industryStr = self.GetIndustryStrByCode(code)
+        return self.industryList[industryStr]
+    
+    def GetIndustryClsByIndustryStr(self, industry:str) -> StructIndustryInfoClass:
+        return self.industryList[industry]

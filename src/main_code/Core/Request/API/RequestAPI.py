@@ -165,7 +165,7 @@ class RequestAPIClass:
         return classList
     
 
-    def Df_To_BasicClass(self, dfBasic, dfSZSE, dfSSE, dfBSE, df_Total):
+    def Df_To_BasicClass(self, dfBasic, dfSZSE, dfSSE, dfBSE):
         if dfBasic is None:
             return None
         if dfSZSE is None:
@@ -222,13 +222,13 @@ class RequestAPIClass:
                 testClass.dic[BasicDBStruct.ColumnEnum.Com_name] = row['com_name']
                 testClass.dic[BasicDBStruct.ColumnEnum.Introduction] = row['introduction']
 
-        print("开始单独处理总股本")
-        self.main.BoardCast("开始单独处理总股本")
-        for _,row in df_Total.iterrows():
-            code = self.BaoStock_to_TuShare(row['code'])
-            testClass = alldic.get(code)
-            if(testClass is not None):
-                testClass.dic[BasicDBStruct.ColumnEnum.Total_Value] = row['totalShare']
+        #print("开始单独处理总股本")
+        #self.main.BoardCast("开始单独处理总股本")
+        #for _,row in df_Total.iterrows():
+        #    code = self.BaoStock_to_TuShare(row['code'])
+        #    testClass = alldic.get(code)
+        #    if(testClass is not None):
+        #        testClass.dic[BasicDBStruct.ColumnEnum.Total_Value] = row['totalShare']
         return classList
 
     def Df_To_AdjustClass(self, df):

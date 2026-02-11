@@ -28,13 +28,13 @@ class RequestorClass:
         df_Company_SZSE =await self.api.Request_Company(const_proj.TradeNameSZSE)
         df_Company_SSE =await self.api.Request_Company(const_proj.TradeNameSSE)
         df_Company_BSE =await self.api.Request_Company(const_proj.TradeNameBSE)
-        df_TotalValue =await self.RequestTotalValue()
+        #df_TotalValue =await self.RequestTotalValue()
         self.main.fileProcessor.SaveCSV(df_Basic, "Base", FileProcessor.FileEnum.Basic)
         self.main.fileProcessor.SaveCSV(df_Company_SZSE, "SZSE", FileProcessor.FileEnum.Basic)
         self.main.fileProcessor.SaveCSV(df_Company_SSE, "SSE", FileProcessor.FileEnum.Basic)
         self.main.fileProcessor.SaveCSV(df_Company_BSE, "BSE", FileProcessor.FileEnum.Basic)
-        self.main.fileProcessor.SaveCSV(df_TotalValue, "TotalValue", FileProcessor.FileEnum.Basic)
-        classList = self.api.Df_To_BasicClass(df_Basic, df_Company_SZSE, df_Company_SSE, df_Company_BSE, df_TotalValue)
+        #self.main.fileProcessor.SaveCSV(df_TotalValue, "TotalValue", FileProcessor.FileEnum.Basic)
+        classList = self.api.Df_To_BasicClass(df_Basic, df_Company_SZSE, df_Company_SSE, df_Company_BSE)
         try:
             await self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Basic)
         except Exception as e:

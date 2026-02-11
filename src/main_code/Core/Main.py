@@ -34,7 +34,7 @@ class processor:
         plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
-        self.dbHandler = self.InitDB()
+        self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
         self.calculationDataHandle = self.InitCalculationDataHandle()
         self.requestor = self.InitRequest()
         plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
@@ -75,7 +75,7 @@ class processor:
         return instance
 
     #初始化数据库模块
-    def InitDB(self):
+    def InitDB(self) ->DBHandler.DBHandlerClass :
         instance = DBHandler.DBHandlerClass()
         instance.Init(self)
         return instance
