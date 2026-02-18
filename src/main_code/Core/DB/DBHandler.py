@@ -252,12 +252,14 @@ class DBHandlerClass:
         codeList = {}
         for row in allRow:
             row_dict = {col: row[i] for i, col in enumerate(columns)}
-            ts_code = row[0]
+            ts_code:str = row[0]
             if(ts_code in sameList):
                 continue
             stateName = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.List_Status)
             if(row_dict[stateName] != "L"):
                 print(f"这是是退市的股票：{ts_code}")
+                continue
+            if(ts_code.lower().endswith("bj")):
                 continue
             
             rowDic = dict(row)

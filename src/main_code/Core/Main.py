@@ -104,18 +104,18 @@ class processor:
                 self.BoardCast("开始进行数据拉取")
                 self.BoardCast(f"拉取数据区间为：{lastDayStr}  ----  {today_str}")
 
-                #self.isInDaily = True
+                self.isInDaily = True
                 self.isInBase = True
-                #self.isInFactor = True
+                self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
                 await self.requestor.RequestBasic()
                 #await self.requestor.RequestTotalValue_Ak()
                 self.isInBase = False
 
-                #await self.requestor.RequestAdjust()
+                await self.requestor.RequestAdjust()
                 self.isInFactor = False
-                #await self.requestor.RequestDaily(lastDayStr, today_str)
+                await self.requestor.RequestDaily(lastDayStr, today_str)
                 self.isInDaily = False
                 #await self.calculationDataHandle.ReadDBDataInMemory()
                 self.isInit = True
