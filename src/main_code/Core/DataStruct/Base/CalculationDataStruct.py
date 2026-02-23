@@ -147,7 +147,9 @@ class StructBaseClass :
 class StructBaseWindowClass :
     code:str
     trade_date_from:date    #交易日期
-    trade_date_to:date      #交易日期
+    startCount:int
+    #trade_date_to:date      #交易日期
+    toCount:int
     up_stopCount:int        #涨停次数
     down_stopCount:int      #跌停次数
     industry:str            #行业
@@ -161,12 +163,10 @@ class StructBaseWindowClass :
     turn_ratio:float          #整体换手率涨跌幅
     change_Ratio:float      #整体涨跌幅
     avg_Ratio:float      #均价涨跌幅
-    volume_price_energy:float    #整体资金成交动量，正数越大向上推动越大，负数越小向下抛压越大
 
 
     avg_open: float         #平均开盘价
     avg_close: float            #平均收盘价
-    avg_last_close: float       #平均昨收价
     avg_high: float         #平均最高价
     avg_low: float          #平均最低价
     avg_volume: float        #平均成交量
