@@ -109,7 +109,7 @@ class processor:
                 self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
-                await self.requestor.RequestBasic()
+                #await self.requestor.RequestBasic()
                 #await self.requestor.RequestTotalValue_Ak()
                 self.isInBase = False
 
@@ -147,7 +147,7 @@ class processor:
             self.pullOver()
         else:
             print("股票信息拉取流程异常结束")
-            self.BoardCast(f"股票信息拉取流程异常结束:{self.isInBase}{self.isInDaily}{self.isInDaily}")
+            self.BoardCast(f"股票信息拉取流程异常结束:{self.isInBase}{self.isInFactor}{self.isInDaily}")
             
         try:
             result = task.result()  # 捕获返回值或异常

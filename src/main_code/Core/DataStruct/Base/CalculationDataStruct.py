@@ -203,9 +203,6 @@ class StructBaseWindowClass :
     max_amplitude:float         #最高振幅
     max_avg:float         #最高均价
 
-    decrease_price:float  #这段时间的跌价总和
-    increase_price:float  #这段时间的涨价总和
-    
     
     volume_industry_rank:float #成交量排名(前%)
     total_price_industry_rank:float #成交额排名(前%)
@@ -241,16 +238,31 @@ class StructIndustryClass():
     trade_date:date #交易日期
     volume: float   #成交量
     volume_ratio:float        #成交量涨跌幅
+    volume_ratio_3:float        #当日成交量与3日平均成交量的比
+    volume_ratio_5:float        #当日成交量与5日平均成交量的比
+    volume_ratio_10:float        #当日成交量与10日平均成交量的比
+    volume_ratio_20:float        #当日成交量与20日平均成交量的比
+
+
     volume_price: Optional[float] = None        #成交额
     volume_price_ratio: Optional[float] = None        #成交额涨跌幅
+
+    volume_price_ratio_3: Optional[float] = None        #当日成交额与3日平均成交额的比
+    volume_price_ratio_5: Optional[float] = None        #当日成交额与5日平均成交额的比
+    volume_price_ratio_10: Optional[float] = None        #当日成交额与10日平均成交额的比
+    volume_price_ratio_20: Optional[float] = None        #当日成交额与20日平均成交额的比
+
+
     volume_ratio_5:float       #量比 
-    change_Ratio:float      #行业涨跌幅
+    change_Ratio:float      #行业涨整体跌幅
     stockNum:int            #行业股数量
+
     stockNum_up:int         #行业上涨股数量
+    stockNum_up_Ratio:int         #行业上涨股比例
+    
     stockNum_down:int       #行业下跌股数量
-    industry_inflow:float #行业净流入
-    industry_outflow:float#行业净流出
-    industry_outflow_ratio:float#行业净流入涨跌幅
+    stockNum_down_Ratio:int         #行业下跌股比例
+
 
 
 class StructIndustryWindowClass():
@@ -265,17 +277,13 @@ class StructIndustryWindowClass():
     change_Ratio:float      #整体行业涨跌幅
     avg_stockNum_up:int         #平均行业上涨股数量
     avg_stockNum_down:int       #平均行业下跌股数量
+    stockNum_up_Ratio:int         #行业上涨股比例
+    stockNum_down_Ratio:int         #行业下跌股比例
 
     avg_volume: float   #平均成交量
     avg_volume_price: Optional[float] = None        #平均成交额
 
-    decrease_price:float  #这段时间的行业跌价总和
-    increase_price:float  #这段时间的行业涨价总和
 
-
-    industry_inflow:float #行业净流入
-    industry_outflow:float#行业净流出
-    industry_outflow_ratio:float#行业净流入涨跌幅
 
 
 
