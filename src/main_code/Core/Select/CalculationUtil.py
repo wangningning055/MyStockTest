@@ -2826,3 +2826,14 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.St
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
+            
+
+#平均行业上涨股数量
+def GetIndustry_Up_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+    for key, val in industryInfo.stockList.items():
+        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
+        if(dataList.__len__() > 200):
+            break
+    dayCount = 0
+    fullDataList = [trade_date] + dataList
+#平均行业下跌股数量
