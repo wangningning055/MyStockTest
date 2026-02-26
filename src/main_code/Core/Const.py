@@ -27,6 +27,7 @@ DBPath = "../DB/StockData.db"
 DBBasicTableName = "Basic"
 DBDailyTableName = "Daily"
 DBAdjustTableName = "Adjust"
+DBValueTableName = "Value"
 
 TradeNameSZSE = "SZSE"
 TradeNameSSE = "SSE"

@@ -2564,7 +2564,7 @@ def GetIndustry_Up_Count(industryInfo :CalculationDataStruct.StructIndustryInfoC
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.change_Ratio and dailyCls.change_Ratio > ConstVal.up_down_boundary:
-            print(f"上涨股票：{val.Code}, {val.Name},  涨幅：{dailyCls.change_Ratio}")
+            #print(f"上涨股票：{val.Code}, {val.Name},  涨幅：{dailyCls.change_Ratio}")
             count += 1
     return count
 
@@ -2574,7 +2574,7 @@ def GetIndustry_Down_Count(industryInfo :CalculationDataStruct.StructIndustryInf
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.change_Ratio and dailyCls.change_Ratio < -ConstVal.up_down_boundary:
-            print(f"下跌股票：{val.Code},{val.Name},   跌幅：{dailyCls.change_Ratio}")
+            #print(f"下跌股票：{val.Code},{val.Name},   跌幅：{dailyCls.change_Ratio}")
             count += 1
     return count
 
@@ -2830,10 +2830,39 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.St
 
 #平均行业上涨股数量
 def GetIndustry_Up_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+    dataList = []
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
             break
     dayCount = 0
+    addCount = 0
+    totalCount = 0
     fullDataList = [trade_date] + dataList
+    for day in fullDataList:
+        if dayCount >= startDayCount and dayCount <= toDayCount:
+            totalCount += GetIndustry_Up_Count(industryInfo, day, handler)
+            addCount += 1
+            #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 上涨股数量：{count}")
+        dayCount = dayCount + 1
+        if dayCount > toDayCount :
+            return totalCount / addCount if addCount > 0 else 0
 #平均行业下跌股数量
+def GetIndustry_Down_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+    dataList = []
+    for key, val in industryInfo.stockList.items():
+        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
+        if(dataList.__len__() > 200):
+            break
+    dayCount = 0
+    addCount = 0
+    totalCount = 0
+    fullDataList = [trade_date] + dataList
+    for day in fullDataList:
+        if dayCount >= startDayCount and dayCount <= toDayCount:
+            totalCount += GetIndustry_Down_Count(industryInfo, day, handler)
+            addCount += 1
+            #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 下跌股数量：{count}")
+        dayCount = dayCount + 1
+        if dayCount > toDayCount :
+            return totalCount / addCount if addCount > 0 else 0

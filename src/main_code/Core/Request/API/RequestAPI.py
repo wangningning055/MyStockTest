@@ -6,6 +6,7 @@ import akshare as ak
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
+from src.main_code.Core.DataStruct.DB import ValueDBStruct
 import src.main_code.Core.Const as const_proj
 import src.main_code.Core as Core
 from datetime import datetime
@@ -150,6 +151,75 @@ class RequestAPIClass:
         await asyncio.sleep(0)
         return df
 
+    #拉取股市价值信息StockCode为xxxxx.SZ的格式
+    async def RequestValue_Roe(self, baoStockCode : str, year, quarter):
+        if(baoStockCode.__contains__("bj")):
+            return None
+        if(baoStockCode.__contains__("BJ")):
+            return None
+            #self.main.BoardCast("北交所的行情暂不支持:", baoStockCode)
+        code = self.TuShare_to_BaoStock(baoStockCode)
+
+        profit_list = []
+        rs_profit = bs.query_profit_data(code=baoStockCode, year=year, quarter=quarter)
+        while (rs_profit.error_code == '0') & rs_profit.next():
+            profit_list.append(rs_profit.get_row_data())
+
+        if profit_list.__len__() != 0:
+            df = pd.DataFrame(profit_list, columns=rs_profit.fields)
+        else:
+            return None
+
+        await asyncio.sleep(0)
+        return df
+
+
+
+    async def RequestValue_YOYNi(self, baoStockCode : str, year, quarter):
+        if(baoStockCode.__contains__("bj")):
+            return None
+        if(baoStockCode.__contains__("BJ")):
+            return None
+            #self.main.BoardCast("北交所的行情暂不支持:", baoStockCode)
+        code = self.TuShare_to_BaoStock(baoStockCode)
+
+        profit_list = []
+        rs_profit = bs.query_growth_data(code=baoStockCode, year=year, quarter=quarter)
+        while (rs_profit.error_code == '0') & rs_profit.next():
+            profit_list.append(rs_profit.get_row_data())
+
+        if profit_list.__len__() != 0:
+            df = pd.DataFrame(profit_list, columns=rs_profit.fields)
+        else:
+            return None
+
+        await asyncio.sleep(0)
+        return df
+
+    async def RequestValue_LiabilityTo(self, baoStockCode : str, year, quarter):
+        if(baoStockCode.__contains__("bj")):
+            return None
+        if(baoStockCode.__contains__("BJ")):
+            return None
+            #self.main.BoardCast("北交所的行情暂不支持:", baoStockCode)
+        code = self.TuShare_to_BaoStock(baoStockCode)
+
+        profit_list = []
+        rs_profit = bs.query_balance_data(code=baoStockCode, year=year, quarter=quarter)
+        while (rs_profit.error_code == '0') & rs_profit.next():
+            profit_list.append(rs_profit.get_row_data())
+
+        if profit_list.__len__() != 0:
+            df = pd.DataFrame(profit_list, columns=rs_profit.fields)
+        else:
+            return None
+
+        # 打印输出
+        #print(df)
+        await asyncio.sleep(0)
+        return df
+
+
 
     def Df_To_BasicClass_TotalValue(self, dfValue):
         if dfValue is None:
@@ -269,6 +339,24 @@ class RequestAPIClass:
             dataClass.dic[DailyDBStruct.ColumnEnum.Last_Close_Price] = self.CleanData(row['preclose'], 1)
             dataClassList.append(dataClass)
         return dataClassList
+
+    def Df_To_ValueClass(self,code,year, quarter, df1, df2, df3):
+        dataClass = ValueDBStruct.DBStructClass()
+        dataClass.dic[ValueDBStruct.ColumnEnum.Code] = self.BaoStock_to_TuShare(code)
+        dataClass.dic[ValueDBStruct.ColumnEnum.Year] = year
+        dataClass.dic[ValueDBStruct.ColumnEnum.Quarter] = quarter
+        for _, row in df1.iterrows():
+            dataClass.dic[ValueDBStruct.ColumnEnum.Roe] = self.CleanData(row['roeAvg'], 1)
+        for _, row in df2.iterrows():
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYNi] = self.CleanData(row['YOYNI'], 1)
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYEquity] = self.CleanData(row['YOYEquity'], 1)
+        for _, row in df3.iterrows():
+            dataClass.dic[ValueDBStruct.ColumnEnum.LiabilityTo] = self.CleanData(row['liabilityToAsset'], 1)
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYLiability] = self.CleanData(row['YOYLiability'], 1)
+
+        return dataClass
+
+
 
     #可能存在空的情况，这个时候转换不成功，需要主动置空，type：1是float， 2是int
     def CleanData(self, rowData, type):

@@ -16,7 +16,7 @@ class BaseClass :
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
         self.totalBaseDailyData : CalculationDataStruct.AllDateStructBaseClass = CalculationDataStruct.AllDateStructBaseClass()
         self.InitIndustry()
-        self.InitIndustryCls()
+        #self.InitIndustryCls()
         print("计算模块初始化完毕")
         #self.GetBaseDataClass("300846.SZ","20260225", True)
         #self.GetBaseDataClass("600740.SH","20260225", True)
@@ -84,7 +84,7 @@ class BaseClass :
         for key, val in self.totalComponyIns.industryList.items():
             if key == "焦炭加工":
                 #self.GetIndustryBaseData("20260211", val)
-                self.GetIndustryWindowData(val, "20260225", 0, 20 )
+                self.GetIndustryWindowData(val, "20260213", 0, 10 )
 
 
         
@@ -960,15 +960,20 @@ class BaseClass :
         print(f"行业整体涨跌幅 {industryWindowClass.change_Ratio_Total}")
 
         #avg_stockNum_up:int         #平均行业上涨股数量
+        industryWindowClass.avg_stockNum_up = CalculationUtil.GetIndustry_Up_Stock_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业平均上涨股数量 {industryWindowClass.avg_stockNum_up}")
+
         #avg_stockNum_down:int       #平均行业下跌股数量
+        industryWindowClass.avg_stockNum_down = CalculationUtil.GetIndustry_Down_Stock_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业平均下跌股数量 {industryWindowClass.avg_stockNum_down}")
         
         #stockNum_up_Ratio:int         #平均行业上涨股比例
+        industryWindowClass.stockNum_up_Ratio = (industryWindowClass.avg_stockNum_up / industryWindowClass.stockNum) * 100 if industryWindowClass.stockNum > 0 else 0
+        print(f"行业平均上涨股比例 {industryWindowClass.stockNum_up_Ratio}")
+
         #stockNum_down_Ratio:int         #平均行业下跌股比例
-
-        pass
-
-
-
+        industryWindowClass.stockNum_down_Ratio = (industryWindowClass.avg_stockNum_down / industryWindowClass.stockNum) * 100 if industryWindowClass.stockNum > 0 else 0
+        print(f"行业平均下跌股比例 {industryWindowClass.stockNum_down_Ratio}")
 
 
 

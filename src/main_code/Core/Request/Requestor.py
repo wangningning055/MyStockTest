@@ -3,6 +3,7 @@ from src.main_code.Core.Request.API import RequestAKAPI
 import src.main_code.Core.Const as const_proj
 from src.main_code.Core.FileProcess import FileProcessor
 from src.main_code.Core.DB import DBHandler
+from src.main_code.Core import Main
 import time
 import os
 import pandas as pd
@@ -12,7 +13,7 @@ class RequestorClass:
     def Init(self, main):
         self.api = RequestAPI.RequestAPIClass()
         self.ak_api = RequestAKAPI.RequestAPIClass()
-        self.main = main
+        self.main : Main.processor = main
         self.api.init(main)
 
 
@@ -43,46 +44,6 @@ class RequestorClass:
 
 
 
-    async def RequestTotalValue_Ak(self):
-        df_value =await self.api.Request_Company_Value_AK()
-        df_info =await self.api.Request_Company_Info_AK()
-
-        df_base = self.normalize_individual_info(df_value)
-        df_base = self.rename_individual_columns(df_base)
-
-        df_business = self.normalize_business_info(df_info)
-
-        df_final = self.merge_company_info(df_base, df_business)
-        df_final["code"] = "000001.SZ"
-
-        self.main.fileProcessor.SaveCSV(df_value, "TotalValue_AK", FileProcessor.FileEnum.Basic)
-        self.main.fileProcessor.SaveCSV(df_info, "TotalInfo_AK", FileProcessor.FileEnum.Basic)
-        self.main.fileProcessor.SaveCSV(df_final, "Final_AK", FileProcessor.FileEnum.Basic)
-        
-
-    async def RequestTotalValue(self):
-        codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
-        count_stock = 0
-        totalCostTime = 0
-        preCostTime = 0
-        totalCostTimeStr = ""
-        preCostTimeStr = ""
-        sameList = set()
-        count = 0
-        df_list = []
-        for code in codeList:
-            count = count + 1
-            #if(count > 30):
-            #    break
-            if code in sameList:
-                continue
-            df = await self.api.Request_TotalValue(code)
-            print(f"正在拉取股本数据，当前第{count}个")
-            df_list.append(df)
-            sameList.add(code)
-        big_df = pd.concat(df_list, axis=0, ignore_index=True)
-        return big_df
-        
     async def RequestBasic_ByCSV(self):
         self.main.isInBase = True
         self.main.BoardCast("处理基础数据")
@@ -228,7 +189,38 @@ class RequestorClass:
         #task.add_done_callback(self.main.task_finished_callback_Daily)
         self.main.BoardCast("处理日线数据完成")
 
+    async def RequestValue(self):
+        self.main.isInValue = True
+        self.main.BoardCast("处理价值数据")
+        codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
+        count = 0
 
+        year = 2020
+        quarter = 1
+        clsList = []
+        for code in codeList:
+            df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
+            df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
+            df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
+            cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
+            clsList.append(cls)
+            self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+
+            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
+            count = count + 1
+            #if count > 5:
+            #    break
+                #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
+
+        
+        print("开始写入")
+        try:
+            await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
+        except Exception as e:
+            print(f"写入数据库失败: {e}")
+        self.main.BoardCast("处理价值数据完成")
 
     def format_seconds(self, seconds: float) -> str:
         seconds = int(seconds)
@@ -237,4 +229,79 @@ class RequestorClass:
         s = seconds % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    #async def RequestTotalValue_Ak(self):
+    #    df_value =await self.api.Request_Company_Value_AK()
+    #    df_info =await self.api.Request_Company_Info_AK()
+
+    #    df_base = self.normalize_individual_info(df_value)
+    #    df_base = self.rename_individual_columns(df_base)
+
+    #    df_business = self.normalize_business_info(df_info)
+
+    #    df_final = self.merge_company_info(df_base, df_business)
+    #    df_final["code"] = "000001.SZ"
+
+    #    self.main.fileProcessor.SaveCSV(df_value, "TotalValue_AK", FileProcessor.FileEnum.Basic)
+    #    self.main.fileProcessor.SaveCSV(df_info, "TotalInfo_AK", FileProcessor.FileEnum.Basic)
+    #    self.main.fileProcessor.SaveCSV(df_final, "Final_AK", FileProcessor.FileEnum.Basic)
+        
+
+    #async def RequestTotalValue(self):
+    #    codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
+    #    count_stock = 0
+    #    totalCostTime = 0
+    #    preCostTime = 0
+    #    totalCostTimeStr = ""
+    #    preCostTimeStr = ""
+    #    sameList = set()
+    #    count = 0
+    #    df_list = []
+    #    for code in codeList:
+    #        count = count + 1
+    #        #if(count > 30):
+    #        #    break
+    #        if code in sameList:
+    #            continue
+    #        df = await self.api.Request_TotalValue(code)
+    #        print(f"正在拉取股本数据，当前第{count}个")
+    #        df_list.append(df)
+    #        sameList.add(code)
+    #    big_df = pd.concat(df_list, axis=0, ignore_index=True)
+    #    return big_df
+        
 

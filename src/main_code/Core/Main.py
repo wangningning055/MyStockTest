@@ -24,6 +24,7 @@ class processor:
     isInDaily = False
     lastDayStr = const_proj.first_Data
     tuShareToken = 0000000
+    dbHandler : DBHandler.DBHandlerClass
     def BoardCast(self, message: str):
         asyncio.get_running_loop().create_task(ws.broadcast(message))
 
@@ -111,18 +112,20 @@ class processor:
                 self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
-                #await self.requestor.RequestTotalValue_Ak()
 
 
                 #await self.requestor.RequestBasic()
                 #self.isInBase = False
 
-                await self.requestor.RequestAdjust()
-                self.isInFactor = False
+                #await self.requestor.RequestAdjust()
+                #self.isInFactor = False
 
-                await self.requestor.RequestDaily(lastDayStr, today_str)
-                self.isInDaily = False
-                #await self.calculationDataHandle.ReadDBDataInMemory()
+                #await self.requestor.RequestDaily(lastDayStr, today_str)
+                #self.isInDaily = False
+
+
+                await self.requestor.RequestValue()
+
                 self.isInit = True
 
         except Exception as e:

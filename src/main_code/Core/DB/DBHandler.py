@@ -4,6 +4,7 @@ from enum import Enum
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
+from src.main_code.Core.DataStruct.DB import ValueDBStruct
 from src.main_code.Core import Const as const_proj
 import asyncio
 from collections import defaultdict
@@ -11,7 +12,7 @@ class TableEnum(Enum):
     Basic = 1,
     Daily = 2,
     Adjust = 3,
-
+    Value = 4
 
 class DBHandlerClass:
 
@@ -35,7 +36,7 @@ class DBHandlerClass:
         self.CreateBasicTable()
         self.CreateDailyTable()
         self.CreateAdjustTable()
-
+        self.CreateValueTable()
 
    #创建基础股市表
     def CreateBasicTable(self):
@@ -94,6 +95,24 @@ class DBHandlerClass:
         self.dbCursor.execute(sql)
         self.dbConnect.commit()
 
+    #创建价值表
+    def CreateValueTable(self):
+        self.valueDbStruct = ValueDBStruct.DBStructClass()
+        columns = []
+
+        for key in self.valueDbStruct.dic.keys():
+            columnName = self.valueDbStruct.GetNameByEnum(key)
+            dbType = self.valueDbStruct.GetDBTypeByEnum(key)
+            columns.append(f"{columnName} {dbType}")
+
+        columns.append(f"PRIMARY KEY ({self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Code)}, {self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Year)}, {self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Quarter)})")
+        sql = f"""
+        CREATE TABLE IF NOT EXISTS {const_proj.DBValueTableName} (
+            {', '.join(columns)}
+        )
+        """
+        self.dbCursor.execute(sql)
+        self.dbConnect.commit()
 
 
     def GetTableNameByEnum(self, tableEnum):
@@ -103,6 +122,8 @@ class DBHandlerClass:
             return const_proj.DBDailyTableName
         elif tableEnum == TableEnum.Adjust:
             return const_proj.DBAdjustTableName
+        elif tableEnum == TableEnum.Value:
+            return const_proj.DBValueTableName
 
     #读入行
     def ReadRow(self, table_name):
@@ -129,6 +150,8 @@ class DBHandlerClass:
             strhead = "数据库写入日线数据，"
         elif table_enum == TableEnum.Adjust:
             strhead = "数据库写入复权数据，"
+        elif table_enum == TableEnum.Value:
+            strhead = "数据库写入价值数据，"
         count_stock = 0
         totalCostTime = 0
         preCostTime = 0
