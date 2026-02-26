@@ -2,6 +2,8 @@ from datetime import date
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 
+
+#用于条件指标记录类
 class AllDateStructBaseClass:
     def __init__(self):
         self.allDic = {} #{code, date}:StructBaseClass
@@ -161,8 +163,10 @@ class StructBaseWindowClass :
     volume_ratio:float   #整体成交量涨跌幅
     volume_price_ratio:float   #整体成交额涨跌幅
     turn_ratio:float          #整体换手率涨跌幅
-    change_Ratio:float      #整体涨跌幅
+    change_Ratio:float      #涨跌幅
+    change_Ratio_Total:float      #整体涨跌幅
     avg_Ratio:float      #均价涨跌幅
+    avg_Ratio_Total:float      #整体均价涨跌幅
 
 
     avg_open: float         #平均开盘价
@@ -229,9 +233,6 @@ class StructBaseWindowClass :
     is_pop_down:float#是否震荡下行
 
 
-    #快捷技术指标（布林线，macd，rsi）
-
-
 
 class StructIndustryClass():
     name:str        #行业名
@@ -267,26 +268,32 @@ class StructIndustryClass():
 
 class StructIndustryWindowClass():
     name:str        #行业名
-    trade_date_from:date #交易日期
-    trade_date_to:date #交易日期
     stockNum:int            #行业股数量
-    volume: float   #整体成交量
-    volume_ratio:float        #整体成交量涨跌幅
-    volume_price: Optional[float] = None        #整体成交额
-    volume_price_ratio: Optional[float] = None        #整体成交额涨跌幅
-    change_Ratio:float      #整体行业涨跌幅
-    avg_stockNum_up:int         #平均行业上涨股数量
-    avg_stockNum_down:int       #平均行业下跌股数量
-    stockNum_up_Ratio:int         #行业上涨股比例
-    stockNum_down_Ratio:int         #行业下跌股比例
 
+    volume: float   #整体成交量
+    volume_price: Optional[float] = None        #整体成交额
     avg_volume: float   #平均成交量
     avg_volume_price: Optional[float] = None        #平均成交额
 
 
+    volume_ratio:float        #整体成交量涨跌幅
+    volume_price_ratio: Optional[float] = None        #整体成交额涨跌幅
+
+    change_Ratio:float      #行业涨跌幅
+    change_Ratio_Total:float      #整体行业涨跌幅
+
+    avg_stockNum_up:int         #平均行业上涨股数量
+    avg_stockNum_down:int       #平均行业下跌股数量
+    
+    stockNum_up_Ratio:int         #平均行业上涨股比例
+    stockNum_down_Ratio:int         #平均行业下跌股比例
 
 
 
+
+
+
+#总数据存储类
 
 class StructComponyInfoClass:
     Ts_code:str                                 #股票TS代码(已有)
@@ -348,3 +355,53 @@ class StructIndustryTotalInfoClass:
     
     def GetIndustryClsByIndustryStr(self, industry:str) -> StructIndustryInfoClass:
         return self.industryList[industry]
+
+
+#行业分析结果类
+
+class Stock_AnalysisResult:
+    #高价值股列表
+    High_Value_Stock_List = []
+
+    #高成长股列表
+    High_Grow_Stock_List = []
+
+class IndustryAnalysisResult:
+    Price_Increase_5_1:str                                 #过去五年1月份上涨的行业 (有三年在涨)
+    Price_Increase_5_2:str                                 #过去五年2月份上涨的行业
+    Price_Increase_5_3:str                                 #过去五年3月份上涨的行业
+    Price_Increase_5_4:str                                 #过去五年4月份上涨的行业
+    Price_Increase_5_5:str                                 #过去五年5月份上涨的行业
+    Price_Increase_5_6:str                                 #过去五年6月份上涨的行业
+    Price_Increase_5_7:str                                 #过去五年7月份上涨的行业
+    Price_Increase_5_8:str                                 #过去五年8月份上涨的行业
+    Price_Increase_5_9:str                                 #过去五年9月份上涨的行业
+    Price_Increase_5_10:str                                 #过去五年10月份上涨的行业
+    Price_Increase_5_11:str                                 #过去五年11月份上涨的行业
+    Price_Increase_5_12:str                                 #过去五年12月份上涨的行业
+
+    Price_Increase_3_1:str                                 #过去3年1月份上涨的行业（有两年在涨）
+    Price_Increase_3_2:str                                 #过去3年2月份上涨的行业
+    Price_Increase_3_3:str                                 #过去3年3月份上涨的行业
+    Price_Increase_3_4:str                                 #过去3年4月份上涨的行业
+    Price_Increase_3_5:str                                 #过去3年5月份上涨的行业
+    Price_Increase_3_6:str                                 #过去3年6月份上涨的行业
+    Price_Increase_3_7:str                                 #过去3年7月份上涨的行业
+    Price_Increase_3_8:str                                 #过去3年8月份上涨的行业
+    Price_Increase_3_9:str                                 #过去3年9月份上涨的行业
+    Price_Increase_3_10:str                                 #过去3年10月份上涨的行业
+    Price_Increase_3_11:str                                 #过去3年11月份上涨的行业
+    Price_Increase_3_12:str                                 #过去3年12月份上涨的行业
+
+    Price_Increase_1_1:str                                 #过去1年1月份上涨的行业
+    Price_Increase_1_2:str                                 #过去1年2月份上涨的行业
+    Price_Increase_1_3:str                                 #过去1年3月份上涨的行业
+    Price_Increase_1_4:str                                 #过去1年4月份上涨的行业
+    Price_Increase_1_5:str                                 #过去1年5月份上涨的行业
+    Price_Increase_1_6:str                                 #过去1年6月份上涨的行业
+    Price_Increase_1_7:str                                 #过去1年7月份上涨的行业
+    Price_Increase_1_8:str                                 #过去1年8月份上涨的行业
+    Price_Increase_1_9:str                                 #过去1年9月份上涨的行业
+    Price_Increase_1_10:str                                 #过去1年10月份上涨的行业
+    Price_Increase_1_11:str                                 #过去1年11月份上涨的行业
+    Price_Increase_1_12:str                                 #过去1年12月份上涨的行业

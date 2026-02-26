@@ -2,12 +2,12 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
-from src.main_code.Core.Select import CalculationUtil
 from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core import Const
+
 class BaseClass :
     def __init__(self):
         pass
@@ -16,11 +16,12 @@ class BaseClass :
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
         self.totalBaseDailyData : CalculationDataStruct.AllDateStructBaseClass = CalculationDataStruct.AllDateStructBaseClass()
         self.InitIndustry()
-        #self.InitIndustryCls()
+        self.InitIndustryCls()
         print("计算模块初始化完毕")
-        #self.GetBaseDataClass("300846.SZ","20260213", True)
+        #self.GetBaseDataClass("300846.SZ","20260225", True)
+        #self.GetBaseDataClass("600740.SH","20260225", True)
         #self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
-        #self.GetWindowDataClass("300846.SZ","20260213", 0, 3)
+        #self.GetWindowDataClass("300846.SZ","20260225", 3, 8)
 
         
         #self.GetWindowDataClass("600598.SH","20260213", 0, 10)
@@ -81,8 +82,9 @@ class BaseClass :
 
         print(f"行业总数量为：{len(self.totalComponyIns.industryList)}")
         for key, val in self.totalComponyIns.industryList.items():
-            #if key == "焦炭加工":
-            self.GetIndustryBaseData("20260213", val)
+            if key == "焦炭加工":
+                #self.GetIndustryBaseData("20260211", val)
+                self.GetIndustryWindowData(val, "20260225", 0, 20 )
 
 
         
@@ -163,6 +165,7 @@ class BaseClass :
             return baseClass
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
+        from src.main_code.Core.Select import CalculationUtil
         if(baseClass.isCalculate):
             return
         
@@ -184,19 +187,19 @@ class BaseClass :
 
         baseClass.change_Ratio_3 = CalculationUtil.GetChange_Ratio(baseClass, 3)
         print(f"3日涨跌幅是{baseClass.change_Ratio_3}")
-        baseClass.change_Ratio_5 = CalculationUtil.GetChange_Ratio(baseClass, 5)
+        baseClass.change_Ratio_5 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 5)
         print(f"5日涨跌幅是{baseClass.change_Ratio_5}")
-        baseClass.change_Ratio_10 = CalculationUtil.GetChange_Ratio(baseClass, 10)
+        baseClass.change_Ratio_10 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 10)
         print(f"10日涨跌幅是{baseClass.change_Ratio_10}")
-        baseClass.change_Ratio_20 = CalculationUtil.GetChange_Ratio(baseClass, 20)
+        baseClass.change_Ratio_20 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 20)
         print(f"20日涨跌幅是{baseClass.change_Ratio_20}")
-        baseClass.change_Ratio_40 = CalculationUtil.GetChange_Ratio(baseClass, 40)
+        baseClass.change_Ratio_40 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 40)
         print(f"40日涨跌幅是{baseClass.change_Ratio_40}")
-        baseClass.change_Ratio_60 = CalculationUtil.GetChange_Ratio(baseClass, 60)
+        baseClass.change_Ratio_60 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 60)
         print(f"60日涨跌幅是{baseClass.change_Ratio_60}")
-        baseClass.change_Ratio_120 = CalculationUtil.GetChange_Ratio(baseClass, 120)
+        baseClass.change_Ratio_120 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 120)
         print(f"120日涨跌幅是{baseClass.change_Ratio_120}")
-        baseClass.change_Ratio_240 = CalculationUtil.GetChange_Ratio(baseClass, 240)
+        baseClass.change_Ratio_240 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 240)
         print(f"240日涨跌幅是{baseClass.change_Ratio_240}")
 
 
@@ -204,39 +207,39 @@ class BaseClass :
         baseClass.volume_ratio = CalculationUtil.GetVolume_Ratio(baseClass, 1)
         print(f"成交量涨跌幅是{baseClass.volume_ratio}")
 
-        baseClass.volume_ratio_3 = CalculationUtil.GetVolume_Ratio(baseClass, 3)
-        print(f"3日与3日平均成交量相比涨跌幅是{baseClass.volume_ratio_3}")
+        baseClass.volume_ratio_3 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 3)
+        print(f"3日成交量涨跌幅是{baseClass.volume_ratio_3}")
 
-        baseClass.volume_ratio_5 = CalculationUtil.GetVolume_Ratio(baseClass, 5)
-        print(f"5日与5日平均成交量相比涨跌幅是{baseClass.volume_ratio_5}")
+        baseClass.volume_ratio_5 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 5)
+        print(f"5日成交量相比涨跌幅是{baseClass.volume_ratio_5}")
 
-        baseClass.volume_ratio_10 = CalculationUtil.GetVolume_Ratio(baseClass, 10)
-        print(f"10日与10日平均成交量相比涨跌幅是{baseClass.volume_ratio_10}")
+        baseClass.volume_ratio_10 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 10)
+        print(f"10成交量相比涨跌幅是{baseClass.volume_ratio_10}")
 
-        baseClass.volume_ratio_20 = CalculationUtil.GetVolume_Ratio(baseClass, 20)
-        print(f"20日与20日平均成交量相比涨跌幅是{baseClass.volume_ratio_20}")
+        baseClass.volume_ratio_20 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 20)
+        print(f"20成交量相比涨跌幅是{baseClass.volume_ratio_20}")
 
-        baseClass.volume_ratio_40 = CalculationUtil.GetVolume_Ratio(baseClass, 40)
-        print(f"40日与40日平均成交量相比涨跌幅是{baseClass.volume_ratio_40}")
+        baseClass.volume_ratio_40 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 40)
+        print(f"40成交量相比涨跌幅是{baseClass.volume_ratio_40}")
 
 
         baseClass.volume_price_ratio = CalculationUtil.GetVolume_Price(baseClass, 1)
         print(f"当成交额涨跌幅是{baseClass.volume_price_ratio}")
 
-        baseClass.volume_price_ratio_3 = CalculationUtil.GetVolume_Price(baseClass, 3)
-        print(f"与3日平均成交额涨跌幅是{baseClass.volume_price_ratio_3}")
+        baseClass.volume_price_ratio_3 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  3)
+        print(f"3日平均成交额涨跌幅是{baseClass.volume_price_ratio_3}")
 
-        baseClass.volume_price_ratio_5 = CalculationUtil.GetVolume_Price(baseClass, 5)
-        print(f"与5日平均成交额涨跌幅是{baseClass.volume_price_ratio_5}")
+        baseClass.volume_price_ratio_5 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  5)
+        print(f"5日平均成交额涨跌幅是{baseClass.volume_price_ratio_5}")
 
-        baseClass.volume_price_ratio_10 = CalculationUtil.GetVolume_Price(baseClass, 10)
-        print(f"与10日平均成交额涨跌幅是{baseClass.volume_price_ratio_10}")
+        baseClass.volume_price_ratio_10 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  10)
+        print(f"10日平均成交额涨跌幅是{baseClass.volume_price_ratio_10}")
 
-        baseClass.volume_price_ratio_20 = CalculationUtil.GetVolume_Price(baseClass, 20)
-        print(f"与20日平均成交额涨跌幅是{baseClass.volume_price_ratio_20}")
+        baseClass.volume_price_ratio_20 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  20)
+        print(f"20日平均成交额涨跌幅是{baseClass.volume_price_ratio_20}")
 
-        baseClass.volume_price_ratio_40 = CalculationUtil.GetVolume_Price(baseClass, 40)
-        print(f"与40日平均成交额涨跌幅是{baseClass.volume_price_ratio_40}")
+        baseClass.volume_price_ratio_40 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  40)
+        print(f"40日平均成交额涨跌幅是{baseClass.volume_price_ratio_40}")
 
         baseClass.volume_ratio_5 = CalculationUtil.GetVolume_5(baseClass)
         print(f"量比是{baseClass.volume_ratio_5}")
@@ -532,6 +535,7 @@ class BaseClass :
 
 
     def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount):
+        from src.main_code.Core.Select import CalculationUtil
         startDataClass = self.GetBaseDataClass(stockCode, tradeDate, True)
         
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
@@ -579,11 +583,19 @@ class BaseClass :
 
         #change_Ratio:float      #整体涨跌幅
         windowsClass.change_Ratio = CalculationUtil.GetChange_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体涨跌幅是 {windowsClass.change_Ratio}")
+        print(f"涨跌幅是 {windowsClass.change_Ratio}")
+
+        #change_Ratio_Total:float      #整体涨跌幅
+        windowsClass.change_Ratio_Total = CalculationUtil.GetChange_Ratio_Total_Window(startDataClass, startDateCount, toDateCount)
+        print(f"整体涨跌幅是 {windowsClass.change_Ratio_Total}")
 
         #avg_Ratio:float      #均价涨跌幅
         windowsClass.avg_Ratio = CalculationUtil.GetAvg_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体均价涨跌幅是 {windowsClass.avg_Ratio}")
+        print(f"均价涨跌幅是 {windowsClass.avg_Ratio}")
+
+        #avg_Ratio_Total:float      #整体均价涨跌幅
+        windowsClass.avg_Ratio_Total = CalculationUtil.GetAvg_Ratio_Total_Window(startDataClass, startDateCount, toDateCount)
+        print(f"整体均价涨跌幅是 {windowsClass.avg_Ratio_Total}")
 
         #avg_open: float         #平均开盘价
         windowsClass.avg_open = CalculationUtil.GetOpen_Window_Avg(startDataClass, startDateCount, toDateCount)
@@ -814,11 +826,15 @@ class BaseClass :
 
 
     def GetIndustryBaseData(self, trade_date:str, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
+        from src.main_code.Core.Select import CalculationUtil
         industryBaseClass = CalculationDataStruct.StructIndustryClass()
 
         #name:str        #行业名
         industryBaseClass.name = industryInfoCls.industryName
         print(f"行业名称是 {industryBaseClass.name}, 行业股数量是 {len(industryInfoCls.stockList)}")
+        for key, val in industryInfoCls.stockList.items():
+            print(f"行业名称是 {industryBaseClass.name}, key:{key}, val :{val.Name}")
+            
 
         #trade_date:date #交易日期
         industryBaseClass.trade_date = trade_date
@@ -833,35 +849,122 @@ class BaseClass :
         print(f"行业整体成交量涨跌幅是 {industryBaseClass.volume_ratio}")
 
         #volume_ratio_3:float        #当日成交量与3日平均成交量的比
-        #volume_ratio_5:float        #当日成交量与5日平均成交量的比
-        #volume_ratio_10:float        #当日成交量与10日平均成交量的比
-        #volume_ratio_20:float        #当日成交量与20日平均成交量的比
+        industryBaseClass.volume_ratio_3 = CalculationUtil.GetIndustry_Volume_Ratio(industryInfoCls, trade_date, 3, self)
+        print(f"行业整体成交量3日平均比是 {industryBaseClass.volume_ratio_3}")
 
+        #volume_ratio_5:float        #当日成交量与5日平均成交量的比
+        industryBaseClass.volume_ratio_5 = CalculationUtil.GetIndustry_Volume_Ratio(industryInfoCls, trade_date, 5, self)
+        print(f"行业整体成交量5日平均比是 {industryBaseClass.volume_ratio_5}")
+
+        #volume_ratio_10:float        #当日成交量与10日平均成交量的比
+        industryBaseClass.volume_ratio_10 = CalculationUtil.GetIndustry_Volume_Ratio(industryInfoCls, trade_date, 10, self)
+        print(f"行业整体成交量10日平均比是 {industryBaseClass.volume_ratio_10}")
+
+        #volume_ratio_20:float        #当日成交量与20日平均成交量的比
+        industryBaseClass.volume_ratio_20 = CalculationUtil.GetIndustry_Volume_Ratio(industryInfoCls, trade_date, 20, self)
+        print(f"行业整体成交量20日平均比是 {industryBaseClass.volume_ratio_20}")
 
         #volume_price: Optional[float] = None        #成交额
+        industryBaseClass.volume_price = CalculationUtil.GetIndustry_Volume_Price(industryInfoCls, trade_date, self)
+        print(f"行业整体成交额是 {industryBaseClass.volume_price}")
+
         #volume_price_ratio: Optional[float] = None        #成交额涨跌幅
+        industryBaseClass.volume_price_ratio = CalculationUtil.GetIndustry_Volume_Price_Ratio(industryInfoCls, trade_date, 1, self)
+        print(f"行业整体成交额涨跌幅是 {industryBaseClass.volume_price_ratio}")
 
         #volume_price_ratio_3: Optional[float] = None        #当日成交额与3日平均成交额的比
+        industryBaseClass.volume_price_ratio_3 = CalculationUtil.GetIndustry_Volume_Price_Ratio(industryInfoCls, trade_date, 3, self)
+        print(f"行业整体成交额3日平均比是 {industryBaseClass.volume_price_ratio_3}")
+
         #volume_price_ratio_5: Optional[float] = None        #当日成交额与5日平均成交额的比
+        industryBaseClass.volume_price_ratio_5 = CalculationUtil.GetIndustry_Volume_Price_Ratio(industryInfoCls, trade_date, 5, self)
+        print(f"行业整体成交额5日平均比是 {industryBaseClass.volume_price_ratio_5}")
+
         #volume_price_ratio_10: Optional[float] = None        #当日成交额与10日平均成交额的比
+        industryBaseClass.volume_price_ratio_10 = CalculationUtil.GetIndustry_Volume_Price_Ratio(industryInfoCls, trade_date, 10, self)
+        print(f"行业整体成交额10日平均比是 {industryBaseClass.volume_price_ratio_10}")
+
         #volume_price_ratio_20: Optional[float] = None        #当日成交额与20日平均成交额的比
+        industryBaseClass.volume_price_ratio_20 = CalculationUtil.GetIndustry_Volume_Price_Ratio(industryInfoCls, trade_date, 20, self)
+        print(f"行业整体成交额20日平均比是 {industryBaseClass.volume_price_ratio_20}")
 
+        #change_Ratio:float      #行业整体涨跌幅
+        industryBaseClass.change_Ratio = CalculationUtil.GetIndustry_Change_Ratio(industryInfoCls, trade_date, self)
+        print(f"行业涨跌幅是 {industryBaseClass.change_Ratio}")
 
-        #volume_ratio_5:float       #量比 
-        #change_Ratio:float      #行业涨整体跌幅
         #stockNum:int            #行业股数量
+        industryBaseClass.stockNum = len(industryInfoCls.stockList)
 
         #stockNum_up:int         #行业上涨股数量
+        industryBaseClass.stockNum_up = CalculationUtil.GetIndustry_Up_Count(industryInfoCls, trade_date, self)
+        print(f"行业上涨股数量是 {industryBaseClass.stockNum_up}")
+
         #stockNum_up_Ratio:int         #行业上涨股比例
-        
+        industryBaseClass.stockNum_up_Ratio = (industryBaseClass.stockNum_up / industryBaseClass.stockNum) * 100 if industryBaseClass.stockNum > 0 else 0
+        print(f"行业上涨股比例是 {industryBaseClass.stockNum_up_Ratio}")
+
         #stockNum_down:int       #行业下跌股数量
+        industryBaseClass.stockNum_down = CalculationUtil.GetIndustry_Down_Count(industryInfoCls, trade_date, self)
+        print(f"行业下跌股数量是 {industryBaseClass.stockNum_down}")
+
         #stockNum_down_Ratio:int         #行业下跌股比例
+        industryBaseClass.stockNum_down_Ratio = (industryBaseClass.stockNum_down / industryBaseClass.stockNum) * 100 if industryBaseClass.stockNum > 0 else 0
+        print(f"行业下跌股比例是 {industryBaseClass.stockNum_down_Ratio}")
 
 
+    def GetIndustryWindowData(self, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass, tradeDate, startDateCount, toDateCount):
+        from src.main_code.Core.Select import CalculationUtil
 
-        pass
+        industryWindowClass = CalculationDataStruct.StructIndustryWindowClass()
 
-    def GetIndustryWindowData(self, industryStr, startDate, toDate):
+        #name:str        #行业名
+        industryWindowClass.name = industryInfoCls.industryName
+        print(f"行业名称是 {industryWindowClass.name}, 行业股数量是 {len(industryInfoCls.stockList)}")
+        for key, val in industryInfoCls.stockList.items():
+            print(f"行业名称是 {industryWindowClass.name}, key:{key}, val :{val.Name}")
+
+        
+        #stockNum:int            #行业股数量
+        industryWindowClass.stockNum = len(industryInfoCls.stockList)
+
+        #volume: float   #整体成交量
+        industryWindowClass.volume = CalculationUtil.GetIndustry_Volume_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业整体成交量是 {industryWindowClass.volume}")
+        #volume_price: Optional[float] = None        #整体成交额
+        industryWindowClass.volume_price = CalculationUtil.GetIndustry_Volume_Price_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业整体成交额是 {industryWindowClass.volume_price}")
+
+        #avg_volume: float   #平均成交量
+        industryWindowClass.avg_volume = CalculationUtil.GetIndustry_Volume_Avg_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业平均成交量是 {industryWindowClass.avg_volume}")
+
+        #avg_volume_price: Optional[float] = None        #平均成交额
+        industryWindowClass.avg_volume_price = CalculationUtil.GetIndustry_Volume_Price_Avg_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业平均成交额是 {industryWindowClass.avg_volume_price}")
+
+        #volume_ratio:float        #整体成交量涨跌幅
+        industryWindowClass.volume_ratio = CalculationUtil.GetIndustry_Volume_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业整体成交量涨跌幅 {industryWindowClass.volume_ratio}")
+
+        #volume_price_ratio: Optional[float] = None        #整体成交额涨跌幅
+        industryWindowClass.volume_price_ratio = CalculationUtil.GetIndustry_Volume_Price_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业整体成交额涨跌幅 {industryWindowClass.volume_price_ratio}")
+
+
+        #change_Ratio:float      #行业涨跌幅
+        industryWindowClass.change_Ratio = CalculationUtil.GetIndustry_Change_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业涨跌幅 {industryWindowClass.change_Ratio}")
+
+        #change_Ratio_Total:float      #整体行业涨跌幅
+        industryWindowClass.change_Ratio_Total = CalculationUtil.GetIndustry_Change_Ratio_Total_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
+        print(f"行业整体涨跌幅 {industryWindowClass.change_Ratio_Total}")
+
+        #avg_stockNum_up:int         #平均行业上涨股数量
+        #avg_stockNum_down:int       #平均行业下跌股数量
+        
+        #stockNum_up_Ratio:int         #平均行业上涨股比例
+        #stockNum_down_Ratio:int         #平均行业下跌股比例
+
         pass
 
 

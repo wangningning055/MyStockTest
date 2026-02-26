@@ -30,6 +30,8 @@ class processor:
 
     def Init(self):
         print("开始进行初始化")
+        today_str = datetime.date.today().strftime("%Y%m%d")
+        print(f"今天的日期是：{today_str}")
         self.InitLastUpdateTime()
         plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
@@ -109,12 +111,15 @@ class processor:
                 self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
-                #await self.requestor.RequestBasic()
                 #await self.requestor.RequestTotalValue_Ak()
-                self.isInBase = False
+
+
+                #await self.requestor.RequestBasic()
+                #self.isInBase = False
 
                 await self.requestor.RequestAdjust()
                 self.isInFactor = False
+
                 await self.requestor.RequestDaily(lastDayStr, today_str)
                 self.isInDaily = False
                 #await self.calculationDataHandle.ReadDBDataInMemory()
