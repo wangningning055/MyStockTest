@@ -146,8 +146,8 @@ class processor:
                 #await self.requestor.RequestAdjust()
                 #self.isInFactor = False
 
-                #await self.requestor.RequestDaily(lastDayStr, today_str)
-                #self.isInDaily = False
+                await self.requestor.RequestDaily(lastDayStr, today_str)
+                self.isInDaily = False
 
 
                 #await self.requestor.RequestValue()

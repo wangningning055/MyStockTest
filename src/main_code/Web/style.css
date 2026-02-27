@@ -123,6 +123,34 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+
+
+#api-run-selection {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #1c4ca7, #365498);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+    margin-top: 10px;
+}
+
+#api-run-selection:hover {
+    box-shadow: 0 6px 20px rgba(255, 20, 147, 0.5);
+    transform: translateY(-2px);
+}
+
+#api-run-selection:active {
+    transform: translateY(0);
+}
+
+
+
 /* ============================================================
    5. 侧边栏（因子区）
    ============================================================ */
@@ -139,19 +167,10 @@ body {
     user-select: none;   /* 拖拽时不选中文字 */
 }
 
-/* ✅ 新增：侧边栏右边的拖拽把手 */
-.sidebar::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 10px;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 20, 147, 0.4));
-    cursor: col-resize;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+
+
+
+
 
 .sidebar:hover::after {
     opacity: 1;
@@ -774,11 +793,21 @@ input::placeholder {
    9. 日志区
    ============================================================ */
 .log-panel {
-    height: var(--footer-height);
-    background: rgba(5,7,12,0.95);
+    height: var(--footer-height);  /* 默认180px */
+    background: var(--bg-panel);
     border-top: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    resize: vertical;      /* ✅ 允许垂直拖拽 */
+    min-height: 100px;     /* ✅ 最小高度 */
+    max-height: 400px;     /* ✅ 最大高度 */
+    user-select: none;
+}
+
+
+.log-panel:hover::before {
+    opacity: 1;
 }
 
 .log-header {

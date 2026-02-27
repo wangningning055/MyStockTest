@@ -31,6 +31,11 @@ class AppManager {
         
         // 事件绑定配置
         this.eventBindings = new Map();
+
+        let isResizingLog = false;
+        let startY = 0;
+        let startHeight = 0;
+
     }
 
     /**

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>哇哈哈系统 Pro</title>
+    <title>哇哈哈</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/chart-fix.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -20,7 +20,10 @@
             <button class="nav-tab active" data-target="view-selection">🎯 选股页签</button>
             <button class="nav-tab" data-target="view-backtest">📊 回测页签</button>
             <button class="nav-tab" data-target="view-holdings">💼 持仓页签</button>
-            <button class="nav-tab" data-target="view-stock-query">🔍 股票查询</button>
+            <button class="nav-tab" data-target="view-stock-query">🔍 股票经营内容查询</button>
+            <button class="nav-tab" data-target="view-industry-rotation">🔄 行业轮动（按月）</button>
+            <button class="nav-tab" data-target="view-value-growth">📈 价值/成长股筛选</button>
+
         </nav>
 
         <div class="global-actions">
@@ -37,10 +40,10 @@
         </div>
     </header>
 
-    <div class="workspace" style="resize: horizontal; overflow: hidden;">
+    <div class="workspace">
 
         <div id="view-selection" class="view-container active">
-            <aside class="sidebar" id="resizable-sidebar">
+            <aside class="sidebar"  style="resize: horizontal; overflow: hidden;"  id="resizable-sidebar">
                 <div class="panel-header">
                     <span>📝 买入条件配置</span>
                     <div class="mini-tools">
@@ -107,29 +110,22 @@
                             <small>拖动滑条设置权重阈值范围（0-1）</small>
                         </div>
                     </div>
-                    <button class="btn btn-select" id="api-select-stock">执行选股</button>
                 </div>
             </div>
 
 
 
-                <div class="chart-wrapper">
-                    <div class="chart-area">
-                        <div class="section-title">📉 K线走势图</div>
-                        <div id="klineChart" class="echarts-full-container"></div>
-                    </div>
-                </div>
                 
                 <!-- 说明区域 -->
-                <div class="stock-description-area">
+                <!--<div class="stock-description-area">
                     <div class="section-title">📌 股票说明</div>
                     <textarea id="stock-description" class="description-textarea" placeholder="点击下方股票后在此输入分析说明..."></textarea>
-                </div>
+                </div>-->
                 
+                <button class="btn btn-primary btn-sm" id="api-run-selection">开始选股</button>
                 <div class="result-area">
                     <div class="table-header">
                         <span>选股结果</span>
-                        <button class="btn btn-primary btn-sm" id="api-run-selection">开始选股</button>
                     </div>
                     <table class="data-table">
                         <thead>
@@ -138,7 +134,15 @@
                         <tbody id="selection-result-table"></tbody>
                     </table>
                 </div>
-                <div class="result-area industry-analysis-area">
+
+                <div class="chart-wrapper">
+                    <div class="chart-area">
+                        <div class="section-title">📉 K线走势图</div>
+                        <div id="klineChart" class="echarts-full-container"></div>
+                    </div>
+                </div>
+
+                <!--<div class="result-area industry-analysis-area">
                 <div class="table-header">
                     <span>行业分析</span>
                     <button class="btn btn-primary btn-sm" id="api-run-industry-analysis">📊 分析行业</button>
@@ -156,7 +160,7 @@
                     </thead>
                     <tbody id="industry-analysis-table"></tbody>
                 </table>
-                </div>
+                </div>-->
             </main>
         </div>
 
@@ -403,6 +407,116 @@
             </main>
         </div>
 
+
+        <!-- ============= 新页签5：行业轮动分析 ============= -->
+        <div id="view-industry-rotation" class="view-container">
+            <aside class="sidebar">
+                <div class="panel-header">🔄 行业轮动设置</div>
+                <div class="config-form" style="padding: 14px;">
+                    <div class="form-item">
+                        <label>选择月份</label>
+                        <input type="month" id="rotation-month-input" class="input-dark">
+                    </div>
+                    <div class="form-item">
+                        <label>轮动周期</label>
+                        <select id="rotation-period" class="input-dark">
+                            <option value="1">1个月</option>
+                            <option value="3" selected>3个月</option>
+                            <option value="6">6个月</option>
+                            <option value="12">1年</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">📊 分析轮动</button>
+                </div>
+            </aside>
+            <main class="main-content">
+                <div class="chart-area">
+                    <div class="section-title">📊 行业轮动柱状图</div>
+                    <div id="industryRotationChart" class="echarts-full-container"></div>
+                </div>
+                <div class="result-area">
+                    <div class="table-header">
+                        <span>行业轮动数据</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>行业名称</th>
+                                <th>前期表现</th>
+                                <th>当期表现</th>
+                                <th>涨跌</th>
+                                <th>轮动建议</th>
+                            </tr>
+                        </thead>
+                        <tbody id="industry-rotation-table"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- ============= 新页签6：价值股 & 成长股筛选 ============= -->
+        <div id="view-value-growth" class="view-container">
+            <aside class="sidebar">
+                <div class="panel-header">📈 筛选条件</div>
+                <div class="config-form" style="padding: 14px;">
+                    <div class="form-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-value-stock" checked> 价值股
+                        </label>
+                    </div>
+                    <div class="form-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-growth-stock" checked> 成长股
+                        </label>
+                    </div>
+                    <div class="form-item">
+                        <label>PE范围</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="pe-min" placeholder="最小" class="input-dark" min="0">
+                            <input type="number" id="pe-max" placeholder="最大" class="input-dark" min="0">
+                        </div>
+                    </div>
+                    <div class="form-item">
+                        <label>市净率范围</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" id="pb-min" placeholder="最小" class="input-dark" min="0" step="0.1">
+                            <input type="number" id="pb-max" placeholder="最大" class="input-dark" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">🔍 筛选股票</button>
+                </div>
+            </aside>
+            <main class="main-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="info-card" style="padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 0.9rem; color: var(--text-dim);">💎 价值股数量</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #ff1493;">--</div>
+                    </div>
+                    <div class="info-card" style="padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 0.9rem; color: var(--text-dim);">🚀 成长股数量</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #ff69b4;">--</div>
+                    </div>
+                </div>
+                <div class="result-area">
+                    <div class="table-header">
+                        <span>价值股 & 成长股列表</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>代码</th>
+                                <th>名称</th>
+                                <th>PE</th>
+                                <th>PB</th>
+                                <th>类型</th>
+                                <th>行业</th>
+                            </tr>
+                        </thead>
+                        <tbody id="value-growth-table"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
 
     </div>
 

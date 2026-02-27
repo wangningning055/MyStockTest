@@ -51,6 +51,8 @@ export const EventManager = {
      * 绑定全局事件
      */
     bindGlobalEvents() {
+
+        
         const updateBtn = document.getElementById('api-update-data');
         if (updateBtn) {
             updateBtn.addEventListener('click', () => {
