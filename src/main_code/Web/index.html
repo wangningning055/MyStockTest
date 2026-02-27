@@ -37,10 +37,10 @@
         </div>
     </header>
 
-    <div class="workspace">
+    <div class="workspace" style="resize: horizontal; overflow: hidden;">
 
         <div id="view-selection" class="view-container active">
-            <aside class="sidebar">
+            <aside class="sidebar" id="resizable-sidebar">
                 <div class="panel-header">
                     <span>📝 买入条件配置</span>
                     <div class="mini-tools">
@@ -80,6 +80,17 @@
                             <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
                         </label>
                     </div>
+                    <div class="filter-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-exclude-value" checked> 只计算价值股
+                        </label>
+                    </div>
+                    <div class="filter-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="filter-exclude-grow" checked> 只计算成长股
+                        </label>
+                    </div>
+
                 </div>
 
                 <div class="threshold-section">
@@ -96,6 +107,7 @@
                             <small>拖动滑条设置权重阈值范围（0-1）</small>
                         </div>
                     </div>
+                    <button class="btn btn-select" id="api-select-stock">执行选股</button>
                 </div>
             </div>
 

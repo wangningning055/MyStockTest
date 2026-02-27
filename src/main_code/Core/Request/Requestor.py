@@ -195,31 +195,34 @@ class RequestorClass:
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         count = 0
 
-        year = 2020
-        quarter = 1
+        year = 2025
+        quarter = 3
         clsList = []
         for code in codeList:
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
             df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
             df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
             cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
-            clsList.append(cls)
-            self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            if cls is not None:
+                clsList.append(cls)
+            #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
 
             print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
             count = count + 1
-            #if count > 5:
-            #    break
+            if count > 5:
+                break
                 #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
 
         
-        print("开始写入")
-        try:
-            await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
-        except Exception as e:
-            print(f"写入数据库失败: {e}")
+        print(f"开始写入:长度为：{len(clsList)}")
+        if clsList is not None and len(clsList) > 0:
+            try:
+                await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
+            except Exception as e:
+                print(f"写入数据库失败: {e}")
+
         self.main.BoardCast("处理价值数据完成")
 
     def format_seconds(self, seconds: float) -> str:

@@ -1,4 +1,4 @@
-from src.main_code.Core.Select import CalculationDataHandle
+from src.main_code.Core.Calculate import CalculationDataHandle
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 from operator import attrgetter
 from datetime import date,datetime, timedelta
@@ -653,7 +653,7 @@ def GetUpStopCount(NowData : CalculationDataStruct.StructBaseClass, StartDayCoun
     count = 1
     upStopCount = 0
     target = 0.1
-    if NowData.code.startswith("300") or NowData.code.startswith("688"):
+    if NowData.code.startswith("300") or NowData.code.startswith("688") or NowData.code.startswith("301"):
         #print("这个涨跌幅超过20")
         target = 0.2
     if StartDayCount <= 0:

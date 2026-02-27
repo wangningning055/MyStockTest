@@ -10,7 +10,8 @@ from src.main_code.Core.Plan import Planner,PlanStruct
 from src.main_code.Core.FileProcess import FileProcessor
 from src.main_code.Core.Request import Requestor
 from src.main_code.Core.DB import DBHandler
-from src.main_code.Core.Select import CalculationDataHandle
+from src.main_code.Core.Calculate import CalculationDataHandle
+from src.main_code.Core.Analysis import AnalysisHandle
 import src.main_code.Core.Const as const_proj
 from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
@@ -38,14 +39,33 @@ class processor:
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
         self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
-        self.calculationDataHandle = self.InitCalculationDataHandle()
+        self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.requestor = self.InitRequest()
+        self.analysisHandle = self.InitAnalysisHandle()
         plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
         ws.mainProcessor = self
         #self.planner.AddPlane(plane)
         #self.RequestData()
         print("初始化完毕")
         self.isInit = True
+
+
+
+    def Temp_ExportValue(self):
+        listValue = self.dbHandler.GetAllValueData()
+        print(f"长度是：{len(listValue)}")
+        print(listValue[0])
+        df = pd.DataFrame(listValue)
+        self.fileProcessor.SaveCSV(df, "Value", FileProcessor.FileEnum.Basic)
+        print("读出完成")
+
+    def Temp_ImportValue(self):
+        path4 = self.fileProcessor.GetCSVPath("Value", FileProcessor.FileEnum.Basic)
+        df = pd.read_csv(path4)
+        classList = self.requestor.api.Df_To_ValueClass_Temp(df)
+        self.dbHandler.WriteTableNoWait(classList, DBHandler.TableEnum.Value)
+        print("写入完成")
+
 
     def InitLastUpdateTime(self):
         if not os.path.exists(const_proj.Request_Data_rec_FileName):
@@ -87,6 +107,12 @@ class processor:
         instance = CalculationDataHandle.BaseClass()
         instance.Init(self)
         return instance
+    
+    #初始化数据分析模块
+    def InitAnalysisHandle(self):
+        instance = AnalysisHandle.BaseClass()
+        instance.Init(self)
+        return instance
 
     async def RequestData(self):
         try:
@@ -124,7 +150,7 @@ class processor:
                 #self.isInDaily = False
 
 
-                await self.requestor.RequestValue()
+                #await self.requestor.RequestValue()
 
                 self.isInit = True
 

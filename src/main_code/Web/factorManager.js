@@ -47,19 +47,19 @@ export const FactorManager = {
         });
         return allFactors;
     },
-
     /**
      * 渲染因子卡片
      */
-    renderFactorCard(type, containerId, side) {
+    renderFactorCard(type, containerId, side, factorId) {
         const container = document.getElementById(containerId);
         const cardId = `card-${Date.now()}`;
         const card = document.createElement('div');
         card.className = 'factor-card';
         card.id = cardId;
+        const card_title = "条件列表"
         card.innerHTML = `
             <div class="card-header">
-                <span class="card-title">${type}</span>
+                <span class="card-title">${card_title}</span>
                 <div class="card-weight-group">
                     <label>权重:</label>
                     <input type="number" class="card-weight-input" value="10" min="0">
@@ -87,13 +87,13 @@ export const FactorManager = {
             App.showFactorModal(side, cardId);
         });
         
-        this.addConditionToCard(cardId, type, true);
+        this.addConditionToCard(cardId, type,factorId, true);
     },
 
     /**
      * 为卡片添加条件行
      */
-    addConditionToCard(cardId, factorName, isFirst = false) {
+    addConditionToCard(cardId, factorName, factorId = null, isFirst = false) {
         const card = document.getElementById(cardId);
         if (!card) {
             App.log(`错误：找不到卡片 ID: ${cardId}`, "error");
@@ -108,6 +108,9 @@ export const FactorManager = {
         const row = document.createElement('div');
         row.className = 'condition-row';
         row.dataset.type = 'condition';
+        if (factorId) {
+            row.dataset.factorId = factorId;  // ✅ 保存 factor_id
+        }
         
         const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `
             <select class="cond-rel">
@@ -152,7 +155,7 @@ export const FactorManager = {
     /**
      * 在指定容器内添加条件（用于在分组内添加）
      */
-    addConditionToContainer(factorName, container, cardId) {
+    addConditionToContainer(factorName, container,factorId = null, cardId) {
         if (!container) {
             console.error('错误：容器不存在');
             return;
@@ -165,7 +168,9 @@ export const FactorManager = {
         const row = document.createElement('div');
         row.className = 'condition-row';
         row.dataset.type = 'condition';
-        
+        if (factorId) {
+            row.dataset.factorId = factorId;  // ✅ 保存 factor_id
+        }
         const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `
             <select class="cond-rel">
                 <option value="AND">且</option>
@@ -245,7 +250,7 @@ export const FactorManager = {
                 
                 const categoryTitle = document.createElement('div');
                 categoryTitle.className = 'factor-category-title';
-                categoryTitle.innerHTML = `${category.icon} ${category.name}`;
+                categoryTitle.innerHTML = `${category.name}`;
                 categorySection.appendChild(categoryTitle);
                 
                 const categoryDesc = document.createElement('div');
@@ -262,20 +267,20 @@ export const FactorManager = {
                     btn.title = item.description;
                     btn.type = 'button';
                     btn.innerHTML = `<span class="factor-name">${item.name}</span>`;
-                    
+                    const factorId = item.id;
                     btn.onclick = () => {
                         // 检查是否在分组内添加条件
                         if (window.__targetGroupForNewCondition) {
                             const groupContainer = window.__targetGroupForNewCondition.querySelector('.conditions-list');
-                            self.addConditionToContainer(item.name, groupContainer, targetCardId);
+                            self.addConditionToContainer(item.name, groupContainer,factorId, targetCardId);
                             delete window.__targetGroupForNewCondition;
                         } else if (targetCardId) {
                             // 在卡片内添加条件
-                            self.addConditionToCard(targetCardId, item.name);
+                            self.addConditionToCard(targetCardId, item.name, factorId);
                         } else {
                             // 创建新卡片
                             const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-                            self.renderFactorCard(item.name, containerId, side);
+                            self.renderFactorCard(item.name, containerId, side, factorId);
                         }
                         modal.classList.remove('active');
                     };

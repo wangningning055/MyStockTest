@@ -213,14 +213,15 @@ export const ConditionManager = {
                 const dateRange = UIManagerUtils.getConditionDateRange(element);
                 const condName = element.querySelector('.cond-name');
                 
+                const factorId = element.dataset.factorId;  // ✅ 获取ID
                 if (!condName) {
                     console.warn('警告：找不到条件名称');
                     return;
                 }
-                
                 const node = {
                     type: 'condition',
                     relation: index === 0 ? "START" : (element.querySelector('.cond-rel')?.value || "AND"),
+                    factor_id: factorId ? parseInt(factorId) : null,
                     factor_name: condName.textContent || 'Unknown',
                     operator: UIManagerUtils.getConditionOperator(element),
                     value: UIManagerUtils.getConditionValue(element),
@@ -260,7 +261,8 @@ export const ConditionManager = {
                 const row = document.createElement('div');
                 row.className = 'condition-row';
                 row.dataset.type = 'condition';
-                
+                row.dataset.factorId = node.factor_id;
+
                 const isFirst = index === 0;
                 const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `
                     <select class="cond-rel">
@@ -277,9 +279,7 @@ export const ConditionManager = {
                             <button class="btn-group-cond" title="将此条件包裹在新分组中" type="button">
                                 📦
                             </button>
-                            <button class="btn-add-to-group" title="在此条件后添加条件到分组" type="button">
-                                ➕
-                            </button>
+  
                             ${isFirst ? '' : '<button class="btn-del-cond" type="button">✕</button>'}
                         </div>
                     </div>

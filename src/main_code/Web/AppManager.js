@@ -1,11 +1,12 @@
 /**
- * AppManager - 应用统一管理器（改进版）
- * 自动绑定事件到HTML元素，无需在HTML中写onclick
+ * AppManager - 应用统一管理器（修改版）
+ * 更新：改进的请求方法，支持树形条件结构
  * 
- * 使用方式：
- * 1. HTML中只保留元素ID
- * 2. 在app.js中调用 AppManager.bindEvents() 配置事件
- * 3. AppManager会自动绑定所有事件处理器
+ * 关键改进：
+ * 1. requestSelectStocks() - 发送完整的因子配置
+ * 2. requestBacktest() - 分别发送buy_configs和sell_configs
+ * 3. requestDiagnose() - 支持卖出条件评估
+ * 4. 数据验证和错误处理
  */
 
 import * as SocketModule from "./socket.js";
@@ -181,12 +182,6 @@ class AppManager {
 
     /**
      * 配置事件绑定（在app.js中调用）
-     * 
-     * 使用示例：
-     * AppManager.onElementClick('btn-query-stock', () => {
-     *     const code = UIManager.getStockQueryInput();
-     *     AppManager.queryStockInfo(code);
-     * });
      */
     onElementClick(elementId, callback) {
         const element = document.getElementById(elementId);
@@ -239,7 +234,9 @@ class AppManager {
      * ==================== 快捷请求方法 ====================
      */
 
-    //请求上次更新时间
+    /**
+     * 请求上次更新时间
+     */
     requestLastUpdateDataTime(self){
         return this.socket.sendMessage(SocketModule.MessageType.LAST_UPDATE_DATA, {
             reason:"用户手动请求",
@@ -247,7 +244,9 @@ class AppManager {
         });
     }
 
-    //请求更新数据
+    /**
+     * 请求更新数据
+     */
     requestUpdateData() {
         this.app.log("📤 发送拉取数据请求...", "system");
         let token = this.ui.getTushareToken()
@@ -258,56 +257,158 @@ class AppManager {
         });
     }
 
+    /**
+     * 发送选股请求到后端
+     * 
+     * 发送格式：
+     * {
+     *   configs: [
+     *     {
+     *       factor_group_name: string,
+     *       weight: number,
+     *       logic_tree: [...]  // 树形条件结构
+     *     }
+     *   ],
+     *   timestamp: string,
+     *   version: string
+     * }
+     */
     requestSelectStocks() {
-        //this.app.log("📤 发送选股请求...", "system");
+        // 收集完整的配置数据
+        const buyConfigs = this.app.getFactorData('buy-factor-container');
+        
+        if (!buyConfigs || buyConfigs.length === 0) {
+            this.app.log("❌ 请先添加选股条件", "error");
+            return false;
+        }
+        
         const payload = {
-            buyFactors: this.state.buyFactors,
-            sellFactors: this.state.sellFactors,
-            weightThreshold: this.ui.getWeightThreshold()
+            configs: buyConfigs,
+            timestamp: new Date().toISOString(),
+            version: "1.0"
         };
-        return this.socket.sendMessage('cs_select_stocks', payload);
+        
+        // 数据验证
+        const totalWeight = buyConfigs.reduce((sum, cfg) => sum + (cfg.weight || 0), 0);
+        if (totalWeight === 0) {
+            this.app.log("⚠️ 警告：权重总和为0，建议检查配置", "warning");
+        }
+        
+        this.app.log(`📤 发送选股请求，配置条件数: ${buyConfigs.length}，总权重: ${totalWeight}`, "system");
+        console.log('选股请求数据:', JSON.stringify(payload, null, 2));
+        
+        return this.socket.sendMessage(SocketModule.MessageType.CS_SELECT_STOCKS, payload);
     }
 
+    /**
+     * 发送回测请求到后端
+     * 
+     * 发送格式：
+     * {
+     *   buy_configs: [...],
+     *   sell_configs: [...],
+     *   initial_fund: number,
+     *   start_date: string (YYYYMMDD),
+     *   end_date: string (YYYYMMDD),
+     *   is_ideal: boolean,
+     *   timestamp: string,
+     *   version: string
+     * }
+     */
     requestBacktest() {
-        //this.app.log("📤 发送回测请求...", "system");
+        const buyConfigs = this.app.getFactorData('buy-factor-container');
+        const sellConfigs = this.app.getFactorData('sell-factor-container');
+        
+        if (!buyConfigs || buyConfigs.length === 0) {
+            this.app.log("❌ 请先添加买入条件", "error");
+            return false;
+        }
+        
         const dateRange = this.ui.getBacktestDateRange();
         const payload = {
-            buyFactors: this.state.buyFactors,
-            sellFactors: this.state.sellFactors,
-            initialFund: this.ui.getInitialFund(),
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-            isIdeal: this.ui.getBacktestIsIdeal(),
-            buySource: this.ui.getBacktestBuySource(),
-            sellSource: this.ui.getBacktestSellSource()
+            buy_configs: buyConfigs,
+            sell_configs: sellConfigs,
+            initial_fund: this.ui.getInitialFund(),
+            start_date: dateRange.startDate,
+            end_date: dateRange.endDate,
+            is_ideal: this.ui.getBacktestIsIdeal(),
+            timestamp: new Date().toISOString(),
+            version: "1.0"
         };
+        
+        this.app.log(`📤 发送回测请求，买入条件: ${buyConfigs.length}，卖出条件: ${sellConfigs.length}`, "system");
+        console.log('回测请求数据:', JSON.stringify(payload, null, 2));
+        
         return this.socket.sendMessage('cs_back_test', payload);
     }
 
+    /**
+     * 发送出仓判断请求到后端
+     * 
+     * 发送格式：
+     * {
+     *   holdings: [
+     *     {
+     *       code: string,
+     *       name: string,
+     *       quantity: number,
+     *       buy_price: number,
+     *       ...
+     *     }
+     *   ],
+     *   sell_configs: [...],
+     *   timestamp: string,
+     *   version: string
+     * }
+     */
     requestDiagnose() {
-        //this.app.log("📤 发送出仓判断请求...", "system");
+        const sellConfigs = this.app.getFactorData('sell-factor-container');
+        const holdings = this.state.holdings;
+        
+        if (!holdings || holdings.length === 0) {
+            this.app.log("❌ 请先添加持仓信息", "error");
+            return false;
+        }
+        
+        if (!sellConfigs || sellConfigs.length === 0) {
+            this.app.log("⚠️ 警告：未配置卖出条件，将使用默认策略", "warning");
+        }
+        
         const payload = {
-            holdings: this.state.holdings,
-            weightThreshold: this.ui.getHoldingsWeightThreshold()
+            holdings: holdings,
+            sell_configs: sellConfigs,
+            timestamp: new Date().toISOString(),
+            version: "1.0"
         };
+        
+        this.app.log(`📤 发送出仓判断请求，持仓数: ${holdings.length}`, "system");
+        console.log('出仓判断请求数据:', JSON.stringify(payload, null, 2));
+        
         return this.socket.sendMessage('cs_diagnose', payload);
     }
 
+    /**
+     * 查询股票信息
+     */
     queryStockInfo(code) {
-        //this.app.log(`📤 查询股票 ${code}...`, "system");
         return this.socket.sendMessage('cs_query_stock', {
             code: code,
-            type: 'query'
+            type: 'query',
+            timestamp: new Date().toISOString()
         });
     }
 
+    /**
+     * 快速搜索股票
+     */
     quickSearchStocks(keyword) {
         if (!keyword || keyword.trim().length === 0) {
             return;
         }
         return this.socket.sendMessage('cs_quick_search', {
             keyword: keyword.trim(),
-            limit: 10
+            limit: 10,
+            timestamp: new Date().toISOString()
         });
     }
 
@@ -315,6 +416,9 @@ class AppManager {
      * ==================== 状态管理 ====================
      */
 
+    /**
+     * 获取当前状态
+     */
     getState() {
         return {
             ...this.state,
@@ -323,6 +427,9 @@ class AppManager {
         };
     }
 
+    /**
+     * 设置状态
+     */
     setState(updates) {
         Object.assign(this.state, updates);
     }
@@ -331,6 +438,9 @@ class AppManager {
      * ==================== 内部方法 ====================
      */
 
+    /**
+     * 发送消息到WebSocket
+     */
     _sendMessage(type, payload = {}) {
         if (!this.isConnected) {
             this.app.log("❌ 未连接到后端，无法发送消息", "error");
@@ -343,16 +453,15 @@ class AppManager {
             timestamp: new Date().toISOString()
         };
 
-        //this.app.log("📤 发送消息:", message);
         SocketModule.sendMessage(message);
         return true;
     }
 
-
-
-    
+    /**
+     * 注册消息处理器
+     */
     _registerMessageHandler(callback) {
-        console.log("j接收消息处理")
+        console.log("注册消息处理器")
     }
 
     /**

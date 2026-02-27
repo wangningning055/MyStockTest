@@ -37,6 +37,8 @@ Request_Data_rec_FileName = "../TempFile/RequestRecorderData.txt"
 
 IndexHtmlPath = "Web/index.html"
 
+FactorsJsonPath = "Web/factors.json"
+
 #判断是否涨跌的边界（%）
 up_down_boundary = 1
 
@@ -45,6 +47,10 @@ amplitude_boundary = 4
 
 #判断是否放量缩量的边界(%)
 volume_boundary = 2
+
+
+NoneValue = -9999
+
 
 #备忘
 #记得添加资金流通率（成交额 / 流通市值）

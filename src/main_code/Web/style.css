@@ -18,6 +18,8 @@
     --text-main: #e6eaf2;
     --text-dim: #8b95aa;
 
+
+
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -125,13 +127,34 @@ body {
    5. 侧边栏（因子区）
    ============================================================ */
 .sidebar {
-    width: var(--sidebar-width);
+    width: var(--sidebar-width);  /* 默认350px */
     background: var(--bg-panel);
-    backdrop-filter: var(--blur-bg);
     border-right: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    resize: horizontal;  /* ✅ 允许水平拖拽 */
+    min-width: 250px;    /* ✅ 最小宽度 */
+    max-width: 600px;    /* ✅ 最大宽度 */
+    user-select: none;   /* 拖拽时不选中文字 */
+}
+
+/* ✅ 新增：侧边栏右边的拖拽把手 */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 20, 147, 0.4));
+    cursor: col-resize;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar:hover::after {
+    opacity: 1;
 }
 
 .panel-header {

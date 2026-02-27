@@ -60,6 +60,15 @@ export const EventManager = {
             });
         }
         
+        const selectBtn = document.getElementById('api-select-stock');
+        if (selectBtn) {
+            selectBtn.addEventListener('click', () => {
+                if (manager) {
+                    manager.requestSelectStocks();
+                }
+            });
+        }
+
         const runSelectionBtn = document.getElementById('api-run-selection');
         if (runSelectionBtn) {
             runSelectionBtn.addEventListener('click', () => {

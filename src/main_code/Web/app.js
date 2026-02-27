@@ -16,6 +16,8 @@ import { ConfigManager, setConfigManager } from './configManager.js';
 import { ChartManager, setChartManager } from './chartManager.js';
 import { EventManager, setEventManager } from './eventManager.js';
 
+
+
 // ============ 配置和状态 ============
 export const CONFIG = {
     factorsUrl: "/static/factors.json",
@@ -31,6 +33,8 @@ export const State = {
 };
 
 let manager = null;
+
+
 
 export function SetManager(_manager) {
     manager = _manager;
@@ -79,8 +83,8 @@ export const App = {
     renderFactorCard(type, containerId, side) { 
         return FactorManager.renderFactorCard(type, containerId, side); 
     },
-    addConditionToCard(cardId, factorName, isFirst) { 
-        return FactorManager.addConditionToCard(cardId, factorName, isFirst); 
+    addConditionToCard(cardId, factorName, factor_id, isFirst) { 
+        return FactorManager.addConditionToCard(cardId, factorName,factor_id, isFirst); 
     },
 
     // -------- 条件分组相关 --------

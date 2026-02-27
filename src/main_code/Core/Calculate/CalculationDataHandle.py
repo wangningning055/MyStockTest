@@ -165,7 +165,7 @@ class BaseClass :
             return baseClass
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
-        from src.main_code.Core.Select import CalculationUtil
+        from src.main_code.Core.Calculate import CalculationUtil
         if(baseClass.isCalculate):
             return
         
@@ -265,6 +265,14 @@ class BaseClass :
         #print(f"120日资金成交动量是{baseClass.volume_price_energy}")
         baseClass.volume_price_energy = CalculationUtil.GetVolume_Energy(baseClass, 240)
         #print(f"240日资金成交动量是{baseClass.volume_price_energy}")
+
+        #{ "id": 29, "name": "volume_price_energy", "nameStr": "资金成交动量", "type": "float", "description": "股票当日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 30, "name": "volume_price_energy_5", "nameStr": "5日资金成交动量", "type": "float", "description": "股票5日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 31, "name": "volume_price_energy_10", "nameStr": "10日资金成交动量", "type": "float", "description": "股票10日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 32, "name": "volume_price_energy_20", "nameStr": "20日资金成交动量", "type": "float", "description": "股票20日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 33, "name": "volume_price_energy_60", "nameStr": "60日资金成交动量", "type": "float", "description": "股票60日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 34, "name": "volume_price_energy_120", "nameStr": "120日资金成交动量", "type": "float", "description": "股票120日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
+        #{ "id": 35, "name": "volume_price_energy_240", "nameStr": "240日资金成交动量", "type": "float", "description": "股票240日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
 
 
         baseClass.total_value_ratio = CalculationUtil.GetIndustry_Rank_Value(baseClass, self)
@@ -535,7 +543,7 @@ class BaseClass :
 
 
     def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount):
-        from src.main_code.Core.Select import CalculationUtil
+        from src.main_code.Core.Calculate import CalculationUtil
         startDataClass = self.GetBaseDataClass(stockCode, tradeDate, True)
         
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
@@ -826,7 +834,7 @@ class BaseClass :
 
 
     def GetIndustryBaseData(self, trade_date:str, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
-        from src.main_code.Core.Select import CalculationUtil
+        from src.main_code.Core.Calculate import CalculationUtil
         industryBaseClass = CalculationDataStruct.StructIndustryClass()
 
         #name:str        #行业名
@@ -913,7 +921,7 @@ class BaseClass :
 
 
     def GetIndustryWindowData(self, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass, tradeDate, startDateCount, toDateCount):
-        from src.main_code.Core.Select import CalculationUtil
+        from src.main_code.Core.Calculate import CalculationUtil
 
         industryWindowClass = CalculationDataStruct.StructIndustryWindowClass()
 

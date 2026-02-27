@@ -340,18 +340,50 @@ class RequestAPIClass:
             dataClassList.append(dataClass)
         return dataClassList
 
+    def Df_To_ValueClass_Temp(self,df):
+        if (df is None) :
+            return None
+
+        Cls_list = []
+        for _, row in df.iterrows():
+            dataClass = ValueDBStruct.DBStructClass()
+            dataClass.dic[ValueDBStruct.ColumnEnum.Code] = row['Code']
+            dataClass.dic[ValueDBStruct.ColumnEnum.Year] = row['Year']
+            dataClass.dic[ValueDBStruct.ColumnEnum.Quarter] = row['Quarter']
+            dataClass.dic[ValueDBStruct.ColumnEnum.Roe] =  row['Roe']
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYNi] =  row['YOYNi']
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYEquity] =  row['YOYEquity']
+            dataClass.dic[ValueDBStruct.ColumnEnum.LiabilityTo] =  row['LiabilityTo']
+            dataClass.dic[ValueDBStruct.ColumnEnum.YOYLiability] =  row['YOYLiability']
+            Cls_list.append(dataClass)
+        return Cls_list
+
     def Df_To_ValueClass(self,code,year, quarter, df1, df2, df3):
+        if (df1 is None) and (df2 is None) and (df3 is None):
+            return None
         dataClass = ValueDBStruct.DBStructClass()
         dataClass.dic[ValueDBStruct.ColumnEnum.Code] = self.BaoStock_to_TuShare(code)
         dataClass.dic[ValueDBStruct.ColumnEnum.Year] = year
         dataClass.dic[ValueDBStruct.ColumnEnum.Quarter] = quarter
-        for _, row in df1.iterrows():
-            dataClass.dic[ValueDBStruct.ColumnEnum.Roe] = self.CleanData(row['roeAvg'], 1)
-        for _, row in df2.iterrows():
-            dataClass.dic[ValueDBStruct.ColumnEnum.YOYNi] = self.CleanData(row['YOYNI'], 1)
-            dataClass.dic[ValueDBStruct.ColumnEnum.YOYEquity] = self.CleanData(row['YOYEquity'], 1)
-        for _, row in df3.iterrows():
-            dataClass.dic[ValueDBStruct.ColumnEnum.LiabilityTo] = self.CleanData(row['liabilityToAsset'], 1)
+        
+        dataClass.dic[ValueDBStruct.ColumnEnum.Roe] = const_proj.NoneValue
+        dataClass.dic[ValueDBStruct.ColumnEnum.YOYNi] = const_proj.NoneValue
+        dataClass.dic[ValueDBStruct.ColumnEnum.YOYEquity] = const_proj.NoneValue
+        dataClass.dic[ValueDBStruct.ColumnEnum.LiabilityTo] = const_proj.NoneValue
+        dataClass.dic[ValueDBStruct.ColumnEnum.YOYLiability] = const_proj.NoneValue
+            
+        if df1 is not None:
+            for _, row in df1.iterrows():
+                dataClass.dic[ValueDBStruct.ColumnEnum.Roe] = self.CleanData(row['roeAvg'], 1)
+
+        if df2 is not None:
+            for _, row in df2.iterrows():
+                dataClass.dic[ValueDBStruct.ColumnEnum.YOYNi] = self.CleanData(row['YOYNI'], 1)
+                dataClass.dic[ValueDBStruct.ColumnEnum.YOYEquity] = self.CleanData(row['YOYEquity'], 1)
+
+        if df3 is not None:
+            for _, row in df3.iterrows():
+                dataClass.dic[ValueDBStruct.ColumnEnum.LiabilityTo] = self.CleanData(row['liabilityToAsset'], 1)
             dataClass.dic[ValueDBStruct.ColumnEnum.YOYLiability] = self.CleanData(row['YOYLiability'], 1)
 
         return dataClass

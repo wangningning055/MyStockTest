@@ -214,26 +214,76 @@ class DBHandlerClass:
             await self.main.BoardCast(f"写入失败: {e}")
             raise
 
+    def WriteTableNoWait(self, classList, table_enum):
+        strhead = "正在处理"
+        if table_enum == TableEnum.Basic:
+            strhead = "数据库写入基本数据，"
+        elif table_enum == TableEnum.Daily:
+            strhead = "数据库写入日线数据，"
+        elif table_enum == TableEnum.Adjust:
+            strhead = "数据库写入复权数据，"
+        elif table_enum == TableEnum.Value:
+            strhead = "数据库写入价值数据，"
+        count_stock = 0
+        totalCostTime = 0
+        preCostTime = 0
+        totalCostTimeStr = ""
+        preCostTimeStr = ""
+        classLen = len(classList)
+        table_name = self.GetTableNameByEnum(table_enum)
 
 
-        #logCount = 0
-        #for data in classList:
-        #    t0 = time.perf_counter()
-        #    count_stock = count_stock + 1
+        self.main.BoardCast(f"{strhead}共 {classLen} 条")
 
-        #    self.WriteRow(data, table_enum)
-        #    t1 = time.perf_counter()
+        # 获取列名（所有 structClass 结构相同，取第一个即可）
+        first_row = classList[0]
+        column_keys = list(first_row.dic.keys())
+        columns = []
+        for k in column_keys:
+            name = first_row.GetNameByEnum(k)
+            columns.append(f'"{name}"')
+        columns_sql = ", ".join(columns)
+        placeholders = ", ".join(["?"] * len(columns))
+        sql = f'INSERT OR REPLACE INTO {table_name} ({columns_sql}) VALUES ({placeholders})'
 
-        #    totalCostTime = totalCostTime + (t1 - t0)
-        #    preCostTime = (totalCostTime / count_stock) * (len(classList) - count_stock)
-        #    totalCostTimeStr = self.format_seconds(totalCostTime)
-        #    preCostTimeStr = self.format_seconds(preCostTime)
-        #    if(logCount > 100):
-        #        self.main.BoardCast(f"{str}当前第{count_stock}条,数据长度为:{classLen}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
-        #        logCount = 0
-        #    logCount = logCount + 1
-        #    print(f"{str}当前第{count_stock}条,数据长度为:{classLen}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
-        #    await asyncio.sleep(0)
+        # 关键：关闭自动提交，手动控制事务
+        self.dbConnect.execute("BEGIN;")  # 显式开始事务
+
+        try:
+            batch_size = 10000  # 每批 1 万条（可调）
+            total_written = 0
+
+            for i in range(0, classLen, batch_size):
+                batch = classList[i:i + batch_size]
+                values_list = []
+
+                for data in batch:
+                    # 构造值元组
+                    vals = tuple(data.dic.get(k) for k in column_keys)
+                    values_list.append(vals)
+
+                # 批量插入
+                self.dbCursor.executemany(sql, values_list)
+                total_written += len(batch)
+
+                # 每批广播一次进度（避免太频繁）
+                if total_written % batch_size == 0 or total_written == classLen:
+                    progress = total_written
+                    # 简化时间估算（因为现在速度极快，预估意义不大，可只显示进度）
+                    msg = f"{strhead}已写入 {progress}/{classLen} 条"
+                    #await self.main.BoardCast(msg)
+                    print(msg)
+
+                # 让出控制权，避免阻塞事件循环
+
+            # 提交整个事务
+            self.dbConnect.commit()
+            self.main.BoardCast(f"{strhead}写入完成！共 {classLen} 条")
+
+        except Exception as e:
+            self.dbConnect.rollback()
+            raise
+
 
     #写入行
     def WriteRow(self, structClass, table_enum):
@@ -290,37 +340,7 @@ class DBHandlerClass:
             #sameList.add(ts_code)
         return codeList
     
-    #def GetAllDailyData(self):
-    #    sql = f"SELECT * FROM {const_proj.DBDailyTableName}"
-    #    self.dbCursor.execute(sql)
-    #    # 先拿列名
-    #    columns = [desc[0] for desc in self.dbCursor.description]
-    #    # 准备结果字典
-    #    data_dict = {}
-    #    for row in self.dbCursor.fetchall():   # row 是 tuple
-    #        row_dict = {col: row[i] for i, col in enumerate(columns)}
-    #        codeColumStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
-    #        dateColumnStr = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
-    #        key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
-    #        data_dict[key] = row_dict
-    #    #data_dict.__len__()
-    #    return data_dict
-    
-    #def GetAllAdjustData(self):
-    #    sql = f"SELECT * FROM {const_proj.DBAdjustTableName}"
-    #    self.dbCursor.execute(sql)
-    #    # 先拿列名
-    #    columns = [desc[0] for desc in self.dbCursor.description]
-    #    # 准备结果字典
-    #    data_dict = {}
-    #    for row in self.dbCursor.fetchall():   # row 是 tuple
-    #        row_dict = {col: row[i] for i, col in enumerate(columns)}
-    #        codeColumStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
-    #        dateColumnStr = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
-    #        key = (row_dict[codeColumStr], row_dict[dateColumnStr])  # 双主键 tuple
-    #        data_dict[key] = row_dict
 
-    #    return data_dict
     
     async def GetAllDailyData(self):
         count_sql = f"SELECT COUNT(*) FROM {const_proj.DBDailyTableName}"
@@ -533,3 +553,17 @@ class DBHandlerClass:
                 return dict(row)
             
             return {"Open_Price" : 1}
+    
+    def GetAllValueData(self):
+        sql = f'SELECT * FROM {const_proj.DBValueTableName}'
+        self.dbCursor.execute(sql)
+        allRow = self.dbCursor.fetchall()
+        columns = [desc[0] for desc in self.dbCursor.description]
+        List = []
+        for row in allRow:
+            row_dict = {col: row[i] for i, col in enumerate(columns)}
+            
+            rowDic = dict(row)
+            List.append(row_dict)
+            #sameList.add(ts_code)
+        return List

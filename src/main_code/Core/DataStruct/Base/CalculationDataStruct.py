@@ -10,6 +10,7 @@ class AllDateStructBaseClass:
 
     def GetBaseClass(self, code, data):
         return self.allDic[code, data]
+    
 
 class StructBaseClass :
     def __init__(self):
@@ -131,6 +132,33 @@ class StructBaseClass :
     is_mid_up:float#是否平量增长
     is_mid_low:float#是否平量降低
 
+    is_up_up_3:float#3日是否放量增长(>或小于1)
+    is_low_up_3:float#3日是否缩量增长
+    is_up_low_3:float#3日是否放量降低
+    is_low_low_3:float#3日是否缩量降低
+    is_up_mid_3:float#3日是否放量横盘
+    is_low_mid_3:float#3日是否缩量横盘
+    is_mid_up_3:float#3日是否平量增长
+    is_mid_low_3:float#3日是否平量降低
+
+    is_up_up_5:float#5日是否放量增长(>或小于1)
+    is_low_up_5:float#5日是否缩量增长
+    is_up_low_5:float#5日是否放量降低
+    is_low_low_5:float#5日是否缩量降低
+    is_up_mid_5:float#5日是否放量横盘
+    is_low_mid_5:float#5日是否缩量横盘
+    is_mid_up_5:float#5日是否平量增长
+    is_mid_low_5:float#5日是否平量降低
+
+
+    is_up_up_10:float#10日是否放量增长(>或小于1)
+    is_low_up_10:float#10日是否缩量增长
+    is_up_low_10:float#10日是否放量降低
+    is_low_low_10:float#10日是否缩量降低
+    is_up_mid_10:float#10日是否放量横盘
+    is_low_mid_10:float#10日是否缩量横盘
+    is_mid_up_10:float#10日是否平量增长
+    is_mid_low_10:float#10日是否平量降低
 
     is_pop_up:float#是否震荡上行
     is_pop_down:float#是否震荡下行
@@ -254,7 +282,6 @@ class StructIndustryClass():
     volume_price_ratio_20: Optional[float] = None        #当日成交额与20日平均成交额的比
 
 
-    volume_ratio_5:float       #量比 
     change_Ratio:float      #行业涨整体跌幅
     stockNum:int            #行业股数量
 

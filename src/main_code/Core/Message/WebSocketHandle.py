@@ -5,7 +5,6 @@ import json
 import asyncio
 clients: set[WebSocket] = set()
 mainProcessor = None
-
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
@@ -47,8 +46,9 @@ async def safe_send(*args):
 async def broadcast(message: str):
     data = json.dumps({"type": "log", "msg": message})
     dead = set()
+    clients_copy = list(clients)
 
-    for ws in clients:
+    for ws in clients_copy:
         try:
             await ws.send_text(data)
         except Exception:
@@ -110,6 +110,8 @@ def HandleMsg(msg):
         task.add_done_callback(mainProcessor.task_finished_callback)
         
     elif(msgType == MessageType.CS_SELECT_STOCKS):
+        print("我在处理股票筛选的消息")
+        mainProcessor.analysisHandle.RunGetStockListByCondition(data)
         pass
     elif(msgType == MessageType.CS_BACK_TEST):
         pass
