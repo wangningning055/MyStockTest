@@ -76,7 +76,7 @@ def register_ws(app: FastAPI):
         try:
             while True:
                 data = await ws.receive_text()
-                print("收到前端:", data)
+                #print("收到前端:", data)
                 msg = json.loads(data)
                 HandleMsg(msg)
         except WebSocketDisconnect:

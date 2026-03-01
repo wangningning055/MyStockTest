@@ -12,20 +12,10 @@
 <body>
 
 <div class="app-layout">
-    
+    <!-- 顶部栏：仅保留标题、Token、更新按钮、连接状态、时间（移除页签） -->
     <header class="top-bar">
         <div class="brand">🚀 哇哈哈 Pro</div>
         
-        <nav class="main-nav">
-            <button class="nav-tab active" data-target="view-selection">🎯 选股页签</button>
-            <button class="nav-tab" data-target="view-backtest">📊 回测页签</button>
-            <button class="nav-tab" data-target="view-holdings">💼 持仓页签</button>
-            <button class="nav-tab" data-target="view-stock-query">🔍 股票经营内容查询</button>
-            <button class="nav-tab" data-target="view-industry-rotation">🔄 行业轮动（按月）</button>
-            <button class="nav-tab" data-target="view-value-growth">📈 价值/成长股筛选</button>
-
-        </nav>
-
         <div class="global-actions">
             <!--<button class="help-btn" id="help-btn" title="查看系统说明">❓</button>-->
             <input type="password" id="tushareToken" placeholder="Tushare Token" class="input-dark">
@@ -40,18 +30,30 @@
         </div>
     </header>
 
-    <div class="workspace">
+    <!-- 新增：页签导航栏（单独抽离，放在top-bar下方） -->
+    <nav class="main-nav-container">
+        <button class="nav-tab active" data-target="view-selection">🎯 选股页签</button>
+        <button class="nav-tab" data-target="view-backtest">📊 回测页签</button>
+        <button class="nav-tab" data-target="view-holdings">💼 持仓页签</button>
+        <button class="nav-tab" data-target="view-stock-query">🔍 股票经营内容查询</button>
+        <button class="nav-tab" data-target="view-industry-rotation">🔄 行业轮动（按月）</button>
+        <button class="nav-tab" data-target="view-value-growth">📈 价值/成长股筛选</button>
+    </nav>
 
+    <!-- 工作区：原有内容完全保留 -->
+    <div class="workspace">
         <div id="view-selection" class="view-container active">
             <aside class="sidebar"  style="resize: horizontal; overflow: hidden;"  id="resizable-sidebar">
                 <div class="panel-header">
-                    <span>📝 买入条件配置</span>
+                    <div class="tooltip-wrapper">
+                        <span>📝 买入条件配置</span>
+                        <div class="custom-tooltip">权重支持正负随意值，会进行归一化</div>
+                    </div>
                     <div class="mini-tools">
                         <button class="icon-btn" id="api-export-buy-config">💾</button>
                         <button class="icon-btn" id="api-import-buy-config">📥</button>
                     </div>
                 </div>
-                
                 
                 <div class="config-list" id="buy-factor-container"></div>
                 <div class="panel-footer">
@@ -62,66 +64,58 @@
             </aside>
 
             <main class="main-content">
-
-
-            <!-- ========== 新增：筛选和权重设置区域 ========== -->
-            <div class="filter-and-threshold-panel">
-                <div class="filter-section">
-                    <div class="section-title">🔍 股票筛选(日线信息没有北交所)</div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-st" checked> 剔除ST股
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-kc" checked> 剔除科创板
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-value" checked> 只计算价值股
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-grow" checked> 只计算成长股
-                        </label>
-                    </div>
-
-                </div>
-
-                <div class="threshold-section">
-                    <div class="section-title">📊 权重阈值设置</div>
-                    <div class="threshold-slider-group">
-                        <div class="threshold-label-row">
-                            <span class="threshold-label">权重值</span>
-                            <span class="threshold-value-display" id="threshold-value-display">0.5</span>
+                <div class="filter-and-threshold-panel">
+                    <div class="filter-section">
+                        <div class="section-title">🔍 股票筛选(日线信息没有北交所)</div>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="filter-exclude-st" checked> 剔除ST股
+                            </label>
                         </div>
-                        <input type="range" id="weight-threshold-slider" 
-                            class="threshold-slider" 
-                            min="0" max="1" step="0.01" value="0.5">
-                        <div class="threshold-info">
-                            <small>拖动滑条设置权重阈值范围（0-1）</small>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="filter-exclude-kc" checked> 剔除科创板
+                            </label>
+                        </div>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
+                            </label>
+                        </div>
+
+                        <div class="tooltip-wrapper">
+                            <div class="custom-tooltip">价值股教授大家阿拉山口大家爱上了绿色科技大楼阿<br>萨大厦里的卡死了卢卡斯记得啦时刻记得阿拉山口大家案例拉</div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="filter-exclude-value" checked> 只考虑价值股
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="filter-exclude-grow" checked> 只考虑成长股
+                            </label>
                         </div>
                     </div>
+
+                    <div class="threshold-section">
+                        <div class="section-title">📊 权重阈值设置</div>
+                        <div class="threshold-slider-group">
+                            <div class="threshold-label-row">
+                                <span class="threshold-label">权重值</span>
+                                <span class="threshold-value-display" id="threshold-value-display">0.3</span>
+                            </div>
+                            <input type="range" id="weight-threshold-slider" 
+                                class="threshold-slider" 
+                                min="-1" max="1" step="0.01" value="0.3">
+                            <div class="threshold-info">
+                                <small>拖动滑条设置权重阈值范围（-1-1）</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-
-
-                
-                <!-- 说明区域 -->
-                <!--<div class="stock-description-area">
-                    <div class="section-title">📌 股票说明</div>
-                    <textarea id="stock-description" class="description-textarea" placeholder="点击下方股票后在此输入分析说明..."></textarea>
-                </div>-->
-                
                 <button class="btn btn-primary btn-sm" id="api-run-selection">开始选股</button>
                 <div class="result-area">
                     <div class="table-header">
@@ -141,26 +135,6 @@
                         <div id="klineChart" class="echarts-full-container"></div>
                     </div>
                 </div>
-
-                <!--<div class="result-area industry-analysis-area">
-                <div class="table-header">
-                    <span>行业分析</span>
-                    <button class="btn btn-primary btn-sm" id="api-run-industry-analysis">📊 分析行业</button>
-                </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>行业名称</th>
-                            <th>股数量</th>
-                            <th>行业成交量增长</th>
-                            <th>涨跌股数</th>
-                            <th>涨跌比例</th>
-                            <th>平均涨幅</th>
-                        </tr>
-                    </thead>
-                    <tbody id="industry-analysis-table"></tbody>
-                </table>
-                </div>-->
             </main>
         </div>
 
@@ -253,7 +227,6 @@
                     </div>
                 </div>
 
-
                 <div class="config-list" id="sell-factor-container"></div>
                 <div class="panel-footer">
                     <button class="btn btn-primary" id="btn-add-sell-factor">
@@ -263,25 +236,21 @@
             </aside>
 
             <main class="main-content">
-
-
-            <div class="threshold-section">
+                <div class="threshold-section">
                     <div class="section-title">📊 权重阈值设置</div>
                     <div class="threshold-slider-group">
                         <div class="threshold-label-row">
                             <span class="threshold-label">权重值</span>
-                            <span class="threshold-value-display" id="holdings-threshold-value-display">0.5</span>
+                            <span class="threshold-value-display" id="holdings-threshold-value-display">0.3</span>
                         </div>
                         <input type="range" id="holdings-weight-threshold-slider" 
                             class="threshold-slider" 
-                            min="0" max="1" step="0.01" value="0.5">
+                            min="-1" max="1" step="0.01" value="0.3">
                         <div class="threshold-info">
-                            <small>拖动滑条设置权重阈值范围（0-1）</small>
+                            <small>拖动滑条设置权重阈值范围（-1-1）</small>
                         </div>
                     </div>
                 </div>
-
-
 
                 <div class="holdings-top">
                     <div class="section-title">💼 当前持仓明细</div>
@@ -306,7 +275,6 @@
                 </div>
             </main>
         </div>
-
 
         <div id="view-stock-query" class="view-container">
             <aside class="sidebar">
@@ -407,8 +375,6 @@
             </main>
         </div>
 
-
-        <!-- ============= 新页签5：行业轮动分析 ============= -->
         <div id="view-industry-rotation" class="view-container">
             <aside class="sidebar">
                 <div class="panel-header">🔄 行业轮动设置</div>
@@ -454,7 +420,6 @@
             </main>
         </div>
 
-        <!-- ============= 新页签6：价值股 & 成长股筛选 ============= -->
         <div id="view-value-growth" class="view-container">
             <aside class="sidebar">
                 <div class="panel-header">📈 筛选条件</div>
@@ -517,7 +482,6 @@
                 </div>
             </main>
         </div>
-
     </div>
 
     <footer class="log-panel">
@@ -529,19 +493,8 @@
             <div class="log-item system">[系统] 界面初始化完成...</div>
         </div>
     </footer>
-
 </div>
 
-<!--<div class="modal-overlay" id="factor-modal">
-    <div class="modal-content">
-        <h3>选择因子类型</h3>
-        <div class="factor-type-grid" id="factor-type-list"></div>
-        <button class="btn btn-secondary" id="btn-close-modal">取消</button>
-    </div>
-</div>
--->
-
-<!-- 因子选择模态框（改进版 - 支持分类和滚动） -->
 <div id="factor-modal" class="modal">
     <div class="modal-content factor-modal-content">
         <div class="modal-header">
@@ -549,110 +502,90 @@
             <span class="close" id="btn-close-modal">&times;</span>
         </div>
         
-        <!-- 分类容器（可滚动） -->
         <div id="factor-categories-container" class="factor-categories-container">
-            <!-- 分类和因子列表会动态生成在这里 -->
         </div>
     </div>
 </div>
 
-
-
-
-
-    <!-- 说明弹窗（静态） -->
-    <div id="help-modal" class="help-modal">
-        <div class="help-modal-overlay" onclick="closeHelpModal()"></div>
+<div id="help-modal" class="help-modal">
+    <div class="help-modal-overlay" onclick="closeHelpModal()"></div>
+    
+    <div class="help-modal-content">
+        <div class="help-modal-header">
+            <h2>❓ 系统说明</h2>
+            <button class="help-modal-close" onclick="closeHelpModal()">✕</button>
+        </div>
         
-        <div class="help-modal-content">
-            <!-- 头部 -->
-            <div class="help-modal-header">
-                <h2>❓ 系统说明</h2>
-                <button class="help-modal-close" onclick="closeHelpModal()">✕</button>
+        <div class="help-tabs-nav">
+            <button class="help-tab-btn active" onclick="switchHelpTab('overview')">
+                📋 概览
+            </button>
+            <button class="help-tab-btn" onclick="switchHelpTab('selection')">
+                🎯 选股说明
+            </button>
+            <button class="help-tab-btn" onclick="switchHelpTab('backtest')">
+                📊 回测说明
+            </button>
+            <button class="help-tab-btn" onclick="switchHelpTab('holdings')">
+                💼 持仓管理
+            </button>
+            <button class="help-tab-btn" onclick="switchHelpTab('factors')">
+                🔧 因子详解
+            </button>
+        </div>
+        
+        <div class="help-tabs-content">
+            <div id="help-tab-overview" class="help-tab-pane active">
+                <div class="help-content">
+                    <h3>🎯 系统功能概览</h3>
+                    <p>你的文本内容在这里...</p>
+                </div>
             </div>
             
-            <!-- 页签导航 -->
-            <div class="help-tabs-nav">
-                <button class="help-tab-btn active" onclick="switchHelpTab('overview')">
-                    📋 概览
-                </button>
-                <button class="help-tab-btn" onclick="switchHelpTab('selection')">
-                    🎯 选股说明
-                </button>
-                <button class="help-tab-btn" onclick="switchHelpTab('backtest')">
-                    📊 回测说明
-                </button>
-                <button class="help-tab-btn" onclick="switchHelpTab('holdings')">
-                    💼 持仓管理
-                </button>
-                <button class="help-tab-btn" onclick="switchHelpTab('factors')">
-                    🔧 因子详解
-                </button>
+            <div id="help-tab-selection" class="help-tab-pane">
+                <div class="help-content">
+                    <h3>🎯 选股系统使用说明</h3>
+                    <p>你的文本内容在这里...</p>
+                </div>
             </div>
             
-            <!-- 页签内容 -->
-            <div class="help-tabs-content">
-                
-                <!-- 页签1：概览 -->
-                <div id="help-tab-overview" class="help-tab-pane active">
-                    <div class="help-content">
-                        <h3>🎯 系统功能概览</h3>
-                        <p>你的文本内容在这里...</p>
-                        <!-- 更多内容 -->
-                    </div>
+            <div id="help-tab-backtest" class="help-tab-pane">
+                <div class="help-content">
+                    <h3>📊 回测系统使用说明</h3>
+                    <p>你的文本内容在这里...</p>
                 </div>
-                
-                <!-- 页签2：选股说明 -->
-                <div id="help-tab-selection" class="help-tab-pane">
-                    <div class="help-content">
-                        <h3>🎯 选股系统使用说明</h3>
-                        <p>你的文本内容在这里...</p>
-                    </div>
-                </div>
-                
-                <!-- 页签3：回测说明 -->
-                <div id="help-tab-backtest" class="help-tab-pane">
-                    <div class="help-content">
-                        <h3>📊 回测系统使用说明</h3>
-                        <p>你的文本内容在这里...</p>
-                    </div>
-                </div>
-                
-                <!-- 页签4：持仓管理 -->
-                <div id="help-tab-holdings" class="help-tab-pane">
-                    <div class="help-content">
-                        <h3>💼 持仓管理说明</h3>
-                        <p>你的文本内容在这里...</p>
-                    </div>
-                </div>
-                
-                <!-- 页签5：因子详解 -->
-                <div id="help-tab-factors" class="help-tab-pane">
-                    <div class="help-content">
-                        <h3>🔧 因子系统详解</h3>
-                        <p>你的文本内容在这里...</p>
-                    </div>
-                </div>
-                
             </div>
             
-            <!-- 底部 -->
-            <div class="help-modal-footer">
-                <button class="btn btn-secondary" onclick="closeHelpModal()">
-                    关闭
-                </button>
+            <div id="help-tab-holdings" class="help-tab-pane">
+                <div class="help-content">
+                    <h3>💼 持仓管理说明</h3>
+                    <p>你的文本内容在这里...</p>
+                </div>
+            </div>
+            
+            <div id="help-tab-factors" class="help-tab-pane">
+                <div class="help-content">
+                    <h3>🔧 因子系统详解</h3>
+                    <p>你的文本内容在这里...</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    
-    <script type="module">
-        import AppManager from "./static/AppManager.js";
         
-        document.addEventListener('DOMContentLoaded', () => {
-            AppManager.init();
-            window.AppManager = AppManager;  // 便于在onclick中使用
-        });
-    </script>
+        <div class="help-modal-footer">
+            <button class="btn btn-secondary" onclick="closeHelpModal()">
+                关闭
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import AppManager from "./static/AppManager.js";
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        AppManager.init();
+        window.AppManager = AppManager;
+    });
+</script>
 </body>
 </html>

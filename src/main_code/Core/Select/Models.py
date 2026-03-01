@@ -65,7 +65,7 @@ GroupNode.update_forward_refs()
 class FactorConfig(BaseModel):
     """因子配置 - 表示一个完整的选股因子"""
     factor_group_name: str  # 因子组名称（用户自定义）
-    weight: float = Field(ge=0, description="权重（0-100）")
+    weight: float = Field(description="权重")
     logic_tree: List[TreeNode]  # 树形条件结构
 
     #class Config:
@@ -88,6 +88,12 @@ class FactorConfig(BaseModel):
 
 class SelectionRequest(BaseModel):
     """选股请求"""
+    isExcludeST : bool
+    isExcludeCY : bool
+    isExcludeKC : bool
+    isExclude_Value : bool
+    isExclude_Grow : bool
+
     configs: List[FactorConfig]
     timestamp: Optional[str] = None
     version: str = "1.0"

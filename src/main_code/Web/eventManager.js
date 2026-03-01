@@ -12,6 +12,11 @@
 import { App } from './app.js';
 import { UIManagerUtils } from './uiManager.js';
 import { ChartManager } from './chartManager.js';
+    /**
+ * 验证所有因子卡片中的日期范围
+ * @param {string} containerId - 容器ID
+ * @returns {boolean} - 是否通过验证
+ */
 
 const ChartInstances = {
     klineChart: null,
@@ -53,6 +58,33 @@ export const EventManager = {
     bindGlobalEvents() {
 
         
+        function validateDateRanges(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return true;
+            const dateInputPairs = container.querySelectorAll('.condition-row__date');
+            
+            for (let dateRow of dateInputPairs) {
+                const inputs = dateRow.querySelectorAll('.date-range-input');
+                if (inputs.length === 2) {
+                    const fromDate = parseFloat(inputs[0].value) || 0;
+                    const toDate = parseFloat(inputs[1].value) || 0;
+                    
+                    if (fromDate < 0 || toDate < 0) {
+                        App.log(`【日期设置错误：日期(${fromDate})或日期(${toDate})为负数无效值，无法执行`, 'error');
+                        return false;
+                    }
+
+                    // 检查：前一个日期不能大于后一个日期
+                    if (fromDate >= toDate) {
+                        App.log(`【日期设置错误：起始日期(${fromDate})大于等于结束日期(${toDate})，无法执行`, 'error');
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
         const updateBtn = document.getElementById('api-update-data');
         if (updateBtn) {
             updateBtn.addEventListener('click', () => {
@@ -62,20 +94,23 @@ export const EventManager = {
             });
         }
         
-        const selectBtn = document.getElementById('api-select-stock');
-        if (selectBtn) {
-            selectBtn.addEventListener('click', () => {
-                if (manager) {
-                    manager.requestSelectStocks();
-                }
-            });
-        }
+        //const selectBtn = document.getElementById('api-select-stock');
+        //if (selectBtn) {
+        //    selectBtn.addEventListener('click', () => {
+        //        if (manager) {
+        //            manager.requestSelectStocks();
+        //        }
+        //    });
+        //}
 
         const runSelectionBtn = document.getElementById('api-run-selection');
         if (runSelectionBtn) {
             runSelectionBtn.addEventListener('click', () => {
+
                 if (manager) {
-                    State.buyFactors = App.getFactorData('buy-factor-container');
+                if (!validateDateRanges('buy-factor-container')) {
+                    return;
+                }
                     manager.requestSelectStocks();
                 }
             });
@@ -84,6 +119,13 @@ export const EventManager = {
         const runBacktestBtn = document.getElementById('api-run-backtest');
         if (runBacktestBtn) {
             runBacktestBtn.addEventListener('click', () => {
+
+                if (!validateDateRanges('buy-factor-container') || !validateDateRanges('sell-factor-container')) {
+                    App.log('买入或卖出因子中存在日期错误，无法执行', 'error');
+                    return;
+                }
+                
+
                 if (manager) {
                     State.buyFactors = App.getFactorData('buy-factor-container');
                     State.sellFactors = App.getFactorData('sell-factor-container');

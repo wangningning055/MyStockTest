@@ -195,7 +195,10 @@ class RequestorClass:
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         count = 0
 
-        year = 2025
+        #2025 3, 2, 1
+        #2024 
+
+        year = 2024
         quarter = 3
         clsList = []
         for code in codeList:
@@ -205,13 +208,20 @@ class RequestorClass:
             cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
             if cls is not None:
                 clsList.append(cls)
+                tempList = []
+                tempList.append(cls)
+                try:
+                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
+                except Exception as e:
+                    print(f"写入数据库失败: {e}")
+
             #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
 
-            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
+            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
             count = count + 1
-            if count > 5:
+            if count > 3:
                 break
                 #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
 

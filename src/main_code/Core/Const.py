@@ -120,3 +120,14 @@ NoneValue = -9999
 #均价（股价位置）
 
 
+
+
+    #"value_judgment": {
+    #  "name": "价值判断,
+    #  "description": "个股价值判断结果",
+    #  "items": [
+    #    { "id": 500596, "name_field": "is_Value_Stock", "name": "是否是价值股", "type": "int", "description": "该股票综合考虑营收，负债，市盈率，市净率，市销率，市现率等判断是否为价值股（注意财报更新有延迟，可能最新财报大亏损！！！！！）" },
+    #    { "id": 500597, "name_field": "is_Grow_Stock", "name": "是否是成长股", "type": "int", "description": "该股票综合考虑营收，负债，市盈率，市净率，市销率，市现率等判断是否为成长股（注意财报更新有延迟，可能最新财报大亏损！！！！！）" }
+
+    #  ]
+    #}

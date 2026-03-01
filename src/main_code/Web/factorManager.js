@@ -62,7 +62,7 @@ export const FactorManager = {
                 <span class="card-title">${card_title}</span>
                 <div class="card-weight-group">
                     <label>权重:</label>
-                    <input type="number" class="card-weight-input" value="10" min="0">
+                    <input type="number" class="card-weight-input" value="10" ">
                 </div>
                 <button class="btn-remove-card" data-action="remove-card" type="button">✕</button>
             </div>
@@ -104,7 +104,11 @@ export const FactorManager = {
             App.log(`错误：卡片结构异常，找不到条件列表`, "error");
             return;
         }
-        
+
+        // ✅ 关键改动：根据factorId判断是否显示日期
+        // 如果ID在 0-200000 或 300000-400000 之间，隐藏日期
+        const showDateRange = !((factorId >= 0 && factorId <= 200000) || (factorId >= 300000 && factorId <= 400000));
+
         const row = document.createElement('div');
         row.className = 'condition-row';
         row.dataset.type = 'condition';
@@ -130,12 +134,14 @@ export const FactorManager = {
                     ${isFirst ? '' : '<button class="btn-del-cond" type="button">✕</button>'}
                 </div>
             </div>
+            ${showDateRange ? `
             <div class="condition-row__date">
                 <span class="condition-row__date-label">日期范围:</span>
-                <input type="number" class="date-range-input" value="30" placeholder="天前">
+                <input type="number" class="date-range-input" value="0" min="0" placeholder="天前">
                 <span class="date-range-separator">～</span>
-                <input type="number" class="date-range-input" value="0" placeholder="天前">
+                <input type="number" class="date-range-input" value="1" min="0" placeholder="天前">
             </div>
+            ` : ''}
             <div class="condition-row__condition">
                 <select class="cond-op">
                     <option value="gt">></option>
@@ -160,6 +166,7 @@ export const FactorManager = {
             console.error('错误：容器不存在');
             return;
         }
+        const showDateRange = !((factorId >= 0 && factorId <= 200000) || (factorId >= 300000 && factorId <= 400000));
 
         // 获取容器内已有的条件数量
         const existingConditions = Array.from(container.querySelectorAll(':scope > .condition-row'));
@@ -189,12 +196,14 @@ export const FactorManager = {
                     ${isFirst ? '' : '<button class="btn-del-cond" type="button">✕</button>'}
                 </div>
             </div>
+            ${showDateRange ? `
             <div class="condition-row__date">
                 <span class="condition-row__date-label">日期范围:</span>
-                <input type="number" class="date-range-input" value="30" placeholder="天前">
+                <input type="number" class="date-range-input" value="0" min="0" placeholder="天前">
                 <span class="date-range-separator">～</span>
-                <input type="number" class="date-range-input" value="0" placeholder="天前">
+                <input type="number" class="date-range-input" value="1" min="0" placeholder="天前">
             </div>
+            ` : ''}
             <div class="condition-row__condition">
                 <select class="cond-op">
                     <option value="gt">></option>
@@ -267,8 +276,8 @@ export const FactorManager = {
                     btn.title = item.description;
                     btn.type = 'button';
                     btn.innerHTML = `<span class="factor-name">${item.name}</span>`;
-                    const factorId = item.id;
                     btn.onclick = () => {
+                        const factorId = item.id;
                         // 检查是否在分组内添加条件
                         if (window.__targetGroupForNewCondition) {
                             const groupContainer = window.__targetGroupForNewCondition.querySelector('.conditions-list');

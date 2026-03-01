@@ -8,12 +8,11 @@ class BaseClass :
     def __init__(self):
         global FACTORS_METADATA
         FACTORS_METADATA = load_factors_metadata(FactorsJsonPath)
-        self.isOutCY = True             #是否剔除创业板股票
         self.isOutST = True             #是否剔除ST股票
+        self.isOutCY = True             #是否剔除创业板股票
         self.isOutKC = True             #是否剔除科创板股票
         self.isOnlyValue = False          #是否只计算价值股
         self.isOnlyGrow = False           #是否只计算成长股
-        self.isOnlyGrow_Value = False     #是否只计算成长价值股
         self.factorLimit = 0.5                 #条件因子筛选的边界值，默认为0.5，即大于0.5则满足条件，小于0.5则不满足条件
 
 
@@ -25,7 +24,13 @@ class BaseClass :
         try:
             # Pydantic自动验证并转换
             request = SelectionRequest(**conditionJson)
-            print(f"✅ 数据验证成功")
+            print(request)
+            self.isOutST = request.isExcludeST
+            self.isOutCY = request.isExcludeCY
+            self.isOutKC = request.isExcludeKC
+            self.isOnlyValue = request.isExclude_Value
+            self.isOnlyGrow = request.isExclude_Grow
+            print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
             print(f"   配置数: {len(request.configs)}")
             print(f"   第一个因子: {request.configs[0].factor_group_name}")
             print(f"   权重: {request.configs[0].weight}")
@@ -34,9 +39,8 @@ class BaseClass :
         except Exception as e:
             print(f"❌ 数据验证失败: {e}")
 
-        #self.main.calculationDataHandle.GetBaseDataClass()
-        #score = evaluator.evaluate_stock(stock_data, request.configs)
-        #print(f"✅ 个股评分: {score}")
+        score = evaluator.evaluate_stock("603288.SH", request.configs)
+        print(f"✅ 个股评分: {score}")
         pass
 
     #行业轮动分析

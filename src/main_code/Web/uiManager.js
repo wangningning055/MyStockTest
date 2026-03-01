@@ -170,7 +170,27 @@ export const UIManagerUtils = {
         const elem = document.getElementById('filter-exclude-cy');
         if (elem) elem.checked = checked;
     },
+
+
+    getFilterExcludeValue() { 
+        const elem = document.getElementById('filter-exclude-value');
+        return elem ? elem.checked : false;
+    },
     
+    setFilterExcludeValue(checked) { 
+        const elem = document.getElementById('filter-exclude-value');
+        if (elem) elem.checked = checked;
+    },
+
+    getFilterExcludeGrow() { 
+        const elem = document.getElementById('filter-exclude-grow');
+        return elem ? elem.checked : false;
+    },
+    
+    setFilterExcludeGrow(checked) { 
+        const elem = document.getElementById('filter-exclude-grow');
+        if (elem) elem.checked = checked;
+    },
     // ============ 股票说明 ============
     
     getSelectionDescription() { 
@@ -231,8 +251,8 @@ export const UIManagerUtils = {
     getConditionDateRange(row) {
         const inputs = row.querySelectorAll('.date-range-input');
         return inputs.length >= 2 ? {
-            fromDays: parseInt(inputs[0].value) || 30,
-            toDays: parseInt(inputs[1].value) || 0
+            fromDays: parseInt(inputs[0].value) || 0,
+            toDays: parseInt(inputs[1].value) || 1
         } : null;
     },
     

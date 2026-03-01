@@ -20,7 +20,7 @@ class ConditionEvaluator:
     负责评估单个条件节点和条件树
     """
     
-    def __init__(self, stock_data: Dict[str, Any], factors_metadata: Dict[str, Any]):
+    def __init__(self, stockCode: str, factors_metadata: Dict[str, Any]):
         """
         初始化条件评估器
         
@@ -36,7 +36,8 @@ class ConditionEvaluator:
                        }
             factors_metadata: 因子元数据（从factors.json加载）
         """
-        self.stock_data = stock_data
+        self.stock_code = stockCode
+        #self.stock_data = stock_data
         self.factors_metadata = factors_metadata
         self.field_mapping = self._build_field_mapping()
         self.error_log = []
@@ -58,6 +59,9 @@ class ConditionEvaluator:
                 for item in category.get('items', []):
                     # 使用显示名映射到字段名
                     mapping[item.get('name')] = item.get('name_field')
+                        #"name_field" : ,
+                        #"id" : item.get('id')
+                        #                         }
             
             logger.info(f"✅ 因子映射表已构建，共{len(mapping)}个因子")
             return mapping
@@ -175,13 +179,28 @@ class ConditionEvaluator:
         try:
             # 1. 从映射表获取字段名
             field_name = self.field_mapping.get(condition.factor_name)
+            id = condition.factor_id
+            print(f"!!!!!!!!!!!!!!!!!!!!!!! 条件名是：{field_name}，  条件中文名是：{condition.factor_name }，  条件Id是：{id}, 起始天：{condition.dateFrom}，  结束天：{condition.dateTo}")
             if not field_name:
                 error = f"❌ 因子 '{condition.factor_name}' 不存在于映射表中"
                 logger.error(error)
                 return False, error
             
             # 2. 获取字段值
-            value = self.stock_data.get(field_name)
+            data = None
+            #当日单股数据
+            if id >= 1000 and id < 200000:
+                pass
+            #区间单股数据
+            if id >= 200000 and id < 300000:
+                pass
+            #当日行业
+            if id >= 300000 and id < 400000:
+                pass
+            #区间行业
+            if id >= 400000 and id < 500000:
+                pass
+            value =  1 #self.stock_data.get(field_name)
             
             if value is None:
                 # 字段不存在，返回False（不满足条件）
@@ -298,7 +317,7 @@ class FactorEvaluator:
         """
         self.factors_metadata = factors_metadata
     
-    def evaluate_stock(self, stock_data: Dict[str, Any], configs: List[FactorConfig]) -> float:
+    def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
         """
         评估单只股票，返回综合评分
         
@@ -309,11 +328,11 @@ class FactorEvaluator:
         
         例如：
         - 因子1权重0.4，满足条件 -> +0.4分
-        - 因子2权重0.6，满足条件 -> +0.6分
-        - 总分: 1.0分 / 1.0总权重 = 100%
+        - 因子2权重-0.6，满足条件 -> -0.6分
+        - 总分: 1.0分 / 1.0总权重 = -20%
         
         Args:
-            stock_data: 股票的所有因子数据
+            stock_data: 股票的代码
             configs: 因子配置列表
             
         Returns:
@@ -322,16 +341,24 @@ class FactorEvaluator:
         if not configs:
             return 0
         
-        evaluator = ConditionEvaluator(stock_data, self.factors_metadata)
+        evaluator = ConditionEvaluator(stockCode, self.factors_metadata)
         
         # 计算总权重
-        total_weight = sum(cfg.weight for cfg in configs)
+        #total_weight = sum(cfg.weight for cfg in configs)
+
+        positive_weight = sum(cfg.weight for cfg in configs if cfg.weight > 0)
+        negative_weight = sum(abs(cfg.weight) for cfg in configs if cfg.weight < 0)
+        total_weight = positive_weight + negative_weight
+
         if total_weight == 0:
             logger.warn("⚠️ 总权重为0")
             return 0
         
         # 逐个评估因子配置
-        score = 0
+        positive_score = 0  # 正权重因子满足的得分
+        negative_score = 0  # 负权重因子满足的得分
+
+        #score = 0
         for config in configs:
             try:
                 # 评估条件树
@@ -340,18 +367,26 @@ class FactorEvaluator:
                 if error:
                     logger.error(f"因子 '{config.factor_group_name}': {error}")
                 
-                # 如果满足条件，加上权重
+                # ✅ 改动3：根据权重的正负，分开处理
                 if is_satisfied:
-                    score += config.weight
-                    logger.debug(f"✅ 因子 '{config.factor_group_name}' 满足条件，加{config.weight}分")
+                    if config.weight > 0:
+                        # 正权重：满足条件加分
+                        positive_score += config.weight
+                        logger.debug(f"✅ 因子 '{config.factor_group_name}' 满足条件，加{config.weight}分")
+                    elif config.weight < 0:
+                        # 负权重：满足条件减分（累计负分）
+                        negative_score += abs(config.weight)
+                        logger.debug(f"✅ 因子 '{config.factor_group_name}' 满足条件，减{abs(config.weight)}分")
                 else:
+                    # 条件不满足：什么都不做（或者可选：满足负权重的反向逻辑）
                     logger.debug(f"❌ 因子 '{config.factor_group_name}' 不满足条件")
             
             except Exception as e:
                 logger.error(f"❌ 评估因子 '{config.factor_group_name}' 时出错: {e}")
         
         # 标准化到0-100
-        final_score = (score / total_weight) * 100
+        net_score = positive_score - negative_score
+        final_score = (net_score / total_weight) * 100
         return final_score
     
     def evaluate_stocks_batch(self, stocks_data: List[Dict[str, Any]], configs: List[FactorConfig]) -> List[tuple]:

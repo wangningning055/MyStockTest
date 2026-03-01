@@ -286,8 +286,17 @@ class AppManager {
             this.app.log("❌ 请先添加选股条件", "error");
             return false;
         }
-        
+        const isExcludeST = this.ui.getFilterExcludeST()
+        const isExcludeKC = this.ui.getFilterExcludeKC()
+        const isExcludeCY = this.ui.getFilterExcludeCY()
+        const isExclude_Value = this.ui.getFilterExcludeValue()
+        const isExclude_Grow = this.ui.getFilterExcludeGrow()
         const payload = {
+            isExcludeST : isExcludeST,
+            isExcludeKC : isExcludeKC,
+            isExcludeCY : isExcludeCY,
+            isExclude_Value : isExclude_Value,
+            isExclude_Grow : isExclude_Grow,
             configs: buyConfigs,
             timestamp: new Date().toISOString(),
             version: "1.0"
@@ -295,11 +304,11 @@ class AppManager {
         
         // 数据验证
         const totalWeight = buyConfigs.reduce((sum, cfg) => sum + (cfg.weight || 0), 0);
-        if (totalWeight === 0) {
-            this.app.log("⚠️ 警告：权重总和为0，建议检查配置", "warning");
-        }
+        //if (totalWeight === 0) {
+        //    this.app.log("⚠️ 警告：权重总和为0，建议检查配置", "warning");
+        //}
         
-        this.app.log(`📤 发送选股请求，配置条件数: ${buyConfigs.length}，总权重: ${totalWeight}`, "system");
+        this.app.log(`📤 发送选股请求，配置条件数: ${buyConfigs.length}`, "system");
         console.log('选股请求数据:', JSON.stringify(payload, null, 2));
         
         return this.socket.sendMessage(SocketModule.MessageType.CS_SELECT_STOCKS, payload);
