@@ -327,6 +327,7 @@ class DBHandlerClass:
             row_dict = {col: row[i] for i, col in enumerate(columns)}
             ts_code:str = row[0]
             if(ts_code in sameList):
+                print(f"这是相同的股票：{ts_code}")
                 continue
             stateName = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.List_Status)
             if(row_dict[stateName] != "L"):

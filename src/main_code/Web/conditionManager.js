@@ -225,8 +225,8 @@ export const ConditionManager = {
                     factor_name: condName.textContent || 'Unknown',
                     operator: UIManagerUtils.getConditionOperator(element),
                     value: UIManagerUtils.getConditionValue(element),
-                    dateFrom: dateRange?.fromDays || 30,
-                    dateTo: dateRange?.toDays || 0
+                    dateFrom: dateRange?.fromDays || 0,
+                    dateTo: dateRange?.toDays || 1
                 };
                 tree.push(node);
             } 
@@ -285,9 +285,9 @@ export const ConditionManager = {
                     </div>
                     <div class="condition-row__date">
                         <span class="condition-row__date-label">日期范围:</span>
-                        <input type="number" class="date-range-input" value="${node.dateFrom || 30}" placeholder="天前">
+                        <input type="number" class="date-range-input" value="${node.dateFrom || 0}" min="0" placeholder="天前">
                         <span class="date-range-separator">～</span>
-                        <input type="number" class="date-range-input" value="${node.dateTo || 0}" placeholder="天前">
+                        <input type="number" class="date-range-input" value="${node.dateTo || 1}" min="0" placeholder="天前">
                     </div>
                     <div class="condition-row__condition">
                         <select class="cond-op">

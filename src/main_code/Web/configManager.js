@@ -168,7 +168,7 @@ export const ConfigManager = {
                             <span class="card-title">${factorGroup.factor_group_name || 'Unknown'}</span>
                             <div class="card-weight-group">
                                 <label>权重:</label>
-                                <input type="number" class="card-weight-input" value="${factorGroup.weight || 0}" min="0" step="0.01">
+                                <input type="number" class="card-weight-input" value="${factorGroup.weight || 0}"  step="0.1">
                             </div>
                             <button class="btn-remove-card" data-action="remove-card" type="button">✕</button>
                         </div>

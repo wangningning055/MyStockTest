@@ -136,12 +136,13 @@ body {
     color: white;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+    box-shadow: 0 4px 15px rgba(47, 7, 140, 0.3);
     margin-top: 10px;
+    margin-bottom: 50px;
 }
 
 #api-run-selection:hover {
-    box-shadow: 0 6px 20px rgba(255, 20, 147, 0.5);
+    box-shadow: 0 6px 20px rgba(43, 15, 169, 0.5);
     transform: translateY(-2px);
 }
 
@@ -1183,6 +1184,11 @@ input::placeholder {
 }
 
 
+
+
+
+
+
 .threshold-slider::-moz-range-track {
     background: transparent;
     border: none;
@@ -1193,6 +1199,45 @@ input::placeholder {
     height: 6px;
     border-radius: 3px;
 }
+
+
+
+
+/* 定位容器 */
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: help; /* 鼠标悬浮显示帮助光标，更友好 */
+}
+/* 自定义提示框默认隐藏 */
+.custom-tooltip {
+    position: absolute;
+    top: 100%; /* 显示在文字下方 */
+    left: 0;
+    background: #333; /* 深色背景 */
+    color: #fff; /* 白色文字 */
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap; /* 防止文字换行 */
+    z-index: 9999; /* 确保提示框在最上层 */
+    opacity: 0; /* 初始透明 */
+    visibility: hidden; /* 初始隐藏 */
+    transition: all 0.2s ease; /* 悬浮过渡动画 */
+    margin-top: 4px;
+    width: max-content; /* 自适应文字宽度 */
+    transition-delay: 1s;
+}
+/* 悬浮时显示提示框 */
+.tooltip-wrapper:hover .custom-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+/* 鼠标离开时立即隐藏（取消延迟） */
+.tooltip-wrapper:not(:hover) .custom-tooltip {
+    transition-delay: 0s;
+}
+
 
 /* ========== 修改现有的 .threshold-slider ========== */
 .threshold-slider {

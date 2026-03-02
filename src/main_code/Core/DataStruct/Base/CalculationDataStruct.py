@@ -15,6 +15,7 @@ class AllDateStructBaseClass:
 class StructBaseClass :
     def __init__(self):
         self.isCalculate = False
+        self.isCalculateRank = False
         self.dataList_240 : list[StructBaseClass]  = []
         pass
 
@@ -29,6 +30,14 @@ class StructBaseClass :
     low: float      #当日最低价
     volume: float   #当日成交量
     change_Ratio:float      #当日涨跌幅
+
+
+    open_ori: float     #当日开盘价(原始价格)
+    close_ori: float     #当日收盘价(原始价格)
+    high_ori: float     #当日最高价(原始价格)
+    low_ori: float      #当日最低价(原始价格)
+
+
 
     change_Ratio_3:float      #3日涨跌幅
     change_Ratio_5:float      #5日涨跌幅
@@ -75,11 +84,7 @@ class StructBaseClass :
     clean:float             #当日市净率
     cash:float              #当日市销率
     sale:float              #当日市现率
-    total_value_ratio:float       #总市值排行业前%
-    earn_ratio:float              #当日市盈率排行业前%
-    clean_ratio:float             #当日市净率排行业前%
-    cash_ratio:float              #当日市销率排行业前%
-    sale_ratio:float              #当日市现率排行业前%
+
 
 
     amplitude:float         #当日振幅
@@ -111,6 +116,13 @@ class StructBaseClass :
     
     
     #这下面还有行业相关的排名数据没有写
+
+    total_value_ratio:float       #总市值排行业前%
+    earn_ratio:float              #当日市盈率排行业前%
+    clean_ratio:float             #当日市净率排行业前%
+    cash_ratio:float              #当日市销率排行业前%
+    sale_ratio:float              #当日市现率排行业前%
+
     volume_industry_rank:float #成交量排名(前%)
     total_price_industry_rank:float #成交额排名(前%)
     total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
@@ -171,10 +183,24 @@ class StructBaseClass :
 
     is_pop_up_10:float#是否震荡上行
     is_pop_down_10:float#是否震荡下行
+
+
+    #是否涨停
+    #是否跌停
+    #是否触及涨停
+    #是否触及跌停
+
+    #是否长上下影线十字
+    #是否正T字
+    #是否倒T字
+    
     #快捷技术指标（布林线，macd，rsi，均价交叉）
 
 
 class StructBaseWindowClass :
+    isCalculateRank:bool    #是否已经计算了排名数据
+    def __init__(self):
+        self.isCalculateRank = False
     code:str
     trade_date_from:date    #交易日期
     startCount:int
@@ -259,6 +285,12 @@ class StructBaseWindowClass :
 
     is_pop_up:float#是否震荡上行
     is_pop_down:float#是否震荡下行
+
+    #是否出现过涨停
+    #是否出现过跌停
+    #是否出现过长上下影线十字
+    #是否出现过正T字
+    #是否出现过倒T字
 
 
 

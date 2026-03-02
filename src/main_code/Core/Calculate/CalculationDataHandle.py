@@ -7,6 +7,7 @@ from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core import Const
+import time
 
 class BaseClass :
     def __init__(self):
@@ -15,17 +16,65 @@ class BaseClass :
         self.main :Main.processor = main
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
         self.totalBaseDailyData : CalculationDataStruct.AllDateStructBaseClass = CalculationDataStruct.AllDateStructBaseClass()
+        self.totalBaseWindowData : Dict[str, CalculationDataStruct.StructBaseWindowClass]  = {}
         self.InitIndustry()
-        #self.InitIndustryCls()
         print("计算模块初始化完毕")
+
+
+        #self.InitIndustryCls()
+
+
+        #t0 = time.perf_counter()
+        ##self.GetBaseDataClass("300846.SZ","20260225", True)
+        #self.GetBaseDataClass("301638.SZ","20260225", True)
+        #t1 = time.perf_counter()
+
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"1111花费的时间是：{totalCostTimeStr1}")
+
+        #t0 = time.perf_counter()
         #self.GetBaseDataClass("300846.SZ","20260225", True)
+        #t1 = time.perf_counter()
+
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr2 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"1111花费的时间是：{totalCostTimeStr1}")
+        #print(f"2222花费的时间是：{totalCostTimeStr2}")
+
         #self.GetBaseDataClass("600740.SH","20260225", True)
-        #self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
-        #self.GetWindowDataClass("300846.SZ","20260225", 3, 8)
+
+
+
+
+
+        t0 = time.perf_counter()
+        self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+
+
+        t0 = time.perf_counter()
+        self.GetWindowDataClass("301638.SZ","20260213", 0, 20)
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr2 = self.main.requestor.format_seconds(totalCostTime)
+
+        print(f"1111花费的时间是：{totalCostTimeStr1}")
+        print(f"2222花费的时间是：{totalCostTimeStr2}")
+
 
         
+
+
+
+
         #self.GetWindowDataClass("600598.SH","20260213", 0, 10)
         #self.GetWindowDatakClass("300970.SZ","20260213", 0, 20)
+
+        df = self.main.dbHandler.GetAllBasicData()
+        print(f"计算完毕 , {len(df.items())}")
 
     def InitIndustry(self):
         df = self.main.dbHandler.GetAllBasicData()
@@ -92,7 +141,8 @@ class BaseClass :
     def GetBaseDataClass(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
         tempDailyCls = DailyDBStruct.DBStructClass()
         tempAdjustCls = AdjustDBStruct.DBStructClass()
-        #print("开始计算")
+        componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
+        #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} ")
         if (stockCode, date) in self.totalBaseDailyData.allDic:
             baseClass = self.totalBaseDailyData.allDic[stockCode, date]
             if isCalculate:
@@ -101,6 +151,7 @@ class BaseClass :
             return baseClass
         else:
             baseClass = CalculationDataStruct.StructBaseClass()
+            #print(f"获取：{stockCode}，   {date}")
             dailyData = self.main.dbHandler.GetDailyRowByCodeAndDate(stockCode, date)
             if(dailyData == None):
                 #print("日期不存在")
@@ -141,6 +192,12 @@ class BaseClass :
             baseClass.last_close = last_close_price
             baseClass.high = high_price * adjust
             baseClass.low = low_price * adjust
+
+            baseClass.open_ori = open_price
+            baseClass.close_ori = close_price
+            baseClass.high_ori = high_price
+            baseClass.low_ori = low_price
+
             baseClass.volume = amount
             baseClass.change_Ratio = change_Ratio
             baseClass.volume_price = amount_price
@@ -174,11 +231,10 @@ class BaseClass :
         baseClass.dataList_240 = dataList_240
         count = 0
        
-        print(f"开始计算前240天：{len(dataList_240)}，交易日当天：{baseClass.trade_date}， 交易日前一天：{dataList_240[0].trade_date}")
+        #print(f"开始计算前240天：{len(dataList_240)}，交易日当天：{baseClass.trade_date}， 交易日前一天：{dataList_240[0].trade_date}")
 
         #这下面来计算各种各样的数据amplitude
-        print(f"当日涨跌幅是{baseClass.change_Ratio}")
-        print(f"当日震幅是{baseClass.amplitude}")
+
 
         baseClass.amplitude_3 = CalculationUtil.GetAmplitude_Avg(baseClass, 3)
         baseClass.amplitude_5 = CalculationUtil.GetAmplitude_Avg(baseClass, 5)
@@ -186,70 +242,46 @@ class BaseClass :
 
 
         baseClass.change_Ratio_3 = CalculationUtil.GetChange_Ratio(baseClass, 3)
-        print(f"3日涨跌幅是{baseClass.change_Ratio_3}")
         baseClass.change_Ratio_5 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 5)
-        print(f"5日涨跌幅是{baseClass.change_Ratio_5}")
         baseClass.change_Ratio_10 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 10)
-        print(f"10日涨跌幅是{baseClass.change_Ratio_10}")
         baseClass.change_Ratio_20 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 20)
-        print(f"20日涨跌幅是{baseClass.change_Ratio_20}")
         baseClass.change_Ratio_40 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 40)
-        print(f"40日涨跌幅是{baseClass.change_Ratio_40}")
         baseClass.change_Ratio_60 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 60)
-        print(f"60日涨跌幅是{baseClass.change_Ratio_60}")
         baseClass.change_Ratio_120 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 120)
-        print(f"120日涨跌幅是{baseClass.change_Ratio_120}")
         baseClass.change_Ratio_240 = CalculationUtil.GetChange_Ratio_Total_Window(baseClass, 0, 240)
-        print(f"240日涨跌幅是{baseClass.change_Ratio_240}")
 
 
 
         baseClass.volume_ratio = CalculationUtil.GetVolume_Ratio(baseClass, 1)
-        print(f"成交量涨跌幅是{baseClass.volume_ratio}")
 
         baseClass.volume_ratio_3 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 3)
-        print(f"3日成交量涨跌幅是{baseClass.volume_ratio_3}")
 
         baseClass.volume_ratio_5 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 5)
-        print(f"5日成交量相比涨跌幅是{baseClass.volume_ratio_5}")
 
         baseClass.volume_ratio_10 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 10)
-        print(f"10成交量相比涨跌幅是{baseClass.volume_ratio_10}")
 
         baseClass.volume_ratio_20 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 20)
-        print(f"20成交量相比涨跌幅是{baseClass.volume_ratio_20}")
 
         baseClass.volume_ratio_40 = CalculationUtil.GetVolume_Ratio_Window(baseClass,0, 40)
-        print(f"40成交量相比涨跌幅是{baseClass.volume_ratio_40}")
 
 
         baseClass.volume_price_ratio = CalculationUtil.GetVolume_Price(baseClass, 1)
-        print(f"当成交额涨跌幅是{baseClass.volume_price_ratio}")
 
         baseClass.volume_price_ratio_3 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  3)
-        print(f"3日平均成交额涨跌幅是{baseClass.volume_price_ratio_3}")
 
         baseClass.volume_price_ratio_5 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  5)
-        print(f"5日平均成交额涨跌幅是{baseClass.volume_price_ratio_5}")
 
         baseClass.volume_price_ratio_10 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  10)
-        print(f"10日平均成交额涨跌幅是{baseClass.volume_price_ratio_10}")
 
         baseClass.volume_price_ratio_20 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  20)
-        print(f"20日平均成交额涨跌幅是{baseClass.volume_price_ratio_20}")
 
         baseClass.volume_price_ratio_40 = CalculationUtil.GetVolume_Price_Ratio_Window(baseClass,0,  40)
-        print(f"40日平均成交额涨跌幅是{baseClass.volume_price_ratio_40}")
 
         baseClass.volume_ratio_5 = CalculationUtil.GetVolume_5(baseClass)
-        print(f"量比是{baseClass.volume_ratio_5}")
 
         baseClass.avg_ratio = CalculationUtil.GetAvg_Ratio(baseClass)
-        print(f"当日均价涨跌幅是：{baseClass.avg_ratio}")
-
 
         baseClass.turn_ratio = CalculationUtil.GetTurn_Ratio(baseClass)
-        print(f"当日换手率涨跌幅是{baseClass.turn_ratio}")
 
         baseClass.volume_price_energy = CalculationUtil.GetVolume_Energy(baseClass, 1)
         #print(f"当日资金成交动量是{baseClass.volume_price_energy}")
@@ -275,100 +307,80 @@ class BaseClass :
         #{ "id": 35, "name": "volume_price_energy_240", "nameStr": "240日资金成交动量", "type": "float", "description": "股票240日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大" },
 
 
-        baseClass.total_value_ratio = CalculationUtil.GetIndustry_Rank_Value(baseClass, self)
-        print(f"流通市值排名是：{baseClass.total_value_ratio}%")
-        baseClass.earn_ratio = CalculationUtil.GetIndustry_Rank_Earn(baseClass, self)
-        print(f"市盈率排名是：{baseClass.earn_ratio}%")
-        baseClass.clean_ratio = CalculationUtil.GetIndustry_Rank_Clean(baseClass, self)
-        print(f"市净率排名是：{baseClass.clean_ratio}%")
-        baseClass.cash_ratio = CalculationUtil.GetIndustry_Rank_Cash(baseClass, self)
-        print(f"市现率排名是：{baseClass.cash_ratio}%")
-        baseClass.sale_ratio = CalculationUtil.GetIndustry_Rank_Sale(baseClass, self)
-        print(f"市销率排名是：{baseClass.sale_ratio}%")
+
 
         baseClass.avg_5 = CalculationUtil.GetAvg(baseClass, 5)
-        print(f"五日均价是：{baseClass.avg_5}")
 
         baseClass.avg_10 = CalculationUtil.GetAvg(baseClass, 10)
-        print(f"十日均价是：{baseClass.avg_10}")
 
 
         baseClass.avg_20 = CalculationUtil.GetAvg(baseClass, 20)
-        print(f"二十日均价是：{baseClass.avg_20}")
 
         baseClass.avg_40 = CalculationUtil.GetAvg(baseClass, 40)
-        print(f"四十日均价是：{baseClass.avg_40}")
 
         baseClass.avg_60 = CalculationUtil.GetAvg(baseClass, 60)
-        print(f"六十日均价是：{baseClass.avg_60}")
 
         baseClass.avg_120 = CalculationUtil.GetAvg(baseClass, 120)
-        print(f"一百二十日均价是：{baseClass.avg_120}")
 
 
         baseClass.avg_240 = CalculationUtil.GetAvg(baseClass, 240)
-        print(f"两百四十日均价是：{baseClass.avg_240}")
 
 
         baseClass.avg_ratio_5 = baseClass.avg / baseClass.avg_5
-        print(f"当日均价与五日均价的比是：{baseClass.avg_ratio_5}")
 
         baseClass.avg_ratio_10 = baseClass.avg / baseClass.avg_10
-        print(f"当日均价与十日均价的比是：{baseClass.avg_ratio_10}")
 
 
         baseClass.avg_ratio_20 = baseClass.avg / baseClass.avg_20
-        print(f"当日均价与二十日均价的比是：{baseClass.avg_ratio_20}")
 
         baseClass.avg_ratio_40 = baseClass.avg / baseClass.avg_40
-        print(f"当日均价与四十日均价的比是：{baseClass.avg_ratio_40}")
 
         baseClass.avg_ratio_60 = baseClass.avg / baseClass.avg_60
-        print(f"当日均价与六十日均价的比是：{baseClass.avg_ratio_60}")
 
         baseClass.avg_ratio_120 = baseClass.avg / baseClass.avg_120
-        print(f"当日均价与一百二十日均价的比是：{baseClass.avg_ratio_120}")
         #avg_ratio_240:float           #240日均价
         baseClass.avg_ratio_240 = baseClass.avg / baseClass.avg_240
-        print(f"当日均价与两百四十日均价的比是：{baseClass.avg_ratio_240}")
         
         
         ##这下面还有行业相关的排名数据没有写
-        baseClass.volume_industry_rank = CalculationUtil.GetIndustry_Rank_Volume(baseClass, self)
-        print(f"成交量排名是：{baseClass.volume_industry_rank}")
+        if not baseClass.isCalculateRank:
+            baseClass.total_value_ratio = CalculationUtil.GetIndustry_Rank_Value(baseClass, self)
+            baseClass.earn_ratio = CalculationUtil.GetIndustry_Rank_Earn(baseClass, self)
+            baseClass.clean_ratio = CalculationUtil.GetIndustry_Rank_Clean(baseClass, self)
+            baseClass.cash_ratio = CalculationUtil.GetIndustry_Rank_Cash(baseClass, self)
+            baseClass.sale_ratio = CalculationUtil.GetIndustry_Rank_Sale(baseClass, self)
 
-        baseClass.total_price_industry_rank = CalculationUtil.GetIndustry_Rank_Volume_Price(baseClass, self)
-        print(f"成交额排名是：{baseClass.total_price_industry_rank}")
+            baseClass.volume_industry_rank = CalculationUtil.GetIndustry_Rank_Volume(baseClass, self)
 
-        baseClass.total_price_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Price_Ratio(baseClass, self)
-        print(f"成交额涨跌幅排名是：{baseClass.total_price_ratio_industry_rank}")
+            baseClass.total_price_industry_rank = CalculationUtil.GetIndustry_Rank_Volume_Price(baseClass, self)
 
-        #:float #成交量涨跌幅排名(前%)
-        baseClass.volume_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Volume_Ratio(baseClass, self)
-        print(f"成交量涨跌幅排名是：{baseClass.volume_ratio_industry_rank}")
+            baseClass.total_price_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Price_Ratio(baseClass, self)
 
-
-        #ratio_industry_rank:float#涨跌幅排名(前%)
-        baseClass.ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Ratio(baseClass, self)
-        print(f"涨跌幅排名是：{baseClass.ratio_industry_rank}")
+            #:float #成交量涨跌幅排名(前%)
+            baseClass.volume_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Volume_Ratio(baseClass, self)
 
 
-        #amplitude_industry_rank:float#振幅排名(前%)
-        baseClass.amplitude_industry_rank = CalculationUtil.GetIndustry_Rank_Amplitude(baseClass, self)
-        print(f"振幅排名是：{baseClass.amplitude_industry_rank}")
-
-        baseClass.turn_industry_rank = CalculationUtil.GetIndustry_Rank_Turn(baseClass, self)
-        print(f"换手率涨排名是：{baseClass.turn_industry_rank}")
-        
-
-        #turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
-        baseClass.turn_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Turn_Ratio(baseClass, self)
-        print(f"换手率涨跌幅排名是：{baseClass.turn_ratio_industry_rank}")
+            #ratio_industry_rank:float#涨跌幅排名(前%)
+            baseClass.ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Ratio(baseClass, self)
 
 
-        #avg_industry_rank:float#均价涨跌幅排名(前%)
-        baseClass.avg_industry_rank = CalculationUtil.GetIndustry_Rank_Avg_Ratio(baseClass, self)
-        print(f"均价涨跌幅排名是：{baseClass.avg_industry_rank}")
+            #amplitude_industry_rank:float#振幅排名(前%)
+            baseClass.amplitude_industry_rank = CalculationUtil.GetIndustry_Rank_Amplitude(baseClass, self)
+
+            baseClass.turn_industry_rank = CalculationUtil.GetIndustry_Rank_Turn(baseClass, self)
+
+            #turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
+            baseClass.turn_ratio_industry_rank = CalculationUtil.GetIndustry_Rank_Turn_Ratio(baseClass, self)
+
+
+            #avg_industry_rank:float#均价涨跌幅排名(前%)
+            baseClass.avg_industry_rank = CalculationUtil.GetIndustry_Rank_Avg_Ratio(baseClass, self)
+            industryCls = self.totalComponyIns.GetIndustryClsByCode(baseClass.code)
+            for key, val in industryCls.stockList.items():
+                cls = self.GetBaseDataClass(val.Code, baseClass.trade_date, False)
+                cls.isCalculateRank = True
+            baseClass.isCalculateRank = True
+
 
         volumeState_1 = CalculationUtil.GetVolumeState(baseClass, 1)
         volumeState_3 = CalculationUtil.GetVolumeState(baseClass, 3)
@@ -388,162 +400,223 @@ class BaseClass :
 
         #is_up_up:float#是否放量增长(>或小于1)
         baseClass.is_up_up = 1 if volumeState_1 == 1 and priceState_1 == 1 else 0
-        print(f"放量增长状态：{baseClass.is_up_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_low_up:float#是否缩量增长
         baseClass.is_low_up = 1 if volumeState_1 == -1 and priceState_1 == 1 else 0
-        print(f"缩量增长状态：{baseClass.is_low_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_up_low:float#是否放量降低
         baseClass.is_up_low = 1 if volumeState_1 == 1 and priceState_1 == -1 else 0
-        print(f"放量降低状态：{baseClass.is_up_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_low_low:float#是否缩量降低
         baseClass.is_low_low = 1 if volumeState_1 == -1 and priceState_1 == -1 else 0
-        print(f"缩量降低状态：{baseClass.is_low_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_up_mid:float#是否放量横盘
         baseClass.is_up_mid = 1 if volumeState_1 == 1 and priceState_1 == 0 else 0
-        print(f"放量横盘状态：{baseClass.is_up_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_low_mid:float#是否缩量横盘
         baseClass.is_low_mid = 1 if volumeState_1 == -1 and priceState_1 == 0 else 0
-        print(f"缩量横盘状态：{baseClass.is_low_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_mid_up:float#是否平量增长
         baseClass.is_mid_up = 1 if volumeState_1 == 0 and priceState_1 == 1 else 0
-        print(f"平量增长状态：{baseClass.is_mid_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
         #is_mid_low:float#是否平量降低
         baseClass.is_mid_low = 1 if volumeState_1 == 0 and priceState_1 == -1 else 0
-        print(f"平量降低状态：{baseClass.is_mid_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
 
 
         #is_up_up_3:float#是否3日放量增长
         baseClass.is_up_up_3 = 1 if volumeState_3 == 1 and priceState_3 == 1 else 0
-        print(f"3日放量增长状态：{baseClass.is_up_up_3}")
 
         #is_low_up_3:float#是否3日缩量增长
         baseClass.is_low_up_3 = 1 if volumeState_3 == -1 and priceState_3 == 1 else 0
-        print(f"3日缩量增长状态：{baseClass.is_low_up_3}")
 
         #is_up_low_3:float#是否3日放量降低
         baseClass.is_up_low_3 = 1 if volumeState_3 == 1 and priceState_3 == -1 else 0
-        print(f"3日放量降低状态：{baseClass.is_up_low_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
 
         #is_low_low_3:float#是否3日缩量降低
         baseClass.is_low_low_3 = 1 if volumeState_3 == -1 and priceState_3 == -1 else 0
-        print(f"3日缩量降低状态：{baseClass.is_low_low_3}")
 
         #is_up_mid_3:float#是否3日放量横盘
         baseClass.is_up_mid_3 = 1 if volumeState_3 == 1 and priceState_3 == 0 else 0
-        print(f"3日放量横盘状态：{baseClass.is_up_mid_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
 
         #is_low_mid_3:float#是否3日缩量横盘
         baseClass.is_low_mid_3 = 1 if volumeState_3 == -1 and priceState_3 == 0 else 0
-        print(f"3日缩量横盘状态：{baseClass.is_low_mid_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
 
         #is_mid_up_3:float#是否3日平量增长
         baseClass.is_mid_up_3 = 1 if volumeState_3 == 0 and priceState_3 == 1 else 0
-        print(f"3日平量增长状态：{baseClass.is_mid_up_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
 
         #is_mid_low_3:float#是否3日平量降低
         baseClass.is_mid_low_3 = 1 if volumeState_3 == 0 and priceState_3 == -1 else 0
-        print(f"3日平量降低状态：{baseClass.is_mid_low_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
 
 
 
 
         #is_up_up_5:float#是否5日放量增长
         baseClass.is_up_up_5 = 1 if volumeState_5 == 1 and priceState_5 == 1 else 0
-        print(f"5日放量增长状态：{baseClass.is_up_up_5}")
+
 
         #is_low_up_5:float#是否5日缩量增长
         baseClass.is_low_up_5 = 1 if volumeState_5 == -1 and priceState_5 == 1 else 0
-        print(f"5日缩量增长状态：{baseClass.is_low_up_5}")
 
         #is_up_low_5:float#是否5日放量降低
         baseClass.is_up_low_5 = 1 if volumeState_5 == 1 and priceState_5 == -1 else 0
-        print(f"5日放量降低状态：{baseClass.is_up_low_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
         #is_low_low_5:float#是否5日缩量降低
         baseClass.is_low_low_5 = 1 if volumeState_5 == -1 and priceState_5 == -1 else 0
-        print(f"5日缩量降低状态：{baseClass.is_low_low_5}")
 
         #is_up_mid_5:float#是否5日放量横盘
         baseClass.is_up_mid_5 = 1 if volumeState_5 == 1 and priceState_5 == 0 else 0
-        print(f"5日放量横盘状态：{baseClass.is_up_mid_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
         #is_low_mid_5:float#是否5日缩量横盘
         baseClass.is_low_mid_5 = 1 if volumeState_5 == -1 and priceState_5 == 0 else 0
-        print(f"5日缩量横盘状态：{baseClass.is_low_mid_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
         #is_mid_up_5:float#是否5日平量增长
         baseClass.is_mid_up_5 = 1 if volumeState_5 == 0 and priceState_5 == 1 else 0
-        print(f"5日平量增长状态：{baseClass.is_mid_up_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
         #is_mid_low_5:float#是否5日平量降低
         baseClass.is_mid_low_5 = 1 if volumeState_5 == 0 and priceState_5 == -1 else 0
-        print(f"5日平量降低状态：{baseClass.is_mid_low_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
 
         #is_up_up_10:float#是否10日放量增长
         baseClass.is_up_up_10 = 1 if volumeState_10 == 1 and priceState_10 == 1 else 0
-        print(f"10日放量增长状态：{baseClass.is_up_up_10}")
 
         #is_low_up_10:float#是否10日缩量增长
         baseClass.is_low_up_10 = 1 if volumeState_10 == -1 and priceState_10 == 1 else 0
-        print(f"10日缩量增长状态：{baseClass.is_low_up_10}")
 
         #is_up_low_10:float#是否10日放量降低
         baseClass.is_up_low_10 = 1 if volumeState_10 == 1 and priceState_10 == -1 else 0
-        print(f"10日放量降低状态：{baseClass.is_up_low_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
 
         #is_low_low_10:float#是否10日缩量降低
         baseClass.is_low_low_10 = 1 if volumeState_10 == -1 and priceState_10 == -1 else 0
-        print(f"10日缩量降低状态：{baseClass.is_low_low_10}")
 
         #is_up_mid_10:float#是否10日放量横盘
         baseClass.is_up_mid_10 = 1 if volumeState_10 == 1 and priceState_10 == 0 else 0
-        print(f"10日放量横盘状态：{baseClass.is_up_mid_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
 
         #is_low_mid_10:float#是否10日缩量横盘
         baseClass.is_low_mid_10 = 1 if volumeState_10 == -1 and priceState_10 == 0 else 0
-        print(f"10日缩量横盘状态：{baseClass.is_low_mid_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
 
         #is_mid_up_10:float#是否10日平量增长
         baseClass.is_mid_up_10 = 1 if volumeState_10 == 0 and priceState_10 == 1 else 0
-        print(f"10日平量增长状态：{baseClass.is_mid_up_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
 
         #is_mid_low_10:float#是否10日平量降低
         baseClass.is_mid_low_10 = 1 if volumeState_10 == 0 and priceState_10 == -1 else 0
-        print(f"10日平量降低状态：{baseClass.is_mid_low_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
 
 
 #   is_pop_up:float#是否震荡上行
         baseClass.is_pop_up = 1 if amplitudeState_1 == 1 and priceState_1 == 1 else 0
-        print(f"当日震荡上行状态：{baseClass.is_pop_up}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
 #    is_pop_down:float#是否震荡下行
         baseClass.is_pop_down = 1 if amplitudeState_1 == 1 and priceState_1 == -1 else 0
-        print(f"当日震荡下行状态：{baseClass.is_pop_down}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
 
 #    is_pop_up_3:float#是否震荡上行
         baseClass.is_pop_up_3 = 1 if amplitudeState_3 == 1 and priceState_3 == 1 else 0
-        print(f"3日震荡上行状态：{baseClass.is_pop_up_3}, amplitudeState_3：{amplitudeState_3}， priceState_3：{priceState_3}")
 #    is_pop_down_3:float#是否震荡下行
         baseClass.is_pop_down_3 = 1 if amplitudeState_3 == 1 and priceState_3 == -1 else 0
-        print(f"3日震荡下行状态：{baseClass.is_pop_down_3}, amplitudeState_3：{amplitudeState_3}， priceState_3：{priceState_3}")
+
 
 #    is_pop_up_5:float#是否震荡上行
         baseClass.is_pop_up_5 = 1 if amplitudeState_5 == 1 and priceState_5 == 1 else 0
-        print(f"5日震荡上行状态：{baseClass.is_pop_up_5}, amplitudeState_5：{amplitudeState_5}， priceState_5：{priceState_5}")
 #    is_pop_down_5:float#是否震荡下行
         baseClass.is_pop_down_5 = 1 if amplitudeState_5 == 1 and priceState_5 == -1 else 0
-        print(f"5日震荡下行状态：{baseClass.is_pop_down_5}, amplitudeState_5：{amplitudeState_5}， priceState_5：{priceState_5}")
 
 #    is_pop_up_10:float#是否震荡上行
         baseClass.is_pop_up_10 = 1 if amplitudeState_10 == 1 and priceState_10 == 1 else 0
-        print(f"10日震荡上行状态：{baseClass.is_pop_up_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
 #    is_pop_down_10:float#是否震荡下行
         baseClass.is_pop_down_10 = 1 if amplitudeState_10 == 1 and priceState_10 == -1 else 0
-        print(f"10日震荡下行状态：{baseClass.is_pop_down_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
+        #print(f"当日涨跌幅是{baseClass.change_Ratio}")
+        #print(f"当日震幅是{baseClass.amplitude}")
+        #print(f"5日涨跌幅是{baseClass.change_Ratio_5}")
+        #print(f"10日涨跌幅是{baseClass.change_Ratio_10}")
+        #print(f"20日涨跌幅是{baseClass.change_Ratio_20}")
+        #print(f"40日涨跌幅是{baseClass.change_Ratio_40}")
+        #print(f"60日涨跌幅是{baseClass.change_Ratio_60}")
+        #print(f"120日涨跌幅是{baseClass.change_Ratio_120}")
+        #print(f"240日涨跌幅是{baseClass.change_Ratio_240}")
+        #print(f"成交量涨跌幅是{baseClass.volume_ratio}")
+        #print(f"3日成交量涨跌幅是{baseClass.volume_ratio_3}")
+        #print(f"5日成交量相比涨跌幅是{baseClass.volume_ratio_5}")
+        #print(f"10成交量相比涨跌幅是{baseClass.volume_ratio_10}")
+        #print(f"20成交量相比涨跌幅是{baseClass.volume_ratio_20}")
+        #print(f"40成交量相比涨跌幅是{baseClass.volume_ratio_40}")
+        #print(f"当成交额涨跌幅是{baseClass.volume_price_ratio}")
+        #print(f"3日平均成交额涨跌幅是{baseClass.volume_price_ratio_3}")
+        #print(f"5日平均成交额涨跌幅是{baseClass.volume_price_ratio_5}")
+        #print(f"10日平均成交额涨跌幅是{baseClass.volume_price_ratio_10}")
+        #print(f"20日平均成交额涨跌幅是{baseClass.volume_price_ratio_20}")
+        #print(f"40日平均成交额涨跌幅是{baseClass.volume_price_ratio_40}")
+        #print(f"量比是{baseClass.volume_ratio_5}")
+        #print(f"当日均价涨跌幅是：{baseClass.avg_ratio}")
+        #print(f"当日换手率涨跌幅是{baseClass.turn_ratio}")
+        #print(f"五日均价是：{baseClass.avg_5}")
+        #print(f"十日均价是：{baseClass.avg_10}")
+        #print(f"二十日均价是：{baseClass.avg_20}")
+        #print(f"四十日均价是：{baseClass.avg_40}")
+        #print(f"六十日均价是：{baseClass.avg_60}")
+        #print(f"一百二十日均价是：{baseClass.avg_120}")
+        #print(f"两百四十日均价是：{baseClass.avg_240}")
+        #print(f"当日均价与五日均价的比是：{baseClass.avg_ratio_5}")
+        #print(f"当日均价与十日均价的比是：{baseClass.avg_ratio_10}")
+        #print(f"当日均价与二十日均价的比是：{baseClass.avg_ratio_20}")
+        #print(f"当日均价与四十日均价的比是：{baseClass.avg_ratio_40}")
+        #print(f"当日均价与六十日均价的比是：{baseClass.avg_ratio_60}")
+        #print(f"当日均价与一百二十日均价的比是：{baseClass.avg_ratio_120}")
+        #print(f"当日均价与两百四十日均价的比是：{baseClass.avg_ratio_240}")
 
+        #print(f"流通市值排名是：{baseClass.total_value_ratio}%")
+        #print(f"市盈率排名是：{baseClass.earn_ratio}%")
+        #print(f"市净率排名是：{baseClass.clean_ratio}%")
+        #print(f"市现率排名是：{baseClass.cash_ratio}%")
+        #print(f"市销率排名是：{baseClass.sale_ratio}%")
+        #print(f"成交量排名是：{baseClass.volume_industry_rank}")
+        #print(f"成交额排名是：{baseClass.total_price_industry_rank}")
+        #print(f"成交额涨跌幅排名是：{baseClass.total_price_ratio_industry_rank}")
+        #print(f"成交量涨跌幅排名是：{baseClass.volume_ratio_industry_rank}")
+        #print(f"涨跌幅排名是：{baseClass.ratio_industry_rank}")
+        #print(f"振幅排名是：{baseClass.amplitude_industry_rank}")
+        #print(f"换手率涨排名是：{baseClass.turn_industry_rank}")
+        #print(f"换手率涨跌幅排名是：{baseClass.turn_ratio_industry_rank}")
+        #print(f"均价涨跌幅排名是：{baseClass.avg_industry_rank}")
+        #print(f"放量增长状态：{baseClass.is_up_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"缩量增长状态：{baseClass.is_low_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"放量降低状态：{baseClass.is_up_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"缩量降低状态：{baseClass.is_low_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"放量横盘状态：{baseClass.is_up_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"缩量横盘状态：{baseClass.is_low_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"平量增长状态：{baseClass.is_mid_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"平量降低状态：{baseClass.is_mid_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
+        #print(f"3日放量增长状态：{baseClass.is_up_up_3}")
+        #print(f"3日缩量增长状态：{baseClass.is_low_up_3}")
+        #print(f"3日放量降低状态：{baseClass.is_up_low_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
+        #print(f"3日缩量降低状态：{baseClass.is_low_low_3}")
+        #print(f"3日放量横盘状态：{baseClass.is_up_mid_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
+        #print(f"3日缩量横盘状态：{baseClass.is_low_mid_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
+        #print(f"3日平量增长状态：{baseClass.is_mid_up_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
+        #print(f"3日平量降低状态：{baseClass.is_mid_low_3}, volumeState_3：{volumeState_3}， priceState_3：{priceState_3}")
+        #print(f"5日放量增长状态：{baseClass.is_up_up_5}")
+        #print(f"5日缩量增长状态：{baseClass.is_low_up_5}")
+        #print(f"5日放量降低状态：{baseClass.is_up_low_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
+        #print(f"5日缩量降低状态：{baseClass.is_low_low_5}")
+        #print(f"5日放量横盘状态：{baseClass.is_up_mid_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
+        #print(f"5日缩量横盘状态：{baseClass.is_low_mid_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
+        #print(f"5日平量增长状态：{baseClass.is_mid_up_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
+        #print(f"5日平量降低状态：{baseClass.is_mid_low_5}, volumeState_5：{volumeState_5}， priceState_5：{priceState_5}")
 
-    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount):
+        #print(f"10日放量增长状态：{baseClass.is_up_up_10}")
+        #print(f"10日缩量增长状态：{baseClass.is_low_up_10}")
+        #print(f"10日放量降低状态：{baseClass.is_up_low_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
+        #print(f"10日缩降低状态：{baseClass.is_low_low_10}")
+        #print(f"10日放量横盘状态：{baseClass.is_up_mid_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
+        #print(f"10日缩量横盘状态：{baseClass.is_low_mid_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
+        #print(f"10日平量增长状态：{baseClass.is_mid_up_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
+        #print(f"10日平量降低状态：{baseClass.is_mid_low_10}, volumeState_10：{volumeState_10}， priceState_10：{priceState_10}")
+        #print(f"当日震荡上行状态：{baseClass.is_pop_up}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
+        #print(f"当日震荡下行状态：{baseClass.is_pop_down}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
+        #print(f"3日震荡上行状态：{baseClass.is_pop_up_3}, amplitudeState_3：{amplitudeState_3}， priceState_3：{priceState_3}")
+        #print(f"3日震荡下行状态：{baseClass.is_pop_down_3}, amplitudeState_3：{amplitudeState_3}， priceState_3：{priceState_3}")
+        #print(f"5日震荡上行状态：{baseClass.is_pop_up_5}, amplitudeState_5：{amplitudeState_5}， priceState_5：{priceState_5}")
+        #print(f"5日震荡下行状态：{baseClass.is_pop_down_5}, amplitudeState_5：{amplitudeState_5}， priceState_5：{priceState_5}")
+        #print(f"10日震荡上行状态：{baseClass.is_pop_up_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
+        #print(f"10日震荡下行状态：{baseClass.is_pop_down_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
+
+    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isNeedCalculateRank = True):
         from src.main_code.Core.Calculate import CalculationUtil
+        cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
+        if cache_key in self.totalBaseWindowData:
+            res = self.totalBaseWindowData[cache_key]
+            if res.isCalculateRank:
+                return res
+        
         startDataClass = self.GetBaseDataClass(stockCode, tradeDate, True)
         
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
@@ -564,42 +637,42 @@ class BaseClass :
         #industry:str            #行业
         windowsClass.industry = self.totalComponyIns.GetComponyInfo(stockCode).Industry
         print(f"行业是 {windowsClass.industry}")
+        print(f"整体成交量是 {windowsClass.volume}")
+        print(f"整体成交额是 {windowsClass.volume_price}")
+        print(f"整体成交量涨跌幅是 {windowsClass.volume_ratio}")
+        print(f"整体成交额涨跌幅是 {windowsClass.volume_price_ratio}")
+        print(f"整体换手率涨跌幅是 {windowsClass.turn_ratio}")
+        print(f"涨跌幅是 {windowsClass.change_Ratio}")
+        print(f"整体涨跌幅是 {windowsClass.change_Ratio_Total}")
+        print(f"均价涨跌幅是 {windowsClass.avg_Ratio}")
         #isST:int                #1是  .0否
         windowsClass.isST = startDataClass.isST
         
         #volume:float   #整体成交量
         windowsClass.volume = CalculationUtil.GetVolume_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体成交量是 {windowsClass.volume}")
 
         #volume_price:float   #整体成交额
         windowsClass.volume_price = CalculationUtil.GetVolume_Price_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体成交额是 {windowsClass.volume_price}")
 
 
         #volume_ratio:float   #整体成交量涨跌幅
         windowsClass.volume_ratio = CalculationUtil.GetVolume_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体成交量涨跌幅是 {windowsClass.volume_ratio}")
 
 
         #volume_price_ratio:float   #整体成交额涨跌幅
         windowsClass.volume_price_ratio = CalculationUtil.GetVolume_Price_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体成交额涨跌幅是 {windowsClass.volume_price_ratio}")
 
         #turn_ratio:float          #整体换手率涨跌幅
         windowsClass.turn_ratio = CalculationUtil.GetTurn_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体换手率涨跌幅是 {windowsClass.turn_ratio}")
 
         #change_Ratio:float      #整体涨跌幅
         windowsClass.change_Ratio = CalculationUtil.GetChange_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"涨跌幅是 {windowsClass.change_Ratio}")
 
         #change_Ratio_Total:float      #整体涨跌幅
         windowsClass.change_Ratio_Total = CalculationUtil.GetChange_Ratio_Total_Window(startDataClass, startDateCount, toDateCount)
-        print(f"整体涨跌幅是 {windowsClass.change_Ratio_Total}")
 
         #avg_Ratio:float      #均价涨跌幅
         windowsClass.avg_Ratio = CalculationUtil.GetAvg_Ratio_Window(startDataClass, startDateCount, toDateCount)
-        print(f"均价涨跌幅是 {windowsClass.avg_Ratio}")
 
         #avg_Ratio_Total:float      #整体均价涨跌幅
         windowsClass.avg_Ratio_Total = CalculationUtil.GetAvg_Ratio_Total_Window(startDataClass, startDateCount, toDateCount)
@@ -757,43 +830,54 @@ class BaseClass :
         windowsClass.max_avg = CalculationUtil.GetAvg_Window_High(startDataClass, startDateCount, toDateCount)
         print(f"最高均价是 {windowsClass.max_avg}")
 
-        
-        
-        #volume_industry_rank:float #成交量排名(前%)
-        windowsClass.volume_industry_rank = CalculationUtil.GetVolume_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
-
-        #total_price_industry_rank:float #成交额排名(前%)
-        windowsClass.total_price_industry_rank = CalculationUtil.GetVolume_Price_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
+        print(f"code：{stockCode}，  条件1：{isNeedCalculateRank == True}，    条件2：{windowsClass.isCalculateRank == False}")
+        if isNeedCalculateRank == True:
+            if windowsClass.isCalculateRank == False:
+                #volume_industry_rank:float #成交量排名(前%)
+                windowsClass.volume_industry_rank = CalculationUtil.GetVolume_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
 
-        #total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
-        windowsClass.total_price_ratio_industry_rank = CalculationUtil.GetVolume_Price_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
-
-        #volume_ratio_industry_rank:float #成交量涨跌幅排名(前%)
-        windowsClass.volume_ratio_industry_rank = CalculationUtil.GetVolume_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
-
-        #ratio_industry_rank:float#涨跌幅排名(前%)
-        windowsClass.ratio_industry_rank = CalculationUtil.GetChange_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
+                #total_price_industry_rank:float #成交额排名(前%)
+                windowsClass.total_price_industry_rank = CalculationUtil.GetVolume_Price_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
 
-        #amplitude_industry_rank:float#振幅排名(前%)
-        windowsClass.amplitude_industry_rank = CalculationUtil.GetAmplitude_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
+                #total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
+                windowsClass.total_price_ratio_industry_rank = CalculationUtil.GetVolume_Price_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
-        #turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
-        windowsClass.turn_ratio_industry_rank = CalculationUtil.GetTurn_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
+                #volume_ratio_industry_rank:float #成交量涨跌幅排名(前%)
+                windowsClass.volume_ratio_industry_rank = CalculationUtil.GetVolume_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
-        #avg_industry_rank:float#均价涨跌幅排名(前%)
-        windowsClass.avg_industry_rank = CalculationUtil.GetAvg_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
-        print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
+                #ratio_industry_rank:float#涨跌幅排名(前%)
+                windowsClass.ratio_industry_rank = CalculationUtil.GetChange_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
 
+                #amplitude_industry_rank:float#振幅排名(前%)
+                windowsClass.amplitude_industry_rank = CalculationUtil.GetAmplitude_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
+
+                #turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
+                windowsClass.turn_ratio_industry_rank = CalculationUtil.GetTurn_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
+
+                #avg_industry_rank:float#均价涨跌幅排名(前%)
+                windowsClass.avg_industry_rank = CalculationUtil.GetAvg_Ratio_Window_Rank(startDataClass, startDateCount, toDateCount, self)
+                industryCls = self.totalComponyIns.GetIndustryClsByCode(windowsClass.code)
+
+                industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+                for key, val in industryCls.stockList.items():
+                    dailyCls = self.GetBaseDataClass(val.Code, tradeDate, False)
+                    industryDailyList.append(dailyCls)
+
+                for val in industryDailyList:
+                    temp = self.GetWindowDataClass(stockCode, tradeDate, startDateCount, toDateCount, False)
+                    temp.isCalculateRank = True
+        if windowsClass.isCalculateRank:
+            print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
+            print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
+            print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
+            print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
+            print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
+            print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
+            print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
+            print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
 
         volumeState_1 = CalculationUtil.GetVolume_State_Windows(windowsClass)
         priceState_1 = CalculationUtil.GetChange_Ratio_State_Windows(windowsClass)
@@ -828,8 +912,9 @@ class BaseClass :
         windowsClass.is_pop_down = 1 if amplitudeState_1 == 1 and priceState_1 == -1 else 0
         print(f"当日震荡下行状态：{windowsClass.is_pop_down}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
 
-        pass
-
+        if windowsClass.isCalculateRank == True:
+            self.totalBaseWindowData[cache_key] = windowsClass
+        return windowsClass
 
 
 
@@ -1015,3 +1100,23 @@ class BaseClass :
             if(count > dayNum):
                 break
         return dataList
+    
+
+    def GetToday(self):
+        last = self.main.lastDayStr
+        count = 1
+        for i in range(10000):
+            date_format = "%Y%m%d"
+            original_date = datetime.strptime(last, date_format)
+
+            # 2. 计算前7天的日期
+            days_ago = original_date - timedelta(days=count)
+
+            # 3. 转换回字符串格式（保持原格式）
+            days_ago_str = days_ago.strftime(date_format)
+            count = count + 1
+
+            for singleStock in self.totalComponyIns.allStockList:
+                res = self.main.dbHandler.GetDailyRowByCodeAndDate(singleStock, days_ago_str)
+                if res is not None:
+                    return days_ago_str

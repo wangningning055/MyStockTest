@@ -1,31 +1,39 @@
 from src.main_code.Core.Select.Models import SelectionRequest
 from src.main_code.Core.Select.ConditionEvaluator import FactorEvaluator, load_factors_metadata
 from src.main_code.Core.Const import FactorsJsonPath
+from src.main_code.Core import Main
+from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+import time
 FACTORS_METADATA = None
 class BaseClass :
     def Init(self, main):
-        self.main  = main
+        self.main : Main.processor  = main
     def __init__(self):
         global FACTORS_METADATA
         FACTORS_METADATA = load_factors_metadata(FactorsJsonPath)
-        self.isOutCY = True             #是否剔除创业板股票
         self.isOutST = True             #是否剔除ST股票
+        self.isOutCY = True             #是否剔除创业板股票
         self.isOutKC = True             #是否剔除科创板股票
         self.isOnlyValue = False          #是否只计算价值股
         self.isOnlyGrow = False           #是否只计算成长股
-        self.isOnlyGrow_Value = False     #是否只计算成长价值股
         self.factorLimit = 0.5                 #条件因子筛选的边界值，默认为0.5，即大于0.5则满足条件，小于0.5则不满足条件
 
 
     #个股条件因子计算和筛选
     def RunGetStockListByCondition(self, conditionJson):
         print(f"开始进行条件选股: {conditionJson}")
-        evaluator = FactorEvaluator(FACTORS_METADATA)
-
+        evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
+        evaluator.SetMain(self.main)
         try:
             # Pydantic自动验证并转换
             request = SelectionRequest(**conditionJson)
-            print(f"✅ 数据验证成功")
+            print(request)
+            self.isOutST = request.isExcludeST
+            self.isOutCY = request.isExcludeCY
+            self.isOutKC = request.isExcludeKC
+            self.isOnlyValue = request.isExclude_Value
+            self.isOnlyGrow = request.isExclude_Grow
+            print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
             print(f"   配置数: {len(request.configs)}")
             print(f"   第一个因子: {request.configs[0].factor_group_name}")
             print(f"   权重: {request.configs[0].weight}")
@@ -33,10 +41,22 @@ class BaseClass :
             
         except Exception as e:
             print(f"❌ 数据验证失败: {e}")
+        listCode = []
+        count = 1
+        t0 = time.perf_counter()
+        for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
+            score = evaluator.evaluate_stock(val, request.configs)
+            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个")
+            count += 1
+            if score > 0:
+                listCode.append(val)
 
-        #self.main.calculationDataHandle.GetBaseDataClass()
-        #score = evaluator.evaluate_stock(stock_data, request.configs)
-        #print(f"✅ 个股评分: {score}")
+        for code in listCode:
+            print(code)
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
         pass
 
     #行业轮动分析

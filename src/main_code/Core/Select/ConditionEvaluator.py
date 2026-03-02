@@ -9,6 +9,7 @@ import logging
 import os
 # 假设models已经定义
 from src.main_code.Core.Select.Models import TreeNode, ConditionNode, GroupNode, FactorConfig
+from src.main_code.Core import Main
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,9 @@ class ConditionEvaluator:
     条件评估器
     负责评估单个条件节点和条件树
     """
-    
-    def __init__(self, stock_data: Dict[str, Any], factors_metadata: Dict[str, Any]):
+    def SetMain(self, main):
+        self.main : Main.processor = main
+    def __init__(self, stockCode: str, factors_metadata: Dict[str, Any]):
         """
         初始化条件评估器
         
@@ -36,7 +38,8 @@ class ConditionEvaluator:
                        }
             factors_metadata: 因子元数据（从factors.json加载）
         """
-        self.stock_data = stock_data
+        self.stock_code = stockCode
+        #self.stock_data = stock_data
         self.factors_metadata = factors_metadata
         self.field_mapping = self._build_field_mapping()
         self.error_log = []
@@ -58,6 +61,9 @@ class ConditionEvaluator:
                 for item in category.get('items', []):
                     # 使用显示名映射到字段名
                     mapping[item.get('name')] = item.get('name_field')
+                        #"name_field" : ,
+                        #"id" : item.get('id')
+                        #                         }
             
             logger.info(f"✅ 因子映射表已构建，共{len(mapping)}个因子")
             return mapping
@@ -97,26 +103,32 @@ class ConditionEvaluator:
         try:
             for i, node in enumerate(nodes):
                 node_result, error = self._evaluate_node(node)
-                
+                current_relation = node.relation
+                #if node.type == "condition":
+                #    print(f"处理条件：{node.factor_name}， 条件执行逻辑：{current_relation}")
+                #if node.type == "group":
+                #    print(f"处理组， 条件执行逻辑：{current_relation}")
+
                 if error:
                     self.error_log.append(error)
-                
                 if i == 0:
                     # 第一个节点
                     if node.relation != 'START':
                         logger.warn(f"⚠️ 第一个节点的relation应为START，实际为{node.relation}")
                     current_result = node_result
+                    #print("这是一个起始条件")
                 else:
                     # 应用逻辑关系
                     if current_relation == 'AND':
                         current_result = current_result and node_result
+                        #print(f"这个条件和上一个条件执行了且")
                     elif current_relation == 'OR':
+                        #print(f"这个条件和上一个条件执行了或")
                         current_result = current_result or node_result
                     else:
                         logger.warn(f"⚠️ 未知的逻辑关系: {current_relation}")
                 
                 # 保存下一个节点的逻辑关系
-                current_relation = node.relation
             
             return current_result, None
         
@@ -175,14 +187,35 @@ class ConditionEvaluator:
         try:
             # 1. 从映射表获取字段名
             field_name = self.field_mapping.get(condition.factor_name)
+            id = condition.factor_id
+            #print(f"                            判读条件名是：{field_name}，  条件中文名是：{condition.factor_name }，  条件Id是：{id}, 起始天：{condition.dateFrom}，  结束天：{condition.dateTo}")
             if not field_name:
                 error = f"❌ 因子 '{condition.factor_name}' 不存在于映射表中"
                 logger.error(error)
                 return False, error
             
             # 2. 获取字段值
-            value = self.stock_data.get(field_name)
+            data = None
+            #当日单股数据
+            todayStr = self.main.todayStockDate
+            #print(f"条件id是：{id}， 日期是：{todayStr}")
+            if id >= 1000 and id < 200000:
+                #print("计算当日条件")
+                data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr, True)
+            #区间单股数据
+            if id >= 200000 and id < 300000:
+                data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+            #当日行业
+            if id >= 300000 and id < 400000:
+                industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
+                data = self.main.calculationDataHandle.GetIndustryBaseData(todayStr, industryCls)
+            #区间行业
+            if id >= 400000 and id < 500000:
+                industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
+                data = self.main.calculationDataHandle.GetIndustryWindowData(industryCls, todayStr, condition.dateFrom, condition.dateTo)
+
             
+            value = getattr(data, field_name, None)
             if value is None:
                 # 字段不存在，返回False（不满足条件）
                 # 注意：这里可以根据需求改为警告而不是错误
@@ -191,7 +224,7 @@ class ConditionEvaluator:
             
             # 3. 应用操作符
             result = self._apply_operator(value, condition.operator, condition.value)
-            
+            #print(f"这个条件的结果是{result}")
             # 4. 日期范围处理（可选）
             # 如果dateFrom和dateTo不为默认值，在这里进行时间序列处理
             # 现阶段假设传入的stock_data已经是目标日期的数据
@@ -224,9 +257,14 @@ class ConditionEvaluator:
             # 递归评估子节点，逻辑与evaluate_tree相同
             current_result = None
             current_relation = None
-            
+            #print("-----------------处理组内关系-------------------")
             for i, child in enumerate(group.children):
                 child_result, error = self._evaluate_node(child)
+                current_relation = child.relation if hasattr(child, 'relation') else None
+                #if child.type == "condition":
+                #    print(f"处理条件：{child.factor_name}， 条件执行逻辑：{current_relation}")
+                #if child.type == "group":
+                #    print(f"处理组， 条件执行逻辑：{current_relation}")
                 
                 if error:
                     self.error_log.append(error)
@@ -236,11 +274,12 @@ class ConditionEvaluator:
                 else:
                     if current_relation == 'AND':
                         current_result = current_result and child_result
+                        #print("当前条件和上一个条件执行逻辑：且")
                     elif current_relation == 'OR':
                         current_result = current_result or child_result
+                        #print("当前条件和上一个条件执行逻辑：或")
                 
-                current_relation = child.relation if hasattr(child, 'relation') else None
-            
+            #print("-----------------组内关系处理结束-------------------")
             return current_result if current_result is not None else True, None
         
         except Exception as e:
@@ -263,17 +302,22 @@ class ConditionEvaluator:
         try:
             field_value = float(field_value)
             compare_value = float(compare_value)
-            
+            #print(f"执行对比：{field_value} | {compare_value}")
             if operator == 'gt':
+                #print(f"                            用大于判断")
                 return field_value > compare_value
             elif operator == 'lt':
+                #print(f"                            用小于判断")
                 return field_value < compare_value
             elif operator == 'eq':
                 # 对于浮点数，使用近似相等
+                #print(f"                            用等于判断")
                 return abs(field_value - compare_value) < 1e-6
             elif operator == 'ge':
+                #print(f"                            用大于等于判断")
                 return field_value >= compare_value
             elif operator == 'le':
+                #print(f"                            用小于等于判断")
                 return field_value <= compare_value
             else:
                 raise ValueError(f"Unknown operator: {operator}")
@@ -297,8 +341,10 @@ class FactorEvaluator:
             factors_metadata: 因子元数据
         """
         self.factors_metadata = factors_metadata
+    def SetMain(self, main):
+        self.main : Main.processor = main
     
-    def evaluate_stock(self, stock_data: Dict[str, Any], configs: List[FactorConfig]) -> float:
+    def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
         """
         评估单只股票，返回综合评分
         
@@ -309,11 +355,11 @@ class FactorEvaluator:
         
         例如：
         - 因子1权重0.4，满足条件 -> +0.4分
-        - 因子2权重0.6，满足条件 -> +0.6分
-        - 总分: 1.0分 / 1.0总权重 = 100%
+        - 因子2权重-0.6，满足条件 -> -0.6分
+        - 总分: 1.0分 / 1.0总权重 = -20%
         
         Args:
-            stock_data: 股票的所有因子数据
+            stock_data: 股票的代码
             configs: 因子配置列表
             
         Returns:
@@ -322,16 +368,23 @@ class FactorEvaluator:
         if not configs:
             return 0
         
-        evaluator = ConditionEvaluator(stock_data, self.factors_metadata)
-        
+        evaluator = ConditionEvaluator(stockCode, self.factors_metadata)
+        evaluator.SetMain(self.main)
         # 计算总权重
-        total_weight = sum(cfg.weight for cfg in configs)
+        #total_weight = sum(cfg.weight for cfg in configs)
+
+        positive_weight = sum(cfg.weight for cfg in configs if cfg.weight > 0)
+        negative_weight = sum(abs(cfg.weight) for cfg in configs if cfg.weight < 0)
+        total_weight = positive_weight + negative_weight
+
         if total_weight == 0:
             logger.warn("⚠️ 总权重为0")
             return 0
         
         # 逐个评估因子配置
-        score = 0
+        positive_score = 0  # 正权重因子满足的得分
+        negative_score = 0  # 负权重因子满足的得分
+        #score = 0
         for config in configs:
             try:
                 # 评估条件树
@@ -340,18 +393,27 @@ class FactorEvaluator:
                 if error:
                     logger.error(f"因子 '{config.factor_group_name}': {error}")
                 
-                # 如果满足条件，加上权重
+                # ✅ 改动3：根据权重的正负，分开处理
                 if is_satisfied:
-                    score += config.weight
-                    logger.debug(f"✅ 因子 '{config.factor_group_name}' 满足条件，加{config.weight}分")
+                    if config.weight > 0:
+                        # 正权重：满足条件加分
+                        positive_score += config.weight
+                    elif config.weight < 0:
+                        # 负权重：满足条件减分（累计负分）
+                        negative_score += abs(config.weight)
                 else:
+                    # 条件不满足：什么都不做（或者可选：满足负权重的反向逻辑）
                     logger.debug(f"❌ 因子 '{config.factor_group_name}' 不满足条件")
+                #print("   ")
+                #print(f"--------------------------------执行完一个因子，是否满足条件：{is_satisfied}， 这个因子权重是：{config.weight}-------------------------")
+                #print("   ")
             
             except Exception as e:
                 logger.error(f"❌ 评估因子 '{config.factor_group_name}' 时出错: {e}")
         
         # 标准化到0-100
-        final_score = (score / total_weight) * 100
+        net_score = positive_score - negative_score
+        final_score = (net_score / total_weight) * 100
         return final_score
     
     def evaluate_stocks_batch(self, stocks_data: List[Dict[str, Any]], configs: List[FactorConfig]) -> List[tuple]:
