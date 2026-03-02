@@ -199,8 +199,10 @@ class StructBaseClass :
 
 class StructBaseWindowClass :
     isCalculateRank:bool    #是否已经计算了排名数据
+    isCalculateOther:bool    #是否已经计算了其他数据
     def __init__(self):
         self.isCalculateRank = False
+        self.isCalculateOther = False
     code:str
     trade_date_from:date    #交易日期
     startCount:int

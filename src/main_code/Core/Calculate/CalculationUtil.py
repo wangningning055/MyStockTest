@@ -1883,8 +1883,8 @@ def GetVolume_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, Start
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
-        print(f"行业：{industryStr}， 股票代码：{val["code"]}")
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
+        #print(f"行业：{industryStr}， 股票代码：{val["code"]}")
         tempWindowCls.volume_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -1940,7 +1940,7 @@ def GetVolume_Price_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.total_price_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2028,7 +2028,7 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBase
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.total_price_ratio_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2114,7 +2114,7 @@ def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.volume_ratio_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2182,7 +2182,7 @@ def GetChange_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.ratio_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2252,7 +2252,7 @@ def GetAmplitude_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseCla
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.amplitude_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2337,7 +2337,7 @@ def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, S
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.turn_ratio_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
@@ -2421,7 +2421,7 @@ def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, St
         temp_Ratio = (count / len(industryCls.stockList)) * 100
         #name = handler.totalComponyIns.GetComponyInfo(val.code).Name
         #print(f"行业：{industryStr}， 股票代码：{val.code}, 股票名称:{name} 成交量(万手) {val.volume / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
-        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, False)
+        tempWindowCls = handler.GetWindowDataClass(val["code"], NowData.trade_date, StartDayCount, ToDayCount, True)
         tempWindowCls.avg_industry_rank = temp_Ratio
         if val["code"] == code:
             #print(f"行业：{industryStr}， 股票代码：{val['code']}, 股票名称:{handler.totalComponyIns.GetComponyInfo(val['code']).Name} 成交量(万手) {val['volume'] / 1000000}, 排名是：{count} / {len(industryCls.stockList)}")
