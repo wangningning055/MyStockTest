@@ -48,21 +48,21 @@ class BaseClass :
 
 
 
-        t0 = time.perf_counter()
-        self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
-        t1 = time.perf_counter()
-        totalCostTime = (t1 - t0)
-        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #t0 = time.perf_counter()
+        #self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
 
 
-        t0 = time.perf_counter()
-        self.GetWindowDataClass("301638.SZ","20260213", 0, 20)
-        t1 = time.perf_counter()
-        totalCostTime = (t1 - t0)
-        totalCostTimeStr2 = self.main.requestor.format_seconds(totalCostTime)
+        #t0 = time.perf_counter()
+        #self.GetWindowDataClass("301638.SZ","20260213", 0, 20)
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr2 = self.main.requestor.format_seconds(totalCostTime)
 
-        print(f"1111花费的时间是：{totalCostTimeStr1}")
-        print(f"2222花费的时间是：{totalCostTimeStr2}")
+        #print(f"1111花费的时间是：{totalCostTimeStr1}")
+        #print(f"2222花费的时间是：{totalCostTimeStr2}")
 
 
         

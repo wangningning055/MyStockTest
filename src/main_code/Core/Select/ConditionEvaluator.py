@@ -350,7 +350,6 @@ class FactorEvaluator:
         self.main : Main.processor = main
     
     def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
-    def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
         """
         评估单只股票，返回综合评分
         
