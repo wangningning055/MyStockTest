@@ -196,11 +196,12 @@ class RequestorClass:
         count = 0
 
         #2025 3, 2, 1
-        #2024 4
+        #2024 4 3 2  1(等待csv)
+        #2023 4(等待csv)  
 
-        year = 2024
+        #直接拉
+        year = 2023
         quarter = 3
-        count = 900
         clsList = []
         for code in codeList:
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)

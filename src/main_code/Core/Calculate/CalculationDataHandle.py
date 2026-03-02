@@ -49,8 +49,8 @@ class BaseClass :
 
 
         #t0 = time.perf_counter()
-        #print("开始计算：300846.SZ")
-        #self.GetWindowDataClass("300846.SZ","20260213", 0, 20)
+        #print("开始计算：601112.SH")
+        #self.GetWindowDataClass("601112.SH","20260227", 0, 10)
         #t1 = time.perf_counter()
         #totalCostTime = (t1 - t0)
         #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
@@ -68,7 +68,7 @@ class BaseClass :
 
 
         
-
+        
 
 
 
@@ -670,7 +670,6 @@ class BaseClass :
 
             #volume_ratio:float   #整体成交量涨跌幅
             windowsClass.volume_ratio = CalculationUtil.GetVolume_Ratio_Window(startDataClass, startDateCount, toDateCount)
-
 
             #volume_price_ratio:float   #整体成交额涨跌幅
             windowsClass.volume_price_ratio = CalculationUtil.GetVolume_Price_Ratio_Window(startDataClass, startDateCount, toDateCount)

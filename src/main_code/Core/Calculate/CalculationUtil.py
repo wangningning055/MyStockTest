@@ -144,26 +144,17 @@ def GetVolume_Ratio(NowData:CalculationDataStruct.StructBaseClass, num):
 def GetAmplitude_Avg(NowData:CalculationDataStruct.StructBaseClass, num):
     count = 1
     avg1 = NowData.amplitude
-    avg2 = 0
     avg1Add = 1
-    avg2Add = 0
-
     for val in NowData.dataList_240:
         if count < num:
             avg1 = avg1 + val.amplitude
             avg1Add += 1
-        elif count >=num and count < num * 2:
-            avg2 = avg2 + val.amplitude
-            avg2Add += 1
         else:
             break
         count = count + 1
 
-    if count < num:
-        num = count
 
     avg1 = avg1 / avg1Add
-    avg2 = avg2 / avg2Add
 
     #target =  (avg1 - avg2) / avg2
     #if num != 1:
@@ -205,6 +196,8 @@ def GetVolume_5(NowData : CalculationDataStruct.StructBaseClass):
     total = 0
     count = 0
     target_num = 5
+    if(len(NowData.dataList_240)<=0):
+        return 0
     for val in NowData.dataList_240:
         total = total + val.volume
         count = count + 1
@@ -213,7 +206,7 @@ def GetVolume_5(NowData : CalculationDataStruct.StructBaseClass):
     if count < 5:
         target_num = count
 
-    total = total / target_num
+    total = total / target_num if target_num != 0 else 0
     target = NowData.volume / total
     return target
 
@@ -653,16 +646,33 @@ def GetAvg(NowData : CalculationDataStruct.StructBaseClass, num):
 
 #获取成交量状态：1放量， -1缩量， 0平量
 def GetVolumeState(NowData : CalculationDataStruct.StructBaseClass, num):
-    target = 0
-    if num == 1:
-        target = NowData.volume_ratio
-    if num == 3:
-        target = NowData.volume_ratio_3
-    elif num == 5:
-        target = NowData.volume_ratio_5
-    elif num == 10:
-        target = NowData.volume_ratio_10
-    #print(f"成交量状态：{target}， {num}")
+    # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
+    priority_map = {
+        10: [10, 5, 3, 1],
+        5: [5, 3, 1],
+        3: [3, 1],
+        1: [1]
+    }
+    # 获取当前num对应的降级序列（比如num=10则检查10→5→3→1）
+    check_sequence = priority_map.get(num, [1])  # 兜底默认检查1日
+    target = None
+
+    for check_num in check_sequence:
+        if check_num == 1:
+            current_val = NowData.volume_ratio
+        elif check_num == 3:
+            current_val = NowData.volume_ratio_3
+        elif check_num == 5:
+            current_val = NowData.volume_ratio_5
+        elif check_num == 10:
+            current_val = NowData.volume_ratio_10
+        else:
+            current_val = None
+        
+        if current_val is not None:
+            target = current_val
+            break  # 找到非None值，终止遍历
+
     if target > ConstVal.volume_boundary:
         return 1
     elif target < -ConstVal.volume_boundary:
@@ -671,15 +681,34 @@ def GetVolumeState(NowData : CalculationDataStruct.StructBaseClass, num):
 
 #获取涨跌状态：1涨， -1跌， 0横盘
 def GetRatioState(NowData : CalculationDataStruct.StructBaseClass, num):
-    target = 0
-    if num  == 1:
-        target = NowData.change_Ratio
-    if num == 3:
-        target = NowData.change_Ratio_3
-    elif num == 5:
-        target = NowData.change_Ratio_5
-    elif num == 10:
-        target = NowData.change_Ratio_10
+
+    # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
+    priority_map = {
+        10: [10, 5, 3, 1],
+        5: [5, 3, 1],
+        3: [3, 1],
+        1: [1]
+    }
+    # 获取当前num对应的降级序列（比如num=10则检查10→5→3→1）
+    check_sequence = priority_map.get(num, [1])  # 兜底默认检查1日
+    target = None
+
+    for check_num in check_sequence:
+        if check_num == 1:
+            current_val = NowData.volume_ratio
+        elif check_num == 3:
+            current_val = NowData.volume_ratio_3
+        elif check_num == 5:
+            current_val = NowData.volume_ratio_5
+        elif check_num == 10:
+            current_val = NowData.volume_ratio_10
+        else:
+            current_val = None
+        
+        if current_val is not None:
+            target = current_val
+            break  # 找到非None值，终止遍历
+
     #print(f"涨跌幅状态：{target}， {num}")
 
     if target > ConstVal.up_down_boundary:
@@ -690,15 +719,34 @@ def GetRatioState(NowData : CalculationDataStruct.StructBaseClass, num):
 
 #获取震荡状态：1震荡， -1不震荡
 def GetAmplitudeState(NowData : CalculationDataStruct.StructBaseClass, num):
-    target = 0
-    if num  == 1:
-        target = NowData.amplitude
-    if num == 3:
-        target = NowData.amplitude_3
-    elif num == 5:
-        target = NowData.amplitude_5
-    elif num == 10:
-        target = NowData.amplitude_10
+
+    # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
+    priority_map = {
+        10: [10, 5, 3, 1],
+        5: [5, 3, 1],
+        3: [3, 1],
+        1: [1]
+    }
+    # 获取当前num对应的降级序列（比如num=10则检查10→5→3→1）
+    check_sequence = priority_map.get(num, [1])  # 兜底默认检查1日
+    target = None
+
+    for check_num in check_sequence:
+        if check_num == 1:
+            current_val = NowData.volume_ratio
+        elif check_num == 3:
+            current_val = NowData.volume_ratio_3
+        elif check_num == 5:
+            current_val = NowData.volume_ratio_5
+        elif check_num == 10:
+            current_val = NowData.volume_ratio_10
+        else:
+            current_val = None
+        
+        if current_val is not None:
+            target = current_val
+            break  # 找到非None值，终止遍历
+
     #print(f"振幅状态：{target}， {num}")
 
     if target > ConstVal.amplitude_boundary:
@@ -810,7 +858,7 @@ def GetVolume_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, Star
             if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                 avg2 += single.volume
                 avg2_count += 1
-            if count > ToDayCount:
+            if count > ToDayCount or count >= len(full_list) - 1:
                 avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                 avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                 ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -820,7 +868,7 @@ def GetVolume_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, Star
         for single in full_list:
             if count == StartDayCount:
                 startVal = single.volume
-            if count == ToDayCount:
+            if count == ToDayCount or count == len(full_list) - 1:
                 endVal = single.volume
             count = count + 1
         return (startVal - endVal) * 100/ endVal if endVal != 0 else 0
@@ -850,7 +898,7 @@ def GetVolume_Price_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass
             if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                 avg2 += single.volume_price
                 avg2_count += 1
-            if count > ToDayCount:
+            if count > ToDayCount or count >= len(full_list) - 1:
                 avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                 avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                 ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -860,7 +908,7 @@ def GetVolume_Price_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass
         for single in full_list:
             if count == StartDayCount:
                 startVal = single.volume_price
-            if count == ToDayCount:
+            if count == ToDayCount or count == len(full_list) - 1:
                 endVal = single.volume_price
             count = count + 1
         return (startVal - endVal) * 100/ endVal if endVal != 0 else 0
@@ -890,7 +938,7 @@ def GetTurn_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartD
             if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                 avg2 += single.turn
                 avg2_count += 1
-            if count > ToDayCount:
+            if count > ToDayCount or count >= len(full_list) - 1:
                 avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                 avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                 ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -900,7 +948,7 @@ def GetTurn_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartD
         for single in full_list:
             if count == StartDayCount:
                 startVal = single.turn
-            if count == ToDayCount:
+            if count == ToDayCount or count == len(full_list) - 1:
                 endVal = single.turn
             count = count + 1
         return (startVal - endVal) * 100/ endVal if endVal != 0 else 0
@@ -918,7 +966,7 @@ def GetChange_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, Star
     for single in dataList_240:
         if count == StartDayCount and StartDayCount > 0:
             startVal = single.close
-        if count == ToDayCount:
+        if count == ToDayCount or count == len(dataList_240) - 1:
             endVal = single.close
         count = count + 1
     return (startVal - endVal)*100 / endVal
@@ -940,7 +988,7 @@ def GetChange_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass
                 firstVolume = day.close
                 #print(f"正在算整体涨跌幅，直接记录开始日期是：{day.trade_date}")
 
-            if dayCount == toDayCount:
+            if dayCount == toDayCount or  dayCount == len(fullDataList) - 1:
                 secondVolume = day.close
                 #print(f"正在算整体涨跌幅，直接记录结束日期是：{day.trade_date}")
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -958,7 +1006,7 @@ def GetChange_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount:
+            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount if firstVolumeAddCount > 0 else 0
                 secondVolume = secondVolume / secondVolumeAddCount if secondVolumeAddCount > 0 else 0
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -978,7 +1026,7 @@ def GetAvg_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDa
     for single in dataList_240:
         if count == StartDayCount and StartDayCount > 0:
             startVal = single.avg
-        if count == ToDayCount:
+        if count == ToDayCount or  count == len(dataList_240) - 1:
             endVal = single.avg
         count = count + 1
     return (startVal - endVal)*100 / endVal if endVal != 0 else 0
@@ -999,7 +1047,7 @@ def GetAvg_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass, s
             if dayCount == startDayCount:
                 firstVolume = day.avg
 
-            if dayCount == toDayCount:
+            if dayCount == toDayCount or  dayCount == len(dataList_240) - 1:
                 secondVolume = day.avg
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
@@ -1014,7 +1062,7 @@ def GetAvg_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass, s
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount:
+            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount if firstVolumeAddCount > 0 else 0
                 secondVolume = secondVolume / secondVolumeAddCount if secondVolumeAddCount > 0 else 0
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -1191,12 +1239,18 @@ def Get_VolumeRatio_5_Window_Avg(NowData : CalculationDataStruct.StructBaseClass
     num = 0
     if StartDayCount <= 0:
         totalVal = NowData.volume_ratio_5
+        if totalVal == None:
+            totalVal = NowData.volume_ratio_3
+        if totalVal == None:
+            totalVal = NowData.volume_ratio
+
         count = 1
         num = 1
     for single in dataList_240:
         if StartDayCount <= 0:
             if count >= 0 and count <= ToDayCount:
                 dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
+                #print(f"二十日长度：{len(dataList_20)},  交易日期：{single.trade_date}, code:{single.code}")
                 single.dataList_240 = dataList_20
                 volume_Ratio_5 = GetVolume_5(single)
                 
@@ -1473,6 +1527,11 @@ def GetVolume_Ratio_5_Window_Low(NowData : CalculationDataStruct.StructBaseClass
     num = 0
     if StartDayCount <= 0:
         totalVal = NowData.volume_ratio_5
+        if totalVal == None:
+            totalVal = NowData.volume_ratio_3
+        if totalVal == None:
+            totalVal = NowData.volume_ratio
+
         count = 1
         num = 1
     for single in dataList_240:
@@ -1733,6 +1792,11 @@ def GetVolume_Ratio_5_Window_High(NowData : CalculationDataStruct.StructBaseClas
     num = 0
     if StartDayCount <= 0:
         totalVal = NowData.volume_ratio_5
+        if totalVal == None:
+            totalVal = NowData.volume_ratio_3
+        if totalVal == None:
+            totalVal = NowData.volume_ratio
+
         count = 1
         num = 1
     for single in dataList_240:
@@ -1992,7 +2056,7 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBase
                 if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                     avg2 += single.volume_price
                     avg2_count += 1
-                if count > ToDayCount:
+                if count > ToDayCount or count >= len(full_list) - 1:
                     avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                     avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                     ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -2006,7 +2070,7 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBase
             for single in full_list:
                 if count == StartDayCount:
                     startPrice = single.volume_price
-                if count == ToDayCount:
+                if count == ToDayCount or count == len(full_list) - 1:
                     endPrice = single.volume_price
                     ratio = (startPrice - endPrice) / endPrice
                     tempList.append({
@@ -2078,7 +2142,7 @@ def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
                 if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                     avg2 += single.volume
                     avg2_count += 1
-                if count > ToDayCount:
+                if count > ToDayCount or count >= len(full_list) - 1:
                     avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                     avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                     ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -2092,7 +2156,7 @@ def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
             for single in full_list:
                 if count == StartDayCount:
                     startPrice = single.volume
-                if count == ToDayCount:
+                if count == ToDayCount or count == len(full_list) - 1:
                     endPrice = single.volume
                     ratio = (startPrice - endPrice) / endPrice
                     tempList.append({
@@ -2155,7 +2219,7 @@ def GetChange_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
         for single in full_list:
             if count == StartDayCount:
                 startPrice = single.close
-            if count == ToDayCount:
+            if count == ToDayCount or count == len(full_list):
                 endPrice = single.close
                 ratio = (startPrice - endPrice) / endPrice
                 tempList.append({
@@ -2226,7 +2290,7 @@ def GetAmplitude_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseCla
                 test_count = test_count + 1
                 total = total + single.amplitude
 
-            if count > ToDayCount:
+            if count > ToDayCount or count >= len(full_list) - 1:
                 ratio = total / test_count
                 tempList.append({
                     "code": val.code,
@@ -2304,7 +2368,7 @@ def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, S
                 if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                     avg2 += single.turn
                     avg2_count += 1
-                if count > ToDayCount:
+                if count > ToDayCount or count >= len(full_list) - 1:
                     avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                     avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                     ratio = (avg1 - avg2) / avg2 if avg2 != 0 else 0
@@ -2318,7 +2382,7 @@ def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, S
             for single in full_list:
                 if count == StartDayCount:
                     startPrice = single.turn
-                if count == ToDayCount:
+                if count == ToDayCount or count == len(full_list) - 1:
                     endPrice = single.turn
                     ratio = (startPrice - endPrice) / endPrice
                     tempList.append({
@@ -2388,7 +2452,7 @@ def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, St
                 if count > (StartDayCount + (ToDayCount - StartDayCount) / 2) and count <= ToDayCount:
                     avg2 += single.avg
                     avg2_count += 1
-                if count > ToDayCount:
+                if count > ToDayCount or count >= len(full_list) - 1:
                     avg1 = avg1 / avg1_count if avg1_count > 0 else 0
                     avg2 = avg2 / avg2_count if avg2_count > 0 else 0
                     ratio = (avg1 - avg2) / avg2
@@ -2402,7 +2466,7 @@ def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, St
             for single in full_list:
                 if count == StartDayCount:
                     startPrice = single.avg
-                if count == ToDayCount:
+                if count == ToDayCount or count == len(full_list) - 1:
                     endPrice = single.avg
                     ratio = (startPrice - endPrice) / endPrice
                     tempList.append({
@@ -2694,7 +2758,7 @@ def GetIndustry_Volume_Window(industryInfo :CalculationDataStruct.StructIndustry
             totalVolume += GetIndustry_Volume(industryInfo, day, handler)
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount or dayCount >= len(fullDataList) - 1 :
             return totalVolume
 
 
@@ -2719,7 +2783,7 @@ def GetIndustry_Volume_Price_Window(industryInfo :CalculationDataStruct.StructIn
             totalVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume
         
 
@@ -2742,7 +2806,7 @@ def GetIndustry_Volume_Avg_Window(industryInfo :CalculationDataStruct.StructIndu
             addCount += 1
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume / addCount if addCount > 0 else 0
 
 
@@ -2765,7 +2829,7 @@ def GetIndustry_Volume_Price_Avg_Window(industryInfo :CalculationDataStruct.Stru
             #print(f"目标日期：{day}")
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume / addCount if addCount > 0 else 0
         
 
@@ -2792,7 +2856,7 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :CalculationDataStruct.StructIn
             if dayCount == startDayCount:
                 firstVolume = GetIndustry_Volume(industryInfo, day, handler)
 
-            if dayCount == toDayCount:
+            if dayCount == toDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Volume(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
@@ -2807,7 +2871,7 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :CalculationDataStruct.StructIn
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount:
+            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2836,7 +2900,7 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :CalculationDataStruct.St
             if dayCount == startDayCount:
                 firstVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
 
-            if dayCount == toDayCount:
+            if dayCount == toDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
@@ -2851,7 +2915,7 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :CalculationDataStruct.St
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount:
+            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2869,7 +2933,7 @@ def GetIndustry_Change_Ratio_Window(industryInfo :CalculationDataStruct.StructIn
     for day in fullDataList:
         if dayCount == startDayCount:
             firstPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
-        if dayCount == toDayCount:
+        if dayCount == toDayCount or dayCount == len(fullDataList):
             secondPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
             ratio = (firstPrice - secondPrice) / secondPrice if secondPrice != 0 else 0
             return ratio * 100
@@ -2899,7 +2963,7 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.St
             if dayCount == startDayCount:
                 firstVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
 
-            if dayCount == toDayCount:
+            if dayCount == toDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
@@ -2914,7 +2978,7 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.St
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount:
+            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2938,7 +3002,7 @@ def GetIndustry_Up_Stock_Window(industryInfo :CalculationDataStruct.StructIndust
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 上涨股数量：{count}")
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalCount / addCount if addCount > 0 else 0
 #平均行业下跌股数量
 def GetIndustry_Down_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
@@ -2957,5 +3021,5 @@ def GetIndustry_Down_Stock_Window(industryInfo :CalculationDataStruct.StructIndu
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 下跌股数量：{count}")
         dayCount = dayCount + 1
-        if dayCount > toDayCount :
+        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalCount / addCount if addCount > 0 else 0

@@ -10,7 +10,7 @@ import os
 # 假设models已经定义
 from src.main_code.Core.Select.Models import TreeNode, ConditionNode, GroupNode, FactorConfig
 from src.main_code.Core import Main
-
+import traceback  # 导入traceback模块
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +140,7 @@ class ConditionEvaluator:
         except Exception as e:
             error_msg = f"❌ 评估条件树时出错: {e}"
             logger.error(error_msg)
+            raise
             return False, error_msg
     
     def _evaluate_node(self, node: TreeNode) -> tuple[bool, Optional[str]]:
@@ -171,6 +172,7 @@ class ConditionEvaluator:
         except Exception as e:
             error = f"❌ 评估节点失败: {e}"
             logger.error(error)
+            raise
             return False, error
     
     def _evaluate_condition(self, condition: ConditionNode) -> tuple[bool, Optional[str]]:
@@ -209,6 +211,7 @@ class ConditionEvaluator:
                 data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr, True)
             #区间单股数据
             if id >= 200000 and id < 300000:
+                #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
                 data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
             #当日行业
             if id >= 300000 and id < 400000:
@@ -220,7 +223,7 @@ class ConditionEvaluator:
                 data = self.main.calculationDataHandle.GetIndustryWindowData(industryCls, todayStr, condition.dateFrom, condition.dateTo)
 
             
-            value = getattr(data, field_name, None)
+            value = 1#getattr(data, field_name, None)
             if value is None:
                 # 字段不存在，返回False（不满足条件）
                 # 注意：这里可以根据需求改为警告而不是错误
@@ -239,6 +242,8 @@ class ConditionEvaluator:
         except Exception as e:
             error = f"❌ 评估条件 '{condition.factor_name}' 时出错: {e}"
             logger.error(error)
+            print(traceback.format_exc())
+            raise
             return False, error
     
     def _evaluate_group(self, group: GroupNode) -> tuple[bool, Optional[str]]:
