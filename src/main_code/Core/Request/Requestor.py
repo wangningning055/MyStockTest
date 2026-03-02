@@ -217,6 +217,13 @@ class RequestorClass:
                 except Exception as e:
                     print(f"写入数据库失败: {e}")
 
+                tempList = []
+                tempList.append(cls)
+                try:
+                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
+                except Exception as e:
+                    print(f"写入数据库失败: {e}")
+
             #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)

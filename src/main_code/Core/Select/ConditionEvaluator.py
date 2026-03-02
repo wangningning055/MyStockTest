@@ -40,6 +40,8 @@ class ConditionEvaluator:
         """
         self.stock_code = stockCode
         #self.stock_data = stock_data
+        self.stock_code = stockCode
+        #self.stock_data = stock_data
         self.factors_metadata = factors_metadata
         self.field_mapping = self._build_field_mapping()
         self.error_log = []
@@ -61,6 +63,9 @@ class ConditionEvaluator:
                 for item in category.get('items', []):
                     # 使用显示名映射到字段名
                     mapping[item.get('name')] = item.get('name_field')
+                        #"name_field" : ,
+                        #"id" : item.get('id')
+                        #                         }
                         #"name_field" : ,
                         #"id" : item.get('id')
                         #                         }
@@ -345,6 +350,7 @@ class FactorEvaluator:
         self.main : Main.processor = main
     
     def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
+    def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
         """
         评估单只股票，返回综合评分
         
@@ -357,8 +363,11 @@ class FactorEvaluator:
         - 因子1权重0.4，满足条件 -> +0.4分
         - 因子2权重-0.6，满足条件 -> -0.6分
         - 总分: 1.0分 / 1.0总权重 = -20%
+        - 因子2权重-0.6，满足条件 -> -0.6分
+        - 总分: 1.0分 / 1.0总权重 = -20%
         
         Args:
+            stock_data: 股票的代码
             stock_data: 股票的代码
             configs: 因子配置列表
             
@@ -371,6 +380,12 @@ class FactorEvaluator:
         evaluator = ConditionEvaluator(stockCode, self.factors_metadata)
         evaluator.SetMain(self.main)
         # 计算总权重
+        #total_weight = sum(cfg.weight for cfg in configs)
+
+        positive_weight = sum(cfg.weight for cfg in configs if cfg.weight > 0)
+        negative_weight = sum(abs(cfg.weight) for cfg in configs if cfg.weight < 0)
+        total_weight = positive_weight + negative_weight
+
         #total_weight = sum(cfg.weight for cfg in configs)
 
         positive_weight = sum(cfg.weight for cfg in configs if cfg.weight > 0)
@@ -394,6 +409,7 @@ class FactorEvaluator:
                     logger.error(f"因子 '{config.factor_group_name}': {error}")
                 
                 # ✅ 改动3：根据权重的正负，分开处理
+                # ✅ 改动3：根据权重的正负，分开处理
                 if is_satisfied:
                     if config.weight > 0:
                         # 正权重：满足条件加分
@@ -402,6 +418,7 @@ class FactorEvaluator:
                         # 负权重：满足条件减分（累计负分）
                         negative_score += abs(config.weight)
                 else:
+                    # 条件不满足：什么都不做（或者可选：满足负权重的反向逻辑）
                     # 条件不满足：什么都不做（或者可选：满足负权重的反向逻辑）
                     logger.debug(f"❌ 因子 '{config.factor_group_name}' 不满足条件")
                 #print("   ")
@@ -412,6 +429,8 @@ class FactorEvaluator:
                 logger.error(f"❌ 评估因子 '{config.factor_group_name}' 时出错: {e}")
         
         # 标准化到0-100
+        net_score = positive_score - negative_score
+        final_score = (net_score / total_weight) * 100
         net_score = positive_score - negative_score
         final_score = (net_score / total_weight) * 100
         return final_score

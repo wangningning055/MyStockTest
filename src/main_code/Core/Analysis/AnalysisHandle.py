@@ -12,6 +12,7 @@ class BaseClass :
         global FACTORS_METADATA
         FACTORS_METADATA = load_factors_metadata(FactorsJsonPath)
         self.isOutST = True             #是否剔除ST股票
+        self.isOutST = True             #是否剔除ST股票
         self.isOutCY = True             #是否剔除创业板股票
         self.isOutKC = True             #是否剔除科创板股票
         self.isOnlyValue = False          #是否只计算价值股
@@ -27,6 +28,13 @@ class BaseClass :
         try:
             # Pydantic自动验证并转换
             request = SelectionRequest(**conditionJson)
+            print(request)
+            self.isOutST = request.isExcludeST
+            self.isOutCY = request.isExcludeCY
+            self.isOutKC = request.isExcludeKC
+            self.isOnlyValue = request.isExclude_Value
+            self.isOnlyGrow = request.isExclude_Grow
+            print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
             print(request)
             self.isOutST = request.isExcludeST
             self.isOutCY = request.isExcludeCY
