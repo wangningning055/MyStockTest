@@ -222,8 +222,9 @@ class ConditionEvaluator:
                 industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
                 data = self.main.calculationDataHandle.GetIndustryWindowData(industryCls, todayStr, condition.dateFrom, condition.dateTo)
 
-            
-            value = 1#getattr(data, field_name, None)
+
+            value = getattr(data, field_name, None)
+            #print(f"计算的参数数量是：{cacccc}")
             if value is None:
                 # 字段不存在，返回False（不满足条件）
                 # 注意：这里可以根据需求改为警告而不是错误

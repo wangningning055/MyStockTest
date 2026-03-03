@@ -18,14 +18,16 @@ class BaseClass :
         self.totalBaseDailyData : CalculationDataStruct.AllDateStructBaseClass = CalculationDataStruct.AllDateStructBaseClass()
         self.totalBaseWindowData : Dict[str, CalculationDataStruct.StructBaseWindowClass]  = {}
         self.InitIndustry()
-        print("计算模块初始化完毕")
 
 
         #self.InitIndustryCls()
 
 
         #t0 = time.perf_counter()
-        ##self.GetBaseDataClass("300846.SZ","20260225", True)
+        #dataclass = self.GetBaseDataClass("003011.SZ","20260225", True)
+        #if dataclass.code == "003011.SZ" :
+        #    print(f" 二十日涨跌幅：{dataclass.change_Ratio_20},  {dataclass.trade_date}")
+        #    print(f" 当日涨跌幅：{dataclass.change_Ratio},  {dataclass.trade_date}")
         #self.GetBaseDataClass("301638.SZ","20260225", True)
         #t1 = time.perf_counter()
 
@@ -75,8 +77,8 @@ class BaseClass :
         #self.GetWindowDataClass("600598.SH","20260213", 0, 10)
         #self.GetWindowDatakClass("300970.SZ","20260213", 0, 20)
 
-        df = self.main.dbHandler.GetAllBasicData()
-        print(f"计算完毕 , {len(df.items())}")
+        #df = self.main.dbHandler.GetAllBasicData()
+        #print(f"计算完毕 , {len(df.items())}")
 
     def InitIndustry(self):
         df = self.main.dbHandler.GetAllBasicData()
@@ -138,12 +140,10 @@ class BaseClass :
                 self.GetIndustryWindowData(val, "20260213", 0, 10 )
 
 
-        
-
     def GetBaseDataClass(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
         tempDailyCls = DailyDBStruct.DBStructClass()
         tempAdjustCls = AdjustDBStruct.DBStructClass()
-        componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
+        #componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} ")
         if (stockCode, date) in self.totalBaseDailyData.allDic:
             baseClass = self.totalBaseDailyData.allDic[stockCode, date]
@@ -153,7 +153,6 @@ class BaseClass :
             return baseClass
         else:
             baseClass = CalculationDataStruct.StructBaseClass()
-            #print(f"获取：{stockCode}，   {date}")
             dailyData = self.main.dbHandler.GetDailyRowByCodeAndDate(stockCode, date)
             if(dailyData == None):
                 #print("日期不存在")
@@ -220,7 +219,14 @@ class BaseClass :
 
             #print(f"复权因子是：{adjust}, 日期是{date}")
             if(isCalculate):
+                #print(f"开始计算单股数据:{stockCode}")
+                t0 = time.perf_counter()
+
                 self.CalculateBaseClass(baseClass)
+                t1 = time.perf_counter()
+                totalCostTime = (t1 - t0)
+                totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+                #print(f"单股数据计算完毕{stockCode}，花费时间：{totalCostTimeStr1}")
             return baseClass
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
@@ -229,14 +235,36 @@ class BaseClass :
             return
         
         baseClass.isCalculate = True
+        #t0 = time.perf_counter()
+
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"单股数据计算完毕{stockCode}，花费时间：{totalCostTimeStr1}")
+
+
+        t0 = time.perf_counter()
+
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"单股数据计算完毕{stockCode}，花费时间：{totalCostTimeStr1}")
+
         dataList_240:list[CalculationDataStruct.StructBaseClass] = self.GetLastDateDataByNum(baseClass.code, baseClass.trade_date, 240)
         baseClass.dataList_240 = dataList_240
         count = 0
-       
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        if(baseClass.code == "301638.SZ"):
+            print(f"            240日数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+
+        
         #print(f"开始计算前240天：{len(dataList_240)}，交易日当天：{baseClass.trade_date}， 交易日前一天：{dataList_240[0].trade_date}")
 
         #这下面来计算各种各样的数据amplitude
 
+        t0 = time.perf_counter()
 
         baseClass.amplitude_3 = CalculationUtil.GetAmplitude_Avg(baseClass, 3)
         baseClass.amplitude_5 = CalculationUtil.GetAmplitude_Avg(baseClass, 5)
@@ -342,10 +370,17 @@ class BaseClass :
         baseClass.avg_ratio_120 = baseClass.avg / baseClass.avg_120
         #avg_ratio_240:float           #240日均价
         baseClass.avg_ratio_240 = baseClass.avg / baseClass.avg_240
-        
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        if(baseClass.code == "301638.SZ"):
+            print(f"            基本数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
         
         ##这下面还有行业相关的排名数据没有写
         if not baseClass.isCalculateRank:
+            t0 = time.perf_counter()
             baseClass.total_value_ratio = CalculationUtil.GetIndustry_Rank_Value(baseClass, self)
             baseClass.earn_ratio = CalculationUtil.GetIndustry_Rank_Earn(baseClass, self)
             baseClass.clean_ratio = CalculationUtil.GetIndustry_Rank_Clean(baseClass, self)
@@ -382,8 +417,13 @@ class BaseClass :
                 cls = self.GetBaseDataClass(val.Code, baseClass.trade_date, False)
                 cls.isCalculateRank = True
             baseClass.isCalculateRank = True
+            t1 = time.perf_counter()
+            totalCostTime = (t1 - t0)
+            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+            if(baseClass.code == "301638.SZ"):
+                print(f"            行业排名计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
 
-
+        t0 = time.perf_counter()
         volumeState_1 = CalculationUtil.GetVolumeState(baseClass, 1)
         volumeState_3 = CalculationUtil.GetVolumeState(baseClass, 3)
         volumeState_5 = CalculationUtil.GetVolumeState(baseClass, 5)
@@ -516,6 +556,13 @@ class BaseClass :
         baseClass.is_pop_up_10 = 1 if amplitudeState_10 == 1 and priceState_10 == 1 else 0
 #    is_pop_down_10:float#是否震荡下行
         baseClass.is_pop_down_10 = 1 if amplitudeState_10 == 1 and priceState_10 == -1 else 0
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        if(baseClass.code == "301638.SZ"):
+            print(f"            放量缩量计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+
         #print(f"当日涨跌幅是{baseClass.change_Ratio}")
         #print(f"当日震幅是{baseClass.amplitude}")
         #print(f"5日涨跌幅是{baseClass.change_Ratio_5}")
@@ -1115,12 +1162,19 @@ class BaseClass :
         dayList = []
         dt = datetime.strptime(dateStr, "%Y%m%d")
         end_dt = datetime.strptime(Const.first_Data, "%Y%m%d")
+        NoneDataCount = 0
         while len(dayList) < num and dt > end_dt:
             dt -= timedelta(days=1)  # 往前一天
             date_str = dt.strftime("%Y%m%d")
             dailyData:CalculationDataStruct.StructBaseClass = self.GetBaseDataClass(code, date_str)
             if(dailyData != None and dailyData.trade_state == 1):
                 dayList.append(date_str)
+                NoneDataCount = 0
+            else:
+                NoneDataCount += 1
+                if(NoneDataCount > 60):
+                    break
+            #dayList.append(date_str)
         return dayList
 
 
@@ -1133,6 +1187,7 @@ class BaseClass :
             dailyData = self.GetBaseDataClass(code, dateList[count])
             dataList.append(dailyData)
             count = count + 1
+
             if(count > dayNum):
                 break
         return dataList
@@ -1156,3 +1211,4 @@ class BaseClass :
                 res = self.main.dbHandler.GetDailyRowByCodeAndDate(singleStock, days_ago_str)
                 if res is not None:
                     return days_ago_str
+                

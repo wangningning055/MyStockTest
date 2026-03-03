@@ -1,13 +1,16 @@
 from datetime import date
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
+from src.main_code.Core.DataStruct.DB import AdjustDBStruct
+from src.main_code.Core.DataStruct.DB import BasicDBStruct
+from src.main_code.Core.DataStruct.DB import DailyDBStruct
 
-
+from src.main_code.Core.Calculate import CalculationUtil
 #用于条件指标记录类
 class AllDateStructBaseClass:
     def __init__(self):
         self.allDic = {} #{code, date}:StructBaseClass
-
+        self.isInit = False
     def GetBaseClass(self, code, data):
         return self.allDic[code, data]
     
@@ -16,9 +19,113 @@ class StructBaseClass :
     def __init__(self):
         self.isCalculate = False
         self.isCalculateRank = False
+        self.isInit = False
         self.dataList_240 : list[StructBaseClass]  = []
-        pass
 
+        self._computed_fields = set()
+        self.dic = {}
+        self.calculateCount = 0
+
+    def Init(self, handler, stockCode, date):
+        self.handler = handler
+        tempDailyCls = DailyDBStruct.DBStructClass()
+        tempAdjustCls = AdjustDBStruct.DBStructClass()
+
+        dailyData = handler.main.dbHandler.GetDailyRowByCodeAndDate(stockCode, date)
+        if(dailyData == None):
+            #print("日期不存在")
+            return None
+        adjustTable = handler.main.dbHandler.GetAdjustRowByCodeAndDate(stockCode, date)
+
+        adjust = adjustTable[tempAdjustCls.GetNameByEnum(AdjustDBStruct.ColumnEnum.For_Adjust)]
+        cur_date = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)]
+        open_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)] * adjust
+        close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)] * adjust
+        high_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)] * adjust
+        low_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)] * adjust
+        turn = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Exchange_Hand)]
+        change_Ratio = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Change_Ratio)]
+        amount = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount)]
+        amount_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount_Price)]
+        earn_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Earn_TTM)]
+        clean = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Clean)]
+        cash_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Cash_TTM)]
+        sale_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Sale_TTM)]
+        is_ST = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_ST)]
+        is_Trading = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_Trading)]
+        last_close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Last_Close_Price)]
+        if(is_Trading != 1):
+            average_price = 0
+            amplitude = 0
+        else:
+            average_price = (amount_price / amount) * adjust
+            amplitude = ((high_price - low_price) / last_close_price) * 100
+            #print(f"成交价：{amount_price}   成交量：{amount}，振幅：{amplitude}, 均价{average_price}， 日期：{date}，上市状态：{is_Trading}")
+
+        self.code = stockCode
+        self.adjst = adjust
+        self.trade_date = cur_date
+        self.open = open_price * adjust
+        self.close = close_price * adjust
+        self.last_close = last_close_price
+        self.high = high_price * adjust
+        self.low = low_price * adjust
+
+        self.open_ori = open_price
+        self.close_ori = close_price
+        self.high_ori = high_price
+        self.low_ori = low_price
+
+        self.volume = amount
+        self.change_Ratio = change_Ratio
+        self.volume_price = amount_price
+
+        self.turn = turn
+        if(is_Trading):
+            self.total_value = (amount / (turn / 100 )) * average_price
+        self.earn = earn_TTM
+        self.clean = clean
+        self.cash = cash_TTM
+        self.sale = sale_TTM
+
+        self.amplitude = amplitude
+        self.industry = handler.totalComponyIns.GetIndustryStrByCode(stockCode)
+        self.isST = is_ST
+        self.trade_state = is_Trading
+        self.avg = average_price * adjust
+
+        self.dic = {
+            "dataList_240" :(handler.GetLastDateDataByNum,(self.code, self.trade_date, 240)),
+            "change_Ratio_3":(CalculationUtil.GetChange_Ratio, (self, 3)),
+            "change_Ratio_5":(CalculationUtil.GetChange_Ratio, (self, 5)),
+            "volume_ratio_10":(CalculationUtil.GetVolume_Ratio, (self, 3))
+        }
+        self.isInit = True
+    
+    #def __getattr__(self, field_name):
+    #    if self.isInit == False:
+    #        return None
+    #    #print("触发首次读取")
+    #    # 1. 如果字段不在懒加载映射里，抛出常规属性不存在异常（避免无意义递归）
+    #    if field_name not in self.dic:
+    #        raise AttributeError(f"'StructBaseClass' object has no attribute '{field_name}'")
+        
+    #    # 2. 如果字段未计算，执行计算逻辑
+    #    if field_name not in self._computed_fields:
+    #        self.calculateCount += 1
+    #        # 从dic中取出方法和参数
+    #        if field_name == "change_Ratio_5":
+    #            print("???????执行啊啊啊啊啊啊啊")
+    #        calc_method, args = self.dic[field_name]
+    #        # 执行计算并赋值给实例（存入__dict__，避免再次触发__getattr__）
+    #        calc_result = calc_method(*args)
+
+    #        setattr(self, field_name, calc_result)
+    #        # 标记为已计算
+    #        self._computed_fields.add(field_name)
+        
+    #    # 3. 返回计算后的属性值（此时已存入__dict__，直接取）
+    #    return calc_result
 
     code:str
     adjst:float #前复权因子

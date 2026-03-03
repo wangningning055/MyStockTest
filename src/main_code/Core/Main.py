@@ -94,8 +94,10 @@ class processor:
     
     #初始化拉取模块
     def InitRequest(self):
+        print("拉取模块初始化，尝试登录baoStock......")
         instance = Requestor.RequestorClass()
         instance.Init(self)
+        print("拉取模块初始化完毕")
         return instance
 
     #初始化数据库模块
@@ -107,6 +109,7 @@ class processor:
     def InitCalculationDataHandle(self):
         instance = CalculationDataHandle.BaseClass()
         instance.Init(self)
+        print("计算模块初始化完毕")
         return instance
     
     #初始化数据分析模块

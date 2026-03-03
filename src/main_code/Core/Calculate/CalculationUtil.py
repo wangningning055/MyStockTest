@@ -1,14 +1,21 @@
-from src.main_code.Core.Calculate import CalculationDataHandle
-from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+#from src.main_code.Core.Calculate import CalculationDataHandle
+#from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 from operator import attrgetter
 from datetime import date,datetime, timedelta
 from datetime import date
 import src.main_code.Core.Const as ConstVal
 
+# 1. 先导入TYPE_CHECKING常量
+from typing import TYPE_CHECKING
+
+# 2. 仅在类型检查时导入需要的类（运行时不执行）
+if TYPE_CHECKING:
+    from src.main_code.Core.Calculate import CalculationDataHandle
+    from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 
 #计算行业内公司基本面数据（市值，盈，净，销，现）排名百分比
-def CalculateIndustryBase(industryCls: CalculationDataStruct.StructIndustryInfoClass,
-                          handler: CalculationDataHandle.BaseClass):
+def CalculateIndustryBase(industryCls: "CalculationDataStruct.StructIndustryInfoClass",
+                          handler: "CalculationDataHandle.BaseClass"):
 
     # 如果已经计算过，直接退出
     if industryCls.isCalculate:
@@ -101,7 +108,7 @@ def CalculateIndustryBase(industryCls: CalculationDataStruct.StructIndustryInfoC
 
 
 #涨跌幅计算
-def GetChange_Ratio(NowData:CalculationDataStruct.StructBaseClass, num):
+def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 0
     target_Price = 0
     for val in NowData.dataList_240:
@@ -109,10 +116,11 @@ def GetChange_Ratio(NowData:CalculationDataStruct.StructBaseClass, num):
         count = count + 1
         if count >= num:
             break
-    return ((NowData.close - target_Price) / target_Price) * 100
+    res = ((NowData.close - target_Price) / target_Price) * 100
+    return res
 
 #成交量涨跌幅计算
-def GetVolume_Ratio(NowData:CalculationDataStruct.StructBaseClass, num):
+def GetVolume_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 1
     avg1 = NowData.volume
     avg2 = 0
@@ -141,7 +149,7 @@ def GetVolume_Ratio(NowData:CalculationDataStruct.StructBaseClass, num):
     return target *100
 
 #平均振幅计算
-def GetAmplitude_Avg(NowData:CalculationDataStruct.StructBaseClass, num):
+def GetAmplitude_Avg(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 1
     avg1 = NowData.amplitude
     avg1Add = 1
@@ -165,7 +173,7 @@ def GetAmplitude_Avg(NowData:CalculationDataStruct.StructBaseClass, num):
 
 
 #成交额涨跌幅计算
-def GetVolume_Price(NowData:CalculationDataStruct.StructBaseClass, num):
+def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 0
     avg = 0
 
@@ -185,14 +193,14 @@ def GetVolume_Price(NowData:CalculationDataStruct.StructBaseClass, num):
 
 
 
-def GetAvg_Ratio(NowData:CalculationDataStruct.StructBaseClass):
+def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
     lastDay = NowData.dataList_240[0]
     target = (NowData.avg - lastDay.avg) / lastDay.avg
     return target *100
 
 
 #量比计算
-def GetVolume_5(NowData : CalculationDataStruct.StructBaseClass):
+def GetVolume_5(NowData : "CalculationDataStruct.StructBaseClass"):
     total = 0
     count = 0
     target_num = 5
@@ -212,14 +220,14 @@ def GetVolume_5(NowData : CalculationDataStruct.StructBaseClass):
 
 
 #换手率涨跌幅计算
-def GetTurn_Ratio(NowData : CalculationDataStruct.StructBaseClass):
+def GetTurn_Ratio(NowData : "CalculationDataStruct.StructBaseClass"):
     lastDay = NowData.dataList_240[0]
     target = (NowData.turn - lastDay.turn) / lastDay.turn
     return target * 100
 
 
 #成交动量计算
-def GetVolume_Energy(NowData : CalculationDataStruct.StructBaseClass, dayNum):
+def GetVolume_Energy(NowData : "CalculationDataStruct.StructBaseClass", dayNum):
     count = 0
     total_Value = 0
     for data in NowData.dataList_240:
@@ -233,7 +241,7 @@ def GetVolume_Energy(NowData : CalculationDataStruct.StructBaseClass, dayNum):
 
 
 #获取在行业的市值排名
-def GetIndustry_Rank_Value(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Value(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     value = NowData.total_value
     name = handler.totalComponyIns.GetComponyInfo(code).Name
@@ -256,7 +264,7 @@ def GetIndustry_Rank_Value(NowData : CalculationDataStruct.StructBaseClass,handl
     return targetRank
     
 #获取在行业的市盈率排名
-def GetIndustry_Rank_Earn(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Earn(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     value = NowData.total_value
     name = handler.totalComponyIns.GetComponyInfo(code).Name
@@ -281,7 +289,7 @@ def GetIndustry_Rank_Earn(NowData : CalculationDataStruct.StructBaseClass,handle
     return targetRank
 
 #获取在行业的市净率排名
-def GetIndustry_Rank_Clean(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Clean(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     value = NowData.total_value
     name = handler.totalComponyIns.GetComponyInfo(code).Name
@@ -307,7 +315,7 @@ def GetIndustry_Rank_Clean(NowData : CalculationDataStruct.StructBaseClass,handl
 
 
 #获取在行业的市销率排名
-def GetIndustry_Rank_Sale(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Sale(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     value = NowData.total_value
     name = handler.totalComponyIns.GetComponyInfo(code).Name
@@ -332,7 +340,7 @@ def GetIndustry_Rank_Sale(NowData : CalculationDataStruct.StructBaseClass,handle
     return targetRank
 
 #获取在行业的市现率排名
-def GetIndustry_Rank_Cash(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Cash(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     value = NowData.total_value
     name = handler.totalComponyIns.GetComponyInfo(code).Name
@@ -361,12 +369,12 @@ def GetIndustry_Rank_Cash(NowData : CalculationDataStruct.StructBaseClass,handle
 
 
 #获取当日行业成交量排名(前%)
-def GetIndustry_Rank_Volume(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Volume(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -390,12 +398,12 @@ def GetIndustry_Rank_Volume(NowData : CalculationDataStruct.StructBaseClass,hand
 
 
     #获取当日行业成交额排名(前%)
-def GetIndustry_Rank_Volume_Price(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Volume_Price(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -417,16 +425,16 @@ def GetIndustry_Rank_Volume_Price(NowData : CalculationDataStruct.StructBaseClas
 
 
 #获取当日行业成交额涨跌幅排名(前%)
-def GetIndustry_Rank_Price_Ratio(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Price_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         if not dailyCls.isCalculate :
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
             dailyCls.dataList_240 = dataList_20
             dailyCls.volume_price_ratio = GetVolume_Price(dailyCls, 1)
             pass
@@ -447,16 +455,16 @@ def GetIndustry_Rank_Price_Ratio(NowData : CalculationDataStruct.StructBaseClass
     return targetRank
 
 #获取当日行业成交量涨跌幅排名(前%)
-def GetIndustry_Rank_Volume_Ratio(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Volume_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         if not dailyCls.isCalculate :
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 40)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 40)
             dailyCls.dataList_240 = dataList_20
             dailyCls.volume_ratio = GetVolume_Ratio(dailyCls, 1)
             pass
@@ -480,12 +488,12 @@ def GetIndustry_Rank_Volume_Ratio(NowData : CalculationDataStruct.StructBaseClas
 
     
 #获取当日涨跌幅排名(前%)
-def GetIndustry_Rank_Ratio(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -510,12 +518,12 @@ def GetIndustry_Rank_Ratio(NowData : CalculationDataStruct.StructBaseClass,handl
 
 
 #获取当日振幅排名(前%)
-def GetIndustry_Rank_Amplitude(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Amplitude(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -537,12 +545,12 @@ def GetIndustry_Rank_Amplitude(NowData : CalculationDataStruct.StructBaseClass,h
 
 
 #获取换手率排名(前%)
-def GetIndustry_Rank_Turn(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Turn(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -564,16 +572,16 @@ def GetIndustry_Rank_Turn(NowData : CalculationDataStruct.StructBaseClass,handle
 
 
 #获取当日换手率涨跌幅排名(前%)
-def GetIndustry_Rank_Turn_Ratio(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Turn_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         if not dailyCls.isCalculate :
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
             dailyCls.dataList_240 = dataList_20
             dailyCls.turn_ratio = GetTurn_Ratio(dailyCls)
             pass
@@ -597,16 +605,16 @@ def GetIndustry_Rank_Turn_Ratio(NowData : CalculationDataStruct.StructBaseClass,
 
 
 #获取当日均价涨跌幅排名(前%)
-def GetIndustry_Rank_Avg_Ratio(NowData : CalculationDataStruct.StructBaseClass,handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Rank_Avg_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         if not dailyCls.isCalculate :
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
             dailyCls.dataList_240 = dataList_20
             dailyCls.avg_ratio = GetAvg_Ratio(dailyCls)
             pass
@@ -627,7 +635,7 @@ def GetIndustry_Rank_Avg_Ratio(NowData : CalculationDataStruct.StructBaseClass,h
     return targetRank
 
 ##X日均价
-def GetAvg(NowData : CalculationDataStruct.StructBaseClass, num):
+def GetAvg(NowData : "CalculationDataStruct.StructBaseClass", num):
     count = 1
     total = NowData.avg
     for data in NowData.dataList_240:
@@ -645,7 +653,7 @@ def GetAvg(NowData : CalculationDataStruct.StructBaseClass, num):
 
 
 #获取成交量状态：1放量， -1缩量， 0平量
-def GetVolumeState(NowData : CalculationDataStruct.StructBaseClass, num):
+def GetVolumeState(NowData : "CalculationDataStruct.StructBaseClass", num):
     # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
     priority_map = {
         10: [10, 5, 3, 1],
@@ -680,7 +688,7 @@ def GetVolumeState(NowData : CalculationDataStruct.StructBaseClass, num):
     return 0
 
 #获取涨跌状态：1涨， -1跌， 0横盘
-def GetRatioState(NowData : CalculationDataStruct.StructBaseClass, num):
+def GetRatioState(NowData : "CalculationDataStruct.StructBaseClass", num):
 
     # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
     priority_map = {
@@ -718,7 +726,7 @@ def GetRatioState(NowData : CalculationDataStruct.StructBaseClass, num):
     return 0
 
 #获取震荡状态：1震荡， -1不震荡
-def GetAmplitudeState(NowData : CalculationDataStruct.StructBaseClass, num):
+def GetAmplitudeState(NowData : "CalculationDataStruct.StructBaseClass", num):
 
     # 1. 定义降级优先级：按 num 从大到小，优先用大周期，无值则降级
     priority_map = {
@@ -757,7 +765,7 @@ def GetAmplitudeState(NowData : CalculationDataStruct.StructBaseClass, num):
 
 
 #获取涨停次数
-def GetUpStopCount(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetUpStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     upStopCount = 0
@@ -781,7 +789,7 @@ def GetUpStopCount(NowData : CalculationDataStruct.StructBaseClass, StartDayCoun
     return upStopCount
 
 #获取跌停次数
-def GetDownStopCount(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetDownStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     upStopCount = 0
@@ -805,7 +813,7 @@ def GetDownStopCount(NowData : CalculationDataStruct.StructBaseClass, StartDayCo
     return upStopCount
 
 #期间的整体成交量
-def GetVolume_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     totalVolume = 0
     dataList_240 = NowData.dataList_240
     count = 1
@@ -820,7 +828,7 @@ def GetVolume_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCo
 
 
 #期间的整体成交额
-def GetVolume_Price_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Price_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     totalVolume = 0
     dataList_240 = NowData.dataList_240
     count = 1
@@ -835,7 +843,7 @@ def GetVolume_Price_Window(NowData : CalculationDataStruct.StructBaseClass, Star
 
 
 #期间的整体成交量涨跌幅
-def GetVolume_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     startVal = 0
@@ -875,7 +883,7 @@ def GetVolume_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, Star
 
 
 #期间的整体成交额涨跌幅
-def GetVolume_Price_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Price_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     startVal = 0
@@ -915,7 +923,7 @@ def GetVolume_Price_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass
     
 
 #期间的整体换手率涨跌幅
-def GetTurn_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetTurn_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     startVal = 0
@@ -955,7 +963,7 @@ def GetTurn_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartD
 
 
 #期间的涨跌幅
-def GetChange_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     startVal = 0
@@ -972,7 +980,7 @@ def GetChange_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, Star
     return (startVal - endVal)*100 / endVal
 
 #期间的整体涨跌幅
-def GetChange_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass, startDayCount, toDayCount ):
+def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", startDayCount, toDayCount ):
     dataList_240 = NowData.dataList_240
     fullDataList = [NowData] + dataList_240
 
@@ -1015,7 +1023,7 @@ def GetChange_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass
 
 
 #期间的均价涨跌幅
-def GetAvg_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAvg_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 1
     startVal = 0
@@ -1032,7 +1040,7 @@ def GetAvg_Ratio_Window(NowData : CalculationDataStruct.StructBaseClass, StartDa
     return (startVal - endVal)*100 / endVal if endVal != 0 else 0
 
 #期间的整体均价涨跌幅
-def GetAvg_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass, startDayCount, toDayCount):
+def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", startDayCount, toDayCount):
     dataList_240 = NowData.dataList_240
     fullDataList = [NowData] + dataList_240
 
@@ -1072,7 +1080,7 @@ def GetAvg_Ratio_Total_Window(NowData : CalculationDataStruct.StructBaseClass, s
 
 
 #期间的平均开盘价
-def GetOpen_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetOpen_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1100,7 +1108,7 @@ def GetOpen_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDay
 
 
 #期间的平均收盘价
-def GetClose_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetClose_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1128,7 +1136,7 @@ def GetClose_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDa
 
 
 #期间的平均最高价
-def GetHigh_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetHigh_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1153,7 +1161,7 @@ def GetHigh_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal / (num)
 
 #期间的平均最低价
-def GetLow_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetLow_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1179,7 +1187,7 @@ def GetLow_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayC
 
 
 #期间的平均成交量
-def GetVolume_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1205,7 +1213,7 @@ def GetVolume_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartD
 
 
 #期间的平均成交额
-def GetVolume_Price_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Price_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1232,7 +1240,7 @@ def GetVolume_Price_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, 
 
 
 #期间的平均量比
-def Get_VolumeRatio_5_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def Get_VolumeRatio_5_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1249,7 +1257,7 @@ def Get_VolumeRatio_5_Window_Avg(NowData : CalculationDataStruct.StructBaseClass
     for single in dataList_240:
         if StartDayCount <= 0:
             if count >= 0 and count <= ToDayCount:
-                dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
+                dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
                 #print(f"二十日长度：{len(dataList_20)},  交易日期：{single.trade_date}, code:{single.code}")
                 single.dataList_240 = dataList_20
                 volume_Ratio_5 = GetVolume_5(single)
@@ -1258,7 +1266,7 @@ def Get_VolumeRatio_5_Window_Avg(NowData : CalculationDataStruct.StructBaseClass
                 num = num + 1
         else:
             if count >= StartDayCount and count <= ToDayCount:
-                dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
+                dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
                 single.dataList_240 = dataList_20
                 volume_Ratio_5 = GetVolume_5(single)
 
@@ -1271,7 +1279,7 @@ def Get_VolumeRatio_5_Window_Avg(NowData : CalculationDataStruct.StructBaseClass
     return totalVal / (num)
 
 
-def GetTurn_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetTurn_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1296,7 +1304,7 @@ def GetTurn_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal / (num)
 
 
-def GetChangeRatio_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetChangeRatio_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1320,7 +1328,7 @@ def GetChangeRatio_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, S
         count = count + 1
     return totalVal / (num)
 
-def GetAmplitude_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAmplitude_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1344,7 +1352,7 @@ def GetAmplitude_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, Sta
         count = count + 1
     return totalVal / (num)
 
-def GetAvg_Price_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAvg_Price_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1373,7 +1381,7 @@ def GetAvg_Price_Window_Avg(NowData : CalculationDataStruct.StructBaseClass, Sta
 
 
 #最低开盘价
-def GetOpen_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetOpen_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1394,7 +1402,7 @@ def GetOpen_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal
 
 #最低收盘价
-def GetClose_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetClose_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1415,7 +1423,7 @@ def GetClose_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDa
     return totalVal
 
 #最低昨收价
-def GetLastClose_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetLastClose_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1436,7 +1444,7 @@ def GetLastClose_Window_Low(NowData : CalculationDataStruct.StructBaseClass, Sta
     return totalVal
 
 #最低最高价
-def GetHigh_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetHigh_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1457,7 +1465,7 @@ def GetHigh_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal
 
 #最低最低价
-def GetLow_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetLow_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1478,7 +1486,7 @@ def GetLow_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayC
     return totalVal
 
 #最低成交量
-def GetVolume_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1499,7 +1507,7 @@ def GetVolume_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartD
     return totalVal
 
 #最低成交额
-def GetVolume_Price_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Price_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1520,7 +1528,7 @@ def GetVolume_Price_Window_Low(NowData : CalculationDataStruct.StructBaseClass, 
     return totalVal
 
 #最低量比
-def GetVolume_Ratio_5_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Ratio_5_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1536,7 +1544,7 @@ def GetVolume_Ratio_5_Window_Low(NowData : CalculationDataStruct.StructBaseClass
         num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
             single.dataList_240 = dataList_20
             volume_Ratio_5 = GetVolume_5(single)
 
@@ -1550,7 +1558,7 @@ def GetVolume_Ratio_5_Window_Low(NowData : CalculationDataStruct.StructBaseClass
     return totalVal
 
 #最低换手率
-def GetTurn_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetTurn_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1571,7 +1579,7 @@ def GetTurn_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal
 
 #最低涨跌幅
-def GetChange_Ratio_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetChange_Ratio_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1592,7 +1600,7 @@ def GetChange_Ratio_Window_Low(NowData : CalculationDataStruct.StructBaseClass, 
     return totalVal
 
 #最低振幅
-def GetAmplitude_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAmplitude_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1613,7 +1621,7 @@ def GetAmplitude_Window_Low(NowData : CalculationDataStruct.StructBaseClass, Sta
     return totalVal
 
 #最低均价
-def GetAvg_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAvg_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = float('inf')
@@ -1638,7 +1646,7 @@ def GetAvg_Window_Low(NowData : CalculationDataStruct.StructBaseClass, StartDayC
 
 
 #最高开盘价
-def GetOpen_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetOpen_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1659,7 +1667,7 @@ def GetOpen_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDa
     return totalVal
 
 #最高收盘价
-def GetClose_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetClose_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1680,7 +1688,7 @@ def GetClose_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartD
     return totalVal
 
 #最高昨收价
-def GetLastClose_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetLastClose_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1701,7 +1709,7 @@ def GetLastClose_Window_High(NowData : CalculationDataStruct.StructBaseClass, St
     return totalVal
 
 #最高最高价
-def GetHigh_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetHigh_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1722,7 +1730,7 @@ def GetHigh_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDa
     return totalVal
 
 #最高最低价
-def GetLow_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetLow_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1743,7 +1751,7 @@ def GetLow_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDay
     return totalVal
 
 #最高成交量
-def GetVolume_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1764,7 +1772,7 @@ def GetVolume_Window_High(NowData : CalculationDataStruct.StructBaseClass, Start
     return totalVal
 
 #最高成交额
-def GetVolume_Price_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetVolume_Price_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1785,7 +1793,7 @@ def GetVolume_Price_Window_High(NowData : CalculationDataStruct.StructBaseClass,
     return totalVal
 
 #最高量比
-def GetVolume_Ratio_5_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Ratio_5_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1801,7 +1809,7 @@ def GetVolume_Ratio_5_Window_High(NowData : CalculationDataStruct.StructBaseClas
         num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
-            dataList_20:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
+            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
             single.dataList_240 = dataList_20
             volume_Ratio_5 = GetVolume_5(single)
 
@@ -1815,7 +1823,7 @@ def GetVolume_Ratio_5_Window_High(NowData : CalculationDataStruct.StructBaseClas
     return totalVal
 
 #最高换手率
-def GetTurn_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetTurn_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1836,7 +1844,7 @@ def GetTurn_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDa
     return totalVal
 
 #最高涨跌幅
-def GetChange_Ratio_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetChange_Ratio_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1857,7 +1865,7 @@ def GetChange_Ratio_Window_High(NowData : CalculationDataStruct.StructBaseClass,
     return totalVal
 
 #最高振幅
-def GetAmplitude_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAmplitude_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1878,7 +1886,7 @@ def GetAmplitude_Window_High(NowData : CalculationDataStruct.StructBaseClass, St
     return totalVal
 
 #最高均价
-def GetAvg_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount):
+def GetAvg_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
     totalVal = 0
@@ -1900,12 +1908,12 @@ def GetAvg_Window_High(NowData : CalculationDataStruct.StructBaseClass, StartDay
 
 
 #期间的成交量排名
-def GetVolume_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -1913,7 +1921,7 @@ def GetVolume_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, Start
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -1957,12 +1965,12 @@ def GetVolume_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, Start
 
 
 #期间的成交额排名
-def GetVolume_Price_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Price_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -1970,7 +1978,7 @@ def GetVolume_Price_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         history = val.dataList_240
@@ -2014,12 +2022,12 @@ def GetVolume_Price_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
 
 
 #期间的成交额涨跌幅排名
-def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Price_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2027,7 +2035,7 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBase
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2100,12 +2108,12 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBase
     return rank_Ratio
 
 #期间的成交量涨跌幅排名
-def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetVolume_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2113,7 +2121,7 @@ def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2186,12 +2194,12 @@ def GetVolume_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
     return rank_Ratio
 
 #期间的涨跌幅排名
-def GetChange_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetChange_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2199,7 +2207,7 @@ def GetChange_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2255,12 +2263,12 @@ def GetChange_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass,
 
 
 #期间的振幅排名
-def GetAmplitude_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetAmplitude_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2268,7 +2276,7 @@ def GetAmplitude_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseCla
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2326,12 +2334,12 @@ def GetAmplitude_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseCla
 
 
 #期间的换手率涨跌幅排名
-def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetTurn_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2339,7 +2347,7 @@ def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, S
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2410,12 +2418,12 @@ def GetTurn_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, S
 
 
 #期间的均价涨跌幅排名
-def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, StartDayCount, ToDayCount, handler:CalculationDataHandle.BaseClass):
+def GetAvg_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
 
-    industryDailyList : list[CalculationDataStruct.StructBaseClass] = []
+    industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
         industryDailyList.append(dailyCls)
@@ -2423,7 +2431,7 @@ def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, St
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
+        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
         val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
@@ -2495,7 +2503,7 @@ def GetAvg_Ratio_Window_Rank(NowData : CalculationDataStruct.StructBaseClass, St
 
 
 #获取期间成交量状态：1放量， -1缩量， 0平量
-def GetVolume_State_Windows(WindowData : CalculationDataStruct.StructBaseWindowClass):
+def GetVolume_State_Windows(WindowData : "CalculationDataStruct.StructBaseWindowClass"):
     ratio = WindowData.volume_ratio
     if ratio > ConstVal.volume_boundary:
         return 1
@@ -2506,7 +2514,7 @@ def GetVolume_State_Windows(WindowData : CalculationDataStruct.StructBaseWindowC
 
 
 #获取涨跌状态：1涨， -1跌， 0横盘
-def GetChange_Ratio_State_Windows(WindowData : CalculationDataStruct.StructBaseWindowClass):
+def GetChange_Ratio_State_Windows(WindowData : "CalculationDataStruct.StructBaseWindowClass"):
     target = WindowData.change_Ratio_Total
     if target > ConstVal.up_down_boundary:
         return 1
@@ -2516,7 +2524,7 @@ def GetChange_Ratio_State_Windows(WindowData : CalculationDataStruct.StructBaseW
 
 
 #获取震荡状态：1震荡， -1不震荡
-def GetAmplitude_State_Windows(WindowData : CalculationDataStruct.StructBaseWindowClass):
+def GetAmplitude_State_Windows(WindowData : "CalculationDataStruct.StructBaseWindowClass"):
     target = WindowData.avg_amplitude
     if target > ConstVal.amplitude_boundary:
         return 1
@@ -2524,7 +2532,7 @@ def GetAmplitude_State_Windows(WindowData : CalculationDataStruct.StructBaseWind
         return -1
 
 #获取行业整体价格
-def GetIndustry_Avg_Price(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Avg_Price(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     totalPrice = 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
@@ -2534,7 +2542,7 @@ def GetIndustry_Avg_Price(industryInfo :CalculationDataStruct.StructIndustryInfo
 
 
 #获取行业成交量
-def GetIndustry_Volume(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     totalVolume = 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
@@ -2543,7 +2551,7 @@ def GetIndustry_Volume(industryInfo :CalculationDataStruct.StructIndustryInfoCla
     return totalVolume
 
 #获取行业成交额
-def GetIndustry_Volume_Price(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Price(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     totalVolume = 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
@@ -2553,10 +2561,10 @@ def GetIndustry_Volume_Price(industryInfo :CalculationDataStruct.StructIndustryI
 
 
 #获取行业成交量涨跌幅
-def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, num, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, num, handler:"CalculationDataHandle.BaseClass"):
     if num == 1:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = GetIndustry_Volume(industryInfo, dataList[0].trade_date, handler)
@@ -2565,7 +2573,7 @@ def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
             return ratio * 100
     elif num == 3:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2580,7 +2588,7 @@ def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
                 return ratio * 100
     elif num == 5:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2595,7 +2603,7 @@ def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
                 return ratio * 100
     elif num == 10:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2610,7 +2618,7 @@ def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
                 return ratio * 100
     elif num == 20:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2626,10 +2634,10 @@ def GetIndustry_Volume_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
 
 
 #获取行业成交额涨跌幅
-def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, num, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Price_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, num, handler:"CalculationDataHandle.BaseClass"):
     if num == 1:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = GetIndustry_Volume_Price(industryInfo, dataList[0].trade_date, handler)
@@ -2638,7 +2646,7 @@ def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructInd
             return ratio * 100
     elif num == 3:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2653,7 +2661,7 @@ def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructInd
                 return ratio * 100
     elif num == 5:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2668,7 +2676,7 @@ def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructInd
                 return ratio * 100
     elif num == 10:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2683,7 +2691,7 @@ def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructInd
                 return ratio * 100
     elif num == 20:
         for key, val in industryInfo.stockList.items():
-            dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
@@ -2698,14 +2706,14 @@ def GetIndustry_Volume_Price_Ratio(industryInfo :CalculationDataStruct.StructInd
                 return ratio * 100
 
 #获取行业涨跌幅
-def GetIndustry_Change_Ratio(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Change_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     total = 0
     lastTotal= 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.close:
             total += dailyCls.close
-        dataList:list[CalculationDataStruct.StructBaseClass] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+        dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
         if dataList.__len__() > 0:
             lastDailyCls = dataList[0]
             if lastDailyCls and lastDailyCls.close:
@@ -2716,7 +2724,7 @@ def GetIndustry_Change_Ratio(industryInfo :CalculationDataStruct.StructIndustryI
 
 
 #获取行业上涨股数量
-def GetIndustry_Up_Count(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Up_Count(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     count = 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
@@ -2726,7 +2734,7 @@ def GetIndustry_Up_Count(industryInfo :CalculationDataStruct.StructIndustryInfoC
     return count
 
 #获取行业下跌股数量
-def GetIndustry_Down_Count(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Down_Count(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     count = 0
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
@@ -2738,7 +2746,7 @@ def GetIndustry_Down_Count(industryInfo :CalculationDataStruct.StructIndustryInf
 
 
 #获取期间内行业整体成交量
-def GetIndustry_Volume_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2763,7 +2771,7 @@ def GetIndustry_Volume_Window(industryInfo :CalculationDataStruct.StructIndustry
 
 
 #获取期间内行业整体成交额
-def GetIndustry_Volume_Price_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2788,7 +2796,7 @@ def GetIndustry_Volume_Price_Window(industryInfo :CalculationDataStruct.StructIn
         
 
 #获取期间内行业平均成交量
-def GetIndustry_Volume_Avg_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2811,7 +2819,7 @@ def GetIndustry_Volume_Avg_Window(industryInfo :CalculationDataStruct.StructIndu
 
 
 #获取期间内行业平均成交额
-def GetIndustry_Volume_Price_Avg_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2835,7 +2843,7 @@ def GetIndustry_Volume_Price_Avg_Window(industryInfo :CalculationDataStruct.Stru
 
 
 #获取期间内行业成交量涨跌幅
-def GetIndustry_Volume_Ratio_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2879,7 +2887,7 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :CalculationDataStruct.StructIn
 
 
 #获取期间内行业成交额涨跌幅
-def GetIndustry_Volume_Price_Ratio_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2922,7 +2930,7 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :CalculationDataStruct.St
                 return ratio * 100
 
 #行业涨跌幅
-def GetIndustry_Change_Ratio_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2942,7 +2950,7 @@ def GetIndustry_Change_Ratio_Window(industryInfo :CalculationDataStruct.StructIn
    
 
 #行业整体涨跌幅
-def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2986,7 +2994,7 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :CalculationDataStruct.St
             
 
 #平均行业上涨股数量
-def GetIndustry_Up_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList = []
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
@@ -3005,7 +3013,7 @@ def GetIndustry_Up_Stock_Window(industryInfo :CalculationDataStruct.StructIndust
         if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
             return totalCount / addCount if addCount > 0 else 0
 #平均行业下跌股数量
-def GetIndustry_Down_Stock_Window(industryInfo :CalculationDataStruct.StructIndustryInfoClass, trade_date, startDayCount, toDayCount, handler:CalculationDataHandle.BaseClass):
+def GetIndustry_Down_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList = []
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)

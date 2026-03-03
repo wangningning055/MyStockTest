@@ -52,19 +52,19 @@ class BaseClass :
         listCode = []
         count = 1
         t0 = time.perf_counter()
-        target = 5186
         for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
-            score = -1
-            if count >= 5187:
-                print("开始计算")
-                score = evaluator.evaluate_stock(val, request.configs)
-                print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}")
+            score = evaluator.evaluate_stock(val, request.configs)
+            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}")
             count += 1
+            #if count > 10:
+            #    break
             if score > 0:
                 listCode.append(val)
 
         for code in listCode:
             print(code)
+
+            
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
