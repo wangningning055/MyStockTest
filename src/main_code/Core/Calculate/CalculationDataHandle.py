@@ -22,7 +22,6 @@ class BaseClass :
 
         #self.InitIndustryCls()
 
-
         #t0 = time.perf_counter()
         #dataclass = self.GetBaseDataClass("003011.SZ","20260225", True)
         #if dataclass.code == "003011.SZ" :
@@ -50,13 +49,92 @@ class BaseClass :
 
 
 
-        #t0 = time.perf_counter()
-        #print("开始计算：601112.SH")
-        #self.GetWindowDataClass("601112.SH","20260227", 0, 10)
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        t0 = time.perf_counter()
+        print("开始计算：301638.SZ")
 
+
+        #1:02   1:38  3  2:57
+        #cls = self.GetWindowDataClass("301638.SZ","20260227", 0, 10)
+        #print(f"11整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"11涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+        #cls = self.GetWindowDataClass("301638.SZ","20260227", 0, 20)
+        #print(f"12整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"12涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+
+        #cls = self.GetWindowDataClass("300846.SZ","20260227", 0, 10)
+        #print(f"21整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"21涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+        #cls = self.GetWindowDataClass("300846.SZ","20260227", 0, 20)
+        #print(f"22整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"22涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+
+        #cls = self.GetWindowDataClass("301638.SZ","20260227", 0, 30)
+        #print(f"31整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"31涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+        #cls = self.GetWindowDataClass("301638.SZ","20260227", 0, 40)
+        #print(f"32整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"32涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+        #cls = self.GetWindowDataClass("300846.SZ","20260227", 0, 30)
+        #print(f"42整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"42涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+        #cls = self.GetWindowDataClass("300846.SZ","20260227", 0, 40)
+        #print(f"52整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"52涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+
+        # 28   33   42  42
+
+        #cls = self.GetWindowDataClassTest("301638.SZ","20260227", 0, 10)
+        #print(f"整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+        #cls1 = self.GetWindowDataClassTest("301638.SZ","20260227", 0, 20)
+        #print(f"整体涨跌幅是 {cls1.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls1.ratio_industry_rank}%")
+
+        #cls = self.GetWindowDataClassTest("300846.SZ","20260227", 0, 10)
+        #print(f"整体涨跌幅是 {cls.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls.ratio_industry_rank}%")
+
+
+        #cls1 = self.GetWindowDataClassTest("300846.SZ","20260227", 0, 20)
+        #print(f"整体涨跌幅是 {cls1.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls1.ratio_industry_rank}%")
+
+
+        #cls2 = self.GetWindowDataClassTest("301638.SZ","20260227", 0, 30)
+        #print(f"整体涨跌幅是 {cls2.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls2.ratio_industry_rank}%")
+
+        #cls3 = self.GetWindowDataClassTest("301638.SZ","20260227", 0, 40)
+        #print(f"整体涨跌幅是 {cls3.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls3.ratio_industry_rank}%")
+
+        #cls2 = self.GetWindowDataClassTest("300846.SZ","20260227", 0, 30)
+        #print(f"整体涨跌幅是 {cls2.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls2.ratio_industry_rank}%")
+
+        #cls3 = self.GetWindowDataClassTest("300846.SZ","20260227", 0, 40)
+        #print(f"整体涨跌幅是 {cls3.change_Ratio_Total}")
+        #print(f"涨跌幅行业排名是 {cls3.ratio_industry_rank}%")
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"花费时间:{totalCostTimeStr1}")
 
         #t0 = time.perf_counter()
         #print("开始计算：301638.SZ")
@@ -144,7 +222,7 @@ class BaseClass :
         tempDailyCls = DailyDBStruct.DBStructClass()
         tempAdjustCls = AdjustDBStruct.DBStructClass()
         #componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
-        #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} ")
+        #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
         if (stockCode, date) in self.totalBaseDailyData.allDic:
             baseClass = self.totalBaseDailyData.allDic[stockCode, date]
             if isCalculate:
@@ -256,8 +334,8 @@ class BaseClass :
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        if(baseClass.code == "301638.SZ"):
-            print(f"            240日数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+        #if(baseClass.code == "301638.SZ"):
+        #    print(f"            240日数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
 
         
         #print(f"开始计算前240天：{len(dataList_240)}，交易日当天：{baseClass.trade_date}， 交易日前一天：{dataList_240[0].trade_date}")
@@ -375,8 +453,8 @@ class BaseClass :
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        if(baseClass.code == "301638.SZ"):
-            print(f"            基本数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+        #if(baseClass.code == "301638.SZ"):
+        #    print(f"            基本数据计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
         
         ##这下面还有行业相关的排名数据没有写
         if not baseClass.isCalculateRank:
@@ -420,8 +498,8 @@ class BaseClass :
             t1 = time.perf_counter()
             totalCostTime = (t1 - t0)
             totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            if(baseClass.code == "301638.SZ"):
-                print(f"            行业排名计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+            #if(baseClass.code == "301638.SZ"):
+            #    print(f"            行业排名计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
 
         t0 = time.perf_counter()
         volumeState_1 = CalculationUtil.GetVolumeState(baseClass, 1)
@@ -560,8 +638,8 @@ class BaseClass :
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        if(baseClass.code == "301638.SZ"):
-            print(f"            放量缩量计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
+        #if(baseClass.code == "301638.SZ"):
+        #    print(f"            放量缩量计算完毕{baseClass.code}，花费时间：{totalCostTimeStr1}")
 
         #print(f"当日涨跌幅是{baseClass.change_Ratio}")
         #print(f"当日震幅是{baseClass.amplitude}")
@@ -658,9 +736,30 @@ class BaseClass :
         #print(f"10日震荡上行状态：{baseClass.is_pop_up_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
         #print(f"10日震荡下行状态：{baseClass.is_pop_down_10}, amplitudeState_10：{amplitudeState_10}， priceState_10：{priceState_10}")
 
-    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
+
+
+
+    def GetWindowDataClassTest(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
         from src.main_code.Core.Calculate import CalculationUtil
         #print(f"尝试获取股票：{stockCode}")
+        cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
+        res = None
+        if cache_key in self.totalBaseWindowData:
+            res = self.totalBaseWindowData[cache_key]
+            return res
+
+
+        windowsClass = CalculationDataStruct.StructBaseWindowClass()
+        startDataClass = self.GetBaseDataClass(stockCode, tradeDate, True)
+        windowsClass.Init(startDataClass, startDateCount, toDateCount, self)
+        self.totalBaseWindowData[cache_key] = windowsClass
+
+        return windowsClass
+
+
+    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
+        from src.main_code.Core.Calculate import CalculationUtil
+        #print(f"尝试获取股票：{stockCode},  isJust {isJustSetRank}")
         cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
         res = None
         if cache_key in self.totalBaseWindowData:
@@ -695,6 +794,8 @@ class BaseClass :
 
         if not windowsClass.isCalculateOther:
             #print("计算他的基本数据")
+            t0 = time.perf_counter()
+
 
             #up_stopCount:int        #涨停次数
             windowsClass.up_stopCount = CalculationUtil.GetUpStopCount(startDataClass, startDateCount, toDateCount)
@@ -883,9 +984,14 @@ class BaseClass :
             windowsClass.is_pop_down = 1 if amplitudeState_1 == 1 and priceState_1 == -1 else 0
             windowsClass.isCalculateOther = True
             #print("他的基本数据算完了")
-
+            t1 = time.perf_counter()
+            totalCostTime = (t1 - t0)
+            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
         if not windowsClass.isCalculateRank:
             #print("计算他的排名数据")
+            t0 = time.perf_counter()
+
+
             #volume_industry_rank:float #成交量排名(前%)
             windowsClass.volume_industry_rank = CalculationUtil.GetVolume_Window_Rank(startDataClass, startDateCount, toDateCount, self)
 
@@ -922,6 +1028,10 @@ class BaseClass :
             for val in industryDailyList:
                 temp = self.GetWindowDataClass(val.code, tradeDate, startDateCount, toDateCount, True)
                 temp.isCalculateRank = True
+
+            t1 = time.perf_counter()
+            totalCostTime = (t1 - t0)
+            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
             #print("他的排名数据算完了")
 
 

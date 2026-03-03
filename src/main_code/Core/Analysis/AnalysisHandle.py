@@ -53,6 +53,7 @@ class BaseClass :
         count = 1
         t0 = time.perf_counter()
         for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
+            #如果状态不是成交状态就跳过
             score = evaluator.evaluate_stock(val, request.configs)
             print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}")
             count += 1

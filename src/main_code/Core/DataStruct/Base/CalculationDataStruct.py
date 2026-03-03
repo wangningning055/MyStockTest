@@ -94,12 +94,12 @@ class StructBaseClass :
         self.trade_state = is_Trading
         self.avg = average_price * adjust
 
-        self.dic = {
-            "dataList_240" :(handler.GetLastDateDataByNum,(self.code, self.trade_date, 240)),
-            "change_Ratio_3":(CalculationUtil.GetChange_Ratio, (self, 3)),
-            "change_Ratio_5":(CalculationUtil.GetChange_Ratio, (self, 5)),
-            "volume_ratio_10":(CalculationUtil.GetVolume_Ratio, (self, 3))
-        }
+        #self.dic = {
+        #    "dataList_240" :(handler.GetLastDateDataByNum,(self.code, self.trade_date, 240)),
+        #    "change_Ratio_3":(CalculationUtil.GetChange_Ratio, (self, 3)),
+        #    "change_Ratio_5":(CalculationUtil.GetChange_Ratio, (self, 5)),
+        #    "volume_ratio_10":(CalculationUtil.GetVolume_Ratio, (self, 3))
+        #}
         self.isInit = True
     
     #def __getattr__(self, field_name):
@@ -307,9 +307,56 @@ class StructBaseClass :
 class StructBaseWindowClass :
     isCalculateRank:bool    #是否已经计算了排名数据
     isCalculateOther:bool    #是否已经计算了其他数据
+    startDataCls : StructBaseClass
     def __init__(self):
         self.isCalculateRank = False
         self.isCalculateOther = False
+
+        self._computed_fields = set()
+        self.dic = {}
+        self.calculateCount = 0
+        self.isInit = False
+
+    def Init(self, startDataCls, startCount, toCount, handler):
+        self.isInit = True
+        self.startDataCls : StructBaseClass = startDataCls
+        self.code = self.startDataCls.code
+        self.startCount = startCount
+        self.toCount = toCount
+        self.handler = handler
+        self.dic = {
+            "change_Ratio_Total":(CalculationUtil.GetChange_Ratio_Total_Window, (startDataCls, startCount, toCount)),
+            "ratio_industry_rank":(CalculationUtil.GetChange_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+            #"is_up_up":(CalculationUtil.GetVolume_Ratio, (self, 3))
+        }
+
+    def __getattr__(self, field_name):
+        if self.isInit == False:
+            return None
+        #print("触发首次读取")
+        # 1. 如果字段不在懒加载映射里，抛出常规属性不存在异常（避免无意义递归）
+        if field_name not in self.dic:
+            raise AttributeError(f"'StructBaseClass' object has no attribute '{field_name}'")
+        
+        # 2. 如果字段未计算，执行计算逻辑
+        if field_name not in self._computed_fields:
+            self.calculateCount += 1
+            # 从dic中取出方法和参数
+            #if field_name == "change_Ratio_5":
+            #    print("???????执行啊啊啊啊啊啊啊")
+            calc_method, args = self.dic[field_name]
+            # 执行计算并赋值给实例（存入__dict__，避免再次触发__getattr__）
+            calc_result = calc_method(*args)
+
+            setattr(self, field_name, calc_result)
+            # 标记为已计算
+            self._computed_fields.add(field_name)
+        
+        # 3. 返回计算后的属性值（此时已存入__dict__，直接取）
+        return calc_result
+
+
+
     code:str
     trade_date_from:date    #交易日期
     startCount:int

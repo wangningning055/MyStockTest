@@ -197,7 +197,7 @@ class RequestorClass:
 
         #2025 3, 2, 1
         #2024 4 3 2  1(等待csv)
-        #2023 4(等待csv)  
+        #2023 4(等待csv)  2
 
         #直接拉
         year = 2023

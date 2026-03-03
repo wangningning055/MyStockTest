@@ -74,6 +74,7 @@ class ConditionEvaluator:
             return mapping
         except Exception as e:
             logger.error(f"❌ 构建因子映射表失败: {e}")
+            raise
             return {}
     
     def evaluate_tree(self, nodes: List[TreeNode]) -> tuple[bool, Optional[str]]:
@@ -212,7 +213,8 @@ class ConditionEvaluator:
             #区间单股数据
             if id >= 200000 and id < 300000:
                 #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
-                data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+                #data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+                data = self.main.calculationDataHandle.GetWindowDataClassTest(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
             #当日行业
             if id >= 300000 and id < 400000:
                 industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
@@ -296,6 +298,7 @@ class ConditionEvaluator:
         except Exception as e:
             error = f"❌ 评估分组时出错: {e}"
             logger.error(error)
+            raise
             return False, error
     
     def _apply_operator(self, field_value: float, operator: str, compare_value: float) -> bool:
@@ -335,6 +338,7 @@ class ConditionEvaluator:
         
         except Exception as e:
             logger.error(f"❌ 应用操作符失败: {e}")
+            raise
             return False
 
 
@@ -432,6 +436,7 @@ class FactorEvaluator:
             
             except Exception as e:
                 logger.error(f"❌ 评估因子 '{config.factor_group_name}' 时出错: {e}")
+                raise
         
         # 标准化到0-100
         net_score = positive_score - negative_score
@@ -464,6 +469,7 @@ class FactorEvaluator:
                 })
             except Exception as e:
                 logger.error(f"❌ 评估股票 {stock.get('code')} 时出错: {e}")
+                raise
         
         # 按分数排序
         results.sort(key=lambda x: x['score'], reverse=True)
@@ -496,9 +502,11 @@ def load_factors_metadata(filepath: str = 'factors.json') -> Dict[str, Any]:
             return json.load(f)
     except FileNotFoundError:
         logger.error(f"❌ 文件不存在: {filepath}")
+        raise
         return {}
     except json.JSONDecodeError as e:
         logger.error(f"❌ JSON解析失败: {e}")
+        raise
         return {}
 
 
