@@ -325,10 +325,14 @@ class StructBaseWindowClass :
         self.toCount = toCount
         self.handler = handler
         self.dic = {
+            "up_stopCount":(CalculationUtil.GetUpStopCount, (startDataCls, startCount, toCount)),
+            "down_stopCount":(CalculationUtil.GetDownStopCount, (startDataCls, startCount, toCount)),
+
             "change_Ratio_Total":(CalculationUtil.GetChange_Ratio_Total_Window, (startDataCls, startCount, toCount)),
             "ratio_industry_rank":(CalculationUtil.GetChange_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            #"is_up_up":(CalculationUtil.GetVolume_Ratio, (self, 3))
         }
+
+
 
     def __getattr__(self, field_name):
         if self.isInit == False:
@@ -354,6 +358,133 @@ class StructBaseWindowClass :
         
         # 3. 返回计算后的属性值（此时已存入__dict__，直接取）
         return calc_result
+
+
+
+
+
+
+
+
+
+#from src.main_code.Core.Calculate import CalculationUtil
+
+## 定义计算字段字典（按原有计算顺序）
+#self.dic = {
+#    # 基础统计字段
+#    "up_stopCount": (CalculationUtil.GetUpStopCount, (startDataCls, startCount, toCount)),
+#    "down_stopCount": (CalculationUtil.GetDownStopCount, (startDataCls, startCount, toCount)),
+#    "volume": (CalculationUtil.GetVolume_Window, (startDataCls, startCount, toCount)),
+#    "volume_price": (CalculationUtil.GetVolume_Price_Window, (startDataCls, startCount, toCount)),
+#    "volume_ratio": (CalculationUtil.GetVolume_Ratio_Window, (startDataCls, startCount, toCount)),
+#    "volume_price_ratio": (CalculationUtil.GetVolume_Price_Ratio_Window, (startDataCls, startCount, toCount)),
+#    "turn_ratio": (CalculationUtil.GetTurn_Ratio_Window, (startDataCls, startCount, toCount)),
+#    "change_Ratio": (CalculationUtil.GetChange_Ratio_Window, (startDataCls, startCount, toCount)),
+#    "change_Ratio_Total": (CalculationUtil.GetChange_Ratio_Total_Window, (startDataCls, startCount, toCount)),
+#    "avg_Ratio": (CalculationUtil.GetAvg_Ratio_Window, (startDataCls, startCount, toCount)),
+#    "avg_Ratio_Total": (CalculationUtil.GetAvg_Ratio_Total_Window, (startDataCls, startCount, toCount)),
+    
+#    # 平均值类字段
+#    "avg_open": (CalculationUtil.GetOpen_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_close": (CalculationUtil.GetClose_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_high": (CalculationUtil.GetHigh_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_low": (CalculationUtil.GetLow_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_volume": (CalculationUtil.GetVolume_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_volume_price": (CalculationUtil.GetVolume_Price_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_volume_rito": (CalculationUtil.Get_VolumeRatio_5_Window_Avg, (startDataCls, startCount, toCount, handler)),
+#    "avg_turn": (CalculationUtil.GetTurn_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_change_Ratio": (CalculationUtil.GetChangeRatio_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_amplitude": (CalculationUtil.GetAmplitude_Window_Avg, (startDataCls, startCount, toCount)),
+#    "avg_avg": (CalculationUtil.GetAvg_Price_Window_Avg, (startDataCls, startCount, toCount)),
+    
+#    # 最小值类字段
+#    "min_open": (CalculationUtil.GetOpen_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_close": (CalculationUtil.GetClose_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_last_close": (CalculationUtil.GetLastClose_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_high": (CalculationUtil.GetHigh_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_low": (CalculationUtil.GetLow_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_volume": (CalculationUtil.GetVolume_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_volume_price": (CalculationUtil.GetVolume_Price_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_Low, (startDataCls, startCount, toCount, handler)),
+#    "min_turn": (CalculationUtil.GetTurn_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_amplitude": (CalculationUtil.GetAmplitude_Window_Low, (startDataCls, startCount, toCount)),
+#    "min_avg": (CalculationUtil.GetAvg_Window_Low, (startDataCls, startCount, toCount)),
+    
+#    # 最大值类字段
+#    "max_open": (CalculationUtil.GetOpen_Window_High, (startDataCls, startCount, toCount)),
+#    "max_close": (CalculationUtil.GetClose_Window_High, (startDataCls, startCount, toCount)),
+#    "max_last_close": (CalculationUtil.GetLastClose_Window_High, (startDataCls, startCount, toCount)),
+#    "max_high": (CalculationUtil.GetHigh_Window_High, (startDataCls, startCount, toCount)),
+#    "max_low": (CalculationUtil.GetLow_Window_High, (startDataCls, startCount, toCount)),
+#    "max_volume": (CalculationUtil.GetVolume_Window_High, (startDataCls, startCount, toCount)),
+#    "max_volume_price": (CalculationUtil.GetVolume_Price_Window_High, (startDataCls, startCount, toCount)),
+#    "max_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_High, (startDataCls, startCount, toCount, handler)),
+#    "max_turn": (CalculationUtil.GetTurn_Window_High, (startDataCls, startCount, toCount)),
+#    "max_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_High, (startDataCls, startCount, toCount)),
+#    "max_amplitude": (CalculationUtil.GetAmplitude_Window_High, (startDataCls, startCount, toCount)),
+#    "max_avg": (CalculationUtil.GetAvg_Window_High, (startDataCls, startCount, toCount)),
+    
+#    # 状态类字段（依赖windowsClass）
+#    "volumeState_1": (CalculationUtil.GetVolume_State_Windows, (windowsClass,)),
+#    "priceState_1": (CalculationUtil.GetChange_Ratio_State_Windows, (windowsClass,)),
+#    "amplitudeState_1": (CalculationUtil.GetAmplitude_State_Windows, (windowsClass,)),
+    
+#    # 行业排名类字段
+#    "volume_industry_rank": (CalculationUtil.GetVolume_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "total_price_industry_rank": (CalculationUtil.GetVolume_Price_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "total_price_ratio_industry_rank": (CalculationUtil.GetVolume_Price_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "volume_ratio_industry_rank": (CalculationUtil.GetVolume_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "ratio_industry_rank": (CalculationUtil.GetChange_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "amplitude_industry_rank": (CalculationUtil.GetAmplitude_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "turn_ratio_industry_rank": (CalculationUtil.GetTurn_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+#    "avg_industry_rank": (CalculationUtil.GetAvg_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler))
+#}
+
+## 直接赋值的字段（无CalculationUtil调用）
+#direct_assign_fields = {
+#    "code": stockCode,
+#    "startCount": startDateCount,
+#    "toCount": toDateCount,
+#    "trade_date_from": tradeDate,
+#    "industry": self.totalComponyIns.GetComponyInfo(stockCode).Industry,
+#    "isST": startDataCls.isST
+#}
+
+## 基于状态字段计算的派生字段
+#derived_fields = {
+#    "is_up_up": lambda vs, ps: 1 if vs == 1 and ps == 1 else 0,
+#    "is_low_up": lambda vs, ps: 1 if vs == -1 and ps == 1 else 0,
+#    "is_up_low": lambda vs, ps: 1 if vs == 1 and ps == -1 else 0,
+#    "is_low_low": lambda vs, ps: 1 if vs == -1 and ps == -1 else 0,
+#    "is_up_mid": lambda vs, ps: 1 if vs == 1 and ps == 0 else 0,
+#    "is_low_mid": lambda vs, ps: 1 if vs == -1 and ps == 0 else 0,
+#    "is_mid_up": lambda vs, ps: 1 if vs == 0 and ps == 1 else 0,
+#    "is_mid_low": lambda vs, ps: 1 if vs == 0 and ps == -1 else 0,
+#    "is_pop_up": lambda as_, ps: 1 if as_ == 1 and ps == 1 else 0,
+#    "is_pop_down": lambda as_, ps: 1 if as_ == 1 and ps == -1 else 0
+#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
