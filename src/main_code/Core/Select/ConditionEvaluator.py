@@ -209,7 +209,8 @@ class ConditionEvaluator:
             #print(f"条件id是：{id}， 日期是：{todayStr}")
             if id >= 1000 and id < 200000:
                 #print("计算当日条件")
-                data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr, True)
+                #data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr, True)
+                data = self.main.calculationDataHandle.GetBaseDataClassTest(self.stock_code, todayStr)
             #区间单股数据
             if id >= 200000 and id < 300000:
                 #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
@@ -226,7 +227,7 @@ class ConditionEvaluator:
 
 
             value = getattr(data, field_name, None)
-            #print(f"计算的参数数量是：{cacccc}")
+            print(f"计算的参数是  {field_name}：{value}")
             if value is None:
                 # 字段不存在，返回False（不满足条件）
                 # 注意：这里可以根据需求改为警告而不是错误

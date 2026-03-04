@@ -3,6 +3,7 @@ from src.main_code.Core.Select.ConditionEvaluator import FactorEvaluator, load_f
 from src.main_code.Core.Const import FactorsJsonPath
 from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 import time
 FACTORS_METADATA = None
 class BaseClass :
@@ -54,11 +55,24 @@ class BaseClass :
         t0 = time.perf_counter()
         for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
             #如果状态不是成交状态就跳过
+            todayStr = self.main.todayStockDate
+            cls = self.main.calculationDataHandle.GetBaseDataClassTest(val, todayStr ,False)
+
+            if cls.componyInfo.List_Status != "L":
+                print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 暂停上市，不执行")
+                continue
+
+            if cls.trade_state != 1:
+                print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")
+                continue
+
+
+
             score = evaluator.evaluate_stock(val, request.configs)
-            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}")
+                
+            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}      {cls.componyInfo.Name}")
             count += 1
-            #if count > 10:
-            #    break
+
             if score > 0:
                 listCode.append(val)
 
