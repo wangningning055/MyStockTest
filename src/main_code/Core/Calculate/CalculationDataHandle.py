@@ -9,31 +9,83 @@ from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core import Const
 import time
 from functools import partial
+import psutil
+import os
+import bisect
 class BaseClass :
     def __init__(self):
         pass
     def Init(self, main):
         self.main :Main.processor = main
+        self.totalStockList = []
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
-        self.totalBaseDailyData : CalculationDataStruct.AllDateStructBaseClass = CalculationDataStruct.AllDateStructBaseClass()
+        self.totalBaseDailyData : Dict[(str, str), CalculationDataStruct.StructBaseClass] = {}
         self.totalBaseWindowData : Dict[str, CalculationDataStruct.StructBaseWindowClass]  = {}
+        self.totalAdjustData = {}
         self.InitIndustry()
         self.InitCalculateBaseAttrByDic()
         self.totalDateList = self.InitDataList()
-        
-        tempCodeList = []
-        tempCodeList.append("600026.SH")
-        tempCodeList.append("601872.SH")
 
-        tempDateList = []
-        tempDateList.append("20260224")
-        tempDateList.append("20260223")
-        res = self.main.dbHandler.GetDailyRowByCodeListAndDateList(tempCodeList, tempDateList)
-        data = res[("600026.SH", "20260224")]
-        data2 = self.main.dbHandler.GetDailyRowByCodeAndDate(tempCodeList[0], tempDateList[0])
-        print(f"aaaaaa:  {data}")
-        print("-----------------------------------------")
-        print(f"aaaaaa2:  {data2}")
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
+
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        t0 = time.perf_counter()
+
+        print(f"开始获取整个数据 ")
+        print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+
+
+        self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+
+
+
+        print("开始整理复权数据：")
+
+
+
+        self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
+
+
+
+
+        print(f"复权数据整理完毕")
+
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
+        print(f"整个数据获取完毕 ")
+
+
+
+
+        print(f"开始获取整个数据222 ")
+        print(f"开始获取整个数据2222 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        t0 = time.perf_counter()
+
+
+
+        self.InitAllBaseDataClsList(240)
+
+
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"整个数据获取完毕222   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}")
+        cls = self.totalBaseDailyData[("301638.SZ", "20260224")]
+        print(f"整个数据获取完毕2222 :{cls.open}")
+
         #count = 0
         #t0 = time.perf_counter()
         #todayStr = self.GetToday()
@@ -61,6 +113,7 @@ class BaseClass :
         sameList = set()
         for key, val in df.items():
             code = key
+            self.totalStockList.append(code)
             industry = val[temBasic.GetNameByEnum(BasicDBStruct.ColumnEnum.Industry)]
             name = val[temBasic.GetNameByEnum(BasicDBStruct.ColumnEnum.Name)]
             area = val[temBasic.GetNameByEnum(BasicDBStruct.ColumnEnum.Area)]
@@ -117,115 +170,25 @@ class BaseClass :
 
     def GetBaseDataClassTest(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
-        if (stockCode, date) in self.totalBaseDailyData.allDic:
-            baseClass = self.totalBaseDailyData.allDic[stockCode, date]
+        if (stockCode, date) in self.totalBaseDailyData:
+            baseClass = self.totalBaseDailyData[stockCode, date]
             #print(f"直接返回：{stockCode}  {date}")
             return baseClass
         else:
             baseClass = CalculationDataStruct.StructBaseClass()
             baseClass.Init(self, stockCode, date)
-            self.totalBaseDailyData.allDic[stockCode, date] = baseClass
+            self.totalBaseDailyData[stockCode, date] = baseClass
             return baseClass
 
 
     def GetBaseDataClass(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
-        if (stockCode, date) in self.totalBaseDailyData.allDic:
-            baseClass = self.totalBaseDailyData.allDic[stockCode, date]
+        if (stockCode, date) in self.totalBaseDailyData:
+            baseClass = self.totalBaseDailyData[stockCode, date]
             return baseClass
         else:
             baseClass = CalculationDataStruct.StructBaseClass()
             baseClass.Init(self, stockCode, date)
-            self.totalBaseDailyData.allDic[stockCode, date] = baseClass
-            return baseClass
-
-        tempDailyCls = DailyDBStruct.DBStructClass()
-        tempAdjustCls = AdjustDBStruct.DBStructClass()
-        #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
-        if (stockCode, date) in self.totalBaseDailyData.allDic:
-            baseClass = self.totalBaseDailyData.allDic[stockCode, date]
-            if isCalculate:
-                self.CalculateBaseClass(baseClass)
-            #print("基础数据计算已在缓存中")
-            return baseClass
-        else:
-            componyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
-            baseClass = CalculationDataStruct.StructBaseClass()
-            baseClass.componyInfo = componyInfo
-            dailyData = self.main.dbHandler.GetDailyRowByCodeAndDate(stockCode, date)
-            if(dailyData == None):
-                #print("日期不存在")
-                return None
-            self.totalBaseDailyData.allDic[stockCode, date] = baseClass
-            adjustTable = self.main.dbHandler.GetAdjustRowByCodeAndDate(stockCode, date)
-
-            adjust = adjustTable[tempAdjustCls.GetNameByEnum(AdjustDBStruct.ColumnEnum.For_Adjust)]
-            cur_date = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)]
-            open_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)] * adjust
-            close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)] * adjust
-            high_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)] * adjust
-            low_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)] * adjust
-            turn = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Exchange_Hand)]
-            change_Ratio = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Change_Ratio)]
-            amount = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount)]
-            amount_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount_Price)]
-            earn_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Earn_TTM)]
-            clean = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Clean)]
-            cash_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Cash_TTM)]
-            sale_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Sale_TTM)]
-            is_ST = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_ST)]
-            is_Trading = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_Trading)]
-            last_close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Last_Close_Price)]
-            if(is_Trading != 1):
-                average_price = 0
-                amplitude = 0
-            else:
-                average_price = (amount_price / amount) * adjust
-                amplitude = ((high_price - low_price) / last_close_price) * 100
-                #print(f"成交价：{amount_price}   成交量：{amount}，振幅：{amplitude}, 均价{average_price}， 日期：{date}，上市状态：{is_Trading}")
-
-            baseClass.code = stockCode
-            baseClass.adjst = adjust
-            baseClass.trade_date = cur_date
-            baseClass.open = open_price * adjust
-            baseClass.close = close_price * adjust
-            baseClass.last_close = last_close_price
-            baseClass.high = high_price * adjust
-            baseClass.low = low_price * adjust
-
-            baseClass.open_ori = open_price
-            baseClass.close_ori = close_price
-            baseClass.high_ori = high_price
-            baseClass.low_ori = low_price
-
-            baseClass.volume = amount
-            baseClass.change_Ratio = change_Ratio
-            baseClass.volume_price = amount_price
-
-            baseClass.turn = turn
-            if(is_Trading):
-                baseClass.total_value = (amount / (turn / 100 )) * average_price
-            baseClass.earn = earn_TTM
-            baseClass.clean = clean
-            baseClass.cash = cash_TTM
-            baseClass.sale = sale_TTM
-
-            baseClass.amplitude = amplitude
-            baseClass.industry = self.totalComponyIns.GetIndustryStrByCode(stockCode)
-            baseClass.isST = is_ST
-            baseClass.trade_state = is_Trading
-            baseClass.avg = average_price * adjust
-            baseClass.avg_ori = average_price
-
-            #print(f"复权因子是：{adjust}, 日期是{date}")
-            if(isCalculate):
-                #print(f"开始计算单股数据:{stockCode}")
-                t0 = time.perf_counter()
-
-                self.CalculateBaseClass(baseClass)
-                t1 = time.perf_counter()
-                totalCostTime = (t1 - t0)
-                totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-                #print(f"单股数据计算完毕{stockCode}，花费时间：{totalCostTimeStr1}")
+            self.totalBaseDailyData[stockCode, date] = baseClass
             return baseClass
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
@@ -1261,12 +1224,53 @@ class BaseClass :
         dt = datetime.strptime(today, "%Y%m%d")
         end_dt = datetime.strptime(Const.first_Data, "%Y%m%d")
         NoneDataCount = 0
-        while len(dayList) < 500 and dt > end_dt:
+        while len(dayList) < 400 and dt > end_dt:
             dt -= timedelta(days=1)  # 往前一天
             date_str = dt.strftime("%Y%m%d")
             dayList.append(date_str)
             
         return dayList
+    def InitAllBaseDataClsList(self, num):
+        count = 0
+        for date in self.totalDateList:
+            count += 1
+            if count > num:
+                break
+            for code in self.totalStockList:
+                db = self.totalDbList.get((code, date))
+                if db is None:
+                    continue
+                else:
+                    
+                    if (code, date) in self.totalBaseDailyData:
+                        continue
+                    else:
+                        baseClass = CalculationDataStruct.StructBaseClass()
+                        baseClass.Init(self, code, date, db)
+                        self.totalBaseDailyData[code, date] = baseClass
+                        #if code == "301638.SZ":
+                        #    print(f"aaaaaaa   {code},    {date}")
+
+
+    def GetLatestAdjustDataByCodeAndDate(self, code, target_date):
+        """
+        用二分查找快速获取指定日期或之前的最新复权数据
+        时间复杂度 O(logN)，百万级数据也能瞬间查询
+        """
+        if code not in self.totalAdjustData:
+            return {"Open_Price": 1}
+        stock_data = self.totalAdjustData[code]
+        dates = stock_data["dates"]
+        data_dict = stock_data["data"]
+        
+        idx = bisect.bisect_right(dates, target_date) - 1
+        
+        # 没有找到≤目标日期的数据
+        if idx < 0:
+            return {"Open_Price": 1}
+        # 获取最新的有效日期和对应数据
+        latest_date = dates[idx]
+        return data_dict[latest_date]
 
     def InitCalculateBaseAttrByDic(self):
         from src.main_code.Core.Calculate import CalculationUtil

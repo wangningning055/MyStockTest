@@ -26,9 +26,8 @@ class StructBaseClass :
         self._computed_fields = set()
         self.calculateCount = 0
 
-    def Init(self, handler, stockCode, date):
-        dailyData = handler.main.dbHandler.GetDailyRowByCodeAndDate(stockCode, date)
-        if(dailyData == None):
+    def Init(self, handler, stockCode, date, dbData):
+        if(dbData == None):
             return None
 
         self.handler = handler
@@ -39,24 +38,25 @@ class StructBaseClass :
         componyInfo = handler.totalComponyIns.GetComponyInfo(stockCode)
         self.componyInfo = componyInfo
 
-        adjustTable = handler.main.dbHandler.GetAdjustRowByCodeAndDate(stockCode, date)
+        adjustTable = handler.GetLatestAdjustDataByCodeAndDate(stockCode, date)
         adjust = adjustTable[tempAdjustCls.GetNameByEnum(AdjustDBStruct.ColumnEnum.For_Adjust)]
-        cur_date = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)]
-        open_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)] * adjust
-        close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)] * adjust
-        high_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)] * adjust
-        low_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)] * adjust
-        turn = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Exchange_Hand)]
-        change_Ratio = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Change_Ratio)]
-        amount = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount)]
-        amount_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount_Price)]
-        earn_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Earn_TTM)]
-        clean = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Clean)]
-        cash_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Cash_TTM)]
-        sale_TTM = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Sale_TTM)]
-        is_ST = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_ST)]
-        is_Trading = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_Trading)]
-        last_close_price = dailyData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Last_Close_Price)]
+        
+        cur_date = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)]
+        open_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)] * adjust
+        close_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)] * adjust
+        high_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)] * adjust
+        low_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)] * adjust
+        turn = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Exchange_Hand)]
+        change_Ratio = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Change_Ratio)]
+        amount = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount)]
+        amount_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount_Price)]
+        earn_TTM = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Earn_TTM)]
+        clean = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Clean)]
+        cash_TTM = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Cash_TTM)]
+        sale_TTM = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Sale_TTM)]
+        is_ST = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_ST)]
+        is_Trading = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Is_Trading)]
+        last_close_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Last_Close_Price)]
         if(is_Trading != 1):
             average_price = 0
             amplitude = 0
@@ -652,8 +652,8 @@ class StructIndustryInfoClass:
 
 class StructIndustryTotalInfoClass:
     def __init__(self):
-        self.industryList:StructIndustryInfoClass = {}
-        self.allStockList:StructComponyInfoClass = {}
+        self.industryList:Dict[str,StructIndustryInfoClass] = {}
+        self.allStockList:Dict[str,StructComponyInfoClass] = {}
         self.code_industryStr_List = {}  #{code : industry}
 
 

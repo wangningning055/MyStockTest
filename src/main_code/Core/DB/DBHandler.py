@@ -570,31 +570,6 @@ class DBHandlerClass:
 
     #一次性读取数据库，获取指定codeList和指定dateList的数据
     def GetDailyRowByCodeListAndDateList(self, codeList, dateList):
-        """
-        批量查询指定股票代码列表和日期列表的Daily表数据
-        
-        Args:
-            codeList (list[str]): 股票代码列表，例如 ["600000.SH", "000001.SZ"]
-            dateList (list[str]): 交易日期列表，格式为 "YYYYMMDD"，例如 ["20240115", "20240116"]
-            
-        Returns:
-            dict[tuple(str, str), dict]: 返回嵌套字典，外层键为 (code, date) 元组，
-                                        内层为数据字典（同GetDailyRowByCodeAndDate返回格式）
-                                        例如: {
-                                            ("600000.SH", "20240115"): {'ts_code': '600000.SH', 'trade_date': '20240115', ...},
-                                            ("000001.SZ", "20240116"): {'ts_code': '000001.SZ', 'trade_date': '20240116', ...}
-                                        }
-                                        
-        Usage:
-            code_list = ["600000.SH", "000001.SZ"]
-            date_list = ["20240115", "20240116"]
-            result_dict = db_handler.GetDailyRowByCodeListAndDateList(code_list, date_list)
-            
-            # 访问单条数据
-            row = result_dict.get(("600000.SH", "20240115"))
-            if row:
-                print(row['close'])
-        """
         # 边界条件处理：空列表直接返回空字典
         if not codeList or not dateList:
             return {}
@@ -627,3 +602,34 @@ class DBHandlerClass:
             result_dict[key] = row_dict
         
         return result_dict
+    
+    def LoadAllAdjustDataToDict(self):
+        # 获取数据库列名
+        code_column = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Code)
+        date_column = self.adjustDbStruct.GetNameByEnum(AdjustDBStruct.ColumnEnum.Date)
+        
+        # 查询所有复权数据
+        sql = f'''SELECT * FROM {const_proj.DBAdjustTableName}'''
+        self.dbCursor.execute(sql)
+        rows = self.dbCursor.fetchall()
+        
+        # 按股票分组整理数据
+        temp_dict = {}
+        for row in rows:
+            row_dict = dict(row)
+            code = row_dict[code_column]
+            raw_date = row_dict[date_column]
+            
+            # 初始化股票分组
+            if code not in temp_dict:
+                temp_dict[code] = {"dates": [], "data": {}}
+            
+            # 存入该股票的数据
+            temp_dict[code]["data"][raw_date] = row_dict
+            temp_dict[code]["dates"].append(raw_date)
+        
+        # 对每个股票的日期列表进行排序（关键！为二分查找做准备）
+        for code in temp_dict:
+            temp_dict[code]["dates"].sort()  # 升序排序
+        
+        return temp_dict
