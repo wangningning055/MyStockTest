@@ -507,7 +507,6 @@ class DBHandlerClass:
             return dict(row)
         return None
     
-    
     def GetAdjustRowByCodeAndDate(self, code, date):
             """
             按股票代码查询在指定日期或之前的最新复权因子数据
@@ -568,3 +567,63 @@ class DBHandlerClass:
             List.append(row_dict)
             #sameList.add(ts_code)
         return List
+
+    #一次性读取数据库，获取指定codeList和指定dateList的数据
+    def GetDailyRowByCodeListAndDateList(self, codeList, dateList):
+        """
+        批量查询指定股票代码列表和日期列表的Daily表数据
+        
+        Args:
+            codeList (list[str]): 股票代码列表，例如 ["600000.SH", "000001.SZ"]
+            dateList (list[str]): 交易日期列表，格式为 "YYYYMMDD"，例如 ["20240115", "20240116"]
+            
+        Returns:
+            dict[tuple(str, str), dict]: 返回嵌套字典，外层键为 (code, date) 元组，
+                                        内层为数据字典（同GetDailyRowByCodeAndDate返回格式）
+                                        例如: {
+                                            ("600000.SH", "20240115"): {'ts_code': '600000.SH', 'trade_date': '20240115', ...},
+                                            ("000001.SZ", "20240116"): {'ts_code': '000001.SZ', 'trade_date': '20240116', ...}
+                                        }
+                                        
+        Usage:
+            code_list = ["600000.SH", "000001.SZ"]
+            date_list = ["20240115", "20240116"]
+            result_dict = db_handler.GetDailyRowByCodeListAndDateList(code_list, date_list)
+            
+            # 访问单条数据
+            row = result_dict.get(("600000.SH", "20240115"))
+            if row:
+                print(row['close'])
+        """
+        # 边界条件处理：空列表直接返回空字典
+        if not codeList or not dateList:
+            return {}
+        
+        # 获取列名字段
+        code_column = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Code)
+        date_column = self.dailyDbStruct.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)
+        
+        # 构建IN查询的参数占位符（避免SQL注入）
+        # 生成如 (?, ?, ?) 格式的code占位符
+        code_placeholders = ', '.join(['?'] * len(codeList))
+        # 生成如 (?, ?, ?) 格式的date占位符
+        date_placeholders = ', '.join(['?'] * len(dateList))
+        
+        # 构建批量查询SQL
+        sql = f'''SELECT * FROM {const_proj.DBDailyTableName} 
+                WHERE {code_column} IN ({code_placeholders}) 
+                AND {date_column} IN ({date_placeholders})'''
+        
+        # 执行查询（参数列表 = 代码列表 + 日期列表）
+        self.dbCursor.execute(sql, codeList + dateList)
+        rows = self.dbCursor.fetchall()
+        
+        # 构建 (code, date) -> row 的映射字典
+        result_dict = {}
+        for row in rows:
+            row_dict = dict(row)
+            # 从行数据中提取code和date作为键
+            key = (row_dict[code_column], row_dict[date_column])
+            result_dict[key] = row_dict
+        
+        return result_dict

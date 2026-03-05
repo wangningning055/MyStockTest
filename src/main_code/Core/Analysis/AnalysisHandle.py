@@ -5,6 +5,9 @@ from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 import time
+import psutil
+import os
+
 FACTORS_METADATA = None
 class BaseClass :
     def Init(self, main):
@@ -26,6 +29,11 @@ class BaseClass :
         print(f"开始进行条件选股: {conditionJson}")
         evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
         evaluator.SetMain(self.main)
+
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
+
         try:
             # Pydantic自动验证并转换
             request = SelectionRequest(**conditionJson)
@@ -66,13 +74,19 @@ class BaseClass :
                 print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")
                 continue
 
-
-
             score = evaluator.evaluate_stock(val, request.configs)
-                
-            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}      {cls.componyInfo.Name}")
-            count += 1
+            
+            # 获取内存使用信息（以字节为单位）
+            mem_info = process.memory_info()
+            
+            # 转换为MB（1MB = 1024 * 1024 字节）
+            rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+            vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
 
+            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}      {cls.componyInfo.Name}, 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            count += 1
+            if count > 3:
+                break
             if score > 0:
                 listCode.append(val)
 

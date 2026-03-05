@@ -197,11 +197,12 @@ class RequestorClass:
 
         #2025 3, 2, 1
         #2024 4 3 2  1(等待csv)
-        #2023 4(等待csv)  2
+        #2023 4(等待csv)  3 2 1
+        #2022 4 3 2 1
 
         #直接拉
-        year = 2023
-        quarter = 3
+        year = 2021
+        quarter = 1
         clsList = []
         for code in codeList:
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
@@ -218,19 +219,13 @@ class RequestorClass:
                 except Exception as e:
                     print(f"写入数据库失败: {e}")
 
-                tempList = []
-                tempList.append(cls)
-                try:
-                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
-                except Exception as e:
-                    print(f"写入数据库失败: {e}")
 
             #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
             #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
 
             print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
-            #count = count + 1
+            count = count + 1
             #if count > 3:
             #    break
                 #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")

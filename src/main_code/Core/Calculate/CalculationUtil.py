@@ -170,8 +170,6 @@ def GetAmplitude_Avg(NowData:"CalculationDataStruct.StructBaseClass", num):
     return avg1
 
 
-
-
 #成交额涨跌幅计算
 def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 0
@@ -190,7 +188,6 @@ def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
 
     target = (NowData.volume_price - avg) / avg
     return target * 100
-
 
 
 def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
@@ -423,7 +420,6 @@ def GetIndustry_Rank_Volume_Price(NowData : "CalculationDataStruct.StructBaseCla
     return targetRank
 
 
-
 #获取当日行业成交额涨跌幅排名(前%)
 def GetIndustry_Rank_Price_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
@@ -484,8 +480,6 @@ def GetIndustry_Rank_Volume_Ratio(NowData : "CalculationDataStruct.StructBaseCla
             #print(f"行业：{industryStr}， 股票代码：{val.Code}, 股票名称{val.Name}，市盈率 {val.Earn}, 排名是：{count} / {len(industryCls.stockList)}")
     return targetRank
 
-
-
     
 #获取当日涨跌幅排名(前%)
 def GetIndustry_Rank_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
@@ -511,9 +505,6 @@ def GetIndustry_Rank_Ratio(NowData : "CalculationDataStruct.StructBaseClass",han
             targetRank = (count / len(industryCls.stockList)) * 100
             #print(f"行业：{industryStr}， 股票代码：{val.Code}, 股票名称{val.Name}，市盈率 {val.Earn}, 排名是：{count} / {len(industryCls.stockList)}")
     return targetRank
-
-
-
 
 
 
@@ -600,7 +591,6 @@ def GetIndustry_Rank_Turn_Ratio(NowData : "CalculationDataStruct.StructBaseClass
             targetRank = (count / len(industryCls.stockList)) * 100
             #print(f"行业：{industryStr}， 股票代码：{val.Code}, 股票名称{val.Name}，市盈率 {val.Earn}, 排名是：{count} / {len(industryCls.stockList)}")
     return targetRank
-
 
 
 
@@ -761,7 +751,6 @@ def GetAmplitudeState(NowData : "CalculationDataStruct.StructBaseClass", num):
         return 1
     else:
         return -1
-
 
 
 #获取涨停次数
@@ -980,7 +969,7 @@ def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
     return (startVal - endVal)*100 / endVal
 
 #期间的整体涨跌幅
-def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", startDayCount, toDayCount ):
+def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass",StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     fullDataList = [NowData] + dataList_240
 
@@ -991,30 +980,30 @@ def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClas
     secondVolume = 0
     secondVolumeAddCount = 0
     for day in fullDataList:
-        if toDayCount - startDayCount < 3:
-            if dayCount == startDayCount:
+        if ToDayCount - StartDayCount < 3:
+            if dayCount == StartDayCount:
                 firstVolume = day.close
                 #print(f"正在算整体涨跌幅，直接记录开始日期是：{day.trade_date}")
 
-            if dayCount == toDayCount or  dayCount == len(fullDataList) - 1:
+            if dayCount == ToDayCount or  dayCount == len(fullDataList) - 1:
                 secondVolume = day.close
                 #print(f"正在算整体涨跌幅，直接记录结束日期是：{day.trade_date}")
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
-            if dayCount >= startDayCount and dayCount < (startDayCount + (toDayCount - startDayCount) / 2) :
+            if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
                 #print(f"正在算整体涨跌幅，计算的前半部分日期是：{day.trade_date}")
                 firstVolume += day.close
                 firstVolumeAddCount += 1
-            elif dayCount >= (startDayCount + (toDayCount - startDayCount) / 2) and dayCount <= toDayCount:
+            elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
                 secondVolume += day.close
                 #print(f"正在算整体涨跌幅，计算的前后部分日期是：{day.trade_date}")
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
+            if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount if firstVolumeAddCount > 0 else 0
                 secondVolume = secondVolume / secondVolumeAddCount if secondVolumeAddCount > 0 else 0
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -1040,7 +1029,7 @@ def GetAvg_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", Start
     return (startVal - endVal)*100 / endVal if endVal != 0 else 0
 
 #期间的整体均价涨跌幅
-def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", startDayCount, toDayCount):
+def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     fullDataList = [NowData] + dataList_240
 
@@ -1051,26 +1040,26 @@ def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass",
     secondVolume = 0
     secondVolumeAddCount = 0
     for day in fullDataList:
-        if toDayCount - startDayCount < 3:
-            if dayCount == startDayCount:
+        if ToDayCount - StartDayCount < 3:
+            if dayCount == StartDayCount:
                 firstVolume = day.avg
 
-            if dayCount == toDayCount or  dayCount == len(dataList_240) - 1:
+            if dayCount == ToDayCount or  dayCount == len(dataList_240) - 1:
                 secondVolume = day.avg
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
-            if dayCount >= startDayCount and dayCount < (startDayCount + (toDayCount - startDayCount) / 2) :
+            if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
                 firstVolume += day.avg
                 firstVolumeAddCount += 1
-            elif dayCount >= (startDayCount + (toDayCount - startDayCount) / 2) and dayCount <= toDayCount:
+            elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
                 secondVolume += day.avg
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
+            if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount if firstVolumeAddCount > 0 else 0
                 secondVolume = secondVolume / secondVolumeAddCount if secondVolumeAddCount > 0 else 0
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2746,7 +2735,7 @@ def GetIndustry_Down_Count(industryInfo :"CalculationDataStruct.StructIndustryIn
 
 
 #获取期间内行业整体成交量
-def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2762,16 +2751,16 @@ def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustr
     dayCount = 0
     totalVolume = 0
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalVolume += GetIndustry_Volume(industryInfo, day, handler)
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount or dayCount >= len(fullDataList) - 1 :
+        if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1 :
             return totalVolume
 
 
 #获取期间内行业整体成交额
-def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2787,16 +2776,16 @@ def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructI
     dayCount = 0
     totalVolume = 0
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
+        if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume
         
 
 #获取期间内行业平均成交量
-def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2809,17 +2798,17 @@ def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructInd
     addCount = 0
     totalVolume = 0
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalVolume += GetIndustry_Volume(industryInfo, day, handler)
             addCount += 1
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
+        if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume / addCount if addCount > 0 else 0
 
 
 #获取期间内行业平均成交额
-def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2831,19 +2820,19 @@ def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.Str
     addCount = 0
     totalVolume = 0
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
             addCount += 1
             #print(f"目标日期：{day}")
 
         dayCount = dayCount + 1
-        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
+        if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
             return totalVolume / addCount if addCount > 0 else 0
         
 
 
 #获取期间内行业成交量涨跌幅
-def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2860,26 +2849,26 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
     secondVolumeAddCount = 0
     for day in fullDataList:
 
-        if toDayCount - startDayCount < 3:
-            if dayCount == startDayCount:
+        if ToDayCount - StartDayCount < 3:
+            if dayCount == StartDayCount:
                 firstVolume = GetIndustry_Volume(industryInfo, day, handler)
 
-            if dayCount == toDayCount or dayCount == len(fullDataList):
+            if dayCount == ToDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Volume(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
-            if dayCount >= startDayCount and dayCount < (startDayCount + (toDayCount - startDayCount) / 2) :
+            if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
                 firstVolume += GetIndustry_Volume(industryInfo, day, handler)
                 firstVolumeAddCount += 1
-            elif dayCount >= (startDayCount + (toDayCount - startDayCount) / 2) and dayCount <= toDayCount:
+            elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
                 secondVolume += GetIndustry_Volume(industryInfo, day, handler)
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
+            if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2887,7 +2876,7 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
 
 
 #获取期间内行业成交额涨跌幅
-def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2904,33 +2893,33 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.S
     secondVolumeAddCount = 0
     for day in fullDataList:
 
-        if toDayCount - startDayCount < 3:
-            if dayCount == startDayCount:
+        if ToDayCount - StartDayCount < 3:
+            if dayCount == StartDayCount:
                 firstVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
 
-            if dayCount == toDayCount or dayCount == len(fullDataList):
+            if dayCount == ToDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
-            if dayCount >= startDayCount and dayCount < (startDayCount + (toDayCount - startDayCount) / 2) :
+            if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
                 firstVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
                 firstVolumeAddCount += 1
-            elif dayCount >= (startDayCount + (toDayCount - startDayCount) / 2) and dayCount <= toDayCount:
+            elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
                 secondVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
+            if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
 
 #行业涨跌幅
-def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2939,9 +2928,9 @@ def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
     fullDataList = [trade_date] + dataList
 
     for day in fullDataList:
-        if dayCount == startDayCount:
+        if dayCount == StartDayCount:
             firstPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
-        if dayCount == toDayCount or dayCount == len(fullDataList):
+        if dayCount == ToDayCount or dayCount == len(fullDataList):
             secondPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
             ratio = (firstPrice - secondPrice) / secondPrice if secondPrice != 0 else 0
             return ratio * 100
@@ -2950,7 +2939,7 @@ def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
    
 
 #行业整体涨跌幅
-def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
         if(dataList.__len__() > 200):
@@ -2967,26 +2956,26 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.S
     secondVolumeAddCount = 0
     for day in fullDataList:
 
-        if toDayCount - startDayCount < 3:
-            if dayCount == startDayCount:
+        if ToDayCount - StartDayCount < 3:
+            if dayCount == StartDayCount:
                 firstVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
 
-            if dayCount == toDayCount or dayCount == len(fullDataList):
+            if dayCount == ToDayCount or dayCount == len(fullDataList):
                 secondVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
-            if dayCount >= startDayCount and dayCount < (startDayCount + (toDayCount - startDayCount) / 2) :
+            if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
                 firstVolume += GetIndustry_Avg_Price(industryInfo, day, handler)
                 firstVolumeAddCount += 1
-            elif dayCount >= (startDayCount + (toDayCount - startDayCount) / 2) and dayCount <= toDayCount:
+            elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
                 secondVolume += GetIndustry_Avg_Price(industryInfo, day, handler)
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
 
-            if dayCount > toDayCount or dayCount >= len(fullDataList) - 1:
+            if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1:
                 firstVolume = firstVolume / firstVolumeAddCount
                 secondVolume = secondVolume / secondVolumeAddCount
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
@@ -2994,7 +2983,7 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.S
             
 
 #平均行业上涨股数量
-def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList = []
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
@@ -3005,15 +2994,15 @@ def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndus
     totalCount = 0
     fullDataList = [trade_date] + dataList
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalCount += GetIndustry_Up_Count(industryInfo, day, handler)
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 上涨股数量：{count}")
         dayCount = dayCount + 1
-        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
+        if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
             return totalCount / addCount if addCount > 0 else 0
 #平均行业下跌股数量
-def GetIndustry_Down_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, startDayCount, toDayCount, handler:"CalculationDataHandle.BaseClass"):
+def GetIndustry_Down_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dataList = []
     for key, val in industryInfo.stockList.items():
         dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
@@ -3024,10 +3013,10 @@ def GetIndustry_Down_Stock_Window(industryInfo :"CalculationDataStruct.StructInd
     totalCount = 0
     fullDataList = [trade_date] + dataList
     for day in fullDataList:
-        if dayCount >= startDayCount and dayCount <= toDayCount:
+        if dayCount >= StartDayCount and dayCount <= ToDayCount:
             totalCount += GetIndustry_Down_Count(industryInfo, day, handler)
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 下跌股数量：{count}")
         dayCount = dayCount + 1
-        if dayCount > toDayCount  or dayCount >= len(fullDataList) - 1:
+        if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
             return totalCount / addCount if addCount > 0 else 0
