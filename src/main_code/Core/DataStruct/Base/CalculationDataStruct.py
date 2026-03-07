@@ -177,14 +177,14 @@ class StructBaseClass :
     volume_ratio_20:float        #20日成交量涨跌幅
     volume_ratio_40:float        #40日成交量涨跌幅
 
-    volume_price: Optional[float] = None        #当日成交额
-    volume_price_ratio: Optional[float] = None        #当日成交额涨跌幅
+    volume_price: Optional[float]        #当日成交额
+    volume_price_ratio: Optional[float]        #当日成交额涨跌幅
 
-    volume_price_ratio_3: Optional[float] = None        #3日成交额涨跌幅
-    volume_price_ratio_5: Optional[float] = None        #5日成交额涨跌幅
-    volume_price_ratio_10: Optional[float] = None        #10日成交额涨跌幅
-    volume_price_ratio_20: Optional[float] = None        #20日成交额涨跌幅
-    volume_price_ratio_40: Optional[float] = None        #40日成交额涨跌幅
+    volume_price_ratio_3: Optional[float]        #3日成交额涨跌幅
+    volume_price_ratio_5: Optional[float]        #5日成交额涨跌幅
+    volume_price_ratio_10: Optional[float]        #10日成交额涨跌幅
+    volume_price_ratio_20: Optional[float]        #20日成交额涨跌幅
+    volume_price_ratio_40: Optional[float]        #40日成交额涨跌幅
     
     volume_price_energy:float    #当日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大
     volume_price_energy_5:float    #5日资金成交动量，正数越大向上推动越大，负数越小向下抛压越大
@@ -255,6 +255,20 @@ class StructBaseClass :
 
 
     #快捷指标
+
+    volumeState_1: float #成交量状态_1周期
+    volumeState_3: float #成交量状态_3周期
+    volumeState_5: float #成交量状态_5周期
+    volumeState_10: float #成交量状态_10周期
+    priceState_1: float #价格状态_1周期
+    priceState_3: float #价格状态_3周期
+    priceState_5: float #价格状态_5周期
+    priceState_10: float #价格状态_10周期
+    amplitudeState_1: float #振幅状态_1周期
+    amplitudeState_3: float #振幅状态_3周期
+    amplitudeState_5: float #振幅状态_5周期
+    amplitudeState_10: float #振幅状态_10周期
+
     is_up_up:float#是否放量增长(>或小于1)
     is_low_up:float#是否缩量增长
     is_up_low:float#是否放量降低

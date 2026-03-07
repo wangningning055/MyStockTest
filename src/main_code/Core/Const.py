@@ -49,7 +49,7 @@ amplitude_boundary = 4
 volume_boundary = 2
 
 
-NoneValue = -9999
+NoneValue = -999999
 
 
 #备忘

@@ -50,7 +50,7 @@ class processor:
         print(f"初始化完毕, 最近的有效股票数据日期是：{self.todayStockDate}")
         self.isInit = True
 
-        #self.Temp_ImportValue()
+        self.Temp_ExportValue()
 
     def Temp_ExportValue(self):
         listValue = self.dbHandler.GetAllValueData()

@@ -202,7 +202,7 @@ class RequestorClass:
 
         #直接拉
         year = 2021
-        quarter = 1
+        quarter = 4
         clsList = []
         for code in codeList:
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)

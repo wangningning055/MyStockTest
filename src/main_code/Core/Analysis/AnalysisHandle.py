@@ -44,13 +44,6 @@ class BaseClass :
             self.isOnlyValue = request.isExclude_Value
             self.isOnlyGrow = request.isExclude_Grow
             print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
-            print(request)
-            self.isOutST = request.isExcludeST
-            self.isOutCY = request.isExcludeCY
-            self.isOutKC = request.isExcludeKC
-            self.isOnlyValue = request.isExclude_Value
-            self.isOnlyGrow = request.isExclude_Grow
-            print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
             print(f"   配置数: {len(request.configs)}")
             print(f"   第一个因子: {request.configs[0].factor_group_name}")
             print(f"   权重: {request.configs[0].weight}")
@@ -64,7 +57,7 @@ class BaseClass :
         for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
             #如果状态不是成交状态就跳过
             todayStr = self.main.todayStockDate
-            cls = self.main.calculationDataHandle.GetBaseDataClassTest(val, todayStr ,False)
+            cls = self.main.calculationDataHandle.GetBaseDataClass(val, todayStr ,False)
 
             if cls.componyInfo.List_Status != "L":
                 print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 暂停上市，不执行")
@@ -73,6 +66,10 @@ class BaseClass :
             if cls.trade_state != 1:
                 print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")
                 continue
+            if len(cls.dataList_240) < 10:
+                print(f"股票{cls.componyInfo.Name}：{val} 新上市交易日不足十天，跳过")
+
+            #这里还要判断window条件的toData是否dataList_240满足，不满足也跳过
 
             score = evaluator.evaluate_stock(val, request.configs)
             
@@ -85,7 +82,7 @@ class BaseClass :
 
             print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}      {cls.componyInfo.Name}, 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
             count += 1
-            if count > 3:
+            if count > 100:
                 break
             if score > 0:
                 listCode.append(val)

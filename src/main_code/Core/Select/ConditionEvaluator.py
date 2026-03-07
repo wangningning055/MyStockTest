@@ -105,11 +105,19 @@ class ConditionEvaluator:
         # 初始化结果
         current_result = None
         current_relation = None
-        
+        lastResult = None
         try:
             for i, node in enumerate(nodes):
-                node_result, error = self._evaluate_node(node)
                 current_relation = node.relation
+                if(lastResult != None):
+                    if(lastResult == True and current_relation == 'OR'):
+                        #上一个是真，且与上一个节点关系是或的情况下，无需计算
+                        continue
+                    if(lastResult == False and current_relation == 'AND'):
+                        #上一个是假，且与上一个节点关系是且的情况下，无需计算
+                        continue
+
+                node_result, error = self._evaluate_node(node)
                 #if node.type == "condition":
                 #    print(f"处理条件：{node.factor_name}， 条件执行逻辑：{current_relation}")
                 #if node.type == "group":
@@ -134,6 +142,7 @@ class ConditionEvaluator:
                     else:
                         logger.warn(f"⚠️ 未知的逻辑关系: {current_relation}")
                 
+                lastResult = node_result
                 # 保存下一个节点的逻辑关系
             
             return current_result, None
@@ -209,12 +218,10 @@ class ConditionEvaluator:
             #print(f"条件id是：{id}， 日期是：{todayStr}")
             if id >= 1000 and id < 200000:
                 #print("计算当日条件")
-                #data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr, True)
-                data = self.main.calculationDataHandle.GetBaseDataClassTest(self.stock_code, todayStr)
+                data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr)
             #区间单股数据
             if id >= 200000 and id < 300000:
                 #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
-                #data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
                 data = self.main.calculationDataHandle.GetWindowDataClassTest(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
             #当日行业
             if id >= 300000 and id < 400000:

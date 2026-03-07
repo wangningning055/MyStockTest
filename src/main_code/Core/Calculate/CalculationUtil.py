@@ -47,11 +47,9 @@ def CalculateIndustryBase(industryCls: "CalculationDataStruct.StructIndustryInfo
             continue
 
         # 获取最近240个交易日（只获取一次）
-        listDay = handler.GetLastTradeDateList(code, today_str, 10)
+        listDay = handler.totalDateList
 
-        if not listDay:
-            print(f"!!!!!!!!!遇到了没法计算的：{code}")
-            continue
+
 
         # 记录还缺哪些字段（减少重复判断）
         need_total   = company_info.Total_Value == 0
@@ -107,11 +105,15 @@ def CalculateIndustryBase(industryCls: "CalculationDataStruct.StructIndustryInfo
     #print("公司基本净，盈，销，现计算完毕")
 
 
-#涨跌幅计算
-def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num):
+#涨跌幅计算(只算第一天和最后num天)
+def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num = 1):
     count = 0
     target_Price = 0
+    todayPrice = NowData.close
     for val in NowData.dataList_240:
+        if count == 0:
+            count = count + 1
+            continue
         target_Price = val.close
         count = count + 1
         if count >= num:
@@ -119,40 +121,26 @@ def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num):
     res = ((NowData.close - target_Price) / target_Price) * 100
     return res
 
-#成交量涨跌幅计算
-def GetVolume_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num):
-    count = 1
-    avg1 = NowData.volume
-    avg2 = 0
-    avg1Add = 1
-    avg2Add = 0
+#成交量涨跌幅计算(只算第一天和最后num天)
+def GetVolume_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num = 1):
+    count = 0
+    target_Price = 0
     for val in NowData.dataList_240:
-        if count < num:
-            avg1 = avg1 + val.volume
-            avg1Add += 1
-        elif count >=num and count < num * 2:
-            avg2 = avg2 + val.volume
-            avg2Add += 1
-        else:
-            break
+        if count == 0:
+            count = count + 1
+            continue
+        target_Price = val.volume
         count = count + 1
-
-    if count < num:
-        num = count
-    
-    avg1 = avg1 / avg1Add
-    avg2 = avg2 / avg2Add
-
-    target =  (avg1 - avg2) / avg2
-    #if num != 1:
-        #print(f"计算出的结果是 {target *100}， 均价1：{avg1 / 10000}，  均价2： {avg2 / 10000}，  数量：{num}")
-    return target *100
+        if count >= num:
+            break
+    res = ((NowData.volume - target_Price) / target_Price) * 100
+    return res
 
 #平均振幅计算
 def GetAmplitude_Avg(NowData:"CalculationDataStruct.StructBaseClass", num):
-    count = 1
-    avg1 = NowData.amplitude
-    avg1Add = 1
+    count = 0
+    avg1 = 0
+    avg1Add = 0
     for val in NowData.dataList_240:
         if count < num:
             avg1 = avg1 + val.amplitude
@@ -164,34 +152,29 @@ def GetAmplitude_Avg(NowData:"CalculationDataStruct.StructBaseClass", num):
 
     avg1 = avg1 / avg1Add
 
-    #target =  (avg1 - avg2) / avg2
-    #if num != 1:
-        #print(f"计算出的结果是 {target *100}， 均价1：{avg1 / 10000}，  均价2： {avg2 / 10000}，  数量：{num}")
     return avg1
 
 
-#成交额涨跌幅计算
+#成交额涨跌幅计算(只算第一天和最后一天)
 def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
     count = 0
-    avg = 0
-
+    target_Price = 0
+    todayPrice = NowData.volume_price
     for val in NowData.dataList_240:
-        avg = avg + val.volume_price
+        if count == 0:
+            count = count + 1
+            continue
+        target_Price = val.volume_price
         count = count + 1
         if count >= num:
             break
+    res = ((NowData.volume_price - target_Price) / target_Price) * 100
+    return res
 
-    if count < num:
-        num = count
-
-    avg = avg / num
-
-    target = (NowData.volume_price - avg) / avg
-    return target * 100
 
 
 def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
-    lastDay = NowData.dataList_240[0]
+    lastDay = NowData.dataList_240[1]
     target = (NowData.avg - lastDay.avg) / lastDay.avg
     return target *100
 
@@ -200,25 +183,27 @@ def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
 def GetVolume_5(NowData : "CalculationDataStruct.StructBaseClass"):
     total = 0
     count = 0
-    target_num = 5
+    addCount = 0
     if(len(NowData.dataList_240)<=0):
         return 0
     for val in NowData.dataList_240:
+        if count == 0:
+            count = count + 1
+            continue
         total = total + val.volume
+        addCount += 1
         count = count + 1
         if(count >= 5):
             break
-    if count < 5:
-        target_num = count
 
-    total = total / target_num if target_num != 0 else 0
+    total = total / addCount if addCount != 0 else 0
     target = NowData.volume / total
     return target
 
 
 #换手率涨跌幅计算
 def GetTurn_Ratio(NowData : "CalculationDataStruct.StructBaseClass"):
-    lastDay = NowData.dataList_240[0]
+    lastDay = NowData.dataList_240[1]
     target = (NowData.turn - lastDay.turn) / lastDay.turn
     return target * 100
 
@@ -228,6 +213,9 @@ def GetVolume_Energy(NowData : "CalculationDataStruct.StructBaseClass", dayNum):
     count = 0
     total_Value = 0
     for data in NowData.dataList_240:
+        if count == 0:
+            count += 1
+            continue
         total_Value = total_Value + data.volume_price
         count = count + 1 
         if(count >= dayNum):
@@ -240,10 +228,7 @@ def GetVolume_Energy(NowData : "CalculationDataStruct.StructBaseClass", dayNum):
 #获取在行业的市值排名
 def GetIndustry_Rank_Value(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
-    value = NowData.total_value
-    name = handler.totalComponyIns.GetComponyInfo(code).Name
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
     CalculateIndustryBase(industryCls, handler)
     sorted_dict = dict(
         sorted(industryCls.stockList.items(), key=lambda x: x[1].Total_Value, reverse=True)
@@ -263,10 +248,7 @@ def GetIndustry_Rank_Value(NowData : "CalculationDataStruct.StructBaseClass",han
 #获取在行业的市盈率排名
 def GetIndustry_Rank_Earn(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
-    value = NowData.total_value
-    name = handler.totalComponyIns.GetComponyInfo(code).Name
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
     CalculateIndustryBase(industryCls, handler)
 
     sorted_dict = dict(
@@ -288,8 +270,6 @@ def GetIndustry_Rank_Earn(NowData : "CalculationDataStruct.StructBaseClass",hand
 #获取在行业的市净率排名
 def GetIndustry_Rank_Clean(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
-    value = NowData.total_value
-    name = handler.totalComponyIns.GetComponyInfo(code).Name
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
     industryStr = industryCls.industryName
     CalculateIndustryBase(industryCls, handler)
@@ -314,10 +294,7 @@ def GetIndustry_Rank_Clean(NowData : "CalculationDataStruct.StructBaseClass",han
 #获取在行业的市销率排名
 def GetIndustry_Rank_Sale(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
-    value = NowData.total_value
-    name = handler.totalComponyIns.GetComponyInfo(code).Name
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
     CalculateIndustryBase(industryCls, handler)
 
     sorted_dict = dict(
@@ -339,10 +316,7 @@ def GetIndustry_Rank_Sale(NowData : "CalculationDataStruct.StructBaseClass",hand
 #获取在行业的市现率排名
 def GetIndustry_Rank_Cash(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
-    value = NowData.total_value
-    name = handler.totalComponyIns.GetComponyInfo(code).Name
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
     CalculateIndustryBase(industryCls, handler)
 
     sorted_dict = dict(
@@ -369,8 +343,6 @@ def GetIndustry_Rank_Cash(NowData : "CalculationDataStruct.StructBaseClass",hand
 def GetIndustry_Rank_Volume(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
-
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
@@ -398,7 +370,6 @@ def GetIndustry_Rank_Volume(NowData : "CalculationDataStruct.StructBaseClass",ha
 def GetIndustry_Rank_Volume_Price(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -424,16 +395,11 @@ def GetIndustry_Rank_Volume_Price(NowData : "CalculationDataStruct.StructBaseCla
 def GetIndustry_Rank_Price_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
-        if not dailyCls.isCalculate :
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
-            dailyCls.dataList_240 = dataList_20
-            dailyCls.volume_price_ratio = GetVolume_Price(dailyCls, 1)
-            pass
+        temp = dailyCls.volume_price_ratio
         industryDailyList.append(dailyCls)
 
     industryDailyList.sort(key=lambda x: x.volume_price_ratio, reverse=True)
@@ -447,23 +413,17 @@ def GetIndustry_Rank_Price_Ratio(NowData : "CalculationDataStruct.StructBaseClas
 
         if val.code == code:
             targetRank = (count / len(industryCls.stockList)) * 100
-            #print(f"行业：{industryStr}， 股票代码：{val.Code}, 股票名称{val.Name}，市盈率 {val.Earn}, 排名是：{count} / {len(industryCls.stockList)}")
     return targetRank
 
 #获取当日行业成交量涨跌幅排名(前%)
 def GetIndustry_Rank_Volume_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
-        if not dailyCls.isCalculate :
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 40)
-            dailyCls.dataList_240 = dataList_20
-            dailyCls.volume_ratio = GetVolume_Ratio(dailyCls, 1)
-            pass
+        temp = dailyCls.volume_ratio
         industryDailyList.append(dailyCls)
 
     industryDailyList.sort(key=lambda x: x.volume_ratio, reverse=True)
@@ -485,7 +445,6 @@ def GetIndustry_Rank_Volume_Ratio(NowData : "CalculationDataStruct.StructBaseCla
 def GetIndustry_Rank_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -512,7 +471,6 @@ def GetIndustry_Rank_Ratio(NowData : "CalculationDataStruct.StructBaseClass",han
 def GetIndustry_Rank_Amplitude(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -539,7 +497,6 @@ def GetIndustry_Rank_Amplitude(NowData : "CalculationDataStruct.StructBaseClass"
 def GetIndustry_Rank_Turn(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -566,16 +523,11 @@ def GetIndustry_Rank_Turn(NowData : "CalculationDataStruct.StructBaseClass",hand
 def GetIndustry_Rank_Turn_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
-        if not dailyCls.isCalculate :
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
-            dailyCls.dataList_240 = dataList_20
-            dailyCls.turn_ratio = GetTurn_Ratio(dailyCls)
-            pass
+        temp = dailyCls.turn_ratio
         industryDailyList.append(dailyCls)
 
     industryDailyList.sort(key=lambda x: x.turn_ratio, reverse=True)
@@ -598,16 +550,11 @@ def GetIndustry_Rank_Turn_Ratio(NowData : "CalculationDataStruct.StructBaseClass
 def GetIndustry_Rank_Avg_Ratio(NowData : "CalculationDataStruct.StructBaseClass",handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, NowData.trade_date, False)
-        if not dailyCls.isCalculate :
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(dailyCls.code, dailyCls.trade_date, 20)
-            dailyCls.dataList_240 = dataList_20
-            dailyCls.avg_ratio = GetAvg_Ratio(dailyCls)
-            pass
+        temp = dailyCls.avg_ratio
         industryDailyList.append(dailyCls)
 
     industryDailyList.sort(key=lambda x: x.avg_ratio, reverse=True)
@@ -626,18 +573,18 @@ def GetIndustry_Rank_Avg_Ratio(NowData : "CalculationDataStruct.StructBaseClass"
 
 ##X日均价
 def GetAvg(NowData : "CalculationDataStruct.StructBaseClass", num):
-    count = 1
-    total = NowData.avg
+    total = 0
+    addCount = 0
+    count = 0
     for data in NowData.dataList_240:
         total = total + data.avg
+        addCount += 1
         if count >= (num - 1):
             break
         count = count + 1
 
-    if count < num:
-        num = count
 
-    total = total / num
+    total = total / addCount
     return total
 
 
@@ -756,17 +703,11 @@ def GetAmplitudeState(NowData : "CalculationDataStruct.StructBaseClass", num):
 #获取涨停次数
 def GetUpStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
-    count = 1
+    count = 0
     upStopCount = 0
     target = 0.1
     if NowData.code.startswith("300") or NowData.code.startswith("688") or NowData.code.startswith("301"):
-        #print("这个涨跌幅超过20")
         target = 0.2
-    if StartDayCount <= 0:
-        if abs(NowData.close - (NowData.last_close + NowData.last_close * target)) / NowData.close <= 0.003 :
-            upStopCount = upStopCount + 1
-            #print(f"当天，这天涨停")
-            #print(f"这是第{count}天, 开盘价：{NowData.open}，  收盘价：{NowData.close}  涨停价：{NowData.last_close + NowData.last_close * target}，  插值：{abs(NowData.close - (NowData.open + NowData.open * target)) / NowData.open}")
         
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
@@ -780,17 +721,11 @@ def GetUpStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCo
 #获取跌停次数
 def GetDownStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
-    count = 1
+    count = 0
     upStopCount = 0
     target = 0.1
-    if NowData.code.startswith("300") or NowData.code.startswith("688"):
-        #print("这个涨跌幅超过20")
+    if NowData.code.startswith("300") or NowData.code.startswith("688") or NowData.code.startswith("301"):
         target = 0.2
-    if StartDayCount <= 0:
-        if abs(NowData.close - (NowData.last_close - NowData.last_close * target)) / NowData.close <= 0.003 :
-            upStopCount = upStopCount + 1
-            #print(f"当天，这天涨停")
-            #print(f"这是第{count}天, 开盘价：{NowData.open}，  收盘价：{NowData.close}  涨停价：{NowData.last_close + NowData.last_close * target}，  插值：{abs(NowData.close - (NowData.open + NowData.open * target)) / NowData.open}")
         
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
@@ -805,9 +740,7 @@ def GetDownStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDay
 def GetVolume_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     totalVolume = 0
     dataList_240 = NowData.dataList_240
-    count = 1
-    if StartDayCount <= 0:
-        totalVolume = NowData.volume
+    count = 0
         
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
@@ -820,9 +753,7 @@ def GetVolume_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDay
 def GetVolume_Price_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     totalVolume = 0
     dataList_240 = NowData.dataList_240
-    count = 1
-    if StartDayCount <= 0:
-        totalVolume = NowData.volume_price
+    count = 0
         
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
@@ -833,16 +764,11 @@ def GetVolume_Price_Window(NowData : "CalculationDataStruct.StructBaseClass", St
 
 #期间的整体成交量涨跌幅
 def GetVolume_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
-    dataList_240 = NowData.dataList_240
-    count = 1
+    count = 0
     startVal = 0
     endVal = 0
-    history = NowData.dataList_240
+    full_list = NowData.dataList_240
 
-    # 把今天 + 历史拼成一个统一序列
-    full_list = [NowData] + history
-
-    count = 0
     if ToDayCount - StartDayCount > 3:
         avg1 = 0
         avg2 = 0
@@ -873,14 +799,9 @@ def GetVolume_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
 
 #期间的整体成交额涨跌幅
 def GetVolume_Price_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
-    dataList_240 = NowData.dataList_240
-    count = 1
     startVal = 0
     endVal = 0
-    history = NowData.dataList_240
-
-    # 把今天 + 历史拼成一个统一序列
-    full_list = [NowData] + history
+    full_list = NowData.dataList_240
 
     count = 0
     if ToDayCount - StartDayCount > 3:
@@ -913,15 +834,9 @@ def GetVolume_Price_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClas
 
 #期间的整体换手率涨跌幅
 def GetTurn_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
-    dataList_240 = NowData.dataList_240
-    count = 1
     startVal = 0
     endVal = 0
-    history = NowData.dataList_240
-
-    # 把今天 + 历史拼成一个统一序列
-    full_list = [NowData] + history
-
+    full_list = NowData.dataList_240
     count = 0
     if ToDayCount - StartDayCount > 3:
         avg1 = 0
@@ -954,14 +869,12 @@ def GetTurn_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", Star
 #期间的涨跌幅
 def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
-    count = 1
+    count = 0
     startVal = 0
     endVal = 0
-    if StartDayCount <= 0:
-        startVal = NowData.close
         
     for single in dataList_240:
-        if count == StartDayCount and StartDayCount > 0:
+        if count == StartDayCount:
             startVal = single.close
         if count == ToDayCount or count == len(dataList_240) - 1:
             endVal = single.close
@@ -970,20 +883,18 @@ def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
 
 #期间的整体涨跌幅
 def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass",StartDayCount, ToDayCount):
-    dataList_240 = NowData.dataList_240
-    fullDataList = [NowData] + dataList_240
+    fullDataList = NowData.dataList_240
 
     dayCount = 0
-    addCount = 0
     firstVolume = 0
     firstVolumeAddCount = 0
     secondVolume = 0
     secondVolumeAddCount = 0
+
     for day in fullDataList:
         if ToDayCount - StartDayCount < 3:
             if dayCount == StartDayCount:
                 firstVolume = day.close
-                #print(f"正在算整体涨跌幅，直接记录开始日期是：{day.trade_date}")
 
             if dayCount == ToDayCount or  dayCount == len(fullDataList) - 1:
                 secondVolume = day.close
@@ -1010,18 +921,15 @@ def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClas
                 return ratio * 100
 
 
-
 #期间的均价涨跌幅
 def GetAvg_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
-    count = 1
+    count = 0
     startVal = 0
     endVal = 0
-    if StartDayCount <= 0:
-        startVal = NowData.avg
         
     for single in dataList_240:
-        if count == StartDayCount and StartDayCount > 0:
+        if count == StartDayCount:
             startVal = single.avg
         if count == ToDayCount or  count == len(dataList_240) - 1:
             endVal = single.avg
@@ -1030,11 +938,9 @@ def GetAvg_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", Start
 
 #期间的整体均价涨跌幅
 def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
-    dataList_240 = NowData.dataList_240
-    fullDataList = [NowData] + dataList_240
+    fullDataList = NowData.dataList_240
 
     dayCount = 0
-    addCount = 0
     firstVolume = 0
     firstVolumeAddCount = 0
     secondVolume = 0
@@ -1044,7 +950,7 @@ def GetAvg_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClass",
             if dayCount == StartDayCount:
                 firstVolume = day.avg
 
-            if dayCount == ToDayCount or  dayCount == len(dataList_240) - 1:
+            if dayCount == ToDayCount or  dayCount == len(fullDataList) - 1:
                 secondVolume = day.avg
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
@@ -1075,19 +981,10 @@ def GetOpen_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartD
     totalVal = 0
     num = 0
 
-    if StartDayCount <= 0:
-        totalVal = NowData.open
-        count = 1
-        num = 1
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.open
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.open
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.open
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1103,19 +1000,11 @@ def GetClose_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", Start
     totalVal = 0
     num = 0
 
-    if StartDayCount <= 0:
-        totalVal = NowData.close
-        count = 1
-        num = 1
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.close
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.close
-                num = num + 1
+
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.close
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1130,19 +1019,11 @@ def GetHigh_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.high
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.high
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.high
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.high
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1155,19 +1036,11 @@ def GetLow_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartDa
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.low
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.low
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.low
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.low
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1181,19 +1054,11 @@ def GetVolume_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", Star
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.volume
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.volume
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.volume
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1207,19 +1072,12 @@ def GetVolume_Price_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass"
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_price
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.volume_price
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.volume_price
-                num = num + 1
+
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.volume_price
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1234,37 +1092,15 @@ def Get_VolumeRatio_5_Window_Avg(NowData : "CalculationDataStruct.StructBaseClas
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_ratio_5
-        if totalVal == None:
-            totalVal = NowData.volume_ratio_3
-        if totalVal == None:
-            totalVal = NowData.volume_ratio
-
-        count = 1
-        num = 1
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
-                #print(f"二十日长度：{len(dataList_20)},  交易日期：{single.trade_date}, code:{single.code}")
-                single.dataList_240 = dataList_20
-                volume_Ratio_5 = GetVolume_5(single)
-                
-                totalVal = totalVal + volume_Ratio_5
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
-                single.dataList_240 = dataList_20
-                volume_Ratio_5 = GetVolume_5(single)
-
-                totalVal = totalVal + volume_Ratio_5
-                num = num + 1
-
+        if count >= StartDayCount and count <= ToDayCount:
+            volume_Ratio_5 = GetVolume_5(single)
+            totalVal = totalVal + volume_Ratio_5
+            num = num + 1
         if count > ToDayCount:
             break
         count = count + 1
+
     return totalVal / (num)
 
 
@@ -1273,19 +1109,11 @@ def GetTurn_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.turn
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.turn
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.turn
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.turn
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1298,19 +1126,11 @@ def GetChangeRatio_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass",
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.change_Ratio
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.change_Ratio
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.change_Ratio
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.change_Ratio
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1322,19 +1142,11 @@ def GetAmplitude_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", S
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.amplitude
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.amplitude
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.amplitude
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.amplitude
+            num = num + 1
 
         if count > ToDayCount:
             break
@@ -1346,25 +1158,16 @@ def GetAvg_Price_Window_Avg(NowData : "CalculationDataStruct.StructBaseClass", S
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.avg
-        count = 1
-        num = 1
+
     for single in dataList_240:
-        if StartDayCount <= 0:
-            if count >= 0 and count <= ToDayCount:
-                totalVal = totalVal + single.avg
-                num = num + 1
-        else:
-            if count >= StartDayCount and count <= ToDayCount:
-                totalVal = totalVal + single.avg
-                num = num + 1
+        if count >= StartDayCount and count <= ToDayCount:
+            totalVal = totalVal + single.avg
+            num = num + 1
 
         if count > ToDayCount:
             break
         count = count + 1
     return totalVal / (num)
-
 
 
 
@@ -1375,10 +1178,6 @@ def GetOpen_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.open
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.open:
@@ -1396,10 +1195,6 @@ def GetClose_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", Start
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.close
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.close:
@@ -1417,10 +1212,6 @@ def GetLastClose_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", S
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.last_close
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.last_close:
@@ -1438,10 +1229,6 @@ def GetHigh_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.high
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.high:
@@ -1459,10 +1246,6 @@ def GetLow_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDa
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.low
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.low:
@@ -1480,10 +1263,6 @@ def GetVolume_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", Star
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.volume:
@@ -1501,10 +1280,6 @@ def GetVolume_Price_Window_Low(NowData : "CalculationDataStruct.StructBaseClass"
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_price
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.volume_price:
@@ -1522,19 +1297,8 @@ def GetVolume_Ratio_5_Window_Low(NowData : "CalculationDataStruct.StructBaseClas
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_ratio_5
-        if totalVal == None:
-            totalVal = NowData.volume_ratio_3
-        if totalVal == None:
-            totalVal = NowData.volume_ratio
-
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
-            single.dataList_240 = dataList_20
             volume_Ratio_5 = GetVolume_5(single)
 
             if totalVal > volume_Ratio_5:
@@ -1552,10 +1316,6 @@ def GetTurn_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.turn
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.turn:
@@ -1573,10 +1333,6 @@ def GetChange_Ratio_Window_Low(NowData : "CalculationDataStruct.StructBaseClass"
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.change_Ratio
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.change_Ratio:
@@ -1594,10 +1350,6 @@ def GetAmplitude_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", S
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.amplitude
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.amplitude:
@@ -1615,10 +1367,6 @@ def GetAvg_Window_Low(NowData : "CalculationDataStruct.StructBaseClass", StartDa
     count = 0
     totalVal = float('inf')
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.avg
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal > single.avg:
@@ -1640,10 +1388,6 @@ def GetOpen_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Start
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.open
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.open:
@@ -1661,10 +1405,6 @@ def GetClose_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Star
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.close
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.close:
@@ -1682,10 +1422,6 @@ def GetLastClose_Window_High(NowData : "CalculationDataStruct.StructBaseClass", 
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.last_close
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.last_close:
@@ -1703,10 +1439,6 @@ def GetHigh_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Start
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.high
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.high:
@@ -1724,10 +1456,6 @@ def GetLow_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.low
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.low:
@@ -1745,10 +1473,6 @@ def GetVolume_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Sta
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.volume:
@@ -1766,10 +1490,6 @@ def GetVolume_Price_Window_High(NowData : "CalculationDataStruct.StructBaseClass
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_price
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.volume_price:
@@ -1787,19 +1507,9 @@ def GetVolume_Ratio_5_Window_High(NowData : "CalculationDataStruct.StructBaseCla
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.volume_ratio_5
-        if totalVal == None:
-            totalVal = NowData.volume_ratio_3
-        if totalVal == None:
-            totalVal = NowData.volume_ratio
 
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
-            dataList_20:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(single.code, single.trade_date, 20)
-            single.dataList_240 = dataList_20
             volume_Ratio_5 = GetVolume_5(single)
 
             if totalVal < volume_Ratio_5:
@@ -1817,10 +1527,6 @@ def GetTurn_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Start
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.turn
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.turn:
@@ -1836,12 +1542,9 @@ def GetTurn_Window_High(NowData : "CalculationDataStruct.StructBaseClass", Start
 def GetChange_Ratio_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
     count = 0
-    totalVal = 0
+    totalVal = -1000
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.change_Ratio
-        count = 1
-        num = 1
+
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.change_Ratio:
@@ -1859,10 +1562,6 @@ def GetAmplitude_Window_High(NowData : "CalculationDataStruct.StructBaseClass", 
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.amplitude
-        count = 1
-        num = 1
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.amplitude:
@@ -1880,10 +1579,7 @@ def GetAvg_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartD
     count = 0
     totalVal = 0
     num = 0
-    if StartDayCount <= 0:
-        totalVal = NowData.avg
-        count = 1
-        num = 1
+
     for single in dataList_240:
         if count >= StartDayCount and count <= ToDayCount:
             if totalVal < single.avg:
@@ -1900,7 +1596,6 @@ def GetAvg_Window_High(NowData : "CalculationDataStruct.StructBaseClass", StartD
 def GetVolume_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -1910,17 +1605,12 @@ def GetVolume_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", Sta
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -1957,7 +1647,6 @@ def GetVolume_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", Sta
 def GetVolume_Price_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -1967,16 +1656,12 @@ def GetVolume_Price_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
 
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2014,7 +1699,6 @@ def GetVolume_Price_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass
 def GetVolume_Price_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -2024,17 +1708,12 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBas
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2100,7 +1779,6 @@ def GetVolume_Price_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBas
 def GetVolume_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -2110,17 +1788,12 @@ def GetVolume_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2186,7 +1859,6 @@ def GetVolume_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass
 def GetChange_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     code = NowData.code
     industryCls = handler.totalComponyIns.GetIndustryClsByCode(code)
-    industryStr = industryCls.industryName
 
     industryDailyList : list["CalculationDataStruct.StructBaseClass"] = []
     for key, val in industryCls.stockList.items():
@@ -2196,17 +1868,12 @@ def GetChange_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2265,17 +1932,12 @@ def GetAmplitude_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseCl
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2336,17 +1998,12 @@ def GetTurn_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass",
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2420,17 +2077,12 @@ def GetAvg_Ratio_Window_Rank(NowData : "CalculationDataStruct.StructBaseClass", 
     tempList = []
     index = 0
     for val in industryDailyList:
-        dataList_240:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.code, val.trade_date, 240)
-        val.dataList_240 = dataList_240
         index += 1
         #print(f"正在计算股票：{val.code}, 第{index}个，总共有{len(industryDailyList)}个")
-        history = val.dataList_240
+        full_list = val.dataList_240
 
-        if not history:
+        if not full_list:
             continue
-
-        # 把今天 + 历史拼成一个统一序列
-        full_list = [val] + history
 
         if ToDayCount >= len(full_list):
             continue  # 防止越界
@@ -2522,179 +2174,215 @@ def GetAmplitude_State_Windows(WindowData : "CalculationDataStruct.StructBaseWin
 
 #获取行业整体价格
 def GetIndustry_Avg_Price(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
-    totalPrice = 0
+    totalPrice = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.close:
+            if totalPrice == ConstVal.NoneValue:
+                totalPrice = 0
             totalPrice += dailyCls.close
     return totalPrice
 
 
 #获取行业成交量
 def GetIndustry_Volume(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
-    totalVolume = 0
+    totalVolume = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.volume:
+            if totalVolume == ConstVal.NoneValue:
+                totalVolume = 0
+
             totalVolume += dailyCls.volume
     return totalVolume
 
 #获取行业成交额
 def GetIndustry_Volume_Price(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
-    totalVolume = 0
+    totalVolume = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.volume_price:
+            if totalVolume == ConstVal.NoneValue:
+                totalVolume = 0
             totalVolume += dailyCls.volume_price
     return totalVolume
 
 
-#获取行业成交量涨跌幅
+#获取行业成交量涨跌幅或与均线的比
 def GetIndustry_Volume_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, num, handler:"CalculationDataHandle.BaseClass"):
     if num == 1:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
-                lastTotalVolume = GetIndustry_Volume(industryInfo, dataList[0].trade_date, handler)
+                lastTotalVolume = GetIndustry_Volume(industryInfo, dataList[1].trade_date, handler)
                 #print(f"上一个交易日是：{dataList[0].trade_date}, 上一个交易日的行业成交量是：{lastTotalVolume}, 当前交易日的行业成交量是：{totalVolume}")
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
             return ratio * 100
     elif num == 3:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 4)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
                     lastTotalVolume += GetIndustry_Volume(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 5:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 6)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
+
                     lastTotalVolume += GetIndustry_Volume(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 10:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 11)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
+
                     lastTotalVolume += GetIndustry_Volume(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 20:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 21)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
                     lastTotalVolume += GetIndustry_Volume(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
 
 
-#获取行业成交额涨跌幅
+#获取行业成交额涨跌幅或与均线的比
 def GetIndustry_Volume_Price_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, num, handler:"CalculationDataHandle.BaseClass"):
     if num == 1:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 10)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
-                lastTotalVolume = GetIndustry_Volume_Price(industryInfo, dataList[0].trade_date, handler)
+                lastTotalVolume = GetIndustry_Volume_Price(industryInfo, dataList[1].trade_date, handler)
                 #print(f"上一个交易日是：{dataList[0].trade_date}, 上一个交易日的行业成交量是：{lastTotalVolume}, 当前交易日的行业成交量是：{totalVolume}")
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
             return ratio * 100
     elif num == 3:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 3)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 4)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
                     lastTotalVolume += GetIndustry_Volume_Price(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 5:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 5)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 5)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
+
                     lastTotalVolume += GetIndustry_Volume_Price(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 10:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 10)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 11)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
+
                     lastTotalVolume += GetIndustry_Volume_Price(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
     elif num == 20:
         for key, val in industryInfo.stockList.items():
-            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+            dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 22)
             if dataList.__len__() > 0:
                 totalVolume = GetIndustry_Volume_Price(industryInfo, trade_date, handler)
                 lastTotalVolume = 0
                 count = 0
                 for single in dataList:
+                    if count == 0:
+                        count += 1
+                        continue
+
                     lastTotalVolume += GetIndustry_Volume_Price(industryInfo, single.trade_date, handler)
                     count += 1
 
-                lastTotalVolume = lastTotalVolume / count
+                lastTotalVolume = lastTotalVolume / (count - 1)
 
                 ratio = (totalVolume - lastTotalVolume) / lastTotalVolume if lastTotalVolume != 0 else 0
                 return ratio * 100
 
-#获取行业涨跌幅
+#获取行业涨跌幅或与均线的比
 def GetIndustry_Change_Ratio(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
     total = 0
     lastTotal= 0
@@ -2702,9 +2390,9 @@ def GetIndustry_Change_Ratio(industryInfo :"CalculationDataStruct.StructIndustry
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.close:
             total += dailyCls.close
-        dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, trade_date, 20)
+        dataList:list["CalculationDataStruct.StructBaseClass"] = handler.GetLastDateDataByNum(val.Code, 20)
         if dataList.__len__() > 0:
-            lastDailyCls = dataList[0]
+            lastDailyCls = dataList[1]
             if lastDailyCls and lastDailyCls.close:
                 lastTotal += lastDailyCls.close
 
@@ -2714,21 +2402,26 @@ def GetIndustry_Change_Ratio(industryInfo :"CalculationDataStruct.StructIndustry
 
 #获取行业上涨股数量
 def GetIndustry_Up_Count(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
-    count = 0
+    count = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.change_Ratio and dailyCls.change_Ratio > ConstVal.up_down_boundary:
             #print(f"上涨股票：{val.Code}, {val.Name},  涨幅：{dailyCls.change_Ratio}")
+            if count == ConstVal.NoneValue:
+                count = 0
             count += 1
     return count
 
 #获取行业下跌股数量
 def GetIndustry_Down_Count(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, handler:"CalculationDataHandle.BaseClass"):
-    count = 0
+    count = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
         if dailyCls and dailyCls.change_Ratio and dailyCls.change_Ratio < -ConstVal.up_down_boundary:
             #print(f"下跌股票：{val.Code},{val.Name},   跌幅：{dailyCls.change_Ratio}")
+            if count == ConstVal.NoneValue:
+                count = 0
+
             count += 1
     return count
 
@@ -2736,23 +2429,17 @@ def GetIndustry_Down_Count(industryInfo :"CalculationDataStruct.StructIndustryIn
 
 #获取期间内行业整体成交量
 def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
-    #for day in fullDataList:
-    #    dayCount = dayCount + 1
-    #    print(f"正在计算行业：{industryInfo.industryName}, 日期：{day}")
-    #    if dayCount > 20 :
-    #        break
+    fullDataList = handler.totalDateList
         
     dayCount = 0
     totalVolume = 0
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalVolume += GetIndustry_Volume(industryInfo, day, handler)
+            vol =  GetIndustry_Volume(industryInfo, day, handler)
+            if vol == ConstVal.NoneValue:
+                continue
+            totalVolume += vol
 
         dayCount = dayCount + 1
         if dayCount > ToDayCount or dayCount >= len(fullDataList) - 1 :
@@ -2761,23 +2448,17 @@ def GetIndustry_Volume_Window(industryInfo :"CalculationDataStruct.StructIndustr
 
 #获取期间内行业整体成交额
 def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
-    #for day in fullDataList:
-    #    dayCount = dayCount + 1
-    #    print(f"正在计算行业：{industryInfo.industryName}, 日期：{day}")
-    #    if dayCount > 20 :
-    #        break
+    fullDataList = handler.totalDateList
         
     dayCount = 0
     totalVolume = 0
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
+            vol = GetIndustry_Volume_Price(industryInfo, day, handler)
+            if vol == ConstVal.NoneValue:
+                continue
+            totalVolume += vol
 
         dayCount = dayCount + 1
         if dayCount > ToDayCount  or dayCount >= len(fullDataList) - 1:
@@ -2786,20 +2467,18 @@ def GetIndustry_Volume_Price_Window(industryInfo :"CalculationDataStruct.StructI
 
 #获取期间内行业平均成交量
 def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
-
+    fullDataList = handler.totalDateList
         
     dayCount = 0
     addCount = 0
     totalVolume = 0
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalVolume += GetIndustry_Volume(industryInfo, day, handler)
+            vol =  GetIndustry_Volume(industryInfo, day, handler)
+            if vol == ConstVal.NoneValue:
+                continue
+            totalVolume += vol
             addCount += 1
 
         dayCount = dayCount + 1
@@ -2809,19 +2488,18 @@ def GetIndustry_Volume_Avg_Window(industryInfo :"CalculationDataStruct.StructInd
 
 #获取期间内行业平均成交额
 def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
 
     dayCount = 0
     addCount = 0
     totalVolume = 0
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
+            vol =  GetIndustry_Volume_Price(industryInfo, day, handler)
+            if vol == ConstVal.NoneValue:
+                continue
+            totalVolume += vol
             addCount += 1
             #print(f"目标日期：{day}")
 
@@ -2833,12 +2511,9 @@ def GetIndustry_Volume_Price_Avg_Window(industryInfo :"CalculationDataStruct.Str
 
 #获取期间内行业成交量涨跌幅
 def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
+
     dayCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
 
         
     dayCount = 0
@@ -2848,22 +2523,29 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
     secondVolume = 0
     secondVolumeAddCount = 0
     for day in fullDataList:
-
+        vol = GetIndustry_Volume(industryInfo, day, handler)
+        if vol == ConstVal.NoneValue:
+            continue
         if ToDayCount - StartDayCount < 3:
             if dayCount == StartDayCount:
-                firstVolume = GetIndustry_Volume(industryInfo, day, handler)
+                firstVolume = vol
 
             if dayCount == ToDayCount or dayCount == len(fullDataList):
-                secondVolume = GetIndustry_Volume(industryInfo, day, handler)
+                secondVolume = vol
+
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
             if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
-                firstVolume += GetIndustry_Volume(industryInfo, day, handler)
+                vol1 = vol
+
+                firstVolume += vol1
                 firstVolumeAddCount += 1
             elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
-                secondVolume += GetIndustry_Volume(industryInfo, day, handler)
+                vol2 = vol
+
+                secondVolume += vol2
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
@@ -2877,13 +2559,8 @@ def GetIndustry_Volume_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
 
 #获取期间内行业成交额涨跌幅
 def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
-
+    fullDataList = handler.totalDateList
         
     dayCount = 0
     addCount = 0
@@ -2892,22 +2569,25 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.S
     secondVolume = 0
     secondVolumeAddCount = 0
     for day in fullDataList:
+        vol = GetIndustry_Volume(industryInfo, day, handler)
+        if vol == ConstVal.NoneValue:
+            continue
 
         if ToDayCount - StartDayCount < 3:
             if dayCount == StartDayCount:
-                firstVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
+                firstVolume = vol
 
             if dayCount == ToDayCount or dayCount == len(fullDataList):
-                secondVolume = GetIndustry_Volume_Price(industryInfo, day, handler)
+                secondVolume = vol
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
             if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
-                firstVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
+                firstVolume += vol
                 firstVolumeAddCount += 1
             elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
-                secondVolume += GetIndustry_Volume_Price(industryInfo, day, handler)
+                secondVolume += vol
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
@@ -2920,18 +2600,17 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.S
 
 #行业涨跌幅
 def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
 
     for day in fullDataList:
+        price =  GetIndustry_Avg_Price(industryInfo, day, handler)
+        if price == ConstVal.NoneValue:
+            continue
         if dayCount == StartDayCount:
-            firstPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
+            firstPrice = price
         if dayCount == ToDayCount or dayCount == len(fullDataList):
-            secondPrice = GetIndustry_Avg_Price(industryInfo, day, handler)
+            secondPrice = price
             ratio = (firstPrice - secondPrice) / secondPrice if secondPrice != 0 else 0
             return ratio * 100
         dayCount = dayCount + 1
@@ -2940,12 +2619,8 @@ def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
 
 #行业整体涨跌幅
 def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
 
         
     dayCount = 0
@@ -2957,20 +2632,24 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.S
     for day in fullDataList:
 
         if ToDayCount - StartDayCount < 3:
+            price =  GetIndustry_Avg_Price(industryInfo, day, handler)
+            if price == ConstVal.NoneValue:
+                continue
+
             if dayCount == StartDayCount:
-                firstVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
+                firstVolume = price
 
             if dayCount == ToDayCount or dayCount == len(fullDataList):
-                secondVolume = GetIndustry_Avg_Price(industryInfo, day, handler)
+                secondVolume = price
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1
         else:
             if dayCount >= StartDayCount and dayCount < (StartDayCount + (ToDayCount - StartDayCount) / 2) :
-                firstVolume += GetIndustry_Avg_Price(industryInfo, day, handler)
+                firstVolume += price
                 firstVolumeAddCount += 1
             elif dayCount >= (StartDayCount + (ToDayCount - StartDayCount) / 2) and dayCount <= ToDayCount:
-                secondVolume += GetIndustry_Avg_Price(industryInfo, day, handler)
+                secondVolume += price
                 secondVolumeAddCount += 1
 
             dayCount = dayCount + 1
@@ -2984,18 +2663,16 @@ def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.S
 
 #平均行业上涨股数量
 def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    dataList = []
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
     addCount = 0
     totalCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalCount += GetIndustry_Up_Count(industryInfo, day, handler)
+            singleCount =  GetIndustry_Up_Count(industryInfo, day, handler)
+            if singleCount == ConstVal.NoneValue:
+                continue
+            totalCount += singleCount
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 上涨股数量：{count}")
         dayCount = dayCount + 1
@@ -3003,18 +2680,16 @@ def GetIndustry_Up_Stock_Window(industryInfo :"CalculationDataStruct.StructIndus
             return totalCount / addCount if addCount > 0 else 0
 #平均行业下跌股数量
 def GetIndustry_Down_Stock_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    dataList = []
-    for key, val in industryInfo.stockList.items():
-        dataList = handler.GetLastTradeDateList(val.Code, trade_date, 240)
-        if(dataList.__len__() > 200):
-            break
     dayCount = 0
     addCount = 0
     totalCount = 0
-    fullDataList = [trade_date] + dataList
+    fullDataList = handler.totalDateList
     for day in fullDataList:
         if dayCount >= StartDayCount and dayCount <= ToDayCount:
-            totalCount += GetIndustry_Down_Count(industryInfo, day, handler)
+            singleCount =  GetIndustry_Down_Count(industryInfo, day, handler)
+            if singleCount == ConstVal.NoneValue:
+                continue
+            totalCount += singleCount
             addCount += 1
             #print(f" 日期：{day}, 行业：{industryInfo.industryName}, 下跌股数量：{count}")
         dayCount = dayCount + 1
