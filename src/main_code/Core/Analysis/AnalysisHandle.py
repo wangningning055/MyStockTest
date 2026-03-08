@@ -58,7 +58,8 @@ class BaseClass :
             #如果状态不是成交状态就跳过
             todayStr = self.main.todayStockDate
             cls = self.main.calculationDataHandle.GetBaseDataClass(val, todayStr ,False)
-
+            if cls == None:
+                continue
             if cls.componyInfo.List_Status != "L":
                 print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 暂停上市，不执行")
                 continue
@@ -68,6 +69,7 @@ class BaseClass :
                 continue
             if len(cls.dataList_240) < 10:
                 print(f"股票{cls.componyInfo.Name}：{val} 新上市交易日不足十天，跳过")
+                continue
 
             #这里还要判断window条件的toData是否dataList_240满足，不满足也跳过
 
@@ -82,13 +84,14 @@ class BaseClass :
 
             print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(self.main.calculationDataHandle.totalComponyIns.allStockList)}个, code:{val}      {cls.componyInfo.Name}, 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
             count += 1
-            if count > 100:
-                break
+            #if count > 100:
+            #    break
             if score > 0:
                 listCode.append(val)
 
         for code in listCode:
-            print(code)
+            componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(code)
+            print(f"{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
 
             
         t1 = time.perf_counter()

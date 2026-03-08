@@ -24,94 +24,92 @@ class BaseClass :
         self.totalAdjustData = {}
         self.InitIndustry()
         self.InitCalculateBaseAttrByDic()
+        self.InitCalculateBaseWindowAttrByDic()
         self.totalDateList = self.InitDateList()
+        print(self.totalDateList)
 
-        #pid = os.getpid()
-        ## 获取当前进程对象
-        #process = psutil.Process(pid)
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
 
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        #t0 = time.perf_counter()
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        t0 = time.perf_counter()
 
-        #print(f"开始获取整个数据 ")
-        #print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-
-
-        #self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+        print(f"开始获取整个数据 ")
+        print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
-
-        #print("开始整理复权数据：")
+        self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
 
 
-        #self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
+        print("开始整理复权数据：")
 
 
 
-
-        #print(f"复权数据整理完毕")
-
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-
-
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
-        #print(f"整个数据获取完毕 ")
+        self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
 
 
 
 
-        #print(f"开始获取整个数据222 ")
-        #print(f"开始获取整个数据2222 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-        #t0 = time.perf_counter()
+        print(f"复权数据整理完毕")
+
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
+        print(f"整个数据获取完毕 ")
 
 
 
-        #self.InitAllBaseDataClsList(240)
+
+        print(f"开计算数据 ")
+        print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        t0 = time.perf_counter()
 
 
 
-
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #print(f"整个数据获取完毕222   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}")
-        #cls = self.totalBaseDailyData[("301638.SZ", "20260224")]
-        #print(f"整个数据获取完毕2222 :{cls.open}")
+        todayStr = self.GetToday()
+        self.InitAllBaseDataClsList(240, todayStr)
 
 
 
-        #todayStr = self.GetToday()
-        #t0 = time.perf_counter()
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        #print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}")
 
 
-        #cls = self.GetBaseDataClass("000001.SZ",todayStr)
-        #for single in cls.dataList_240:
-        #    print(f"存有的历史数据是：{single.trade_date}")
+
+        todayStr = self.GetToday()
+        t0 = time.perf_counter()
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
+
+        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
         #self.CalculateBaseClass(cls)
+        windowCls = self.GetWindowDataClass("300846.SZ", todayStr, 0, 5)
+        self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 5)
 
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
 
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-
-        #print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
     def InitIndustry(self):
@@ -197,10 +195,10 @@ class BaseClass :
         print(f"240日涨跌幅是{baseClass.change_Ratio_240}")
         print(f"成交量涨跌幅是{baseClass.volume_ratio}")
         print(f"3日成交量涨跌幅是{baseClass.volume_ratio_3}")
-        print(f"5日成交量相比涨跌幅是{baseClass.volume_ratio_5}")
-        print(f"10成交量相比涨跌幅是{baseClass.volume_ratio_10}")
-        print(f"20成交量相比涨跌幅是{baseClass.volume_ratio_20}")
-        print(f"40成交量相比涨跌幅是{baseClass.volume_ratio_40}")
+        print(f"5日成交量涨跌幅是{baseClass.volume_ratio_5_percent}")
+        print(f"10成交量涨跌幅是{baseClass.volume_ratio_10}")
+        print(f"20成交量涨跌幅是{baseClass.volume_ratio_20}")
+        print(f"40成交量涨跌幅是{baseClass.volume_ratio_40}")
         print(f"当成交额涨跌幅是{baseClass.volume_price_ratio}")
         print(f"3日平均成交额涨跌幅是{baseClass.volume_price_ratio_3}")
         print(f"5日平均成交额涨跌幅是{baseClass.volume_price_ratio_5}")
@@ -294,7 +292,7 @@ class BaseClass :
         print(f"10日震荡下行状态：{baseClass.is_pop_down_10}")
         pass
 
-    def GetWindowDataClassTest(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
+    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
         from src.main_code.Core.Calculate import CalculationUtil
         #print(f"尝试获取股票：{stockCode}")
         cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
@@ -305,14 +303,86 @@ class BaseClass :
 
 
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
-        startDataClass = self.GetBaseDataClass(stockCode, tradeDate, True)
+        startDataClass = self.GetBaseDataClass(stockCode, tradeDate)
         windowsClass.Init(startDataClass, startDateCount, toDateCount, self)
         self.totalBaseWindowData[cache_key] = windowsClass
-
         return windowsClass
 
+    def CalculateBaseWindowClass(self, windowsClass, stockCode, startDateCount, toDateCount):
+            print(f"行业是 {windowsClass.industry}")
+            print(f"{self.totalComponyIns.GetComponyInfo(stockCode).Name} 前{startDateCount}天到前{toDateCount}天 涨停次数：{windowsClass.up_stopCount}")
+            print(f"{self.totalComponyIns.GetComponyInfo(stockCode).Name} 前{startDateCount}天到前{toDateCount}天 跌停次数：{windowsClass.down_stopCount}")
 
-    def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
+            print(f"整体成交量是 {windowsClass.volume}")
+            print(f"整体成交额是 {windowsClass.volume_price}")
+            print(f"整体成交量涨跌幅是 {windowsClass.volume_ratio}")
+            print(f"整体成交额涨跌幅是 {windowsClass.volume_price_ratio}")
+            print(f"整体换手率涨跌幅是 {windowsClass.turn_ratio}")
+            print(f"涨跌幅是 {windowsClass.change_Ratio}")
+            print(f"整体涨跌幅是 {windowsClass.change_Ratio_Total}")
+            print(f"均价涨跌幅是 {windowsClass.avg_Ratio}")
+            print(f"整体均价涨跌幅是 {windowsClass.avg_Ratio_Total}")
+            print(f"平均开盘价是 {windowsClass.avg_open}")
+            print(f"平均收盘价是 {windowsClass.avg_close}")
+            print(f"平均最高价是 {windowsClass.avg_high}")
+            print(f"平均最低价是 {windowsClass.avg_low}")
+            print(f"平均成交量是 {windowsClass.avg_volume}")
+            print(f"平均成交额是 {windowsClass.avg_volume_price}")
+            print(f"平均量比是 {windowsClass.avg_volume_rito}")
+            print(f"平均换手率是 {windowsClass.avg_turn}")
+            print(f"平均涨跌幅是 {windowsClass.avg_change_Ratio}")
+            print(f"平均振幅是 {windowsClass.avg_amplitude}")
+            print(f"平均均价是 {windowsClass.avg_avg}")
+            print(f"最低开盘价是 {windowsClass.min_open}")
+            print(f"最低收盘价是 {windowsClass.min_close}")
+            print(f"最低昨收价是 {windowsClass.min_last_close}")
+            print(f"最低最高价是 {windowsClass.min_high}")
+            print(f"最低最低价是 {windowsClass.min_low}")
+            print(f"最低成交量是 {windowsClass.min_volume}")
+            print(f"最低成交额是 {windowsClass.min_volume_price}")
+            print(f"最低量比是 {windowsClass.min_volume_rito}")
+            print(f"最低换手率是 {windowsClass.min_turn}")
+            print(f"最低涨跌幅是 {windowsClass.min_change_Ratio}")
+            print(f"最低振幅是 {windowsClass.min_amplitude}")
+            print(f"最低均价是 {windowsClass.min_avg}")
+            print(f"最高开盘价是 {windowsClass.max_open}")
+            print(f"最高收盘价是 {windowsClass.max_close}")
+            print(f"最高昨收价是 {windowsClass.max_last_close}")
+            print(f"最高最高价是 {windowsClass.max_high}")
+            print(f"最高最低价是 {windowsClass.max_low}")
+            print(f"最高成交量是 {windowsClass.max_volume}")
+            print(f"最高成交额是 {windowsClass.max_volume_price}")
+            print(f"最高量比是 {windowsClass.max_volume_rito}")
+            print(f"最高换手率是 {windowsClass.max_turn}")
+            print(f"最高涨跌幅是 {windowsClass.max_change_Ratio}")
+            print(f"最高振幅是 {windowsClass.max_amplitude}")
+            print(f"最高均价是 {windowsClass.max_avg}")
+
+            print(f"量状态：{windowsClass.volumeState}")
+            print(f"价状态：{windowsClass.priceState}")
+            print(f"震荡状态：{windowsClass.amplitudeState}")
+            print(f"放量增长状态：{windowsClass.is_up_up}")
+            print(f"缩量增长状态：{windowsClass.is_low_up}")
+            print(f"放量降低状态：{windowsClass.is_up_low}")
+            print(f"缩量降低状态：{windowsClass.is_low_low}")
+            print(f"放量横盘状态：{windowsClass.is_up_mid}")
+            print(f"缩量横盘状态：{windowsClass.is_low_mid}")
+            print(f"平量增长状态：{windowsClass.is_mid_up}")
+            print(f"平量降低状态：{windowsClass.is_mid_low}")
+            print(f"当日震荡上行状态：{windowsClass.is_pop_up}")
+            print(f"当日震荡下行状态：{windowsClass.is_pop_down}")
+
+            if windowsClass.isCalculateRank:
+                print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
+                print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
+                print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
+                print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
+                print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
+                print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
+                print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
+                print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
+
+    def GetWindowDataClassTest(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
         from src.main_code.Core.Calculate import CalculationUtil
         #print(f"尝试获取股票：{stockCode},  isJust {isJustSetRank}")
         cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
@@ -592,74 +662,7 @@ class BaseClass :
 
 
         #if windowsClass.isCalculateOther:
-        #    print(f"行业是 {windowsClass.industry}")
-        #    print(f"{self.totalComponyIns.GetComponyInfo(stockCode).Name} 前{startDateCount}天到前{toDateCount}天 涨停次数：{windowsClass.up_stopCount}")
-        #    print(f"{self.totalComponyIns.GetComponyInfo(stockCode).Name} 前{startDateCount}天到前{toDateCount}天 跌停次数：{windowsClass.down_stopCount}")
 
-        #    print(f"整体成交量是 {windowsClass.volume}")
-        #    print(f"整体成交额是 {windowsClass.volume_price}")
-        #    print(f"整体成交量涨跌幅是 {windowsClass.volume_ratio}")
-        #    print(f"整体成交额涨跌幅是 {windowsClass.volume_price_ratio}")
-        #    print(f"整体换手率涨跌幅是 {windowsClass.turn_ratio}")
-        #    print(f"涨跌幅是 {windowsClass.change_Ratio}")
-        #    print(f"整体涨跌幅是 {windowsClass.change_Ratio_Total}")
-        #    print(f"均价涨跌幅是 {windowsClass.avg_Ratio}")
-        #    print(f"整体均价涨跌幅是 {windowsClass.avg_Ratio_Total}")
-        #    print(f"平均开盘价是 {windowsClass.avg_open}")
-        #    print(f"平均收盘价是 {windowsClass.avg_close}")
-        #    print(f"平均最高价是 {windowsClass.avg_high}")
-        #    print(f"平均最低价是 {windowsClass.avg_low}")
-        #    print(f"平均成交量是 {windowsClass.avg_volume}")
-        #    print(f"平均成交额是 {windowsClass.avg_volume_price}")
-        #    print(f"平均量比是 {windowsClass.avg_volume_rito}")
-        #    print(f"平均换手率是 {windowsClass.avg_turn}")
-        #    print(f"平均涨跌幅是 {windowsClass.avg_change_Ratio}")
-        #    print(f"平均振幅是 {windowsClass.avg_amplitude}")
-        #    print(f"平均均价是 {windowsClass.avg_avg}")
-        #    print(f"最低开盘价是 {windowsClass.min_open}")
-        #    print(f"最低收盘价是 {windowsClass.min_close}")
-        #    print(f"最低昨收价是 {windowsClass.min_last_close}")
-        #    print(f"最低最高价是 {windowsClass.min_high}")
-        #    print(f"最低最低价是 {windowsClass.min_low}")
-        #    print(f"最低成交量是 {windowsClass.min_volume}")
-        #    print(f"最低成交额是 {windowsClass.min_volume_price}")
-        #    print(f"最低量比是 {windowsClass.min_volume_rito}")
-        #    print(f"最低换手率是 {windowsClass.min_turn}")
-        #    print(f"最低涨跌幅是 {windowsClass.min_change_Ratio}")
-        #    print(f"最低振幅是 {windowsClass.min_amplitude}")
-        #    print(f"最低均价是 {windowsClass.min_avg}")
-        #    print(f"最高开盘价是 {windowsClass.max_open}")
-        #    print(f"最高收盘价是 {windowsClass.max_close}")
-        #    print(f"最高昨收价是 {windowsClass.max_last_close}")
-        #    print(f"最高最高价是 {windowsClass.max_high}")
-        #    print(f"最高最低价是 {windowsClass.max_low}")
-        #    print(f"最高成交量是 {windowsClass.max_volume}")
-        #    print(f"最高成交额是 {windowsClass.max_volume_price}")
-        #    print(f"最高量比是 {windowsClass.max_volume_rito}")
-        #    print(f"最高换手率是 {windowsClass.max_turn}")
-        #    print(f"最高涨跌幅是 {windowsClass.max_change_Ratio}")
-        #    print(f"最高振幅是 {windowsClass.max_amplitude}")
-        #    print(f"最高均价是 {windowsClass.max_avg}")
-        #    print(f"放量增长状态：{windowsClass.is_up_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"缩量增长状态：{windowsClass.is_low_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"放量降低状态：{windowsClass.is_up_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"缩量降低状态：{windowsClass.is_low_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"放量横盘状态：{windowsClass.is_up_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"缩量横盘状态：{windowsClass.is_low_mid}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"平量增长状态：{windowsClass.is_mid_up}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"平量降低状态：{windowsClass.is_mid_low}， volumeState_1：{volumeState_1}， priceState_1：{priceState_1}")
-        #    print(f"当日震荡上行状态：{windowsClass.is_pop_up}")
-        #    print(f"当日震荡下行状态：{windowsClass.is_pop_down}， amplitudeState_1：{amplitudeState_1}， priceState_1：{priceState_1}")
-
-        #if windowsClass.isCalculateRank:
-        #    print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
-        #    print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
-        #    print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
-        #    print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
-        #    print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
-        #    print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
-        #    print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
-        #    print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
 
         #print(f"{stockCode}   计算完毕")
         return windowsClass
@@ -832,15 +835,18 @@ class BaseClass :
 
         for day in self.totalDateList:
             cls_day = self.GetBaseDataClass(targetCode, day)
-            if cls_day is None:
+            if cls_day is None or cls_day.trade_state == 0:
                 stopCount += 1
+                if stopCount > 60:
+                    break
                 continue
             clsList.append(cls_day)
             count = count + 1
-            if count > dayNum or stopCount > 60:
+            stopCount = 0
+            if count > dayNum:
                 break
         return clsList
-    
+    #60 20251203   120 20250902   240 20250311
 
     def GetToday(self):
         last = self.main.lastDayStr
@@ -871,7 +877,7 @@ class BaseClass :
 
         if dt.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
             dayList.append(today)
-        while len(dayList) < 340 and dt > end_dt:
+        while len(dayList) < 34 and dt > end_dt:
             dt -= timedelta(days=1)  # 往前一天
 
             if dt.weekday() >= 5:
@@ -880,29 +886,24 @@ class BaseClass :
             dayList.append(date_str)
             
         return dayList
-    def InitAllBaseDataClsList(self, num):
+    def InitAllBaseDataClsList(self, num, today):
         count = 0
         for date in self.totalDateList:
-            if count > num:
-                break
             for code in self.totalStockList:
                 db = self.totalDbList.get((code, date))
                 if db is None:
                     continue
                 else:
-                    
                     if (code, date) in self.totalBaseDailyData:
                         continue
                     else:
                         baseClass = CalculationDataStruct.StructBaseClass()
                         baseClass.Init(self, code, date, db)
+                        #if date == today and baseClass.trade_state == 0:
                         if code == "000001.SZ":
                             count += 1
-                            print(f"导入日期是：{date}, 数量是：{count}")
+                            #print(f"a啊啊啊啊啊啊啊啊啊啊啊啊啊载入的时间是 ：{date}, 数量：{count}")
                         self.totalBaseDailyData[(code, date)] = baseClass
-                        #if code == "301638.SZ":
-                        #    print(f"aaaaaaa   {code},    {date}")
-
 
 
     def GetLatestAdjustDataByCodeAndDate(self, code, target_date):
@@ -945,12 +946,19 @@ class BaseClass :
             "change_Ratio_240": partial(CalculationUtil.GetChange_Ratio_Total_Window, StartDayCount = 0, ToDayCount = 240),
 
 
-
+            "change_Ratio_single_3": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 3),
+            "change_Ratio_single_5": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 5),
+            "change_Ratio_single_10": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 10),
+            "change_Ratio_single_20": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 20),
+            "change_Ratio_single_40": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 40),
+            "change_Ratio_single_60": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 60),
+            "change_Ratio_single_120": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 120),
+            "change_Ratio_single_240": partial(CalculationUtil.GetChange_Ratio_Window, StartDayCount = 0, ToDayCount = 240),
 
             # -------------------------- 成交量相关 --------------------------
             "volume_ratio": partial(CalculationUtil.GetVolume_Ratio),
             "volume_ratio_3": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=3),
-            "volume_ratio_5": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=5),
+            "volume_ratio_5_percent": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=5),
             "volume_ratio_10": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=10),
             "volume_ratio_20": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=20),
             "volume_ratio_40": partial(CalculationUtil.GetVolume_Ratio_Window, StartDayCount=0, ToDayCount=40),
@@ -1016,19 +1024,36 @@ class BaseClass :
             "avg_industry_rank": partial(CalculationUtil.GetIndustry_Rank_Avg_Ratio, handler = self),
 
 
-            # -------------------------- 状态相关 - 1日 --------------------------
+
+            # -------------------------- 基础状态 - 成交量 --------------------------
             "volumeState_1": partial(CalculationUtil.GetVolumeState, num=1),
             "volumeState_3": partial(CalculationUtil.GetVolumeState, num=3),
             "volumeState_5": partial(CalculationUtil.GetVolumeState, num=5),
             "volumeState_10": partial(CalculationUtil.GetVolumeState, num=10),
+            "volumeState_20": partial(CalculationUtil.GetVolumeState, num=20),  # 新增20日
+            "volumeState_40": partial(CalculationUtil.GetVolumeState, num=40),  # 新增40日
+            "volumeState_60": partial(CalculationUtil.GetVolumeState, num=60),  # 新增60日
+            "volumeState_120": partial(CalculationUtil.GetVolumeState, num=120),  # 新增120日
+            
+            # -------------------------- 基础状态 - 价格 --------------------------
             "priceState_1": partial(CalculationUtil.GetRatioState, num=1),
             "priceState_3": partial(CalculationUtil.GetRatioState, num=3),
             "priceState_5": partial(CalculationUtil.GetRatioState, num=5),
             "priceState_10": partial(CalculationUtil.GetRatioState, num=10),
+            "priceState_20": partial(CalculationUtil.GetRatioState, num=20),  # 新增20日
+            "priceState_40": partial(CalculationUtil.GetRatioState, num=40),  # 新增40日
+            "priceState_60": partial(CalculationUtil.GetRatioState, num=60),  # 新增60日
+            "priceState_120": partial(CalculationUtil.GetRatioState, num=120),  # 新增120日
+            
+            # -------------------------- 基础状态 - 振幅 --------------------------
             "amplitudeState_1": partial(CalculationUtil.GetAmplitudeState, num=1),
             "amplitudeState_3": partial(CalculationUtil.GetAmplitudeState, num=3),
             "amplitudeState_5": partial(CalculationUtil.GetAmplitudeState, num=5),
             "amplitudeState_10": partial(CalculationUtil.GetAmplitudeState, num=10),
+            "amplitudeState_20": partial(CalculationUtil.GetAmplitudeState, num=20),  # 新增20日
+            "amplitudeState_40": partial(CalculationUtil.GetAmplitudeState, num=40),  # 新增40日
+            "amplitudeState_60": partial(CalculationUtil.GetAmplitudeState, num=60),  # 新增60日
+            "amplitudeState_120": partial(CalculationUtil.GetAmplitudeState, num=120),  # 新增120日
             
             # -------------------------- 状态相关 - 1日 --------------------------
             "is_up_up": (lambda cls: 1 if cls.volumeState_1 == 1 and cls.priceState_1 == 1 else 0),
@@ -1070,6 +1095,46 @@ class BaseClass :
             "is_mid_up_10": (lambda cls: 1 if cls.volumeState_10 == 0 and cls.priceState_10 == 1 else 0),
             "is_mid_low_10": (lambda cls: 1 if cls.volumeState_10 == 0 and cls.priceState_10 == -1 else 0),
 
+            # -------------------------- 状态相关 - 20日 --------------------------  # 新增20日
+            "is_up_up_20": (lambda cls: 1 if cls.volumeState_20 == 1 and cls.priceState_20 == 1 else 0),
+            "is_low_up_20": (lambda cls: 1 if cls.volumeState_20 == -1 and cls.priceState_20 == 1 else 0),
+            "is_up_low_20": (lambda cls: 1 if cls.volumeState_20 == 1 and cls.priceState_20 == -1 else 0),
+            "is_low_low_20": (lambda cls: 1 if cls.volumeState_20 == -1 and cls.priceState_20 == -1 else 0),
+            "is_up_mid_20": (lambda cls: 1 if cls.volumeState_20 == 1 and cls.priceState_20 == 0 else 0),
+            "is_low_mid_20": (lambda cls: 1 if cls.volumeState_20 == -1 and cls.priceState_20 == 0 else 0),
+            "is_mid_up_20": (lambda cls: 1 if cls.volumeState_20 == 0 and cls.priceState_20 == 1 else 0),
+            "is_mid_low_20": (lambda cls: 1 if cls.volumeState_20 == 0 and cls.priceState_20 == -1 else 0),
+
+            # -------------------------- 状态相关 - 40日 --------------------------  # 新增40日
+            "is_up_up_40": (lambda cls: 1 if cls.volumeState_40 == 1 and cls.priceState_40 == 1 else 0),
+            "is_low_up_40": (lambda cls: 1 if cls.volumeState_40 == -1 and cls.priceState_40 == 1 else 0),
+            "is_up_low_40": (lambda cls: 1 if cls.volumeState_40 == 1 and cls.priceState_40 == -1 else 0),
+            "is_low_low_40": (lambda cls: 1 if cls.volumeState_40 == -1 and cls.priceState_40 == -1 else 0),
+            "is_up_mid_40": (lambda cls: 1 if cls.volumeState_40 == 1 and cls.priceState_40 == 0 else 0),
+            "is_low_mid_40": (lambda cls: 1 if cls.volumeState_40 == -1 and cls.priceState_40 == 0 else 0),
+            "is_mid_up_40": (lambda cls: 1 if cls.volumeState_40 == 0 and cls.priceState_40 == 1 else 0),
+            "is_mid_low_40": (lambda cls: 1 if cls.volumeState_40 == 0 and cls.priceState_40 == -1 else 0),
+
+            # -------------------------- 状态相关 - 60日 --------------------------  # 新增60日
+            "is_up_up_60": (lambda cls: 1 if cls.volumeState_60 == 1 and cls.priceState_60 == 1 else 0),
+            "is_low_up_60": (lambda cls: 1 if cls.volumeState_60 == -1 and cls.priceState_60 == 1 else 0),
+            "is_up_low_60": (lambda cls: 1 if cls.volumeState_60 == 1 and cls.priceState_60 == -1 else 0),
+            "is_low_low_60": (lambda cls: 1 if cls.volumeState_60 == -1 and cls.priceState_60 == -1 else 0),
+            "is_up_mid_60": (lambda cls: 1 if cls.volumeState_60 == 1 and cls.priceState_60 == 0 else 0),
+            "is_low_mid_60": (lambda cls: 1 if cls.volumeState_60 == -1 and cls.priceState_60 == 0 else 0),
+            "is_mid_up_60": (lambda cls: 1 if cls.volumeState_60 == 0 and cls.priceState_60 == 1 else 0),
+            "is_mid_low_60": (lambda cls: 1 if cls.volumeState_60 == 0 and cls.priceState_60 == -1 else 0),
+
+            # -------------------------- 状态相关 - 120日 --------------------------  # 新增120日
+            "is_up_up_120": (lambda cls: 1 if cls.volumeState_120 == 1 and cls.priceState_120 == 1 else 0),
+            "is_low_up_120": (lambda cls: 1 if cls.volumeState_120 == -1 and cls.priceState_120 == 1 else 0),
+            "is_up_low_120": (lambda cls: 1 if cls.volumeState_120 == 1 and cls.priceState_120 == -1 else 0),
+            "is_low_low_120": (lambda cls: 1 if cls.volumeState_120 == -1 and cls.priceState_120 == -1 else 0),
+            "is_up_mid_120": (lambda cls: 1 if cls.volumeState_120 == 1 and cls.priceState_120 == 0 else 0),
+            "is_low_mid_120": (lambda cls: 1 if cls.volumeState_120 == -1 and cls.priceState_120 == 0 else 0),
+            "is_mid_up_120": (lambda cls: 1 if cls.volumeState_120 == 0 and cls.priceState_120 == 1 else 0),
+            "is_mid_low_120": (lambda cls: 1 if cls.volumeState_120 == 0 and cls.priceState_120 == -1 else 0),
+
             # -------------------------- 振幅+价格状态 --------------------------
             "is_pop_up": (lambda cls: 1 if cls.amplitudeState_1 == 1 and cls.priceState_1 == 1 else 0),
             "is_pop_down": (lambda cls: 1 if cls.amplitudeState_1 == 1 and cls.priceState_1 == -1 else 0),
@@ -1078,9 +1143,108 @@ class BaseClass :
             "is_pop_up_5": (lambda cls: 1 if cls.amplitudeState_5 == 1 and cls.priceState_5 == 1 else 0),
             "is_pop_down_5": (lambda cls: 1 if cls.amplitudeState_5 == 1 and cls.priceState_5 == -1 else 0),
             "is_pop_up_10": (lambda cls: 1 if cls.amplitudeState_10 == 1 and cls.priceState_10 == 1 else 0),
-            "is_pop_down_10": (lambda cls: 1 if cls.amplitudeState_10 == 1 and cls.priceState_10 == -1 else 0)
+            "is_pop_down_10": (lambda cls: 1 if cls.amplitudeState_10 == 1 and cls.priceState_10 == -1 else 0),
+            "is_pop_up_20": (lambda cls: 1 if cls.amplitudeState_20 == 1 and cls.priceState_20 == 1 else 0),  # 新增20日
+            "is_pop_down_20": (lambda cls: 1 if cls.amplitudeState_20 == 1 and cls.priceState_20 == -1 else 0),  # 新增20日
+            "is_pop_up_40": (lambda cls: 1 if cls.amplitudeState_40 == 1 and cls.priceState_40 == 1 else 0),  # 新增40日
+            "is_pop_down_40": (lambda cls: 1 if cls.amplitudeState_40 == 1 and cls.priceState_40 == -1 else 0),  # 新增40日
+            "is_pop_up_60": (lambda cls: 1 if cls.amplitudeState_60 == 1 and cls.priceState_60 == 1 else 0),  # 新增60日
+            "is_pop_down_60": (lambda cls: 1 if cls.amplitudeState_60 == 1 and cls.priceState_60 == -1 else 0),  # 新增60日
+            "is_pop_up_120": (lambda cls: 1 if cls.amplitudeState_120 == 1 and cls.priceState_120 == 1 else 0),  # 新增120日
+            "is_pop_down_120": (lambda cls: 1 if cls.amplitudeState_120 == 1 and cls.priceState_120 == -1 else 0),  # 新增120日
   
         }
 
+    def InitCalculateBaseWindowAttrByDic(self):
+        from src.main_code.Core.Calculate import CalculationUtil
+        self.CalculateBaseWindowAttrDic = {
+            # -------------------------- 涨跌停相关 --------------------------
+            "up_stopCount": (CalculationUtil.GetUpStopCount, ("startDataCls", "startCount", "toCount")),
+            "down_stopCount": (CalculationUtil.GetDownStopCount, ("startDataCls", "startCount", "toCount")),
+            
+            # -------------------------- 基础量价相关 --------------------------
+            "volume": (CalculationUtil.GetVolume_Window, ("startDataCls", "startCount", "toCount")),
+            "volume_price": (CalculationUtil.GetVolume_Price_Window, ("startDataCls", "startCount", "toCount")),
+            "volume_ratio": (CalculationUtil.GetVolume_Ratio_Window, ("startDataCls", "startCount", "toCount")),
+            "volume_price_ratio": (CalculationUtil.GetVolume_Price_Ratio_Window, ("startDataCls", "startCount", "toCount")),
+
+            "turn_ratio": (CalculationUtil.GetTurn_Ratio_Window, ("startDataCls", "startCount", "toCount")),
+            "change_Ratio": (CalculationUtil.GetChange_Ratio_Window, ("startDataCls", "startCount", "toCount")),
+            "change_Ratio_Total": (CalculationUtil.GetChange_Ratio_Total_Window, ("startDataCls", "startCount", "toCount")),
+            "avg_Ratio": (CalculationUtil.GetAvg_Ratio_Window, ("startDataCls", "startCount", "toCount")),
+            "avg_Ratio_Total": (CalculationUtil.GetAvg_Ratio_Total_Window, ("startDataCls", "startCount", "toCount")),
+            
+            # -------------------------- 平均值类字段 --------------------------
+            "avg_open": (CalculationUtil.GetOpen_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_close": (CalculationUtil.GetClose_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_high": (CalculationUtil.GetHigh_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_low": (CalculationUtil.GetLow_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_volume": (CalculationUtil.GetVolume_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_volume_price": (CalculationUtil.GetVolume_Price_Window_Avg, ("startDataCls", "startCount", "toCount")),
+
+            "avg_volume_rito": (CalculationUtil.Get_VolumeRatio_5_Window_Avg, ("startDataCls", "startCount", "toCount", "handler")),
+            "avg_turn": (CalculationUtil.GetTurn_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_change_Ratio": (CalculationUtil.GetChangeRatio_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_amplitude": (CalculationUtil.GetAmplitude_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            "avg_avg": (CalculationUtil.GetAvg_Price_Window_Avg, ("startDataCls", "startCount", "toCount")),
+            
+            # -------------------------- 最小值类字段 --------------------------
+            "min_open": (CalculationUtil.GetOpen_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_close": (CalculationUtil.GetClose_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_last_close": (CalculationUtil.GetLastClose_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_high": (CalculationUtil.GetHigh_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_low": (CalculationUtil.GetLow_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_volume": (CalculationUtil.GetVolume_Window_Low, ("startDataCls", "startCount", "toCount")),
+
+            "min_volume_price": (CalculationUtil.GetVolume_Price_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_Low, ("startDataCls", "startCount", "toCount", "handler")),
+            "min_turn": (CalculationUtil.GetTurn_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_amplitude": (CalculationUtil.GetAmplitude_Window_Low, ("startDataCls", "startCount", "toCount")),
+            "min_avg": (CalculationUtil.GetAvg_Window_Low, ("startDataCls", "startCount", "toCount")),
+            
+            # -------------------------- 最大值类字段 --------------------------
+            "max_open": (CalculationUtil.GetOpen_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_close": (CalculationUtil.GetClose_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_last_close": (CalculationUtil.GetLastClose_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_high": (CalculationUtil.GetHigh_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_low": (CalculationUtil.GetLow_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_volume": (CalculationUtil.GetVolume_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_volume_price": (CalculationUtil.GetVolume_Price_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_High, ("startDataCls", "startCount", "toCount", "handler")),
+            "max_turn": (CalculationUtil.GetTurn_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_amplitude": (CalculationUtil.GetAmplitude_Window_High, ("startDataCls", "startCount", "toCount")),
+            "max_avg": (CalculationUtil.GetAvg_Window_High, ("startDataCls", "startCount", "toCount")),
+            
+            # -------------------------- 状态类字段（依赖windowsClass） --------------------------
+            "volumeState": (CalculationUtil.GetVolume_State_Windows, ("self",)),
+            "priceState": (CalculationUtil.GetChange_Ratio_State_Windows, ("self",)),
+            "amplitudeState": (CalculationUtil.GetAmplitude_State_Windows, ("self",)),
+            
+            # -------------------------- 行业排名类字段 --------------------------
+            "volume_industry_rank": (CalculationUtil.GetVolume_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "total_price_industry_rank": (CalculationUtil.GetVolume_Price_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "total_price_ratio_industry_rank": (CalculationUtil.GetVolume_Price_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "volume_ratio_industry_rank": (CalculationUtil.GetVolume_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "ratio_industry_rank": (CalculationUtil.GetChange_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "amplitude_industry_rank": (CalculationUtil.GetAmplitude_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "turn_ratio_industry_rank": (CalculationUtil.GetTurn_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
+            "avg_industry_rank": (CalculationUtil.GetAvg_Ratio_Window_Rank, ("startDataCls", "startCount", "toCount", "handler")),
 
 
+            "is_up_up": (lambda cls: 1 if cls.volumeState == 1 and cls.priceState == 1 else 0, ()),
+            "is_low_up": (lambda cls: 1 if cls.volumeState == -1 and cls.priceState == 1 else 0, ()),
+            "is_up_low": (lambda cls: 1 if cls.volumeState == 1 and cls.priceState == -1 else 0, ()),
+            "is_low_low": (lambda cls: 1 if cls.volumeState == -1 and cls.priceState == -1 else 0, ()),
+            "is_up_mid": (lambda cls: 1 if cls.volumeState == 1 and cls.priceState == 0 else 0, ()),
+            "is_low_mid": (lambda cls: 1 if cls.volumeState == -1 and cls.priceState == 0 else 0, ()),
+            "is_mid_up": (lambda cls: 1 if cls.volumeState == 0 and cls.priceState == 1 else 0, ()),
+            "is_mid_low": (lambda cls: 1 if cls.volumeState == 0 and cls.priceState == -1 else 0, ()),
+            
+            # 振幅+价格组合属性
+            "is_pop_up": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == 1 else 0, ()),
+            "is_pop_down": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == -1 else 0, ())
+
+
+        }

@@ -95,11 +95,10 @@ class RequestorClass:
         preCostTimeStr = ""
 
         sameList = set()
-        #count = 0
+        logCount = 0
         for code in codeList:
-            #count = count + 1
-            #if count > 10:
-            #    break
+            logCount = logCount + 1
+   
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue
@@ -201,8 +200,8 @@ class RequestorClass:
         #2022 4 3 2 1
 
         #直接拉
-        year = 2021
-        quarter = 4
+        year = 2020
+        quarter = 3
         clsList = []
         for code in codeList:
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)

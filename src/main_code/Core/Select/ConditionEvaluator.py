@@ -222,7 +222,10 @@ class ConditionEvaluator:
             #区间单股数据
             if id >= 200000 and id < 300000:
                 #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
-                data = self.main.calculationDataHandle.GetWindowDataClassTest(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+                today_data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr)
+                if len(today_data.dataList_240) <= (condition.dateFrom + 20):
+                    return False, None
+                data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
             #当日行业
             if id >= 300000 and id < 400000:
                 industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)

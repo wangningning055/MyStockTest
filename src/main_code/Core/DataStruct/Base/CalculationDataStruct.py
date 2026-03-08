@@ -7,6 +7,7 @@ from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core.Calculate import CalculationUtil
 import time
+import src.main_code.Core.Const as ConstVal
 #用于条件指标记录类
 class AllDateStructBaseClass:
     def __init__(self):
@@ -78,14 +79,47 @@ class StructBaseClass :
         self.close_ori = close_price
         self.high_ori = high_price
         self.low_ori = low_price
-
-        self.volume = amount
+        self.avg_ori = average_price
+        self.volume = amount / 100
         self.change_Ratio = change_Ratio
         self.volume_price = amount_price
+
+        self.is_up_stop = 1 if self.change_Ratio >= ConstVal.GetStopRatio(stockCode) else 0
+        self.is_down_stop= 1 if self.change_Ratio <= -ConstVal.GetStopRatio(stockCode) else 0 #是否跌停
+        self.is_touch_up_stop = 1 if ((self.high - self.last_close) * 100/ self.last_close) >= ConstVal.GetStopRatio(stockCode) else 0#是否触及涨停
+        self.is_touch_down_stop = 1 if ((self.low - self.last_close) * 100 / self.last_close) <= -ConstVal.GetStopRatio(stockCode) else 0#是否触及跌停
+
+
+        self.is_one_ban = 1 if (self.open / self.close) < 1.003 and (self.open / self.close) > 0.997  else 0   #是否十字
+        if self.change_Ratio >= 0:
+            self.is_long_shadow_up = 1 if ((self.high - self.close) / self.close) > 0.05 else 0#是否长上影线
+            self.is_long_shadow_down = 1 if ((self.open - self.low) / self.low) > 0.05 else 0#是否长下影线
+        elif self.change_Ratio < 0:
+            self.is_long_shadow_up = 1 if ((self.high - self.open) / self.close) > 0.05 else 0#是否长上影线
+            self.is_long_shadow_down = 1 if ((self.close - self.low) / self.low) > 0.05 else 0#是否长下影线
+
+        if self.change_Ratio >= 0:
+            self.shortUp = 1 if ((self.high - self.close) / self.close) < 0.01 else 0#是否短上影线
+            self.shortDown = 1 if ((self.open - self.low) / self.low) < 0.01 else 0#是否短下影线
+        elif self.change_Ratio < 0:
+            self.shortUp = 1 if ((self.high - self.open) / self.close) < 0.01 else 0#是否短上影线
+            self.shortDown = 1 if ((self.close - self.low) / self.low) < 0.01 else 0#是否短下影线
+
+
+        self.is_long_cross = 1 if self.is_one_ban == 1 and self.is_long_shadow_up == 1 and self.is_long_shadow_down == 1 else 0#是否长十字
+        self.is_short_cross = 1 if self.is_one_ban == 1 and self.shortUp == 1 and self.shortDown == 1 else 0#是否长十字
+
+        self.is_T_up =  1 if self.change_Ratio >= 0 and self.is_one_ban == 1 and self.shortUp == 1 and self.is_long_shadow_down == 1 else 0#是否正T字
+        self.is_T_down =  1 if self.change_Ratio <= 0 and self.is_one_ban == 1 and self.is_long_shadow_up == 1 and self.shortDown == 1 else 0##是否倒T字
+
 
         self.turn = turn
         if(is_Trading):
             self.total_value = (amount / (turn / 100 )) * average_price
+            self.turn_value = amount_price / self.total_value
+        else:
+            self.total_value = 0
+            self.turn_value = 0
         self.earn = earn_TTM
         self.clean = clean
         self.cash = cash_TTM
@@ -168,11 +202,21 @@ class StructBaseClass :
     change_Ratio_120:float      #120日涨跌幅
     change_Ratio_240:float      #240日涨跌幅
 
+    change_Ratio_single_3:float      #3日距今涨跌幅
+    change_Ratio_single_5:float      #5日距今涨跌幅
+    change_Ratio_single_10:float      #10日距今涨跌幅
+    change_Ratio_single_20:float      #20日距今涨跌幅
+    change_Ratio_single_40:float      #40日距今涨跌幅
+    change_Ratio_single_60:float      #60日距今涨跌幅
+    change_Ratio_single_120:float      #120日距今涨跌幅
+    change_Ratio_single_240:float      #240日距今涨跌幅
+
+
 
     volume_ratio:float        #当日成交量涨跌幅
 
     volume_ratio_3:float        #3日成交量涨跌幅
-    volume_ratio_5:float        #5日成交量涨跌幅
+    volume_ratio_5_percent:float        #5日成交量涨跌幅
     volume_ratio_10:float        #10日成交量涨跌幅
     volume_ratio_20:float        #20日成交量涨跌幅
     volume_ratio_40:float        #40日成交量涨跌幅
@@ -198,6 +242,7 @@ class StructBaseClass :
 
     volume_ratio_5:float       #当日量比 
     turn: float             #当日换手率
+    turn_value:float        #当日资金流通率
     turn_ratio:float        #当日换手率涨跌幅
     total_value:float       #总市值
     earn:float              #当日市盈率
@@ -237,38 +282,54 @@ class StructBaseClass :
     
     #这下面还有行业相关的排名数据没有写
 
-    total_value_ratio:float       #总市值排行业前%
-    earn_ratio:float              #当日市盈率排行业前%
-    clean_ratio:float             #当日市净率排行业前%
-    cash_ratio:float              #当日市销率排行业前%
-    sale_ratio:float              #当日市现率排行业前%
+    total_value_ratio:float       #总市值排行业
+    earn_ratio:float              #当日市盈率排行业
+    clean_ratio:float             #当日市净率排行业
+    cash_ratio:float              #当日市销率排行业
+    sale_ratio:float              #当日市现率排行业
 
-    volume_industry_rank:float #成交量排名(前%)
-    total_price_industry_rank:float #成交额排名(前%)
-    total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
-    volume_ratio_industry_rank:float #成交量涨跌幅排名(前%)
-    ratio_industry_rank:float#涨跌幅排名(前%)
-    amplitude_industry_rank:float#振幅排名(前%)
-    turn_industry_rank:float#换手率涨跌幅排名(前%)
-    turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
-    avg_industry_rank:float#均价涨跌幅排名(前%)
+    volume_industry_rank:float #成交量排名(
+    total_price_industry_rank:float #成交额排名(
+    total_price_ratio_industry_rank:float#成交额涨跌幅排名(
+    volume_ratio_industry_rank:float #成交量涨跌幅排名(
+    ratio_industry_rank:float#涨跌幅排名(
+    amplitude_industry_rank:float#振幅排名(
+    turn_industry_rank:float#换手率涨跌幅排名(
+    turn_ratio_industry_rank:float#换手率涨跌幅排名(
+    avg_industry_rank:float#均价涨跌幅排名(
+
 
 
     #快捷指标
-
+    # 基础状态指标（1/3/5/10/20/40/60/120周期）
     volumeState_1: float #成交量状态_1周期
     volumeState_3: float #成交量状态_3周期
     volumeState_5: float #成交量状态_5周期
     volumeState_10: float #成交量状态_10周期
+    volumeState_20: float #成交量状态_20周期
+    volumeState_40: float #成交量状态_40周期
+    volumeState_60: float #成交量状态_60周期
+    volumeState_120: float #成交量状态_120周期
+
     priceState_1: float #价格状态_1周期
     priceState_3: float #价格状态_3周期
     priceState_5: float #价格状态_5周期
     priceState_10: float #价格状态_10周期
+    priceState_20: float #价格状态_20周期
+    priceState_40: float #价格状态_40周期
+    priceState_60: float #价格状态_60周期
+    priceState_120: float #价格状态_120周期
+
     amplitudeState_1: float #振幅状态_1周期
     amplitudeState_3: float #振幅状态_3周期
     amplitudeState_5: float #振幅状态_5周期
     amplitudeState_10: float #振幅状态_10周期
+    amplitudeState_20: float #振幅状态_20周期
+    amplitudeState_40: float #振幅状态_40周期
+    amplitudeState_60: float #振幅状态_60周期
+    amplitudeState_120: float #振幅状态_120周期
 
+    # 1日交易状态判断
     is_up_up:float#是否放量增长(>或小于1)
     is_low_up:float#是否缩量增长
     is_up_low:float#是否放量降低
@@ -277,7 +338,10 @@ class StructBaseClass :
     is_low_mid:float#是否缩量横盘
     is_mid_up:float#是否平量增长
     is_mid_low:float#是否平量降低
+    is_pop_up:float#是否震荡上行
+    is_pop_down:float#是否震荡下行
 
+    # 3日交易状态判断
     is_up_up_3:float#3日是否放量增长(>或小于1)
     is_low_up_3:float#3日是否缩量增长
     is_up_low_3:float#3日是否放量降低
@@ -286,7 +350,10 @@ class StructBaseClass :
     is_low_mid_3:float#3日是否缩量横盘
     is_mid_up_3:float#3日是否平量增长
     is_mid_low_3:float#3日是否平量降低
+    is_pop_up_3:float#3日是否震荡上行 （修正原字段缺失的_3后缀）
+    is_pop_down_3:float#3日是否震荡下行 （修正原字段缺失的_3后缀）
 
+    # 5日交易状态判断
     is_up_up_5:float#5日是否放量增长(>或小于1)
     is_low_up_5:float#5日是否缩量增长
     is_up_low_5:float#5日是否放量降低
@@ -295,8 +362,10 @@ class StructBaseClass :
     is_low_mid_5:float#5日是否缩量横盘
     is_mid_up_5:float#5日是否平量增长
     is_mid_low_5:float#5日是否平量降低
+    is_pop_up_5:float#5日是否震荡上行
+    is_pop_down_5:float#5日是否震荡下行
 
-
+    # 10日交易状态判断
     is_up_up_10:float#10日是否放量增长(>或小于1)
     is_low_up_10:float#10日是否缩量增长
     is_up_low_10:float#10日是否放量降低
@@ -305,30 +374,84 @@ class StructBaseClass :
     is_low_mid_10:float#10日是否缩量横盘
     is_mid_up_10:float#10日是否平量增长
     is_mid_low_10:float#10日是否平量降低
+    is_pop_up_10:float#10日是否震荡上行
+    is_pop_down_10:float#10日是否震荡下行
 
-    is_pop_up:float#是否震荡上行
-    is_pop_down:float#是否震荡下行
+    # 20日交易状态判断
+    is_up_up_20:float#20日是否放量增长(>或小于1)
+    is_low_up_20:float#20日是否缩量增长
+    is_up_low_20:float#20日是否放量降低
+    is_low_low_20:float#20日是否缩量降低
+    is_up_mid_20:float#20日是否放量横盘
+    is_low_mid_20:float#20日是否缩量横盘
+    is_mid_up_20:float#20日是否平量增长
+    is_mid_low_20:float#20日是否平量降低
+    is_pop_up_20:float#20日是否震荡上行
+    is_pop_down_20:float#20日是否震荡下行
 
-    is_pop_up_3:float#是否震荡上行
-    is_pop_down_3:float#是否震荡下行
+    # 40日交易状态判断
+    is_up_up_40:float#40日是否放量增长(>或小于1)
+    is_low_up_40:float#40日是否缩量增长
+    is_up_low_40:float#40日是否放量降低
+    is_low_low_40:float#40日是否缩量降低
+    is_up_mid_40:float#40日是否放量横盘
+    is_low_mid_40:float#40日是否缩量横盘
+    is_mid_up_40:float#40日是否平量增长
+    is_mid_low_40:float#40日是否平量降低
+    is_pop_up_40:float#40日是否震荡上行
+    is_pop_down_40:float#40日是否震荡下行
 
-    is_pop_up_5:float#是否震荡上行
-    is_pop_down_5:float#是否震荡下行
+    # 60日交易状态判断
+    is_up_up_60:float#60日是否放量增长(>或小于1)
+    is_low_up_60:float#60日是否缩量增长
+    is_up_low_60:float#60日是否放量降低
+    is_low_low_60:float#60日是否缩量降低
+    is_up_mid_60:float#60日是否放量横盘
+    is_low_mid_60:float#60日是否缩量横盘
+    is_mid_up_60:float#60日是否平量增长
+    is_mid_low_60:float#60日是否平量降低
+    is_pop_up_60:float#60日是否震荡上行
+    is_pop_down_60:float#60日是否震荡下行
 
-    is_pop_up_10:float#是否震荡上行
-    is_pop_down_10:float#是否震荡下行
+    # 120日交易状态判断
+    is_up_up_120:float#120日是否放量增长(>或小于1)
+    is_low_up_120:float#120日是否缩量增长
+    is_up_low_120:float#120日是否放量降低
+    is_low_low_120:float#120日是否缩量降低
+    is_up_mid_120:float#120日是否放量横盘
+    is_low_mid_120:float#120日是否缩量横盘
+    is_mid_up_120:float#120日是否平量增长
+    is_mid_low_120:float#120日是否平量降低
+    is_pop_up_120:float#120日是否震荡上行
+    is_pop_down_120:float#120日是否震荡下行
 
 
-    #是否涨停
-    #是否跌停
-    #是否触及涨停
-    #是否触及跌停
 
-    #是否长上下影线十字
-    #是否正T字
-    #是否倒T字
-    
-    #快捷技术指标（布林线，macd，rsi，均价交叉）
+
+
+
+
+    is_up_stop:int #是否涨停
+    is_down_stop:int#是否跌停
+    is_touch_up_stop:int#是否触及涨停
+    is_touch_down_stop:int#是否触及跌停
+
+
+
+    is_one_ban:int     #是否十字
+    is_long_shadow_up:int#是否长上影线
+    is_long_shadow_down:int#是否长下影线
+
+    is_long_cross:int#是否长十字
+    is_short_cross:int#是否短十字
+
+    is_T_up:int#是否正T字
+    is_T_down:int#是否倒T字
+
+
+    #是否是成长股
+    #是否是价值股
+    ##支当日收盘价与支撑位
 
 
 class StructBaseWindowClass :
@@ -355,91 +478,91 @@ class StructBaseWindowClass :
         self.industry = handler.totalComponyIns.GetComponyInfo(self.code).Industry
         self.isST = self.startDataCls.isST
 
-        self.dic = {
-            "up_stopCount": (CalculationUtil.GetUpStopCount, (startDataCls, startCount, toCount)),
-            "down_stopCount": (CalculationUtil.GetDownStopCount, (startDataCls, startCount, toCount)),
-            "volume": (CalculationUtil.GetVolume_Window, (startDataCls, startCount, toCount)),
-            "volume_price": (CalculationUtil.GetVolume_Price_Window, (startDataCls, startCount, toCount)),
-            "volume_ratio": (CalculationUtil.GetVolume_Ratio_Window, (startDataCls, startCount, toCount)),
-            "volume_price_ratio": (CalculationUtil.GetVolume_Price_Ratio_Window, (startDataCls, startCount, toCount)),
+        #self.dic = {
+        #    "up_stopCount": (CalculationUtil.GetUpStopCount, (startDataCls, startCount, toCount)),
+        #    "down_stopCount": (CalculationUtil.GetDownStopCount, (startDataCls, startCount, toCount)),
+        #    "volume": (CalculationUtil.GetVolume_Window, (startDataCls, startCount, toCount)),
+        #    "volume_price": (CalculationUtil.GetVolume_Price_Window, (startDataCls, startCount, toCount)),
+        #    "volume_ratio": (CalculationUtil.GetVolume_Ratio_Window, (startDataCls, startCount, toCount)),
+        #    "volume_price_ratio": (CalculationUtil.GetVolume_Price_Ratio_Window, (startDataCls, startCount, toCount)),
 
-            "turn_ratio": (CalculationUtil.GetTurn_Ratio_Window, (startDataCls, startCount, toCount)),
-            "change_Ratio": (CalculationUtil.GetChange_Ratio_Window, (startDataCls, startCount, toCount)),
-            "change_Ratio_Total": (CalculationUtil.GetChange_Ratio_Total_Window, (startDataCls, startCount, toCount)),
-            "avg_Ratio": (CalculationUtil.GetAvg_Ratio_Window, (startDataCls, startCount, toCount)),
-            "avg_Ratio_Total": (CalculationUtil.GetAvg_Ratio_Total_Window, (startDataCls, startCount, toCount)),
+        #    "turn_ratio": (CalculationUtil.GetTurn_Ratio_Window, (startDataCls, startCount, toCount)),
+        #    "change_Ratio": (CalculationUtil.GetChange_Ratio_Window, (startDataCls, startCount, toCount)),
+        #    "change_Ratio_Total": (CalculationUtil.GetChange_Ratio_Total_Window, (startDataCls, startCount, toCount)),
+        #    "avg_Ratio": (CalculationUtil.GetAvg_Ratio_Window, (startDataCls, startCount, toCount)),
+        #    "avg_Ratio_Total": (CalculationUtil.GetAvg_Ratio_Total_Window, (startDataCls, startCount, toCount)),
             
-            # 平均值类字段
-            "avg_open": (CalculationUtil.GetOpen_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_close": (CalculationUtil.GetClose_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_high": (CalculationUtil.GetHigh_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_low": (CalculationUtil.GetLow_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_volume": (CalculationUtil.GetVolume_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_volume_price": (CalculationUtil.GetVolume_Price_Window_Avg, (startDataCls, startCount, toCount)),
+        #    # 平均值类字段
+        #    "avg_open": (CalculationUtil.GetOpen_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_close": (CalculationUtil.GetClose_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_high": (CalculationUtil.GetHigh_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_low": (CalculationUtil.GetLow_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_volume": (CalculationUtil.GetVolume_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_volume_price": (CalculationUtil.GetVolume_Price_Window_Avg, (startDataCls, startCount, toCount)),
 
-            "avg_volume_rito": (CalculationUtil.Get_VolumeRatio_5_Window_Avg, (startDataCls, startCount, toCount, handler)),
-            "avg_turn": (CalculationUtil.GetTurn_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_change_Ratio": (CalculationUtil.GetChangeRatio_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_amplitude": (CalculationUtil.GetAmplitude_Window_Avg, (startDataCls, startCount, toCount)),
-            "avg_avg": (CalculationUtil.GetAvg_Price_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_volume_rito": (CalculationUtil.Get_VolumeRatio_5_Window_Avg, (startDataCls, startCount, toCount, handler)),
+        #    "avg_turn": (CalculationUtil.GetTurn_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_change_Ratio": (CalculationUtil.GetChangeRatio_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_amplitude": (CalculationUtil.GetAmplitude_Window_Avg, (startDataCls, startCount, toCount)),
+        #    "avg_avg": (CalculationUtil.GetAvg_Price_Window_Avg, (startDataCls, startCount, toCount)),
             
-            # 最小值类字段
-            "min_open": (CalculationUtil.GetOpen_Window_Low, (startDataCls, startCount, toCount)),
-            "min_close": (CalculationUtil.GetClose_Window_Low, (startDataCls, startCount, toCount)),
-            "min_last_close": (CalculationUtil.GetLastClose_Window_Low, (startDataCls, startCount, toCount)),
-            "min_high": (CalculationUtil.GetHigh_Window_Low, (startDataCls, startCount, toCount)),
-            "min_low": (CalculationUtil.GetLow_Window_Low, (startDataCls, startCount, toCount)),
-            "min_volume": (CalculationUtil.GetVolume_Window_Low, (startDataCls, startCount, toCount)),
+        #    # 最小值类字段
+        #    "min_open": (CalculationUtil.GetOpen_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_close": (CalculationUtil.GetClose_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_last_close": (CalculationUtil.GetLastClose_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_high": (CalculationUtil.GetHigh_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_low": (CalculationUtil.GetLow_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_volume": (CalculationUtil.GetVolume_Window_Low, (startDataCls, startCount, toCount)),
 
-            "min_volume_price": (CalculationUtil.GetVolume_Price_Window_Low, (startDataCls, startCount, toCount)),
-            "min_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_Low, (startDataCls, startCount, toCount, handler)),
-            "min_turn": (CalculationUtil.GetTurn_Window_Low, (startDataCls, startCount, toCount)),
-            "min_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_Low, (startDataCls, startCount, toCount)),
-            "min_amplitude": (CalculationUtil.GetAmplitude_Window_Low, (startDataCls, startCount, toCount)),
-            "min_avg": (CalculationUtil.GetAvg_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_volume_price": (CalculationUtil.GetVolume_Price_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_Low, (startDataCls, startCount, toCount, handler)),
+        #    "min_turn": (CalculationUtil.GetTurn_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_amplitude": (CalculationUtil.GetAmplitude_Window_Low, (startDataCls, startCount, toCount)),
+        #    "min_avg": (CalculationUtil.GetAvg_Window_Low, (startDataCls, startCount, toCount)),
             
-            # 最大值类字段
-            "max_open": (CalculationUtil.GetOpen_Window_High, (startDataCls, startCount, toCount)),
-            "max_close": (CalculationUtil.GetClose_Window_High, (startDataCls, startCount, toCount)),
-            "max_last_close": (CalculationUtil.GetLastClose_Window_High, (startDataCls, startCount, toCount)),
-            "max_high": (CalculationUtil.GetHigh_Window_High, (startDataCls, startCount, toCount)),
-            "max_low": (CalculationUtil.GetLow_Window_High, (startDataCls, startCount, toCount)),
-            "max_volume": (CalculationUtil.GetVolume_Window_High, (startDataCls, startCount, toCount)),
-            "max_volume_price": (CalculationUtil.GetVolume_Price_Window_High, (startDataCls, startCount, toCount)),
-            "max_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_High, (startDataCls, startCount, toCount, handler)),
-            "max_turn": (CalculationUtil.GetTurn_Window_High, (startDataCls, startCount, toCount)),
-            "max_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_High, (startDataCls, startCount, toCount)),
-            "max_amplitude": (CalculationUtil.GetAmplitude_Window_High, (startDataCls, startCount, toCount)),
-            "max_avg": (CalculationUtil.GetAvg_Window_High, (startDataCls, startCount, toCount)),
+        #    # 最大值类字段
+        #    "max_open": (CalculationUtil.GetOpen_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_close": (CalculationUtil.GetClose_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_last_close": (CalculationUtil.GetLastClose_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_high": (CalculationUtil.GetHigh_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_low": (CalculationUtil.GetLow_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_volume": (CalculationUtil.GetVolume_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_volume_price": (CalculationUtil.GetVolume_Price_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_volume_rito": (CalculationUtil.GetVolume_Ratio_5_Window_High, (startDataCls, startCount, toCount, handler)),
+        #    "max_turn": (CalculationUtil.GetTurn_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_change_Ratio": (CalculationUtil.GetChange_Ratio_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_amplitude": (CalculationUtil.GetAmplitude_Window_High, (startDataCls, startCount, toCount)),
+        #    "max_avg": (CalculationUtil.GetAvg_Window_High, (startDataCls, startCount, toCount)),
             
-            # 状态类字段（依赖windowsClass）
-            "volumeState_1": (CalculationUtil.GetVolume_State_Windows, (self,)),
-            "priceState_1": (CalculationUtil.GetChange_Ratio_State_Windows, (self,)),
-            "amplitudeState_1": (CalculationUtil.GetAmplitude_State_Windows, (self,)),
+        #    # 状态类字段（依赖windowsClass）
+        #    "volumeState": (CalculationUtil.GetVolume_State_Windows, (self,)),
+        #    "priceState": (CalculationUtil.GetChange_Ratio_State_Windows, (self,)),
+        #    "amplitudeState": (CalculationUtil.GetAmplitude_State_Windows, (self,)),
             
-            # 行业排名类字段
-            "volume_industry_rank": (CalculationUtil.GetVolume_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "total_price_industry_rank": (CalculationUtil.GetVolume_Price_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "total_price_ratio_industry_rank": (CalculationUtil.GetVolume_Price_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "volume_ratio_industry_rank": (CalculationUtil.GetVolume_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "ratio_industry_rank": (CalculationUtil.GetChange_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "amplitude_industry_rank": (CalculationUtil.GetAmplitude_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "turn_ratio_industry_rank": (CalculationUtil.GetTurn_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
-            "avg_industry_rank": (CalculationUtil.GetAvg_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    # 行业排名类字段
+        #    "volume_industry_rank": (CalculationUtil.GetVolume_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "total_price_industry_rank": (CalculationUtil.GetVolume_Price_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "total_price_ratio_industry_rank": (CalculationUtil.GetVolume_Price_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "volume_ratio_industry_rank": (CalculationUtil.GetVolume_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "ratio_industry_rank": (CalculationUtil.GetChange_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "amplitude_industry_rank": (CalculationUtil.GetAmplitude_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "turn_ratio_industry_rank": (CalculationUtil.GetTurn_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
+        #    "avg_industry_rank": (CalculationUtil.GetAvg_Ratio_Window_Rank, (startDataCls, startCount, toCount, handler)),
 
-            "is_up_up": (lambda: 1 if self.volumeState_1 == 1 and self.priceState_1 == 1 else 0, ()),
-            "is_low_up": (lambda: 1 if self.volumeState_1 == -1 and self.priceState_1 == 1 else 0, ()),
-            "is_up_low": (lambda: 1 if self.volumeState_1 == 1 and self.priceState_1 == -1 else 0, ()),
-            "is_low_low": (lambda: 1 if self.volumeState_1 == -1 and self.priceState_1 == -1 else 0, ()),
-            "is_up_mid": (lambda: 1 if self.volumeState_1 == 1 and self.priceState_1 == 0 else 0, ()),
-            "is_low_mid": (lambda: 1 if self.volumeState_1 == -1 and self.priceState_1 == 0 else 0, ()),
-            "is_mid_up": (lambda: 1 if self.volumeState_1 == 0 and self.priceState_1 == 1 else 0, ()),
-            "is_mid_low": (lambda: 1 if self.volumeState_1 == 0 and self.priceState_1 == -1 else 0, ()),
+        #    "is_up_up": (lambda: 1 if self.volumeState == 1 and self.priceState == 1 else 0, ()),
+        #    "is_low_up": (lambda: 1 if self.volumeState == -1 and self.priceState == 1 else 0, ()),
+        #    "is_up_low": (lambda: 1 if self.volumeState == 1 and self.priceState == -1 else 0, ()),
+        #    "is_low_low": (lambda: 1 if self.volumeState == -1 and self.priceState == -1 else 0, ()),
+        #    "is_up_mid": (lambda: 1 if self.volumeState == 1 and self.priceState == 0 else 0, ()),
+        #    "is_low_mid": (lambda: 1 if self.volumeState == -1 and self.priceState == 0 else 0, ()),
+        #    "is_mid_up": (lambda: 1 if self.volumeState == 0 and self.priceState == 1 else 0, ()),
+        #    "is_mid_low": (lambda: 1 if self.volumeState == 0 and self.priceState == -1 else 0, ()),
             
-            # 振幅+价格组合属性
-            "is_pop_up": (lambda: 1 if self.amplitudeState_1 == 1 and self.priceState_1 == 1 else 0, ()),
-            "is_pop_down": (lambda: 1 if self.amplitudeState_1 == 1 and self.priceState_1 == -1 else 0, ())
-        }
+        #    # 振幅+价格组合属性
+        #    "is_pop_up": (lambda: 1 if self.amplitudeState == 1 and self.priceState == 1 else 0, ()),
+        #    "is_pop_down": (lambda: 1 if self.amplitudeState == 1 and self.priceState == -1 else 0, ())
+        #}
 
 
 
@@ -448,18 +571,32 @@ class StructBaseWindowClass :
             return None
         #print("触发首次读取")
         # 1. 如果字段不在懒加载映射里，抛出常规属性不存在异常（避免无意义递归）
-        if field_name not in self.dic:
-            raise AttributeError(f"'StructBaseClass' object has no attribute '{field_name}'")
+        if field_name not in self.handler.CalculateBaseWindowAttrDic:
+            raise AttributeError(f"'StructBaseWindowClass' object has no attribute '{field_name}'")
         
+
         # 2. 如果字段未计算，执行计算逻辑
         if field_name not in self._computed_fields:
             self.calculateCount += 1
             # 从dic中取出方法和参数
             #if field_name == "change_Ratio_5":
             #    print("???????执行啊啊啊啊啊啊啊")
-            calc_method, args = self.dic[field_name]
-            # 执行计算并赋值给实例（存入__dict__，避免再次触发__getattr__）
-            calc_result = calc_method(*args)
+            calc_method, args_names = self.handler.CalculateBaseWindowAttrDic[field_name]
+
+            real_args = []
+            for arg_name in args_names:
+                if arg_name == "self":
+                    real_args.append(self)
+                else:
+                    real_args.append(getattr(self, arg_name))
+
+            # 执行计算（对lambda表达式，传入self作为cls参数）
+            if callable(calc_method) and calc_method.__name__ == "<lambda>":
+                # lambda表达式特殊处理：传入self作为cls参数
+                calc_result = calc_method(self)
+            else:
+                # 普通函数：传入解析后的实际参数
+                calc_result = calc_method(*real_args)
 
             setattr(self, field_name, calc_result)
             # 标记为已计算
@@ -532,14 +669,14 @@ class StructBaseWindowClass :
     max_avg:float         #最高均价
 
     
-    volume_industry_rank:float #成交量排名(前%)
-    total_price_industry_rank:float #成交额排名(前%)
-    total_price_ratio_industry_rank:float#成交额涨跌幅排名(前%)
-    volume_ratio_industry_rank:float #成交量涨跌幅排名(前%)
-    ratio_industry_rank:float#涨跌幅排名(前%)
-    amplitude_industry_rank:float#振幅排名(前%)
-    turn_ratio_industry_rank:float#换手率涨跌幅排名(前%)
-    avg_industry_rank:float#均价涨跌幅排名(前%)
+    volume_industry_rank:float #成交量排名(
+    total_price_industry_rank:float #成交额排名(
+    total_price_ratio_industry_rank:float#成交额涨跌幅排名(
+    volume_ratio_industry_rank:float #成交量涨跌幅排名(
+    ratio_industry_rank:float#涨跌幅排名(
+    amplitude_industry_rank:float#振幅排名(
+    turn_ratio_industry_rank:float#换手率涨跌幅排名(
+    avg_industry_rank:float#均价涨跌幅排名(
 
 
     #快捷指标

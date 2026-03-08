@@ -50,7 +50,9 @@ class processor:
         print(f"初始化完毕, 最近的有效股票数据日期是：{self.todayStockDate}")
         self.isInit = True
 
-        self.Temp_ExportValue()
+
+
+        #self.Temp_ImportValue()
 
     def Temp_ExportValue(self):
         listValue = self.dbHandler.GetAllValueData()
@@ -148,11 +150,11 @@ class processor:
             else:
                 self.isInit = False
                 self.BoardCast("开始进行数据拉取")
-                self.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago}  ----  {today_str}")
+                self.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
 
                 self.isInDaily = True
-                self.isInBase = True
-                self.isInFactor = True
+                #self.isInBase = True
+                #self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
 
@@ -163,11 +165,11 @@ class processor:
                 #await self.requestor.RequestAdjust()
                 #self.isInFactor = False
 
-                #await self.requestor.RequestDaily(seven_days_ago, today_str)
+                #await self.requestor.RequestDaily(seven_days_ago_str, today_str)
                 #self.isInDaily = False
 
 
-                await self.requestor.RequestValue()
+                #await self.requestor.RequestValue()
 
                 self.isInit = True
 

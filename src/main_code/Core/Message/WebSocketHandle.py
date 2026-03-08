@@ -19,6 +19,7 @@ async def SendMessage(msg_type, content):
     print(f"发送消息：{msg_type}，： {content}")
     data = json.dumps({"type": msg_type, "msg": content})
 
+
     dead_ws = []
 
     for ws in clients:
@@ -44,18 +45,20 @@ async def safe_send(*args):
 
 ## 广播函数
 async def broadcast(message: str):
+
     data = json.dumps({"type": "log", "msg": message})
     dead = set()
     clients_copy = list(clients)
 
     for ws in clients_copy:
         try:
+            print(f"log测试：{message}")
             await ws.send_text(data)
         except Exception:
             dead.add(ws)
 
     for ws in dead:
-        clients.remove(ws)
+        clients.discard(ws)
 
 
 
