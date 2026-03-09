@@ -52,7 +52,7 @@ async def broadcast(message: str):
 
     for ws in clients_copy:
         try:
-            print(f"log测试：{message}")
+            #print(f"log测试：{message}")
             await ws.send_text(data)
         except Exception:
             dead.add(ws)

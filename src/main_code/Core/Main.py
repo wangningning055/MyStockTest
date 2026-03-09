@@ -165,8 +165,8 @@ class processor:
                 #await self.requestor.RequestAdjust()
                 #self.isInFactor = False
 
-                #await self.requestor.RequestDaily(seven_days_ago_str, today_str)
-                #self.isInDaily = False
+                await self.requestor.RequestDaily(seven_days_ago_str, today_str)
+                self.isInDaily = False
 
 
                 #await self.requestor.RequestValue()
@@ -201,9 +201,14 @@ class processor:
         else:
             print("股票信息拉取流程异常结束")
             self.BoardCast(f"股票信息拉取流程异常结束:{self.isInBase}{self.isInFactor}{self.isInDaily}")
+            self.isInDaily = False
+            self.isInBase = False
+            self.isInFactor = False
             
         try:
             result = task.result()  # 捕获返回值或异常
+            print(f"拉取任务返回值:{result}")
+            self.BoardCast(f"拉取任务返回值:{result}")
         except Exception as e:
             print("任务异常:", e)
             full_trace = traceback.format_exc()

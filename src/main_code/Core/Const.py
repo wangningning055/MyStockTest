@@ -1,8 +1,6 @@
 from enum import Enum
 
 
-    #token = "b067c471d2ee1b3875e75d01169b8a64d0707e4d1e2cb42d2ca502be"
-    #token = "323752147f60806f5823e0209c317ce5aa507863fa9184b3cd7d5839"
 ##tushare的私钥
 token1 = "b067c471d2ee1b3875e75d01169b8a64d0707e4d1e2cb42d2ca502be"
 token2 = "323752147f60806f5823e0209c317ce5aa507863fa9184b3cd7d5839"
@@ -49,7 +47,10 @@ amplitude_boundary = 4
 volume_boundary = 2
 
 
-NoneValue = -999999
+NoneValue = -999999     #指标计算的无效值
+
+dateListLength = 20     #缓存的日期长度
+
 
 #获取涨跌幅幅度主板 10， 创业板科创板 20
 def GetStopRatio(stockCode):
@@ -58,33 +59,33 @@ def GetStopRatio(stockCode):
     else:
         return 9.98
 
+    #窗口数据111  行业数据  行业窗口数据都做完
 
+    ##支撑位价计算
 
-    #is_up_stop:int #是否涨停
-    #is_down_stop:int#是否跌停
-    #is_touch_up_stop:int#是否触及涨停
-    #is_touch_down_stop:int#是否触及跌停
-
-
-    ##是否长十字
-    ##是否短十字
-    ##是否长上影线
-    ##是否长下影线
-    ##是否正T字
-    ##是否倒T字
+    #窗口数据加上长上影线之类的
 
     ##是否是成长股
     ##是否是价值股
 
-    ##支当日收盘价与支撑位
+    #st， 科创，创业，等的剔除加上
+    ##验证st， 科创，创业，等的剔除
+
+
+    ##拉取逻辑更改（基本数据，复权数据，日线数据），记录上次完成的拉取日期
+    ##完善价值数据拉取逻辑，
+
+    ##晚上回家：
+    ##验证窗口数据，行业数据，行业窗口数据是否正确(3天以上和三天以内)
+    ##拉取数据时可以选择停止拉取
+    ##给选股页签加上数据预热按钮，预热时可以停止预热
+    ##返回结果给前端，并让前端显示K线
 
 
 
 
 
 #备忘
-#记得添加资金流通率（成交额 / 流通市值）
-#记得添加股票估值计算
 
 
 
