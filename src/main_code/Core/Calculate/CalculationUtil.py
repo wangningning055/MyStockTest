@@ -996,10 +996,10 @@ def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
     for single in dataList_240:
         if count == StartDayCount:
             startVal = single.close
-            #print(f"正在算涨跌幅，开始日期是：{single.trade_date}, 涨跌幅开始值是：{startVal}， {StartDayCount}  {ToDayCount}")
+            print(f"正在算涨跌幅，开始日期是：{single.trade_date}, 涨跌幅开始值是：{startVal}， {StartDayCount}  {ToDayCount}")
         if count == ToDayCount or count == len(dataList_240) - 1:
             endVal = single.close
-            #print(f"正在算涨跌幅，结束日期是：{single.trade_date}, 涨跌幅结束值是：{endVal}， {StartDayCount}  {ToDayCount}")
+            print(f"正在算涨跌幅，结束日期是：{single.trade_date}, 涨跌幅结束值是：{endVal}， {StartDayCount}  {ToDayCount}")
             break
         count = count + 1
     return (startVal - endVal)*100 / endVal
@@ -2403,6 +2403,7 @@ def GetIndustry_Volume(industryInfo :"CalculationDataStruct.StructIndustryInfoCl
     totalVolume = ConstVal.NoneValue
     for key, val in industryInfo.stockList.items():
         dailyCls = handler.GetBaseDataClass(val.Code, trade_date, False)
+        
         if dailyCls and dailyCls.volume:
             if totalVolume == ConstVal.NoneValue:
                 totalVolume = 0

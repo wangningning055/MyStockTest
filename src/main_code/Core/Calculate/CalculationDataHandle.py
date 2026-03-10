@@ -101,14 +101,20 @@ class BaseClass :
 
         #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
         #self.CalculateBaseClass(cls)
-        #windowCls = self.GetWindowDataClass("300846.SZ", todayStr, 0, 10)
+
+
+        #windowCls = self.GetWindowDataClass("603986.SH", todayStr, 0, 50)
         #windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
         #windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
         #windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
-        #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 10)
-        #industryCls = self.GetIndustryBaseData("600740.SH", "20260303")
+        #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 50)
+
+
+        #industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
         #self.CalculateIndustryBaseData(industryCls)
-        industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 10)
+
+
+        industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
         self.CalculateIndustryWindowData(industryCls)
 
         t1 = time.perf_counter()
@@ -172,14 +178,6 @@ class BaseClass :
                 industryIns.stockForSortList.append(componyInfoIns)
                 self.totalComponyIns.industryList[industry] = industryIns
                 sameList.add(industry)
-
-    def InitIndustryCls(self):
-
-        print(f"行业总数量为：{len(self.totalComponyIns.industryList)}")
-        for key, val in self.totalComponyIns.industryList.items():
-            if key == "焦炭加工":
-                #self.GetIndustryBaseData("20260211", val)
-                self.GetIndustryWindowData(val, "20260213", 0, 10 )
 
 
     def GetBaseDataClass(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:

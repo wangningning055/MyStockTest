@@ -153,14 +153,14 @@ class processor:
                 self.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
 
                 self.isInDaily = True
-                #self.isInBase = True
+                self.isInBase = True
                 self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
 
 
-                #await self.requestor.RequestBasic()
-                #self.isInBase = False
+                await self.requestor.RequestBasic()
+                self.isInBase = False
 
                 await self.requestor.RequestAdjust()
                 self.isInFactor = False
