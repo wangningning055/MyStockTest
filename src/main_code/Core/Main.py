@@ -154,7 +154,7 @@ class processor:
 
                 self.isInDaily = True
                 #self.isInBase = True
-                #self.isInFactor = True
+                self.isInFactor = True
                 
                 #await self.requestor.RequestBasic_ByCSV()
 
@@ -162,8 +162,8 @@ class processor:
                 #await self.requestor.RequestBasic()
                 #self.isInBase = False
 
-                #await self.requestor.RequestAdjust()
-                #self.isInFactor = False
+                await self.requestor.RequestAdjust()
+                self.isInFactor = False
 
                 await self.requestor.RequestDaily(seven_days_ago_str, today_str)
                 self.isInDaily = False

@@ -462,56 +462,6 @@ class BaseClass :
         print(f"行业平均上涨股比例 {industryWindowClass.stockNum_up_Ratio}")
         print(f"行业平均下跌股比例 {industryWindowClass.stockNum_down_Ratio}")
 
-    def GetIndustryWindowDataTest(self, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass, tradeDate, startDateCount, toDateCount):
-        from src.main_code.Core.Calculate import CalculationUtil
-
-        industryWindowClass = CalculationDataStruct.StructIndustryWindowClass()
-
-        #name:str        #行业名
-        industryWindowClass.name = industryInfoCls.industryName
-
-        
-        #stockNum:int            #行业股数量
-        industryWindowClass.stockNum = len(industryInfoCls.stockList)
-
-        #volume: float   #整体成交量
-        industryWindowClass.volume = CalculationUtil.GetIndustry_Volume_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #volume_price: Optional[float] = None        #整体成交额
-        industryWindowClass.volume_price = CalculationUtil.GetIndustry_Volume_Price_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #avg_volume: float   #平均成交量
-        industryWindowClass.avg_volume = CalculationUtil.GetIndustry_Volume_Avg_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #avg_volume_price: Optional[float] = None        #平均成交额
-        industryWindowClass.avg_volume_price = CalculationUtil.GetIndustry_Volume_Price_Avg_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #volume_ratio:float        #整体成交量涨跌幅
-        industryWindowClass.volume_ratio = CalculationUtil.GetIndustry_Volume_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #volume_price_ratio: Optional[float] = None        #整体成交额涨跌幅
-        industryWindowClass.volume_price_ratio = CalculationUtil.GetIndustry_Volume_Price_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-
-        #change_Ratio:float      #行业涨跌幅
-        industryWindowClass.change_Ratio = CalculationUtil.GetIndustry_Change_Ratio_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #change_Ratio_Total:float      #整体行业涨跌幅
-        industryWindowClass.change_Ratio_Total = CalculationUtil.GetIndustry_Change_Ratio_Total_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #avg_stockNum_up:int         #平均行业上涨股数量
-        industryWindowClass.avg_stockNum_up = CalculationUtil.GetIndustry_Up_Stock_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-
-        #avg_stockNum_down:int       #平均行业下跌股数量
-        industryWindowClass.avg_stockNum_down = CalculationUtil.GetIndustry_Down_Stock_Window(industryInfoCls, tradeDate, startDateCount, toDateCount, self)
-        
-        #stockNum_up_Ratio:int         #平均行业上涨股比例
-        industryWindowClass.stockNum_up_Ratio = (industryWindowClass.avg_stockNum_up / industryWindowClass.stockNum) * 100 if industryWindowClass.stockNum > 0 else 0
-
-        #stockNum_down_Ratio:int         #平均行业下跌股比例
-        industryWindowClass.stockNum_down_Ratio = (industryWindowClass.avg_stockNum_down / industryWindowClass.stockNum) * 100 if industryWindowClass.stockNum > 0 else 0
-
-
 
     #获取前X天的交易数据
     def GetLastDateDataByNum(self, cls, dayNum):
