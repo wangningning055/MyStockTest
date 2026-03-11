@@ -241,8 +241,8 @@ class StructBaseClass :
 
 
     volume_ratio_5:float       #当日量比 
-    turn: float             #当日换手率
-    turn_value:float        #当日资金流通率
+    turn: float             #当日换手率  1-3（普通股）   3-5（关注股）  5-10（热门股）   10->（大热门）
+    turn_value:float        #当日资金流通率   2-5（普通股）  5-8（热门股）  8 ->(大热门)
     turn_ratio:float        #当日换手率涨跌幅
     total_value:float       #总市值
     earn:float              #当日市盈率
