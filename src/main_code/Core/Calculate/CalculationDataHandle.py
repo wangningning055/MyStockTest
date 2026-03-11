@@ -6,6 +6,7 @@ from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
+from src.main_code.Core.DataStruct.DB import ValueDBStruct
 from src.main_code.Core import Const
 from src.main_code.Core.Calculate import CalculationFuncRegister
 import time
@@ -30,101 +31,103 @@ class BaseClass :
         CalculationFuncRegister.RegisterCalculateFunc(self)
         self.totalDateList = self.InitDateList()
         print(self.totalDateList)
-
-        pid = os.getpid()
-        # 获取当前进程对象
-        process = psutil.Process(pid)
-
-        mem_info = process.memory_info()
-        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        t0 = time.perf_counter()
-
-        print(f"开始获取整个数据 ")
-        print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        self.InitValueData()
 
 
-        self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+        #pid = os.getpid()
+        ## 获取当前进程对象
+        #process = psutil.Process(pid)
+
+        #mem_info = process.memory_info()
+        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        #t0 = time.perf_counter()
+
+        #print(f"开始获取整个数据 ")
+        #print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
-
-        print("      开始整理复权数据：")
-        self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
-        print(f"    复权数据整理完毕")
-
-
-        #这里整理价值数据
-        print("     开始整理价值数据：")
-        print(f"    价值数据整理完毕")
-
-
-        mem_info = process.memory_info()
-        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-
-
-        t1 = time.perf_counter()
-        totalCostTime = (t1 - t0)
-        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
-        print(f"整个数据获取完毕 ")
+        #self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
 
 
-
-        print(f"开计算数据，数据日期长度{Const.dateListLength} ")
-        print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-        t0 = time.perf_counter()
-
+        #print("      开始整理复权数据：")
+        #self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
+        #print(f"    复权数据整理完毕")
 
 
-        todayStr = self.GetToday()
-        self.InitAllBaseDataClsList(240, todayStr)
+        ##这里整理价值数据
+        #print("     开始整理价值数据：")
+        #print(f"    价值数据整理完毕")
 
 
-
-        t1 = time.perf_counter()
-        totalCostTime = (t1 - t0)
-        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+        #mem_info = process.memory_info()
+        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
 
 
-
-        todayStr = self.GetToday()
-        t0 = time.perf_counter()
-        mem_info = process.memory_info()
-        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
+        #print(f"整个数据获取完毕 ")
 
 
 
-        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
-        #self.CalculateBaseClass(cls)
+
+        #print(f"开计算数据，数据日期长度{Const.dateListLength} ")
+        #print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        #t0 = time.perf_counter()
 
 
-        #windowCls = self.GetWindowDataClass("603986.SH", todayStr, 0, 50)
-        #windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
-        #windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
-        #windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
-        #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 50)
+
+        #todayStr = self.GetToday()
+        #self.InitAllBaseDataClsList(240, todayStr)
 
 
-        #industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
-        #self.CalculateIndustryBaseData(industryCls)
+
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
 
 
-        industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
-        self.CalculateIndustryWindowData(industryCls)
 
-        t1 = time.perf_counter()
-        totalCostTime = (t1 - t0)
-        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        mem_info = process.memory_info()
-        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        #todayStr = self.GetToday()
+        #t0 = time.perf_counter()
+        #mem_info = process.memory_info()
+        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        #print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
-        print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+
+
+        ##cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
+        ##self.CalculateBaseClass(cls)
+
+
+        ##windowCls = self.GetWindowDataClass("603986.SH", todayStr, 0, 50)
+        ##windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
+        ##windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
+        ##windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
+        ##self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 50)
+
+
+        ##industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
+        ##self.CalculateIndustryBaseData(industryCls)
+
+
+        #industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
+        #self.CalculateIndustryWindowData(industryCls)
+
+        #t1 = time.perf_counter()
+        #totalCostTime = (t1 - t0)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        #mem_info = process.memory_info()
+        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+        #print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
     def InitIndustry(self):
@@ -571,3 +574,82 @@ class BaseClass :
         # 获取最新的有效日期和对应数据
         latest_date = dates[idx]
         return data_dict[latest_date]
+
+
+    #4/31(一季报，上一年年报)
+    #8/31(二季报)
+    #10/31（三季报）
+    #初始化价值数据
+    def InitValueData(self):
+        todayStr = self.GetToday()
+        todayDate = datetime.strptime(todayStr, "%Y%m%d")
+        year = todayDate.year
+        month = todayDate.month
+        dbDic = self.main.dbHandler.LoadAllValueDataToDict()
+        #print(f"获取价值数据字符串是{todayStr},  年份是：{year}，    月份是{month}")
+        allCodeList = self.totalStockList
+        dbStruct =  ValueDBStruct.DBStructClass()
+        #季报数据获取
+        for code in allCodeList:
+            componyInfo = self.totalComponyIns.GetComponyInfo(code)
+            target_year = 0
+            target_q = 0
+            if month >= 5 and month <= 8:
+                target_year = year
+                target_q = 1
+            if month >= 9 and month <= 10:
+                target_year = year
+                target_q = 2
+            if month >= 11 and month <= 12:
+                target_year = year
+                target_q = 3
+            if month >= 1 and month <= 4:
+                target_year = year - 1
+                target_q = 3
+
+            catchKey = (code, target_year, target_q)
+            #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{target_year}，    目标季度是{target_q}")
+            val = dbDic.get(catchKey)
+            if val is not None: 
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)]
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)]
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)]
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)]
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)]
+
+                componyInfo.Roe = roe
+                componyInfo.YOYNi = yoyni
+                componyInfo.LiabilityTo = liabilityTo
+                componyInfo.YOYEquity = yoyEquity
+                componyInfo.YOYLiability = yoyLiability
+
+
+
+            #年报数据获取
+            y_target_year = 0
+            y_target_q = 0
+            if month >= 1 and month <= 4:
+                y_target_year = year - 1
+                y_target_q = 2
+            if month >= 5 and month <= 8:
+                y_target_year = year - 1
+                y_target_q = 4
+            if month >= 9 and month <= 12:
+                y_target_year = year
+                y_target_q = 2
+
+            #print(f"获取价值年度数据字符串是{todayStr},  目标年份是：{y_target_year}，    目标季度是{y_target_q}")
+            catchKey = (code, y_target_year, y_target_q)
+            val = dbDic.get(catchKey)
+            if val is not None: 
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)]
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)]
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)]
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)]
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)]
+
+                componyInfo.Roe_Year = roe
+                componyInfo.YOYNi_Year = yoyni
+                componyInfo.LiabilityTo_Year = liabilityTo
+                componyInfo.YOYEquity_Year = yoyEquity
+                componyInfo.YOYLiability_Year = yoyLiability

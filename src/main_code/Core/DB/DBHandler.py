@@ -554,20 +554,6 @@ class DBHandlerClass:
             
             return {"Open_Price" : 1}
     
-    def GetAllValueData(self):
-        sql = f'SELECT * FROM {const_proj.DBValueTableName}'
-        self.dbCursor.execute(sql)
-        allRow = self.dbCursor.fetchall()
-        columns = [desc[0] for desc in self.dbCursor.description]
-        List = []
-        for row in allRow:
-            row_dict = {col: row[i] for i, col in enumerate(columns)}
-            
-            rowDic = dict(row)
-            List.append(row_dict)
-            #sameList.add(ts_code)
-        return List
-
     #一次性读取数据库，获取指定codeList和指定dateList的数据
     def GetDailyRowByCodeListAndDateList(self, codeList, dateList):
         # 边界条件处理：空列表直接返回空字典
@@ -632,4 +618,35 @@ class DBHandlerClass:
         for code in temp_dict:
             temp_dict[code]["dates"].sort()  # 升序排序
         
+        return temp_dict
+
+
+    def LoadAllValueDataToDict(self):
+        # 获取数据库列名
+        code_column = self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Code)
+        year_column = self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Year)
+        quarter_column = self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Quarter)
+        
+        # 查询所有复权数据
+        sql = f'''SELECT * FROM {const_proj.DBValueTableName}'''
+        self.dbCursor.execute(sql)
+        rows = self.dbCursor.fetchall()
+        
+        # 按股票分组整理数据
+        temp_dict = {}
+        for row in rows:
+            row_dict = dict(row)
+            
+            self.LoadAllValueDataToDict
+            code = row_dict[code_column]
+
+            exchange, num = code.split(".")
+            code = f"{num}.{exchange.upper()}"
+            row_dict[code_column] = code
+
+            year = row_dict[year_column]
+            quarter = row_dict[quarter_column]
+
+            
+            temp_dict[(code, year, quarter)] = row_dict
         return temp_dict

@@ -804,10 +804,20 @@ class StructComponyInfoClass:
     Introduction:str                             #公司简介(已有)
     Com_name:str                                   #公司名称(已有)
     Total_Value:int                                   #总流通股本
+
     Earn:float              #市盈率
     Clean:float             #市净率
     Cash:float              #市销率
     Sale:float              #市现率
+
+    Roe:float               #roe：净资产收益率
+    YOYNi : float           #净利润同比增长率
+    LiabilityTo: float      #资产负债率 
+    YOYEquity : float       #净资产同比增长率
+    YOYLiability: float     #负债同比增长率
+    
+    Value_Score : float
+    Grow_Score : float
 
     def __init__(self):
         self.Total_Value = 0
@@ -815,8 +825,27 @@ class StructComponyInfoClass:
         self.Clean = 0
         self.Cash = 0
         self.Sale = 0
+        self.Roe = 0
+        self.YOYNi = 0
+        self.LiabilityTo = 0
+        self.YOYEquity = 0
+        self.YOYLiability = 0
 
-    
+        self.Roe_Year = 0
+        self.YOYNi_Year = 0
+        self.LiabilityTo_Year = 0
+        self.YOYEquity_Year = 0
+        self.YOYLiability_Year = 0
+
+        self.Value_Score = 0
+        self.Grow_Score = 0
+
+
+    #计算价值股或成长股得分, 计算指标得分，指标加权重，  判断优秀程度加不同的分，越优秀加的越多，越劣势减的越多， 为0的参数不参与计算
+    def CalculationValueScore():
+        pass
+
+
 class StructIndustryInfoClass:
     industryName : str
     isCalculate:bool
