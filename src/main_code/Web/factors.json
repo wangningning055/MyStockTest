@@ -49,7 +49,6 @@
         { "id": 1036, "name_field": "change_Ratio_single_240", "name": "240日距今涨跌幅", "type": "float", "description": "股票240日内的价格涨跌幅" },
 
 
-        { "id": 1037, "name_field": "turn_ratio", "name": "当日换手率涨跌幅", "type": "float", "description": "股票当日换手率的涨跌幅" },
         { "id": 1038, "name_field": "volume_ratio_5", "name": "当日量比", "type": "float", "description": "股票当日的量比" },
         { "id": 1039, "name_field": "volume_ratio", "name": "当日成交量涨跌幅", "type": "float", "description": "股票当日成交量的涨跌幅" },
         { "id": 1040, "name_field": "volume_price_ratio", "name": "当日成交额涨跌幅", "type": "Optional[float]", "description": "股票当日成交额的涨跌幅" },
@@ -222,7 +221,6 @@
         { "id": 1164, "name_field": "ratio_industry_rank", "name": "当日涨跌幅行业排名", "type": "float", "description": "股票价格涨跌幅在所属行业中的排名（前几名）" },
         { "id": 1165, "name_field": "amplitude_industry_rank", "name": "当日振幅行业排名", "type": "float", "description": "股票价格振幅在所属行业中的排名（前几名）" },
         { "id": 1166, "name_field": "turn_industry_rank", "name": "当日换手率行业排名", "type": "float", "description": "股票换手率在所属行业中的排名（前几名）" },
-        { "id": 1167, "name_field": "turn_ratio_industry_rank", "name": "当日换手率涨跌幅行业排名", "type": "float", "description": "股票换手率涨跌幅在所属行业中的排名（前几名）" },
         { "id": 1168, "name_field": "avg_industry_rank", "name": "当日均价涨跌幅行业排名", "type": "float", "description": "股票均价涨跌幅在所属行业中的排名（前几名）" }
       ]
     },
@@ -238,7 +236,6 @@
         { "id": 200203, "name_field": "volume_price", "name": "区间整体成交额", "type": "float", "description": "股票的整体成交金额" },
         { "id": 200204, "name_field": "volume_ratio", "name": "区间整体成交量涨跌幅", "type": "float", "description": "股票整体成交量的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
         { "id": 200205, "name_field": "volume_price_ratio", "name": "区间整体成交额涨跌幅", "type": "float", "description": "股票整体成交额的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
-        { "id": 200206, "name_field": "turn_ratio", "name": "区间整体换手率涨跌幅", "type": "float", "description": "股票整体换手率的涨跌幅" },
         { "id": 200207, "name_field": "change_Ratio", "name": "区间涨跌幅", "type": "float", "description": "股票的价格涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
         { "id": 200208, "name_field": "change_Ratio_Total", "name": "区间整体涨跌幅", "type": "float", "description": "股票的整体价格涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
         { "id": 200209, "name_field": "avg_Ratio", "name": "区间均价涨跌幅", "type": "float", "description": "股票均价的涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
@@ -302,7 +299,6 @@
         { "id": 200249, "name_field": "volume_ratio_industry_rank", "name": "区间成交量涨跌幅行业排名", "type": "float", "description": "股票成交量涨跌幅在所属行业中的排名（前几名）" },
         { "id": 200250, "name_field": "ratio_industry_rank", "name": "区间涨跌幅行业排名", "type": "float", "description": "股票价格涨跌幅在所属行业中的排名（前几名）" },
         { "id": 200251, "name_field": "amplitude_industry_rank",	"name":"区间振幅行业排名","type":"float","description":"股票价格振幅在所属行业中的排名（前几名）" },
-        { "id": 200252, "name_field": "turn_ratio_industry_rank", "name": "区间换手率涨跌幅行业排名", "type": "float", "description": "股票换手率涨跌幅在所属行业中的排名（前几名）" },
         { "id": 200253, "name_field": "avg_industry_rank", "name": "区间均价涨跌幅行业排名", "type": "float", "description": "股票均价涨跌幅在所属行业中的排名（前几名）" }
       ]
     },

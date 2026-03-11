@@ -879,7 +879,6 @@ def GetVolume_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
     startVal = 0
     endVal = 0
     full_list = NowData.dataList_240
-
     ToDayCount = len(NowData.dataList_240) if ToDayCount > len(NowData.dataList_240) else ToDayCount 
     if ToDayCount - StartDayCount > 3:
         avg1 = 0
@@ -1021,7 +1020,6 @@ def GetChange_Ratio_Total_Window(NowData : "CalculationDataStruct.StructBaseClas
 
             if dayCount == ToDayCount or  dayCount == len(fullDataList) - 1:
                 secondVolume = day.close
-                #print(f"正在算整体涨跌幅，直接记录结束日期是：{day.trade_date}")
                 ratio = (firstVolume - secondVolume) / secondVolume if secondVolume != 0 else 0
                 return ratio * 100
             dayCount = dayCount + 1

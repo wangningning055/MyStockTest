@@ -34,62 +34,62 @@ class BaseClass :
         self.InitValueData()
 
 
-        #pid = os.getpid()
-        ## 获取当前进程对象
-        #process = psutil.Process(pid)
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
 
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        #t0 = time.perf_counter()
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        t0 = time.perf_counter()
 
-        #print(f"开始获取整个数据 ")
-        #print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-
-
-        #self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+        print(f"开始获取整个数据 ")
+        print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
-
-        #print("      开始整理复权数据：")
-        #self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
-        #print(f"    复权数据整理完毕")
-
-
-        ##这里整理价值数据
-        #print("     开始整理价值数据：")
-        #print(f"    价值数据整理完毕")
-
-
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-
-
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
-        #print(f"整个数据获取完毕 ")
+        self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
 
 
-
-        #print(f"开计算数据，数据日期长度{Const.dateListLength} ")
-        #print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-        #t0 = time.perf_counter()
-
+        print("      开始整理复权数据：")
+        self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
+        print(f"    复权数据整理完毕")
 
 
-        #todayStr = self.GetToday()
-        #self.InitAllBaseDataClsList(240, todayStr)
+        #这里整理价值数据
+        print("     开始整理价值数据：")
+        print(f"    价值数据整理完毕")
+
+
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
+        print(f"整个数据获取完毕 ")
 
 
 
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+
+        print(f"开计算数据，数据日期长度{Const.dateListLength} ")
+        print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        t0 = time.perf_counter()
+
+
+
+        todayStr = self.GetToday()
+        self.InitAllBaseDataClsList(240, todayStr)
+
+
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
 
 
 
@@ -106,11 +106,11 @@ class BaseClass :
         ##self.CalculateBaseClass(cls)
 
 
-        ##windowCls = self.GetWindowDataClass("603986.SH", todayStr, 0, 50)
+        #windowCls = self.GetWindowDataClass("603596.SH", todayStr, 0, 240)
         ##windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
         ##windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
         ##windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
-        ##self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 50)
+        #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 240)
 
 
         ##industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
@@ -307,7 +307,7 @@ class BaseClass :
 
     def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
         from src.main_code.Core.Calculate import CalculationUtil
-        #print(f"尝试获取股票：{stockCode}")
+        print(f"尝试获取股票：{stockCode}")
         cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
         res = None
         if cache_key in self.totalBaseWindowData:
@@ -321,6 +321,7 @@ class BaseClass :
         startDataClass = self.GetBaseDataClass(stockCode, tradeDate)
         if startDataClass.trade_state == 0:
             return None
+        print(f"股票未缓存：{stockCode}， {startDateCount}，   {toDateCount}")
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
         windowsClass.Init(startDataClass, startDateCount, toDateCount, self)
         self.totalBaseWindowData[cache_key] = windowsClass
