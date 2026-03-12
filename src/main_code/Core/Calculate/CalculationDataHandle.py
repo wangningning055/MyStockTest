@@ -9,6 +9,7 @@ from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core.DataStruct.DB import ValueDBStruct
 from src.main_code.Core import Const
 from src.main_code.Core.Calculate import CalculationFuncRegister
+from src.main_code.Core.Calculate import CalculationSpecial
 import time
 import psutil
 import os
@@ -93,12 +94,12 @@ class BaseClass :
 
 
 
-        #todayStr = self.GetToday()
-        #t0 = time.perf_counter()
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-        #print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        todayStr = self.GetToday()
+        t0 = time.perf_counter()
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+        print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
 
@@ -120,14 +121,18 @@ class BaseClass :
         #industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
         #self.CalculateIndustryWindowData(industryCls)
 
-        #t1 = time.perf_counter()
-        #totalCostTime = (t1 - t0)
-        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        #mem_info = process.memory_info()
-        #rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
 
-        #print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        cls = self.totalBaseDailyData[("600885.SH", todayStr)]
+        CalculationSpecial.CalculateDownPressure(cls, 0, 40, self)
+
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+        print(f"测试数据计算完毕{todayStr}, 花费的时间是：{totalCostTimeStr1} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
     def InitIndustry(self):
@@ -401,8 +406,22 @@ class BaseClass :
                 print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
                 print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
 
+                
+    def GetIndustryBaseDataByCls(self,trade_date, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
+        if (industryInfoCls, trade_date) in self.CalculateIndustryBaseClassDic:
+            baseClass = self.CalculateIndustryBaseClassDic[(industryInfoCls, trade_date)]
+            #print(f"直接返回：{stockCode}  {date}")
+            return baseClass
+        else:
+            #print(f"股票{stockCode},  {date}数据不存在")
+            baseClass = CalculationDataStruct.StructIndustryClass()
+            baseClass.Init(industryInfoCls, trade_date, self)
+            self.CalculateIndustryBaseClassDic[(industryInfoCls, trade_date)] = baseClass
+            return baseClass
+
     def GetIndustryBaseData(self, stockCode, trade_date:str):
-        #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
+        #componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
+        #print(f"开始计算基本行业数据, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date} ")
         industryInfoCls = self.totalComponyIns.GetIndustryClsByCode(stockCode)
         if (industryInfoCls, trade_date) in self.CalculateIndustryBaseClassDic:
             baseClass = self.CalculateIndustryBaseClassDic[(industryInfoCls, trade_date)]

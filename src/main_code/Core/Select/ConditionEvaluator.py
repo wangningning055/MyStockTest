@@ -228,12 +228,10 @@ class ConditionEvaluator:
                 data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
             #当日行业
             if id >= 300000 and id < 400000:
-                industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
-                data = self.main.calculationDataHandle.GetIndustryBaseData(todayStr, industryCls)
+                data = self.main.calculationDataHandle.GetIndustryBaseData(self.stock_code, todayStr)
             #区间行业
             if id >= 400000 and id < 500000:
-                industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(self.stock_code)
-                data = self.main.calculationDataHandle.GetIndustryWindowData(industryCls, todayStr, condition.dateFrom, condition.dateTo)
+                data = self.main.calculationDataHandle.GetIndustryWindowData(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
 
 
             value = getattr(data, field_name, None)

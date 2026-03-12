@@ -49,7 +49,7 @@ volume_boundary = 2
 
 NoneValue = -999999     #指标计算的无效值
 
-dateListLength = 340     #缓存的日期长度
+dateListLength = 60     #缓存的日期长度
 
 
 #获取涨跌幅幅度主板 10， 创业板科创板 20

@@ -673,6 +673,12 @@ def GetAvg(NowData : "CalculationDataStruct.StructBaseClass", num):
     total = 0
     addCount = 0
     count = 0
+    temp = 0
+    for data in NowData.dataList_240:
+        temp = temp + 1
+        if temp > 10:
+            break
+        
     for data in NowData.dataList_240:
         total = total + data.avg
         addCount += 1
