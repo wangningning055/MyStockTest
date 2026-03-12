@@ -103,26 +103,33 @@ class BaseClass :
 
 
 
-        ##cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
-        ##self.CalculateBaseClass(cls)
+        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
+        #self.CalculateBaseClass(cls)
 
 
         #windowCls = self.GetWindowDataClass("603596.SH", todayStr, 0, 240)
-        ##windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
-        ##windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
-        ##windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
+        #windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
+        #windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
+        #windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
         #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 240)
 
 
-        ##industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
-        ##self.CalculateIndustryBaseData(industryCls)
+        #industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
+        #self.CalculateIndustryBaseData(industryCls)
 
 
         #industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
         #self.CalculateIndustryWindowData(industryCls)
 
 
-        cls = self.totalBaseDailyData[("600885.SH", todayStr)]
+        #cls = self.totalBaseDailyData[("002413.SZ", todayStr)]
+        #cls = self.totalBaseDailyData[("600026.SH", todayStr)]
+        #cls = self.totalBaseDailyData[("603716.SH", todayStr)]
+        cls = self.totalBaseDailyData[("600703.SH", todayStr)]
+        #cls = self.totalBaseDailyData[("601872.SH", todayStr)]
+        #cls = self.totalBaseDailyData[("600325.SH", todayStr)]
+        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
+        #cls = self.totalBaseDailyData[("600885.SH", todayStr)]
         CalculationSpecial.CalculateDownPressure(cls, 0, 40, self)
 
         t1 = time.perf_counter()

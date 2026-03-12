@@ -15,11 +15,11 @@ import asyncio
 class RequestAPIClass:
     def init(self, main):
         self.main =main
-        #self.bao = bs.login()
+        self.bao = bs.login()
         self.isInitShare = False
         # 显示登陆返回信息
-        #self.main.BoardCast('login respond error_code:'+self.bao.error_code)
-        #self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
+        self.main.BoardCast('login respond error_code:'+self.bao.error_code)
+        self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
         self.main.BoardCast("登录流程结束")
 
     def initShare(self):

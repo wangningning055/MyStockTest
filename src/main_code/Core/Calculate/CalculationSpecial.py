@@ -44,7 +44,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
 
     # 获取区间窗口统计数据（StructBaseWindowClass，含均值/极值等聚合字段）
     windowData: CalculationDataStruct.StructBaseWindowClass = handler.GetWindowDataClass(stockCode, todayStr, StartDayCount, ToDayCount)
-
+    print(f"___________________________________开始计算：{stockCode}——————————————————————————————————————————————————————")
     # ------------------------------------------------------------------ #
     # 0. 准备历史日线序列
     #    raw_list = nowData.dataList_240：[0]=今天，[1]=昨天，索引越大越早
@@ -107,23 +107,6 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     #    ATR = TR 的 14 日简单移动平均（取末端最近14条TR）
     #    dataList_asc 升序：asc[i-1]=前一天，asc[i]=当天
     # ------------------------------------------------------------------ #
-    #def calc_atr(asc_seq, period=14):
-    #    """在升序序列上计算末端 ATR(period)，自动跳过停牌日"""
-    #    tr_list = []
-    #    for i in range(1, len(asc_seq)):
-    #        cur  = asc_seq[i]
-    #        prev = asc_seq[i - 1]
-    #        if cur.trade_state != 1 or prev.trade_state != 1:
-    #            continue  # 跳过停牌日
-    #        tr = max(
-    #            cur.high - cur.low,
-    #            abs(cur.high - prev.close),
-    #            abs(cur.low  - prev.close)
-    #        )
-    #        tr_list.append(tr)
-    #    if len(tr_list) < period:
-    #        return None
-    #    return sum(tr_list[-period:]) / period  # 最近 period 条 TR 的均值
     #计算这个日期的前x日的均价
     def calc_avg(trade_date, num = 5):
         count = 0
@@ -150,7 +133,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
                 nowVal = single.close
             if nowVal != 0:
                 count += 1
-                if count > num:
+                if count >= num:
                     endVal = single.close
                     return (nowVal - endVal) * 100 / endVal
         return windowData.avg_change_Ratio
@@ -162,7 +145,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             if trade_date == single.trade_date or count > 0:
                 nowVal += single.amplitude
                 count += 1
-                if count > num:
+                if count >= num:
                     return nowVal/ count
         return windowData.avg_amplitude
     
@@ -187,21 +170,6 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
                 if count >= num:
                     return tr / count
         return windowData.avg_amplitude * windowData.avg_close / 100
-        #tr_list = []
-        #for i in range(1, len(asc_seq)):
-        #    cur  = asc_seq[i]
-        #    prev = asc_seq[i - 1]
-        #    if cur.trade_state != 1 or prev.trade_state != 1:
-        #        continue  # 跳过停牌日
-        #    tr = max(
-        #        cur.high - cur.low,
-        #        abs(cur.high - prev.close),
-        #        abs(cur.low  - prev.close)
-        #    )
-        #    tr_list.append(tr)
-        #if len(tr_list) < period:
-        #    return None
-        #return sum(tr_list[-period:]) / period  # 最近 period 条 TR 的均值
     # ------------------------------------------------------------------ #
     # 3. 遍历升序序列，识别回调区间并提取每次回调最低收盘价（低点）
     #
@@ -237,22 +205,20 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         # ---- b) 当日跌幅绝对值 > 五日平均振幅 ----
         amplitude_5 = calc_amplitude(cur.trade_date, 5)
         amp5_cur = amplitude_5 if amplitude_5 else avg_amp_window
-        cond_b   = cur.change_Ratio < 0 and abs(cur.change_Ratio) > amp5_cur
+        cond_b   = cur.change_Ratio < -3 and abs(cur.change_Ratio) > amp5_cur
         #print(f"    判断2中：{cur.trade_date}    {cur.change_Ratio}  {amp5_cur} ")
 
-        # ---- c) 近5日（不含今日）最高收盘到今日累积跌幅 > 3% ----
+        # ---- c) 近3日（不含今日）最高收盘到今日累积跌幅 > 5% ----
         change_Ratio = calc_changeRatio(cur.trade_date, 3)
-        cond_c = change_Ratio < 5 and prev.change_Ratio < 0 and cur.change_Ratio < 0
+        cond_c = change_Ratio < -5 and prev.change_Ratio < 0 and cur.change_Ratio < 0
         #print(f"    判断3中：{cur.trade_date}    {change_Ratio} ")
-
-        # ---- d) 连续两天收跌 ----
-        #cond_d = (cur.change_Ratio < 0) and (prev.change_Ratio < 0)
 
         if not (cond_a or cond_b or cond_c):
             print(f"判断未通过：{cur.trade_date}   a:{cond_a}，b： {cond_b},c: {cond_c} ")
             i += 1
             continue
         else:
+            
             print(f"判断通过：{cur.trade_date}, 这一天回调开始, a:{cond_a}，b： {cond_b},c {cond_c}")
 
         # ---- 向后找回调区间最低收盘价 ----
@@ -285,7 +251,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
 
         # 若一直未反弹，以数据末尾作为回调结束
         if rebound_idx is None:
-            rebound_idx = n - 1
+            break
         #print(f"下压力位第一次计算：正在加入低点：日期是：{cur.trade_date}，  价格是：{cur.close}")
         low_points.append(low_price_in_pullback)
 
@@ -293,7 +259,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         i = rebound_idx + 1
     
     
-    if len(low_points) <= 1:
+    if len(low_points) <= 0:
         # 低波动区间，直接以区间均价作为支撑位
         support_price    = avg_price_window
         support_type     = "低波动区间均价支撑"
@@ -325,9 +291,10 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     for lp in low_points:
         for single in nowData.dataList_240:
             if single.trade_date == lp.trade_date:
-                ampTarget = calc_amplitude(single.trade_date, 3)
+                ampTarget = calc_amplitude(single.trade_date, 4)
                 changeRationTarget = calc_changeRatio(single.trade_date, 3)
-                if ampTarget < (windowData.avg_amplitude) * 3 and changeRationTarget > -20:
+                #print(f"尝试过滤极端回调点：{ single.trade_date},  {ampTarget}   {(windowData.avg_amplitude) * 2}      {changeRationTarget}")
+                if ampTarget < (windowData.avg_amplitude) * 2 and abs(changeRationTarget) < 8:
                     filtered_low_points.append(lp)
 
 
@@ -350,21 +317,20 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     for tempLog in low_points:
         print(f"下压力位日期是{tempLog.trade_date},  {tempLog.close}")
 
+    near_avg = 0
     avg_fix_add = 0
-    avg_fix_add2 = 0
     for single in nowData.dataList_240:
+        near_avg += single.avg
         avg_fix_add +=1
         if single.trade_date == low_points[len(low_points) - 1].trade_date:
-            break
-    for single in nowData.dataList_240:
-        avg_fix_add2 +=1
-        if avg_fix_add2 >= avg_fix_add / 2:
-            low_points.append(single)
+            if avg_fix_add >= 5:
+                near_avg = near_avg / avg_fix_add
+            else:
+                near_avg = 0
             break
 
-    print(f"下压力位第三次过滤完毕，长度是{len(low_points)}")
-    for tempLog in low_points:
-        print(f"下压力位日期是{tempLog.trade_date},  {tempLog.close}")
+    print(f"下压力位第三次过滤完毕，最近的均价是：{near_avg}")
+
 
     # ------------------------------------------------------------------ #
     # 5. 计算支撑位
@@ -377,33 +343,24 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     # low_points 按时间升序，末尾为最近低点
     support_price = 0
     support_type = ""
-    if len(low_points) <= 3:
+    total_short_count = len(low_points)
+    if  near_avg != 0:
+        total_short_count += 1 
+    if len(low_points) <= 2:
         #直接计算
         last_low = 0
         totalChangeRatio = 0
         addCount = 0
         for single in low_points:
-            if last_low == 0:
-                last_low = single.close
-            else:
-                change = (single.close - last_low) / last_low
-                if change > 5:
-                    change = 5
-                if change < -5:
-                    change = -5
-                totalChangeRatio += change
-                addCount += 1
-                last_low = single.close
+            totalChangeRatio += single.close
+            addCount += 1
+        if near_avg != 0:
+            totalChangeRatio += near_avg * 1
+            addCount += 1
+            
+        finalTarget = (low_points[len(low_points) - 1].close -(totalChangeRatio / addCount)) / 2 + low_points[len(low_points) - 1].close
 
-        finalChangeRatio = totalChangeRatio / addCount
-        if(finalChangeRatio > 0.03):
-            finalChangeRatio = 0.03
-        if(finalChangeRatio < -0.03):
-            finalChangeRatio = -0.03
-
-        finalTarget = last_low + last_low * finalChangeRatio
-
-        print(f"支撑位少于3个，最后的支撑位是：{finalTarget},  {last_low}      {totalChangeRatio / addCount}")
+        print(f"支撑位少于4个，最后的支撑位是：{finalTarget},       {totalChangeRatio / addCount}")
     else:
         recent_5 = []
         count = 0
@@ -429,32 +386,46 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             # 多个低点密集聚合，直接用簇均值
             support_price = cluster_price
             support_type  = "近5低点聚集支撑（≥3个低点价格密集，取簇均值）"
-            print(f"支撑位大于3个，近五个支撑点有支撑点经过了多次承压，支撑位结果是：{support_price}")
+            print(f"支撑位大于3个，近五个支撑点有支撑点经过了超过两次承压，支撑位结果是：{support_price}")
         else:
             #直接计算
             last_low = 0
             totalChangeRatio = 0
             addCount = 0
+            recent = low_points[len(low_points) - 1]
+
+            weight_total = len(low_points) - 1
+            if near_avg != 0:
+                weight_total += 1
             for single in low_points:
                 if last_low == 0:
-                    last_low = single.close
+                    last_low = low_points[0].close
                 else:
-                    change = (single.close - last_low) / last_low
-                    if change > 5:
-                        change = 5
-                    if change < -5:
-                        change = -5
+                    #change = ((single.close - last_low) / last_low) * ( (addCount+1)/weight_total)
+                    change = ((single.close - last_low)) * ( (addCount+1)/weight_total)
+                    print(f"正在计算支撑位涨跌幅，日期是{single.trade_date}    权重是：{ (addCount+1)/weight_total }, 涨跌：{change}")
                     totalChangeRatio += change
                     addCount += 1
                     last_low = single.close
+
+
+            if near_avg != 0:
+                #change = ((near_avg - last_low ) / last_low) 
+                change = ((near_avg - last_low ) ) 
+                print(f"正在计算支撑位涨跌幅，日期是最近的加权    权重是：1， , 涨跌：{change}")
+                totalChangeRatio += change
+                addCount += 1
+            
             finalChangeRatio = totalChangeRatio / addCount
-            if(finalChangeRatio > 0.03):
-                finalChangeRatio = 0.03
-            if(finalChangeRatio < -0.03):
-                finalChangeRatio = -0.03
-            finalTarget = last_low + last_low * finalChangeRatio
+            #if(finalChangeRatio > 0.1):
+            #    finalChangeRatio = 0.1
+            #if(finalChangeRatio < -0.1):
+            #    finalChangeRatio = -0.1
+
+            #finalTarget = recent.close + recent.close * finalChangeRatio
+            finalTarget = recent.close +finalChangeRatio
             support_price = finalTarget
-            print(f"支撑位大于3个，支撑点有涨跌，预测的支撑结果是：{support_price}   {last_low},     {totalChangeRatio / addCount}")
+            print(f"支撑位大于3个，支撑点有涨跌，预测的支撑结果是：{support_price}  最近的支撑位日期： {recent.trade_date},  最近的支撑位： {recent.close},   最后的涨跌幅  {finalChangeRatio}")
             support_type  = (
                 f"趋势推算支撑（共{len(low_points)}个低点，"
                 f"平均低点涨跌幅{finalTarget:.2f}%）"

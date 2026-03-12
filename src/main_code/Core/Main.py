@@ -159,14 +159,16 @@ class processor:
                 #await self.requestor.RequestBasic_ByCSV()
 
 
-                await self.requestor.RequestBasic()
+                #await self.requestor.RequestBasic()
                 self.isInBase = False
+
+                await self.requestor.RequestDaily(seven_days_ago_str, today_str)
+                self.isInDaily = False
 
                 await self.requestor.RequestAdjust()
                 self.isInFactor = False
 
-                await self.requestor.RequestDaily(seven_days_ago_str, today_str)
-                self.isInDaily = False
+
 
 
                 #await self.requestor.RequestValue()
