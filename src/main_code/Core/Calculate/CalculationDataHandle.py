@@ -14,6 +14,7 @@ import time
 import psutil
 import os
 import bisect
+import random
 class BaseClass :
     def __init__(self):
         pass
@@ -121,16 +122,33 @@ class BaseClass :
         #industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
         #self.CalculateIndustryWindowData(industryCls)
 
+        def tempLog(code, start, to):
+            cls1 = self.totalBaseDailyData[(code, todayStr)]
+            CalculationSpecial.CalculateDownPressure(cls1, start, to, self)
+        
+        my_list = [10, 20, 30, 40, 50]
+        # 随机取2个不重复的值
+        random_items = random.sample(self.totalStockList, k=200)
+        for code in random_items:
+            tempLog(code, 0, 40)
+            
+        #cls1 = self.totalBaseDailyData[("002413.SZ", todayStr)]
+        #cls2 = self.totalBaseDailyData[("600026.SH", todayStr)]
+        #cls3 = self.totalBaseDailyData[("603716.SH", todayStr)]
+        #cls4 = self.totalBaseDailyData[("600703.SH", todayStr)]
+        #cls5 = self.totalBaseDailyData[("601872.SH", todayStr)]
+        #cls6 = self.totalBaseDailyData[("600325.SH", todayStr)]
+        #cls7 = self.totalBaseDailyData[("300846.SZ", todayStr)]
+        #cls8 = self.totalBaseDailyData[("600885.SH", todayStr)]
 
-        #cls = self.totalBaseDailyData[("002413.SZ", todayStr)]
-        #cls = self.totalBaseDailyData[("600026.SH", todayStr)]
-        #cls = self.totalBaseDailyData[("603716.SH", todayStr)]
-        cls = self.totalBaseDailyData[("600703.SH", todayStr)]
-        #cls = self.totalBaseDailyData[("601872.SH", todayStr)]
-        #cls = self.totalBaseDailyData[("600325.SH", todayStr)]
-        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
-        #cls = self.totalBaseDailyData[("600885.SH", todayStr)]
-        CalculationSpecial.CalculateDownPressure(cls, 0, 40, self)
+        #tempLog("002413.SZ", 0, 40)
+        #tempLog("600026.SH", 0, 40)
+        #tempLog("603716.SH", 0, 40)
+        #tempLog("600703.SH", 0, 40)
+        #tempLog("601872.SH", 0, 40)
+        #tempLog("600325.SH", 0, 40)
+        #tempLog("300846.SZ", 0, 40)
+        #tempLog("600885.SH", 0, 40)
 
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
@@ -331,6 +349,8 @@ class BaseClass :
 
 
         startDataClass = self.GetBaseDataClass(stockCode, tradeDate)
+        if startDataClass == None:
+            return None
         if startDataClass.trade_state == 0:
             return None
         print(f"股票未缓存：{stockCode}， {startDateCount}，   {toDateCount}")

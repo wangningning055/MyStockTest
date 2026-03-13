@@ -120,7 +120,7 @@ class RequestorClass:
             print(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             self.main.BoardCast(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
-            await asyncio.sleep(1)
+            #await asyncio.sleep(1)
 
 
         df_all = pd.concat(dfList, ignore_index=True)
@@ -153,9 +153,7 @@ class RequestorClass:
 
         count = 0
         for code in codeList:
-            count = count + 1
-            if count < 60:
-                continue
+            #count = count + 1
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue
@@ -177,7 +175,7 @@ class RequestorClass:
             print(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             self.main.BoardCast(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
-            await asyncio.sleep(1)
+            #await asyncio.sleep(1)
 
         
         df_all = pd.concat(dfList, ignore_index=True)
