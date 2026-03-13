@@ -74,7 +74,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
 
     if is_low_volatility:
         # 低波动区间，直接以区间均价作为支撑位
-        support_price    = avg_price_window + avg_price_window * windowData.change_Ratio_Total
+        support_price    = avg_price_window + avg_price_window * windowData.change_Ratio_Total / 100
         support_type     = "低波动区间均价支撑"
         is_break_support = nowData.close < support_price
         is_near_support  = abs(nowData.close - support_price) / support_price <= avg_change_window
@@ -278,7 +278,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             "is_break_support": nowData.close < support_price,
             "is_near_support":  abs(nowData.close - support_price) / support_price <= 0.01,
             "yesterday_break":  yesterday_close < support_price,
-            "support_type":     "无有效低点，使用区间最低价"
+            "support_type":     "无有效低点，使用区间均价"
         }
     #low_points.reverse()
     print(f"下压力位第二次过滤完毕，长度是{len(low_points)}")
@@ -311,7 +311,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             "is_break_support": nowData.close < support_price,
             "is_near_support":  abs(nowData.close - support_price) / support_price <= 0.01,
             "yesterday_break":  yesterday_close < support_price,
-            "support_type":     "无有效低点，使用区间最低价"
+            "support_type":     "无有效低点，使用区间均价"
         }
 
     support_price = 0
@@ -325,10 +325,10 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         preLow = low_points[0].avg
         recent_low = low_points[1].avg
         change_ratio_2 = (recent_low - preLow) / preLow
-        if change_ratio_2 > 0.02:
-            change_ratio_2 = 0.02
-        if change_ratio_2 < -0.02:
-            change_ratio_2 = -0.02
+        if change_ratio_2 > 0.03:
+            change_ratio_2 = 0.03
+        if change_ratio_2 < -0.03:
+            change_ratio_2 = -0.03
 
         targetLow = recent_low
         if near_avg != 0:
@@ -390,10 +390,10 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             totalChangeRatio = totalChangeRatio / addCount
             finalChangeRatio = totalChangeRatio * (weight_target_total / totalWeight)
             print(f"不足四个的计算完毕：权重总和：{totalWeight}, 目标总和：{weight_target_total}， 映射因子为：{weight_target_total/totalWeight},涨跌幅：{totalChangeRatio}")
-            if(finalChangeRatio > 0.02):
-                finalChangeRatio = 0.02
-            if(finalChangeRatio < -0.02):
-                finalChangeRatio = -0.02
+            if(finalChangeRatio > 0.03):
+                finalChangeRatio = 0.03
+            if(finalChangeRatio < -0.03):
+                finalChangeRatio = -0.03
 
             targetLow = recent.close + recent.close * finalChangeRatio
             if near_avg != 0:
