@@ -172,7 +172,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         if not ma5_cur:
             i += 1
             continue
-        cond_a = cur.close < (ma5_cur - atr_14)
+        cond_a = cur.close < (ma5_cur - 0.5 * atr_14)
         #print(f"    判断1中：{cur.trade_date}    {cur.close}   {ma5_cur - atr_14}   {ma5_cur}   {atr_14}")
         amplitude_5 = calc_amplitude(cur.trade_date, 5)
         amp5_cur = amplitude_5 if amplitude_5 else avg_amp_window
@@ -205,7 +205,6 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             if day_j.close < low_price_in_pullback.close and day_j.is_down_stop == 0:
                 low_price_in_pullback = day_j
             
-            isTwoUp = pre_day_j.change_Ratio > 0 and day_j.change_Ratio > 0
             isBack = day_j.close >= start_pullback_price
             isUp_5 = (day_j.close - low_price_in_pullback.close) / low_price_in_pullback.close > 0.05 
             low_num += 1
@@ -251,7 +250,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         i = 0
         for single in nowData.dataList_240:
             if single.trade_date == lp.trade_date:
-                ampTarget = calc_amplitude(single.trade_date, 4)
+                ampTarget = calc_amplitude(single.trade_date, 2)
                 changeRationTarget = calc_changeRatio(single.trade_date, 3)
                 isExtra = False
                 if i <= len(nowData.dataList_240) - 2:
@@ -261,8 +260,8 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
                     isExtra = changeRationTarget < -13
 
 
-                print(f"尝试过滤极端回调点：{ single.trade_date},  {ampTarget}   {(windowData.avg_amplitude) * 2}      {isExtra}")
-                if ampTarget < (windowData.avg_amplitude) * 2 and isExtra == False:
+                print(f"尝试过滤极端回调点：{ single.trade_date},  {ampTarget}   {(windowData.avg_amplitude) * 1.5}      {isExtra}")
+                if ampTarget < (windowData.avg_amplitude) * 1.5 and isExtra == False:
                     filtered_low_points.append(lp)
             i+=1
 
