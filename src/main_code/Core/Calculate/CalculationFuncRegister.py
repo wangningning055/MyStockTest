@@ -199,6 +199,7 @@ def RegisterCalculateFunc(calculationHandler):
         "volumeState_40": partial(CalculationUtil.GetVolumeState, num=40),  # 新增40日
         "volumeState_60": partial(CalculationUtil.GetVolumeState, num=60),  # 新增60日
         "volumeState_120": partial(CalculationUtil.GetVolumeState, num=120),  # 新增120日
+        "volumeState_240": partial(CalculationUtil.GetVolumeState, num=240),  # 新增120日
         
         # -------------------------- 基础状态 - 价格 --------------------------
         "priceState_1": partial(CalculationUtil.GetRatioState, num=1),
@@ -209,6 +210,7 @@ def RegisterCalculateFunc(calculationHandler):
         "priceState_40": partial(CalculationUtil.GetRatioState, num=40),  # 新增40日
         "priceState_60": partial(CalculationUtil.GetRatioState, num=60),  # 新增60日
         "priceState_120": partial(CalculationUtil.GetRatioState, num=120),  # 新增120日
+        "priceState_240": partial(CalculationUtil.GetRatioState, num=240),  # 新增120日
         
         # -------------------------- 基础状态 - 振幅 --------------------------
         "amplitudeState_1": partial(CalculationUtil.GetAmplitudeState, num=1),
@@ -219,6 +221,7 @@ def RegisterCalculateFunc(calculationHandler):
         "amplitudeState_40": partial(CalculationUtil.GetAmplitudeState, num=40),  # 新增40日
         "amplitudeState_60": partial(CalculationUtil.GetAmplitudeState, num=60),  # 新增60日
         "amplitudeState_120": partial(CalculationUtil.GetAmplitudeState, num=120),  # 新增120日
+        "amplitudeState_240": partial(CalculationUtil.GetAmplitudeState, num=240),  # 新增120日
         
         # -------------------------- 状态相关 - 1日 --------------------------
         "is_up_up": (lambda cls: 1 if cls.volumeState_1 == 1 and cls.priceState_1 == 1 else 0),
@@ -300,6 +303,17 @@ def RegisterCalculateFunc(calculationHandler):
         "is_mid_up_120": (lambda cls: 1 if cls.volumeState_120 == 0 and cls.priceState_120 == 1 else 0),
         "is_mid_low_120": (lambda cls: 1 if cls.volumeState_120 == 0 and cls.priceState_120 == -1 else 0),
 
+        # -------------------------- 状态相关 - 240日 --------------------------  # 新增240日
+        "is_up_up_240": (lambda cls: 1 if cls.volumeState_240 == 1 and cls.priceState_240 == 1 else 0),
+        "is_low_up_240": (lambda cls: 1 if cls.volumeState_240 == -1 and cls.priceState_240 == 1 else 0),
+        "is_up_low_240": (lambda cls: 1 if cls.volumeState_240 == 1 and cls.priceState_240 == -1 else 0),
+        "is_low_low_240": (lambda cls: 1 if cls.volumeState_240 == -1 and cls.priceState_240 == -1 else 0),
+        "is_up_mid_240": (lambda cls: 1 if cls.volumeState_240 == 1 and cls.priceState_240 == 0 else 0),
+        "is_low_mid_240": (lambda cls: 1 if cls.volumeState_240 == -1 and cls.priceState_240 == 0 else 0),
+        "is_mid_up_240": (lambda cls: 1 if cls.volumeState_240 == 0 and cls.priceState_240 == 1 else 0),
+        "is_mid_low_240": (lambda cls: 1 if cls.volumeState_240 == 0 and cls.priceState_240 == -1 else 0),
+
+
         # -------------------------- 振幅+价格状态 --------------------------
         "is_pop_up": (lambda cls: 1 if cls.amplitudeState_1 == 1 and cls.priceState_1 == 1 else 0),
         "is_pop_down": (lambda cls: 1 if cls.amplitudeState_1 == 1 and cls.priceState_1 == -1 else 0),
@@ -317,10 +331,13 @@ def RegisterCalculateFunc(calculationHandler):
         "is_pop_down_60": (lambda cls: 1 if cls.amplitudeState_60 == 1 and cls.priceState_60 == -1 else 0),  # 新增60日
         "is_pop_up_120": (lambda cls: 1 if cls.amplitudeState_120 == 1 and cls.priceState_120 == 1 else 0),  # 新增120日
         "is_pop_down_120": (lambda cls: 1 if cls.amplitudeState_120 == 1 and cls.priceState_120 == -1 else 0),  # 新增120日
+        "is_pop_up_240": (lambda cls: 1 if cls.amplitudeState_240 == 1 and cls.priceState_240 == 1 else 0),  # 新增240日
+        "is_pop_down_240": (lambda cls: 1 if cls.amplitudeState_240 == 1 and cls.priceState_240 == -1 else 0),  # 新增240日
+
     }
 
 
-    calculationHandler.CalculateIndustryBaseClassDic = {
+    calculationHandler.CalculateIndustryBaseClassAttrDic = {
             
         # 成交量相关（核心修正：self → handler）
         "volume": (
@@ -401,7 +418,7 @@ def RegisterCalculateFunc(calculationHandler):
     }
 
 
-    calculationHandler.CalculateIndustryWindowClassDic = {
+    calculationHandler.CalculateIndustryWindowClassAttrDic = {
 
         # 成交量相关
         "volume": (

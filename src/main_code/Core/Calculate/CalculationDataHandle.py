@@ -22,18 +22,25 @@ class BaseClass :
         self.main :Main.processor = main
         self.totalStockList = []
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
+
+        #临时存储
         self.totalBaseDailyData : Dict[(str, str), CalculationDataStruct.StructBaseClass] = {}
         self.totalBaseWindowData : Dict[str, CalculationDataStruct.StructBaseWindowClass]  = {}
         self.totalAdjustData = {}
-        self.CalculateBaseAttrDic = {}
-        self.CalculateBaseWindowAttrDic = {}
         self.CalculateIndustryBaseClassDic = {}
         self.CalculateIndustryWindowClassDic = {}
+
+        #方法存储
+        self.CalculateBaseAttrDic = {}
+        self.CalculateBaseWindowAttrDic = {}
+        self.CalculateIndustryBaseClassAttrDic = {}
+        self.CalculateIndustryWindowClassAttrDic = {}
+
         self.InitIndustry()
         CalculationFuncRegister.RegisterCalculateFunc(self)
-        self.totalDateList = self.InitDateList()
+        today = self.GetToday()
+        self.totalDateList = self.InitDateList(today, Const.dateListLength)
         print(self.totalDateList)
-        self.InitValueData()
 
 
         pid = os.getpid()
@@ -60,6 +67,7 @@ class BaseClass :
 
         #这里整理价值数据
         print("     开始整理价值数据：")
+        self.InitValueData()
         print(f"    价值数据整理完毕")
 
 
@@ -84,7 +92,7 @@ class BaseClass :
 
 
         todayStr = self.GetToday()
-        self.InitAllBaseDataClsList(240, todayStr)
+        self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList)
 
 
 
@@ -103,52 +111,53 @@ class BaseClass :
         print(f"开始计算测试数据：{todayStr} 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
+        #高低压力位
+        #def tempLog(code, start, to):
+        #    cls1 = self.totalBaseDailyData[(code, todayStr)]
+        #    print("")
+        #    print("")
+        #    print("#####################################################################################################################################")
+        #    down = CalculationSpecial.CalculateDownPressure(cls1, start, to, self)
+        #    print("                    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        #    up = CalculationSpecial.CalculateUpPressure(cls1, start, to, self)
+        #    name = self.totalComponyIns.GetComponyInfo(code).Name
+        #    print(f"****************************股票{code}，    {name}   压力位计算完毕， 下压力值为  {down}，  上压力值为  {up}")
+        #    print("#####################################################################################################################################")
+        #    print("")
+        #    print("")
+        #my_list = [10, 20, 30, 40, 50]
+        ## 随机取2个不重复的值
+        #random_items = random.sample(self.totalStockList, k=5)
+        #for code in random_items:
+        #    tempLog(code, 0, 40)
 
-        #cls = self.totalBaseDailyData[("300846.SZ", todayStr)]
-        #self.CalculateBaseClass(cls)
-
-
-        #windowCls = self.GetWindowDataClass("603596.SH", todayStr, 0, 240)
-        #windowCls = self.GetWindowDataClass("600759.SH", todayStr, 0, 10)
-        #windowCls = self.GetWindowDataClass("603318.SH", todayStr, 0, 6)
-        #windowCls = self.GetWindowDataClass("603716.SH", todayStr, 0, 5)
-        #self.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 240)
-
-
-        #industryCls = self.GetIndustryBaseData("600740.SH", "20260310")
-        #self.CalculateIndustryBaseData(industryCls)
-
-
-        #industryCls = self.GetIndustryWindowData("600740.SH", todayStr, 0 , 30)
-        #self.CalculateIndustryWindowData(industryCls)
-
-        def tempLog(code, start, to):
-            cls1 = self.totalBaseDailyData[(code, todayStr)]
-            CalculationSpecial.CalculateDownPressure(cls1, start, to, self)
         
-        my_list = [10, 20, 30, 40, 50]
+        #价值股评分
+        scoreLimit = 80
+        def tempLog(code):
+            cls1 = self.totalBaseDailyData[(code, todayStr)]
+            #value = CalculationSpecial.CalculateValueScore(cls1, self)
+            value = CalculationSpecial.CalculateGrowScore(cls1, self)
+            name = self.totalComponyIns.GetComponyInfo(code).Name
+            industry = self.totalComponyIns.GetComponyInfo(code).Industry
+            if(value > scoreLimit):
+                print(f"****************************股票{code}，    {name}, 行业：{industry}   价值计算完毕， 为  {value}")
+                #print(f"股票{code}，    {name}, 行业：{industry}")
+            return value
         # 随机取2个不重复的值
-        random_items = random.sample(self.totalStockList, k=200)
-        for code in random_items:
-            tempLog(code, 0, 40)
-            
-        #cls1 = self.totalBaseDailyData[("002413.SZ", todayStr)]
-        #cls2 = self.totalBaseDailyData[("600026.SH", todayStr)]
-        #cls3 = self.totalBaseDailyData[("603716.SH", todayStr)]
-        #cls4 = self.totalBaseDailyData[("600703.SH", todayStr)]
-        #cls5 = self.totalBaseDailyData[("601872.SH", todayStr)]
-        #cls6 = self.totalBaseDailyData[("600325.SH", todayStr)]
-        #cls7 = self.totalBaseDailyData[("300846.SZ", todayStr)]
-        #cls8 = self.totalBaseDailyData[("600885.SH", todayStr)]
+        count = 0
+        for code in self.totalStockList:
+            val = tempLog(code)
+            if val > scoreLimit:
+                count += 1
+        print(f"***************************价值计算完毕， 总数为  {count}")
 
-        #tempLog("002413.SZ", 0, 40)
-        #tempLog("600026.SH", 0, 40)
-        #tempLog("603716.SH", 0, 40)
-        #tempLog("600703.SH", 0, 40)
-        #tempLog("601872.SH", 0, 40)
-        #tempLog("600325.SH", 0, 40)
-        #tempLog("300846.SZ", 0, 40)
-        #tempLog("600885.SH", 0, 40)
+        CalculationSpecial.CalculateIndustryInfo(self)
+
+                
+        #print(f"#######行业总数量位：{len(indList)}")
+        #for ind in indList:
+        #    print(f"####行业：|{ind}|")
 
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
@@ -482,6 +491,9 @@ class BaseClass :
         print(f"行业下跌股比例是 {industryBaseClass.stockNum_down_Ratio}")
         #for key, val in industryBaseClass.industryInfoCls.stockList.items():
         #    print(f"行业名称是 {industryBaseClass.name}, key:{key}, val :{val.Name}")
+
+
+
     def GetIndustryWindowData(self, stockCode, tradeDate, startDateCount, toDateCount):
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
         industryInfoCls = self.totalComponyIns.GetIndustryClsByCode(stockCode)
@@ -494,6 +506,18 @@ class BaseClass :
             baseClass.Init(industryInfoCls, tradeDate, startDateCount,toDateCount, self)
             self.CalculateIndustryWindowClassDic[(industryInfoCls, tradeDate, startDateCount, toDateCount)] = baseClass
             return baseClass
+
+    def GetIndustryWindowDataByCls(self, tradeDate, startDateCount, toDateCount, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
+        if (industryInfoCls, tradeDate, startDateCount, toDateCount) in self.CalculateIndustryWindowClassDic:
+            baseClass = self.CalculateIndustryWindowClassDic[(industryInfoCls, tradeDate, startDateCount, toDateCount)]
+            return baseClass
+        else:
+            #print(f"股票{stockCode},  {date}数据不存在")
+            baseClass = CalculationDataStruct.StructIndustryWindowClass()
+            baseClass.Init(industryInfoCls, tradeDate, startDateCount,toDateCount, self)
+            self.CalculateIndustryWindowClassDic[(industryInfoCls, tradeDate, startDateCount, toDateCount)] = baseClass
+            return baseClass
+
 
     def CalculateIndustryWindowData(self, industryWindowClass):
         print(f"行业名称是 {industryWindowClass.name}, 行业股数量是 {len(industryWindowClass.industryInfoCls.stockList)}")
@@ -562,31 +586,29 @@ class BaseClass :
                 
 
     #初始化日期列表
-    def InitDateList(self):
-        today = self.GetToday()
+    def InitDateList(self, today, length):
         dayList = []
         dt = datetime.strptime(today, "%Y%m%d")
         end_dt = datetime.strptime(Const.first_Data, "%Y%m%d")
 
         if dt.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
             dayList.append(today)
-        while len(dayList) < Const.dateListLength and dt > end_dt:
+        while len(dayList) < length and dt > end_dt:
             dt -= timedelta(days=1)  # 往前一天
 
             if dt.weekday() >= 5:
                 continue  # 跳过周末，不加入列表
             date_str = dt.strftime("%Y%m%d")
             dayList.append(date_str)
-            
         return dayList
     
 
     #构建整个基础类列表
-    def InitAllBaseDataClsList(self, num, today):
+    def InitAllBaseDataClsList(self, totalDateList, totalDbList):
         count = 0
-        for date in self.totalDateList:
+        for date in totalDateList:
             for code in self.totalStockList:
-                db = self.totalDbList.get((code, date))
+                db = totalDbList.get((code, date))
                 if db is None:
                     continue
                 else:
@@ -636,33 +658,55 @@ class BaseClass :
         #print(f"获取价值数据字符串是{todayStr},  年份是：{year}，    月份是{month}")
         allCodeList = self.totalStockList
         dbStruct =  ValueDBStruct.DBStructClass()
-        #季报数据获取
+        haveNum_quarter = 0
+        haveNum_year = 0
+        noneNum_quarter = 0
+        noneNum_year = 0
+        wrongNum_quarter = 0
+        wrongNum_year = 0
+
+        q_target_year = 0
+        q_target_q = 0
+        if month >= 5 and month <= 8:
+            q_target_year = year
+            q_target_q = 1
+        if month >= 9 and month <= 10:
+            q_target_year = year
+            q_target_q = 2
+        if month >= 11 and month <= 12:
+            q_target_year = year
+            q_target_q = 3
+        if month >= 1 and month <= 4:
+            q_target_year = year - 1
+            q_target_q = 3
+
+
+        #年报数据获取
+        y_target_year = 0
+        y_target_q = 0
+        if month >= 1 and month <= 4:
+            y_target_year = year - 1
+            y_target_q = 2
+        if month >= 5 and month <= 8:
+            y_target_year = year - 1
+            y_target_q = 4
+        if month >= 9 and month <= 12:
+            y_target_year = year
+            y_target_q = 2
+
         for code in allCodeList:
             componyInfo = self.totalComponyIns.GetComponyInfo(code)
-            target_year = 0
-            target_q = 0
-            if month >= 5 and month <= 8:
-                target_year = year
-                target_q = 1
-            if month >= 9 and month <= 10:
-                target_year = year
-                target_q = 2
-            if month >= 11 and month <= 12:
-                target_year = year
-                target_q = 3
-            if month >= 1 and month <= 4:
-                target_year = year - 1
-                target_q = 3
 
-            catchKey = (code, target_year, target_q)
+
+            catchKey = (code, q_target_year, q_target_q)
             #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{target_year}，    目标季度是{target_q}")
             val = dbDic.get(catchKey)
             if val is not None: 
-                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)]
-                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)]
-                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)]
-                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)]
-                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)]
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)] * 100 
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)] * 100
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)] * 100
 
                 componyInfo.Roe = roe
                 componyInfo.YOYNi = yoyni
@@ -670,33 +714,56 @@ class BaseClass :
                 componyInfo.YOYEquity = yoyEquity
                 componyInfo.YOYLiability = yoyLiability
 
+                if roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0:
+                    noneNum_quarter += 1
+                if not (roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0):
+                    haveNum_quarter += 1
+                if roe == 0 or yoyni == 0 or liabilityTo == 0 or yoyEquity == 0 or yoyLiability == 0:
+                    wrongNum_quarter += 1
+
+            else:
+                noneNum_quarter += 1
 
 
-            #年报数据获取
-            y_target_year = 0
-            y_target_q = 0
-            if month >= 1 and month <= 4:
-                y_target_year = year - 1
-                y_target_q = 2
-            if month >= 5 and month <= 8:
-                y_target_year = year - 1
-                y_target_q = 4
-            if month >= 9 and month <= 12:
-                y_target_year = year
-                y_target_q = 2
+
 
             #print(f"获取价值年度数据字符串是{todayStr},  目标年份是：{y_target_year}，    目标季度是{y_target_q}")
             catchKey = (code, y_target_year, y_target_q)
             val = dbDic.get(catchKey)
             if val is not None: 
-                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)]
-                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)]
-                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)]
-                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)]
-                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)]
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)] * 100
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)] * 100
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)] * 100
 
                 componyInfo.Roe_Year = roe
                 componyInfo.YOYNi_Year = yoyni
                 componyInfo.LiabilityTo_Year = liabilityTo
                 componyInfo.YOYEquity_Year = yoyEquity
                 componyInfo.YOYLiability_Year = yoyLiability
+                if roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0:
+                    noneNum_year += 1
+                if not (roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0):
+                    haveNum_year += 1
+                if roe == 0 or yoyni == 0 or liabilityTo == 0 or yoyEquity == 0 or yoyLiability == 0:
+                    wrongNum_year += 1
+
+            else:
+                noneNum_year += 1
+        #print("##################################################")
+        
+        
+        #print(f"价值数据获取完毕，年报年月：{y_target_year}  {y_target_q}   季报年月{y_target_year}  {q_target_q}总股票数：{len(allCodeList)}，  年报数：{haveNum_year}  空年报数：{noneNum_year}  瑕疵年报数：{wrongNum_year}  季报数{haveNum_quarter}      空季报数：{noneNum_quarter}   瑕疵季报数：{wrongNum_quarter}")
+
+
+
+    def ClearDic(self):
+        self.totalBaseDailyData.clear()
+        self.totalBaseWindowData.clear()
+        self.CalculateIndustryBaseClassDic.clear()
+        self.CalculateIndustryWindowClassDic.clear()
+
+
+
+

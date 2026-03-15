@@ -310,6 +310,7 @@ class StructBaseClass :
     volumeState_40: float #成交量状态_40周期
     volumeState_60: float #成交量状态_60周期
     volumeState_120: float #成交量状态_120周期
+    volumeState_240: float #成交量状态_240周期
 
     priceState_1: float #价格状态_1周期
     priceState_3: float #价格状态_3周期
@@ -319,6 +320,7 @@ class StructBaseClass :
     priceState_40: float #价格状态_40周期
     priceState_60: float #价格状态_60周期
     priceState_120: float #价格状态_120周期
+    priceState_240: float #价格状态_240周期
 
     amplitudeState_1: float #振幅状态_1周期
     amplitudeState_3: float #振幅状态_3周期
@@ -328,6 +330,7 @@ class StructBaseClass :
     amplitudeState_40: float #振幅状态_40周期
     amplitudeState_60: float #振幅状态_60周期
     amplitudeState_120: float #振幅状态_120周期
+    amplitudeState_240: float #振幅状态_240周期
 
     # 1日交易状态判断
     is_up_up:float#是否放量增长(>或小于1)
@@ -425,7 +428,16 @@ class StructBaseClass :
     is_pop_up_120:float#120日是否震荡上行
     is_pop_down_120:float#120日是否震荡下行
 
-
+    is_up_up_240:float#240日是否放量增长(>或小于1)
+    is_low_up_240:float#240日是否缩量增长
+    is_up_low_240:float#240日是否放量降低
+    is_low_low_240:float#240日是否缩量降低
+    is_up_mid_240:float#240日是否放量横盘
+    is_low_mid_240:float#240日是否缩量横盘
+    is_mid_up_240:float#240日是否平量增长
+    is_mid_low_240:float#240日是否平量降低
+    is_pop_up_240:float#240日是否震荡上行
+    is_pop_down_240:float#240日是否震荡下行
 
 
 
@@ -607,10 +619,6 @@ class StructBaseWindowClass :
     is_pop_up:float#是否震荡上行
     is_pop_down:float#是否震荡下行
 
-    #长上下影线十字次数
-    #正T字次数
-    #倒T字次数
-
 
 
 class StructIndustryClass():
@@ -658,7 +666,7 @@ class StructIndustryClass():
             return None
         
         # 1. 字段不在映射字典中，抛出标准异常
-        if field_name not in self.handler.CalculateIndustryBaseClassDic:
+        if field_name not in self.handler.CalculateIndustryBaseClassAttrDic:
             raise AttributeError(f"'StructIndustryBaseClass' object has no attribute '{field_name}'")
         
         # 2. 字段未计算则执行计算逻辑
@@ -671,7 +679,7 @@ class StructIndustryClass():
             # - "handler": 指向self.handler（核心修正）
             # - 其他字符串：从self中读取对应属性（如 "industryInfoCls"）
             # - 非字符串：固定值（如 1/3/5）
-            calc_method, full_args = self.handler.CalculateIndustryBaseClassDic[field_name]
+            calc_method, full_args = self.handler.CalculateIndustryBaseClassAttrDic[field_name]
             
             # 组装最终参数：解析特殊关键字 + 动态参数 + 固定值
             t0 = time.perf_counter()
@@ -748,7 +756,7 @@ class StructIndustryWindowClass():
             return None
         #print("触发首次读取")
         # 1. 如果字段不在懒加载映射里，抛出常规属性不存在异常（避免无意义递归）
-        if field_name not in self.handler.CalculateIndustryWindowClassDic:
+        if field_name not in self.handler.CalculateIndustryWindowClassAttrDic:
             raise AttributeError(f"'StructIndustryWindowClass' object has no attribute '{field_name}'")
         
 
@@ -758,7 +766,7 @@ class StructIndustryWindowClass():
             # 从dic中取出方法和参数
             #if field_name == "change_Ratio_5":
             #    print("???????执行啊啊啊啊啊啊啊")
-            calc_method, args_names = self.handler.CalculateIndustryWindowClassDic[field_name]
+            calc_method, args_names = self.handler.CalculateIndustryWindowClassAttrDic[field_name]
 
             real_args = []
             for arg_name in args_names:
