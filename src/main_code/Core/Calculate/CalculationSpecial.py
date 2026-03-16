@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.main_code.Core.Calculate import CalculationDataHandle
     from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+    from src.main_code.Core import Main
 
 #买点判断
     #  是否处在下压力位为主要因子（占比0.5）， 再配合下面的次要因子：
@@ -1549,10 +1550,16 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
 
 
 #计算是否处在行业上涨周期，用于板块轮动买入判断
-def CalculateIndustryInfo(handler:"CalculationDataHandle.BaseClass"):
+def CalculateIndustryInfo(main:"Main.processor"):
 
+    handler = main.InitCalculationDataHandle()
+    handler.Init(main)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    print("计算模块初始化完毕")
     totalDateList = handler.InitDateList("20210201", 40)
+    handler.totalDateList = totalDateList
     totalDbList = handler.main.dbHandler.GetDailyRowByCodeListAndDateList(handler.totalStockList, totalDateList)
+    handler.totalDbList = totalDbList
 
     handler.InitAllBaseDataClsList(totalDateList, totalDbList)
 
@@ -1574,3 +1581,7 @@ def CalculateIndustryInfo(handler:"CalculationDataHandle.BaseClass"):
 
     for ind in upIndustry:
         print(f"总结完毕，行业数量：{count}，  2021年一月上涨的行业是：{ind.industryName}")
+    print("###########################行业总结完毕")
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
+    handler.ClearDic()

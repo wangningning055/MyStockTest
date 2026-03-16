@@ -2835,7 +2835,6 @@ def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructI
 def GetIndustry_Change_Ratio_Total_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dayCount = 0
     fullDataList = handler.totalDateList
-
         
     dayCount = 0
     addCount = 0

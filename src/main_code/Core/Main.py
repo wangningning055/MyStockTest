@@ -13,6 +13,7 @@ from src.main_code.Core.DB import DBHandler
 from src.main_code.Core.Calculate import CalculationDataHandle
 from src.main_code.Core.Analysis import AnalysisHandle
 import src.main_code.Core.Const as const_proj
+from src.main_code.Core.Test import Test
 from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
 import asyncio
@@ -120,67 +121,72 @@ class processor:
         instance.Init(self)
         print("分析模块初始化完毕")
         return instance
+    
+    def ExecuteTest(self):
+        Test.TestCalculate(self.calculationDataHandle)
 
     async def RequestData(self):
-        try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
+        self.ExecuteTest()
+        pass
+        #try:
+        #    #获取当天的日期
+        #    today_str = datetime.date.today().strftime("%Y%m%d")
+        #    lastDayStr = const_proj.first_Data
+        #    if not os.path.exists(const_proj.Request_Data_rec_FileName):
+        #        lastDayStr = const_proj.first_Data
+        #    else:
+        #        with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+        #            lastDayStr = f.read().strip()
 
-            lastDayStr = "20251210"
+        #    lastDayStr = "20251210"
 
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+        #    date_format = "%Y%m%d"
+        #    original_date = datetime.datetime.strptime(lastDayStr, date_format)
 
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
+        #    # 2. 计算前7天的日期
+        #    seven_days_ago = original_date - datetime.timedelta(days=7)
 
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
+        #    # 3. 转换回字符串格式（保持原格式）
+        #    seven_days_ago_str = seven_days_ago.strftime(date_format)
 
 
-            if lastDayStr == today_str:
-                self.BoardCast("是最新数据，无需拉取,开始读入数据")
-                #await self.calculationDataHandle.ReadDBDataInMemory()
-            else:
-                self.isInit = False
-                self.BoardCast("开始进行数据拉取")
-                self.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
+        #    if lastDayStr == today_str:
+        #        self.BoardCast("是最新数据，无需拉取,开始读入数据")
+        #        #await self.calculationDataHandle.ReadDBDataInMemory()
+        #    else:
+        #        self.isInit = False
+        #        self.BoardCast("开始进行数据拉取")
+        #        self.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
 
-                self.isInDaily = True
-                self.isInBase = True
-                self.isInFactor = True
+        #        self.isInDaily = True
+        #        self.isInBase = True
+        #        self.isInFactor = True
                 
-                #await self.requestor.RequestBasic_ByCSV()
+        #        #await self.requestor.RequestBasic_ByCSV()
 
 
-                #await self.requestor.RequestBasic()
-                self.isInBase = False
+        #        #await self.requestor.RequestBasic()
+        #        self.isInBase = False
 
-                await self.requestor.RequestDaily(seven_days_ago_str, today_str)
-                self.isInDaily = False
+        #        await self.requestor.RequestDaily(seven_days_ago_str, today_str)
+        #        self.isInDaily = False
 
-                await self.requestor.RequestAdjust()
-                self.isInFactor = False
-
-
+        #        await self.requestor.RequestAdjust()
+        #        self.isInFactor = False
 
 
-                #await self.requestor.RequestValue()
 
-                self.isInit = True
 
-        except Exception as e:
-            self.isInit = True
-            print(f"拉取失败失败: {e}")
-            full_trace = traceback.format_exc()
-            print(f"拉取失败失败: {full_trace}")
-            self.BoardCast(f"拉取失败失败: {e}")
+        #        #await self.requestor.RequestValue()
+
+        #        self.isInit = True
+
+        #except Exception as e:
+        #    self.isInit = True
+        #    print(f"拉取失败失败: {e}")
+        #    full_trace = traceback.format_exc()
+        #    print(f"拉取失败失败: {full_trace}")
+        #    self.BoardCast(f"拉取失败失败: {e}")
 
 
 
