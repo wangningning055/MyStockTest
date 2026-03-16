@@ -62,7 +62,7 @@ def TestCalculate(handler):
 
 
 
-        CalculationSpecial.CalculateIndustryInfo(handler.main)
+        CalculationSpecial.CalculateIndustryInfoTotal(handler.main)
 
         #print(f"#######行业总数量位：{len(indList)}")
         #for ind in indList:

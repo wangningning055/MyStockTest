@@ -14,6 +14,7 @@ from src.main_code.Core.Calculate import CalculationDataHandle
 from src.main_code.Core.Analysis import AnalysisHandle
 import src.main_code.Core.Const as const_proj
 from src.main_code.Core.Test import Test
+from src.main_code.Core.DataStruct import RecordDataStruct
 from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
 import asyncio
@@ -70,6 +71,35 @@ class processor:
         self.dbHandler.WriteTableNoWait(classList, DBHandler.TableEnum.Value)
         print("写入完成")
 
+
+    #读出记录数据
+    def ReadRecordData():
+        #classBase = IndustryAnalysisResult()
+        #key = "202505"
+        #value = []
+        #value.append("僬侥")
+        #value.append("僬侥1")
+        #value.append("僬侥2")
+        #value.append("僬侥3")
+        #value.append("僬侥4")
+        #value.append("僬侥5")
+        #classBase.allDic[key] = value
+        #jsonStr = json.dumps(classBase.__dict__, ensure_ascii=False, indent=4)
+        #main.fileProcessor.SaveJson(jsonStr)
+        #fileJson = main.fileProcessor.GetJsonStrByPath()
+        #print("3#############################################")
+        #print(fileJson)
+        #data = json.loads(fileJson)
+        #classBase2 = IndustryAnalysisResult()
+        #classBase2.__dict__.update(data)
+        #print(classBase2)
+        #for key, value in classBase2.allDic.items():
+        #    print(f"key: {key}   value:{value}")
+        pass
+
+    #写入记录数据
+    def WriteRecordData(data: RecordDataStruct):
+        pass
 
     def InitLastUpdateTime(self):
         if not os.path.exists(const_proj.Request_Data_rec_FileName):

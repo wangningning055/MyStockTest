@@ -887,51 +887,9 @@ class StructIndustryTotalInfoClass:
         return self.industryList[industry]
 
 
-#行业分析结果类
 
-class Stock_AnalysisResult:
-    #高价值股列表
-    High_Value_Stock_List = []
-
-    #高成长股列表
-    High_Grow_Stock_List = []
 
 class IndustryAnalysisResult:
-    Price_Increase_5_1:str                                 #过去五年1月份上涨的行业 (有三年在涨)
-    Price_Increase_5_2:str                                 #过去五年2月份上涨的行业
-    Price_Increase_5_3:str                                 #过去五年3月份上涨的行业
-    Price_Increase_5_4:str                                 #过去五年4月份上涨的行业
-    Price_Increase_5_5:str                                 #过去五年5月份上涨的行业
-    Price_Increase_5_6:str                                 #过去五年6月份上涨的行业
-    Price_Increase_5_7:str                                 #过去五年7月份上涨的行业
-    Price_Increase_5_8:str                                 #过去五年8月份上涨的行业
-    Price_Increase_5_9:str                                 #过去五年9月份上涨的行业
-    Price_Increase_5_10:str                                 #过去五年10月份上涨的行业
-    Price_Increase_5_11:str                                 #过去五年11月份上涨的行业
-    Price_Increase_5_12:str                                 #过去五年12月份上涨的行业
-
-    Price_Increase_3_1:str                                 #过去3年1月份上涨的行业（有两年在涨）
-    Price_Increase_3_2:str                                 #过去3年2月份上涨的行业
-    Price_Increase_3_3:str                                 #过去3年3月份上涨的行业
-    Price_Increase_3_4:str                                 #过去3年4月份上涨的行业
-    Price_Increase_3_5:str                                 #过去3年5月份上涨的行业
-    Price_Increase_3_6:str                                 #过去3年6月份上涨的行业
-    Price_Increase_3_7:str                                 #过去3年7月份上涨的行业
-    Price_Increase_3_8:str                                 #过去3年8月份上涨的行业
-    Price_Increase_3_9:str                                 #过去3年9月份上涨的行业
-    Price_Increase_3_10:str                                 #过去3年10月份上涨的行业
-    Price_Increase_3_11:str                                 #过去3年11月份上涨的行业
-    Price_Increase_3_12:str                                 #过去3年12月份上涨的行业
-
-    Price_Increase_1_1:str                                 #过去1年1月份上涨的行业
-    Price_Increase_1_2:str                                 #过去1年2月份上涨的行业
-    Price_Increase_1_3:str                                 #过去1年3月份上涨的行业
-    Price_Increase_1_4:str                                 #过去1年4月份上涨的行业
-    Price_Increase_1_5:str                                 #过去1年5月份上涨的行业
-    Price_Increase_1_6:str                                 #过去1年6月份上涨的行业
-    Price_Increase_1_7:str                                 #过去1年7月份上涨的行业
-    Price_Increase_1_8:str                                 #过去1年8月份上涨的行业
-    Price_Increase_1_9:str                                 #过去1年9月份上涨的行业
-    Price_Increase_1_10:str                                 #过去1年10月份上涨的行业
-    Price_Increase_1_11:str                                 #过去1年11月份上涨的行业
-    Price_Increase_1_12:str                                 #过去1年12月份上涨的行业
+    allDic:Dict[(str, str),List:[str]]
+    def __init__(self):
+        self.allDic = {}

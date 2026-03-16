@@ -16,9 +16,16 @@ TempBasicFilePath = "../TempFile/BasicData/"
 TempAdjustFilePath = "../TempFile/AdjustData/"
 TempDailyFilePath = "../TempFile/DailyData/"
 
+
+TempRecordFilePath = "../TempFile/RecordData/"
+TempRecord_Industry_Result_FileName = "Industry_Result.json"
+
+
 TempBasicFileName = "Basic_"
 TempAdjustFileName = "Adjust_"
 TempDailyFileName = "Daily_"
+
+
 
 
 DBPath = "../DB/StockData.db"

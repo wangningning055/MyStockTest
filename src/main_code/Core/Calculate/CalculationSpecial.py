@@ -1,5 +1,7 @@
 #这里的计算方法是主要因子，其他的都是配合的次要因子
 # 1. 先导入TYPE_CHECKING常量
+import json
+from typing import List, Optional, Callable, Dict, Any, Union,Tuple  
 from typing import TYPE_CHECKING
 # 2. 仅在类型检查时导入需要的类（运行时不执行）
 if TYPE_CHECKING:
@@ -1550,38 +1552,120 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
 
 
 #计算是否处在行业上涨周期，用于板块轮动买入判断
-def CalculateIndustryInfo(main:"Main.processor"):
+def CalculateIndustryInfo(main:"Main.processor", dayStr, Length):
 
-    handler = main.InitCalculationDataHandle()
-    handler.Init(main)
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-    print("计算模块初始化完毕")
-    totalDateList = handler.InitDateList("20210201", 40)
-    handler.totalDateList = totalDateList
-    totalDbList = handler.main.dbHandler.GetDailyRowByCodeListAndDateList(handler.totalStockList, totalDateList)
-    handler.totalDbList = totalDbList
+    
 
-    handler.InitAllBaseDataClsList(totalDateList, totalDbList)
 
-    count = 0
-    upIndustry = []
-    for key, indusCls in handler.totalComponyIns.industryList.items():
-        count += 1
-        windowData = handler.GetIndustryWindowDataByCls("20210201", 0, 20, indusCls)
-        if windowData is None:
-            print(f"数据不存在：{indusCls.industryName}")
-            continue
-        if windowData.change_Ratio_Total is None:
-            print(f"数据222222不存在：{indusCls.industryName}")
-            continue
-        print(f"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa数据存在：{indusCls.industryName}")
 
-        if windowData.change_Ratio_Total > 5 and not (upIndustry.__contains__(indusCls)):
-            upIndustry.append(indusCls) 
 
-    for ind in upIndustry:
-        print(f"总结完毕，行业数量：{count}，  2021年一月上涨的行业是：{ind.industryName}")
-    print("###########################行业总结完毕")
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    #handler = main.InitCalculationDataHandle()
+    #handler.Init(main)
+    #print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    #print("计算模块初始化完毕")
+    #totalDateList = handler.InitDateList(dayStr, Length)
+    #handler.totalDateList = totalDateList
+    #totalDbList = handler.main.dbHandler.GetDailyRowByCodeListAndDateList(handler.totalStockList, totalDateList)
+    #handler.totalDbList = totalDbList
 
-    handler.ClearDic()
+    #handler.InitAllBaseDataClsList(totalDateList, totalDbList)
+
+    #count = 0
+    #upIndustry = []
+    #for key, indusCls in handler.totalComponyIns.industryList.items():
+    #    count += 1
+    #    windowData = handler.GetIndustryWindowDataByCls("20210201", 0, 20, indusCls)
+    #    if windowData is None:
+    #        print(f"数据不存在：{indusCls.industryName}")
+    #        continue
+    #    if windowData.change_Ratio_Total is None:
+    #        print(f"数据222222不存在：{indusCls.industryName}")
+    #        continue
+    #    print(f"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa数据存在：{indusCls.industryName}")
+
+    #    if windowData.change_Ratio_Total > 5 and not (upIndustry.__contains__(indusCls)):
+    #        upIndustry.append(indusCls) 
+
+    #for ind in upIndustry:
+    #    print(f"总结完毕，行业数量：{count}，  2021年一月上涨的行业是：{ind.industryName}")
+    #print("###########################行业总结完毕")
+    #print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
+    #handler.ClearDic()
+    pass
+    
+def CalculateIndustryInfoTotal(main:"Main.processor"):
+    CalculateIndustryInfo(main, "20210129", 40)
+    #CalculateIndustryInfo(main, "20210301", 40)
+    #CalculateIndustryInfo(main, "20210331", 40)
+    #CalculateIndustryInfo(main, "20210430", 40)
+    #CalculateIndustryInfo(main, "20210531", 40)
+    #CalculateIndustryInfo(main, "20210630", 40)
+    #CalculateIndustryInfo(main, "20210730", 40)
+    #CalculateIndustryInfo(main, "20210831", 40)
+    #CalculateIndustryInfo(main, "20210930", 40)
+    #CalculateIndustryInfo(main, "20211029", 40)
+    #CalculateIndustryInfo(main, "20211130", 40)
+    #CalculateIndustryInfo(main, "20211231", 40)
+
+
+    #CalculateIndustryInfo(main, "20220128", 40)
+    #CalculateIndustryInfo(main, "20220228", 40)
+    #CalculateIndustryInfo(main, "20220331", 40)
+    #CalculateIndustryInfo(main, "20220429", 40)
+    #CalculateIndustryInfo(main, "20220531", 40)
+    #CalculateIndustryInfo(main, "20220630", 40)
+    #CalculateIndustryInfo(main, "20220729", 40)
+    #CalculateIndustryInfo(main, "20220831", 40)
+    #CalculateIndustryInfo(main, "20220930", 40)
+    #CalculateIndustryInfo(main, "20221031", 40)
+    #CalculateIndustryInfo(main, "20221130", 40)
+    #CalculateIndustryInfo(main, "20221230", 40)
+
+
+
+    #CalculateIndustryInfo(main, "20230131", 40)
+    #CalculateIndustryInfo(main, "20230228", 40)
+    #CalculateIndustryInfo(main, "20230331", 40)
+    #CalculateIndustryInfo(main, "20230428", 40)
+    #CalculateIndustryInfo(main, "20230531", 40)
+    #CalculateIndustryInfo(main, "20230630", 40)
+    #CalculateIndustryInfo(main, "20230731", 40)
+    #CalculateIndustryInfo(main, "20230831", 40)
+    #CalculateIndustryInfo(main, "20230928", 40)
+    #CalculateIndustryInfo(main, "20231031", 40)
+    #CalculateIndustryInfo(main, "20231130", 40)
+    #CalculateIndustryInfo(main, "20231229", 40)
+
+
+
+    #CalculateIndustryInfo(main, "20240131", 40)
+    #CalculateIndustryInfo(main, "20240229", 40)
+    #CalculateIndustryInfo(main, "20240329", 40)
+    #CalculateIndustryInfo(main, "20240430", 40)
+    #CalculateIndustryInfo(main, "20240531", 40)
+    #CalculateIndustryInfo(main, "20240628", 40)
+    #CalculateIndustryInfo(main, "20240731", 40)
+    #CalculateIndustryInfo(main, "20240830", 40)
+    #CalculateIndustryInfo(main, "20240930", 40)
+    #CalculateIndustryInfo(main, "20241031", 40)
+    #CalculateIndustryInfo(main, "20241129", 40)
+    #CalculateIndustryInfo(main, "20241231", 40)
+
+
+
+    #CalculateIndustryInfo(main, "20250127", 40)
+    #CalculateIndustryInfo(main, "20250228", 40)
+    #CalculateIndustryInfo(main, "20250331", 40)
+    #CalculateIndustryInfo(main, "20250430", 40)
+    #CalculateIndustryInfo(main, "20250530", 40)
+    #CalculateIndustryInfo(main, "20250630", 40)
+    #CalculateIndustryInfo(main, "20250731", 40)
+    #CalculateIndustryInfo(main, "20250829", 40)
+    #CalculateIndustryInfo(main, "20250930", 40)
+    #CalculateIndustryInfo(main, "20251031", 40)
+    #CalculateIndustryInfo(main, "20251128", 40)
+    #CalculateIndustryInfo(main, "20251231", 40)
+
+
+
