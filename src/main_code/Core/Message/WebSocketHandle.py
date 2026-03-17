@@ -1,14 +1,18 @@
 # ws_routes.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from src.main_code.Core import Main
 from enum import Enum
 import json
 import asyncio
 clients: set[WebSocket] = set()
-mainProcessor = None
+mainProcessor : Main.processor
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
+
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
+    CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
+
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
     CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
     CS_DIAGNOSE = "cs_diagnose"                     #客户端请求出仓判断
@@ -96,9 +100,19 @@ def HandleMsg(msg):
         print("主程序没有初始化完成")
         return
     if(mainProcessor.isInit == False):
-        mainProcessor.BoardCast("主程序数据没有初始化完成")
-        print("主程序数据没有初始化完成")
+        mainProcessor.BoardCast("主程序没有初始化完成")
+        print("主程序没有初始化完成")
         return
+    msgType = msg["type"]
+    if(msgType == MessageType.CS_Stop_UPDATE_DATA):
+        print("停止拉取数据")
+        mainProcessor.requestor.StopRequest()
+        return
+    if(mainProcessor.isInHandle == True):
+        mainProcessor.BoardCast("正在处理，等待处理完成")
+        print("正在处理，等待处理完成")
+        return
+
 
     if(mainProcessor.isInBase or mainProcessor.isInFactor or mainProcessor.isInDaily ):
         mainProcessor.BoardCast("正在拉取，请勿操作")
@@ -107,11 +121,10 @@ def HandleMsg(msg):
     msgType = msg["type"]
     data = msg["payload"]
     if(msgType == MessageType.CS_UPDATE_DATA):
-        #print(f"收到的token是：{data["token"]}")
         mainProcessor.tuShareToken = data["token"]
-        task = asyncio.get_running_loop().create_task(mainProcessor.RequestData())
+        update_Type = data["type"]
+        task = asyncio.get_running_loop().create_task( mainProcessor.requestor.OnMsgRequestDataByType(update_Type))
         task.add_done_callback(mainProcessor.task_finished_callback)
-        
     elif(msgType == MessageType.CS_SELECT_STOCKS):
         print("我在处理股票筛选的消息")
         mainProcessor.analysisHandle.RunGetStockListByCondition(data)

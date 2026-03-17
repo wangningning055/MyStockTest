@@ -252,16 +252,22 @@ class AppManager {
     /**
      * 请求更新数据
      */
-    requestUpdateData() {
+    requestUpdateData(type) {
         this.app.log("📤 发送拉取数据请求...", "system");
         let token = this.ui.getTushareToken()
         this.app.log(`📤 ${token}`, "system");
         return this.socket.sendMessage(SocketModule.MessageType.CS_UPDATE_DATA, {
             token: token || "0000000000",
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            type:type
         });
     }
-
+    stopUpdateData() {
+        this.app.log("📤发送停止拉取数据请求...", "system");
+        return this.socket.sendMessage(SocketModule.MessageType.CS_STOP_UPDATE_DATA, {
+            timestamp: new Date().toISOString(),
+        });
+    }
     /**
      * 发送选股请求到后端
      * 

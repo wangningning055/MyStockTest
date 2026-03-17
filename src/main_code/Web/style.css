@@ -688,7 +688,11 @@ button {
     border-color: var(--success);
     color: var(--success);
 }
-
+.btn-failed {
+    background: rgba(168, 0, 0, 0.692);
+    border-color: var(--danger);
+    color: var(--danger);
+}
 .btn-outline {
     background: transparent;
     border: 1px solid var(--border-main);
@@ -2141,4 +2145,22 @@ input::placeholder {
 .data-group-meta {
     font-size: 0.75rem;
     color: var(--text-dim);
+}
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
 }

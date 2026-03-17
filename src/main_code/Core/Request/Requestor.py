@@ -9,12 +9,15 @@ import os
 import pandas as pd
 import traceback
 import asyncio
+import datetime
 class RequestorClass:
     def Init(self, main):
         self.api = RequestAPI.RequestAPIClass()
         self.ak_api = RequestAKAPI.RequestAPIClass()
         self.main : Main.processor = main
         self.api.init(main)
+        self.isNeedStop = False
+        self.isInRequester = False
 
 
     async def RequestBasic(self):
@@ -97,6 +100,9 @@ class RequestorClass:
         sameList = set()
         logCount = 0
         for code in codeList:
+            if self.isNeedStop:
+                break
+
             logCount = logCount + 1
    
             if code in sameList:
@@ -153,6 +159,9 @@ class RequestorClass:
 
         count = 0
         for code in codeList:
+
+            if self.isNeedStop:
+                break
             #count = count + 1
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
@@ -201,9 +210,11 @@ class RequestorClass:
 
         #直接拉
         year = 2020
-        quarter = 3
+        quarter = 2
         clsList = []
         for code in codeList:
+            if self.isNeedStop:
+                break
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
             df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
             df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
@@ -238,6 +249,238 @@ class RequestorClass:
                 print(f"写入数据库失败: {e}")
 
         self.main.BoardCast("处理价值数据完成")
+
+    def StopRequest(self):
+        if self.isInRequester:
+            self.isNeedStop = True
+
+    async def OnMsgRequestDataByType(self, type):
+        if self.isInRequester or self.main.isInHandle:
+            return
+        self.main.isInHandle = True
+        self.isInRequester = True
+        for i in range(100):
+            if self.isNeedStop == True:
+                break
+            print(f"开始进行数据拉取{i}")
+            await asyncio.sleep(1)
+        #if type == 1:
+        #    await self.OnMsgRequestStockListData()
+        #if type == 2:
+        #    await self.OnMsgRequestDailyData()
+        #if type == 3:
+        #    await self.OnMsgRequestAdjustData()
+        #if type == 4:
+        #    await self.OnMsgRequestValueData()
+        #if type == 5:
+        #    await self.OnMsgRequestAllData()
+
+        self.isInRequester = False
+        self.isNeedStop = False
+        self.main.isInHandle = False
+
+    #一次性拉取数据
+    async def OnMsgRequestAllData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            lastDayStr = const_proj.first_Data
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
+
+            #lastDayStr = "20251210"
+
+            date_format = "%Y%m%d"
+            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+
+            # 2. 计算前7天的日期
+            seven_days_ago = original_date - datetime.timedelta(days=7)
+
+            # 3. 转换回字符串格式（保持原格式）
+            seven_days_ago_str = seven_days_ago.strftime(date_format)
+
+
+
+            self.main.isInHandle = True
+            self.main.BoardCast("开始进行数据拉取")
+            self.main.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
+            
+            #await self.RequestBasic_ByCSV()
+
+            await self.RequestBasic()
+
+            await self.RequestDaily(seven_days_ago_str, today_str)
+
+            await self.RequestAdjust()
+
+            #await self.RequestValue()
+            self.isInHandle = False
+
+        except Exception as e:
+            self.isInHandle = True
+            print(f"拉取失败失败: {e}")
+            full_trace = traceback.format_exc()
+            print(f"拉取失败失败: {full_trace}")
+            self.main.BoardCast(f"拉取失败失败: {e}")
+
+
+
+    #拉取列表数据
+    async def OnMsgRequestStockListData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            lastDayStr = const_proj.first_Data
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
+
+            #lastDayStr = "20251210"
+
+            date_format = "%Y%m%d"
+            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+
+            # 2. 计算前7天的日期
+            seven_days_ago = original_date - datetime.timedelta(days=7)
+
+            # 3. 转换回字符串格式（保持原格式）
+            seven_days_ago_str = seven_days_ago.strftime(date_format)
+            self.main.isInHandle = True
+            await self.RequestBasic()
+            self.isInHandle = False
+
+
+        except Exception as e:
+            self.isInit = True
+            print(f"股票列表拉取失败失败，等一个小时再拉，一天只能拉五次（包括失败的次数）: {e}")
+            full_trace = traceback.format_exc()
+            print(f"股票列表拉取失败失败，等一个小时再拉，一天只能拉五次（包括失败的次数: {full_trace}")
+            self.main.BoardCast(f"股票列表拉取失败失败，等一个小时再拉，一天只能拉五次（包括失败的次数: {e}")
+
+    #拉取日线数据
+    async def OnMsgRequestDailyData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            lastDayStr = const_proj.first_Data
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
+
+            #lastDayStr = "20251210"
+
+            date_format = "%Y%m%d"
+            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+
+            # 2. 计算前7天的日期
+            seven_days_ago = original_date - datetime.timedelta(days=7)
+
+            # 3. 转换回字符串格式（保持原格式）
+            seven_days_ago_str = seven_days_ago.strftime(date_format)
+            self.main.isInHandle = True
+            await self.RequestDaily(seven_days_ago_str, today_str)
+            self.isInHandle = False
+
+
+        except Exception as e:
+            self.isInit = True
+            print(f"日线数据拉取失败失败: {e}")
+            full_trace = traceback.format_exc()
+            print(f"日线数据拉取失败失败: {full_trace}")
+            self.main.BoardCast(f"日线数据拉取失败失败: {e}")
+
+
+
+    #拉取复权数据
+    async def OnMsgRequestAdjustData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            lastDayStr = const_proj.first_Data
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
+
+            #lastDayStr = "20251210"
+
+            date_format = "%Y%m%d"
+            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+
+            # 2. 计算前7天的日期
+            seven_days_ago = original_date - datetime.timedelta(days=7)
+
+            # 3. 转换回字符串格式（保持原格式）
+            seven_days_ago_str = seven_days_ago.strftime(date_format)
+            self.main.isInHandle = True
+            await self.RequestAdjust()
+            self.isInHandle = False
+
+
+        except Exception as e:
+            self.isInit = True
+            print(f"复权数据拉取失败失败: {e}")
+            full_trace = traceback.format_exc()
+            print(f"复权数据拉取失败失败: {full_trace}")
+            self.main.BoardCast(f"复权数据拉取失败失败: {e}")
+
+
+
+
+
+    #拉取价值数据
+    async def OnMsgRequestValueData(self):
+        try:
+            #获取当天的日期
+            today_str = datetime.date.today().strftime("%Y%m%d")
+            lastDayStr = const_proj.first_Data
+            if not os.path.exists(const_proj.Request_Data_rec_FileName):
+                lastDayStr = const_proj.first_Data
+            else:
+                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
+                    lastDayStr = f.read().strip()
+
+            #lastDayStr = "20251210"
+
+            date_format = "%Y%m%d"
+            original_date = datetime.datetime.strptime(lastDayStr, date_format)
+
+            # 2. 计算前7天的日期
+            seven_days_ago = original_date - datetime.timedelta(days=7)
+
+            # 3. 转换回字符串格式（保持原格式）
+            seven_days_ago_str = seven_days_ago.strftime(date_format)
+            self.main.isInHandle = True
+            await self.RequestValue()
+            self.isInHandle = False
+
+
+        except Exception as e:
+            self.isInit = True
+            print(f"价值数据拉取失败失败: {e}")
+            full_trace = traceback.format_exc()
+            print(f"价值数据拉取失败失败: {full_trace}")
+            self.main.BoardCast(f"价值数据拉取失败失败: {e}")
+
+
+
+
+
+
+
+
+
+
+
+
 
     def format_seconds(self, seconds: float) -> str:
         seconds = int(seconds)
