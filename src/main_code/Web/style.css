@@ -30,6 +30,7 @@
     --sidebar-width: 350px;
     --header-height: 60px;
     --footer-height: 180px;
+    /*--footer-height: auto;*/
 }
 
 * {
@@ -44,7 +45,22 @@ body {
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont;
     overflow: hidden;
 }
+html, body {
+    height: 100%;
+    margin: 0;
+}
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+.main-content {
+    flex: 1;
+    overflow: auto; /* 防止内容溢出 */
+}
+.log-panel {
+    flex-shrink: 0;   /* 防止被压缩 */
+}
 /* ============================================================
    2. 顶部栏
    ============================================================ */
@@ -103,9 +119,11 @@ body {
    4. 主体结构
    ============================================================ */
 .workspace {
+    flex: 1;
     display: flex;
     height: calc(100vh - var(--header-height) - var(--footer-height));
     overflow: hidden;
+    min-height: 0;
 }
 
 .view-container {
@@ -794,14 +812,14 @@ input::placeholder {
    9. 日志区
    ============================================================ */
 .log-panel {
-    height: var(--footer-height);  /* 默认180px */
+    height: var(--footer-height);
     background: var(--bg-panel);
     border-top: 1px solid var(--border-main);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     resize: vertical;      /* ✅ 允许垂直拖拽 */
-    min-height: 100px;     /* ✅ 最小高度 */
+    min-height: 1px;     /* ✅ 最小高度 */
     max-height: 400px;     /* ✅ 最大高度 */
     user-select: none;
 }
@@ -827,11 +845,31 @@ input::placeholder {
     padding: 10px;
     font-family: Consolas, monospace;
     font-size: 0.8rem;
+    transition: all 0.3s ease;
 }
 
 .log-item {
     padding: 4px 0;
     line-height: 1.4;
+}
+/* 折叠状态：覆盖 resize 和高度 */
+.log-panel-collapsed {
+    height: 41px !important;  /* 刚好是 log-header 的高度：10+10 padding + 行高 */
+    min-height: 41px !important;
+    max-height: 41px !important;
+    resize: none !important;  /* 折叠时禁止拖拽 */
+    overflow: hidden !important;
+}
+
+#log-panel-toggle {
+    cursor: pointer;
+    user-select: none;
+    flex: 1;  /* 让点击区域撑满整个 header 左侧 */
+}
+
+#log-panel-toggle:hover {
+    color: var(--primary);
+    transition: var(--transition);
 }
 
 .log-item.info {
@@ -852,6 +890,24 @@ input::placeholder {
 
 .log-item.system {
     color: var(--text-dim);
+}
+
+
+/* ===== log面板折叠 ===== */
+.log-panel {
+    transition: height 0.3s ease;
+}
+
+
+#log-panel-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+
+.log-panel-collapsed .log-body {
+    max-height: 0;
+    padding: 0 10px;   /* 保持左右padding */
+    overflow: hidden;
 }
 
 .btn-clear {
@@ -2030,4 +2086,59 @@ input::placeholder {
   text-align: center;
   /* 可选：如果文字还是偏，加一行让内容垂直/水平都居中（仅兼容现代浏览器） */
   /* text-align-last: center; */
+}
+
+
+/* ===== 数据管理下拉面板 ===== */
+.btn-data-panel-toggle {
+    background: rgba(79,172,254,0.15);
+    border: 1px solid var(--border-strong);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+.btn-data-panel-toggle:hover { background: rgba(79,172,254,0.25); }
+.toggle-arrow { font-size: 0.75rem; margin-left: 4px; }
+
+.data-dropdown-panel {
+    background: var(--bg-panel);
+    backdrop-filter: var(--blur-bg);
+    border-bottom: 1px solid var(--border-main);
+    padding: 12px 20px;
+    display: flex;         /* 默认由JS控制显示/隐藏 */
+    flex-wrap: wrap;
+    gap: 16px;
+    z-index: 90;
+}
+
+.data-panel-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+}
+
+.data-action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 130px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-main);
+}
+
+.data-group-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.data-group-meta {
+    font-size: 0.75rem;
+    color: var(--text-dim);
 }

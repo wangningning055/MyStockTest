@@ -16,8 +16,7 @@
     <header class="top-bar">
         <div class="brand">🚀 哇哈哈 Pro</div>
         
-        <div class="global-actions">
-            <!--<button class="help-btn" id="help-btn" title="查看系统说明">❓</button>-->
+        <!--<div class="global-actions">
             <input type="password" id="tushareToken" placeholder="Tushare Token" class="input-dark">
             <button class="btn btn-success" id="api-update-data">🔄 更新数据</button>
             <div class="connection-status-indicator">
@@ -27,9 +26,67 @@
             <span class="last-update-time">
                 ⏱ 上次更新：<span id="last-update-text">--</span>
             </span>
+        </div>-->
+        <div class="global-actions">
+            <!-- 触发按钮 -->
+            <button class="btn btn-data-panel-toggle" id="data-panel-toggle">
+                ⚙️ 数据管理 <span class="toggle-arrow" id="data-panel-arrow">▼</span>
+            </button>
+            <div class="connection-status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-text">未连接</span>
+            </div>
         </div>
-    </header>
 
+    </header>
+    <div class="data-dropdown-panel" id="data-dropdown-panel" style="display:none;">
+        <div class="data-panel-inner">
+            <!-- Token 设置 -->
+            <div class="data-action-group">
+                <div class="data-group-title">🔑 接口设置</div>
+                <input type="password" id="tushareToken" placeholder="Tushare Token" class="input-dark">
+            </div>
+            <!-- 列表拉取 -->
+            <div class="data-action-group">
+                <div class="data-group-title">📋 列表拉取（需要设置tushare token）</div>
+                <div class="data-group-meta">上次更新：<span id="last-update-list">--</span></div>
+                <button class="btn btn-success" id="api-fetch-list">🔄 拉取列表</button>
+            </div>
+            <!-- 日线拉取 -->
+            <div class="data-action-group">
+                <div class="data-group-title">📈 日线拉取</div>
+                <div class="data-group-meta">上次更新：<span id="last-update-daily">--</span></div>
+                <button class="btn btn-success" id="api-fetch-daily">🔄 拉取日线</button>
+            </div>
+            <!-- 复权拉取 -->
+            <div class="data-action-group">
+                <div class="data-group-title">🔁 复权拉取</div>
+                <div class="data-group-meta">上次更新：<span id="last-update-adj">--</span></div>
+                <button class="btn btn-success" id="api-fetch-adj">🔄 拉取复权</button>
+            </div>
+            <!-- 价值拉取 -->
+            <div class="data-action-group">
+                <div class="data-group-title">💎 价值拉取</div>
+                <div class="data-group-meta">上次更新：<span id="last-update-value">--</span></div>
+                <button class="btn btn-success" id="api-fetch-value">🔄 拉取价值</button>
+            </div>
+            <div class="data-action-group">
+                <div class="data-group-title">💎 一键更新（列表，日期，复权）</div>
+                <button class="btn btn-success" id="api-update-data">🔄 一键拉取</button>
+            </div>
+
+            <!-- 其他按钮 -->
+            <div class="data-action-group">
+                <div class="data-group-title">🛠 数据预热</div>
+                <button class="btn btn-primary" id="api-preheat">🔥 数据预热</button>
+            </div>
+          <div class="data-action-group">
+                <div class="data-group-title">🛠 测试</div>
+                <button class="btn btn-outline" id="api-test">🧪 测试</button>
+            </div>
+
+        </div>
+    </div>
     <!-- 新增：页签导航栏（单独抽离，放在top-bar下方） -->
     <nav class="main-nav-container">
         <button class="nav-tab active" data-target="view-selection">🎯 选股页签</button>
@@ -291,16 +348,7 @@
                             🔍 查询
                         </button>
                     </div>
-                    
-                    <div class="form-item" style="margin-top: 16px; border-top: 1px solid rgba(79, 172, 254, 0.2); padding-top: 12px;">
-                        <label>快速查询</label>
-                        <div class="quick-query-buttons">
-                            <input type="text" id="quick-query-input" 
-                                class="input-dark" 
-                                placeholder="输入代码搜索">
-                        </div>
-                        <div id="quick-query-results" class="quick-query-list"></div>
-                    </div>
+
                 </div>
             </aside>
 
@@ -376,30 +424,7 @@
         </div>
 
         <div id="view-industry-rotation" class="view-container">
-            <aside class="sidebar">
-                <div class="panel-header">🔄 行业轮动设置</div>
-                <div class="config-form" style="padding: 14px;">
-                    <div class="form-item">
-                        <label>选择月份</label>
-                        <input type="month" id="rotation-month-input" class="input-dark">
-                    </div>
-                    <div class="form-item">
-                        <label>轮动周期</label>
-                        <select id="rotation-period" class="input-dark">
-                            <option value="1">1个月</option>
-                            <option value="3" selected>3个月</option>
-                            <option value="6">6个月</option>
-                            <option value="12">1年</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">📊 分析轮动</button>
-                </div>
-            </aside>
             <main class="main-content">
-                <div class="chart-area">
-                    <div class="section-title">📊 行业轮动柱状图</div>
-                    <div id="industryRotationChart" class="echarts-full-container"></div>
-                </div>
                 <div class="result-area">
                     <div class="table-header">
                         <span>行业轮动数据</span>
@@ -407,11 +432,8 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>行业名称</th>
-                                <th>前期表现</th>
-                                <th>当期表现</th>
-                                <th>涨跌</th>
-                                <th>轮动建议</th>
+                                <th>月份</th>
+                                <th>过去五年此月份超三次处在上涨行情的行业</th>
                             </tr>
                         </thead>
                         <tbody id="industry-rotation-table"></tbody>
@@ -421,36 +443,6 @@
         </div>
 
         <div id="view-value-growth" class="view-container">
-            <aside class="sidebar">
-                <div class="panel-header">📈 筛选条件</div>
-                <div class="config-form" style="padding: 14px;">
-                    <div class="form-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-value-stock" checked> 价值股
-                        </label>
-                    </div>
-                    <div class="form-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-growth-stock" checked> 成长股
-                        </label>
-                    </div>
-                    <div class="form-item">
-                        <label>PE范围</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="number" id="pe-min" placeholder="最小" class="input-dark" min="0">
-                            <input type="number" id="pe-max" placeholder="最大" class="input-dark" min="0">
-                        </div>
-                    </div>
-                    <div class="form-item">
-                        <label>市净率范围</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="number" id="pb-min" placeholder="最小" class="input-dark" min="0" step="0.1">
-                            <input type="number" id="pb-max" placeholder="最大" class="input-dark" min="0" step="0.1">
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">🔍 筛选股票</button>
-                </div>
-            </aside>
             <main class="main-content">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                     <div class="info-card" style="padding: 15px; border-radius: 8px;">
@@ -471,10 +463,12 @@
                             <tr>
                                 <th>代码</th>
                                 <th>名称</th>
-                                <th>PE</th>
-                                <th>PB</th>
-                                <th>类型</th>
                                 <th>行业</th>
+                                <th>类型</th>
+                                <th>5日涨跌幅</th>
+                                <th>20日涨跌幅</th>
+                                <th>120日涨跌幅</th>
+                                <th>240日涨跌幅</th>
                             </tr>
                         </thead>
                         <tbody id="value-growth-table"></tbody>
@@ -484,15 +478,17 @@
         </div>
     </div>
 
-    <footer class="log-panel">
+
+    <footer class="log-panel" id="log-panel">
         <div class="log-header">
-            <span>控制台日志 (Console)</span>
+            <span id="log-panel-toggle">▲ 控制台日志 (Console)</span>
             <button class="btn-clear" id="btn-clear-log">清空日志</button>
         </div>
         <div class="log-body" id="global-log-container">
             <div class="log-item system">[系统] 界面初始化完成...</div>
         </div>
     </footer>
+
 </div>
 
 <div id="factor-modal" class="modal">
@@ -578,7 +574,23 @@
         </div>
     </div>
 </div>
+<script>    
+        // 数据面板展开/收起
+    document.getElementById('data-panel-toggle').addEventListener('click', function() {
+        const panel = document.getElementById('data-dropdown-panel');
+        const arrow = document.getElementById('data-panel-arrow');
+        const isOpen = panel.style.display !== 'none';
+        panel.style.display = isOpen ? 'none' : 'flex';
+        arrow.textContent = isOpen ? '▼' : '▲';
+    });
 
+    // log面板上拉/下拉
+    document.getElementById('log-panel-toggle').addEventListener('click', function () {
+        const panel = document.getElementById('log-panel');
+        const isCollapsed = panel.classList.toggle('log-panel-collapsed');
+        this.textContent = isCollapsed ? '▼ 控制台日志 (Console)' : '▲ 控制台日志 (Console)';
+    });
+</script>
 <script type="module">
     import AppManager from "./static/AppManager.js";
     
@@ -586,6 +598,7 @@
         AppManager.init();
         window.AppManager = AppManager;
     });
+
 </script>
 </body>
 </html>
