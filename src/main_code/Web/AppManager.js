@@ -14,6 +14,44 @@ import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
 
 
+const Message_Action = "/action";
+
+
+// 存储拉取按钮的原始文本
+const fetchButtonTexts = new Map();
+// 定义所有拉取按钮的ID
+const fetchButtonIds = [
+    'api-fetch-list',
+    'api-fetch-daily',
+    'api-fetch-adj',
+    'api-fetch-value',
+    'api-update-data'
+];
+/**
+ * 设置按钮加载状态
+ * @param {boolean} isLoading - 是否为加载中状态
+ */
+function setFetchButtonsLoading(isLoading) {
+    fetchButtonIds.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            if (isLoading) {
+                // 保存原始文本
+                fetchButtonTexts.set(btnId, btn.textContent);
+                btn.textContent = '处理中...';
+                btn.disabled = true;
+                btn.classList.add('loading');
+            } else {
+                // 恢复原始文本
+                const originalText = fetchButtonTexts.get(btnId) || btn.textContent;
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+    });
+}
+
 class AppManager {
     constructor() {
         // 实例引用
@@ -103,6 +141,19 @@ class AppManager {
             this.app.log(`📊 后端log:${data.msg}`);
         });
 
+        this.registerHandler(SocketModule.MessageType.SC_IN_BUSY, (data) =>{
+            this.app.log(`📊 后端忙碌状态:${data.msg}`);
+            if(data.msg == 1)
+            {
+                setFetchButtonsLoading(true)
+            }
+            else
+            {
+                setFetchButtonsLoading(false)
+                
+            }
+        });
+        
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_DATA, (data) =>{
             this.app.log(`📊 收到日期更新:${data.msg}`);
             if (!/^\d{8}$/.test(data.msg)) {
@@ -268,6 +319,16 @@ class AppManager {
             timestamp: new Date().toISOString(),
         });
     }
+
+    //
+
+    preheatData() {
+        this.app.log("📤发送数据预热请求...", "system");
+        return this.socket.sendMessage(SocketModule.MessageType.CS_PREHEAT_DATA, {
+            timestamp: new Date().toISOString(),
+        });
+    }
+
     /**
      * 发送选股请求到后端
      * 

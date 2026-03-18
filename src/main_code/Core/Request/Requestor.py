@@ -16,9 +16,9 @@ class RequestorClass:
         self.ak_api = RequestAKAPI.RequestAPIClass()
         self.main : Main.processor = main
         self.api.init(main)
-        self.isNeedStop = False
+        self.isInStop = False
         self.isInRequester = False
-
+        self.task = None
 
     async def RequestBasic(self):
         print("初始化tushare")
@@ -85,7 +85,6 @@ class RequestorClass:
         
 
     async def RequestAdjust(self):
-        self.main.isInFactor = True
         self.main.BoardCast("处理复权数据")
         count_stock = 0
         dfList = []
@@ -100,7 +99,7 @@ class RequestorClass:
         sameList = set()
         logCount = 0
         for code in codeList:
-            if self.isNeedStop:
+            if self.isInStop:
                 break
 
             logCount = logCount + 1
@@ -144,7 +143,6 @@ class RequestorClass:
 
 
     async def RequestDaily(self, startData, endData):
-        self.main.isInDaily = True
         self.main.BoardCast("处理日线数据")
         #获取股票代码列表
         count_stock = 0
@@ -160,7 +158,7 @@ class RequestorClass:
         count = 0
         for code in codeList:
 
-            if self.isNeedStop:
+            if self.isInStop:
                 break
             #count = count + 1
             if code in sameList:
@@ -198,7 +196,6 @@ class RequestorClass:
         self.main.BoardCast("处理日线数据完成")
 
     async def RequestValue(self):
-        self.main.isInValue = True
         self.main.BoardCast("处理价值数据")
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         count = 0
@@ -213,7 +210,7 @@ class RequestorClass:
         quarter = 2
         clsList = []
         for code in codeList:
-            if self.isNeedStop:
+            if self.isInStop:
                 break
             df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
             df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
@@ -250,17 +247,44 @@ class RequestorClass:
 
         self.main.BoardCast("处理价值数据完成")
 
+
+    async def _wait_task_cancel(self):
+        try:
+            await self.task  # 等待任务处理取消逻辑
+        except asyncio.CancelledError:
+            self.main.SetIsInHandle(False)
+            self.isInStop = False
+            self.isInRequester = False
+            print("任务已成功取消")
+        finally:
+            self.task = None  # 任务结束后再置空
+
     def StopRequest(self):
-        if self.isInRequester:
-            self.isNeedStop = True
+        if self.task == None:
+            return
+        if self.isInStop:
+            return
+        if self.task and not self.task.done():
+            self.isInStop = True
+            # 发送取消请求
+            self.task.cancel()
+            # 异步等待任务结束（避免直接 await，这里用 create_task 包装）
+            asyncio.create_task(self._wait_task_cancel())
+
+
+    def StartRequest(self, type):
+        self.task = asyncio.get_running_loop().create_task(self.main.requestor.OnMsgRequestDataByType(type))
+        self.task.add_done_callback(self.main.task_finished_callback)
+
 
     async def OnMsgRequestDataByType(self, type):
         if self.isInRequester or self.main.isInHandle:
             return
-        self.main.isInHandle = True
+        self.main.SetIsInHandle(True)
+
         self.isInRequester = True
         for i in range(100):
-            if self.isNeedStop == True:
+            if self.isInStop == True:
                 break
             print(f"开始进行数据拉取{i}")
             await asyncio.sleep(1)
@@ -276,8 +300,10 @@ class RequestorClass:
         #    await self.OnMsgRequestAllData()
 
         self.isInRequester = False
-        self.isNeedStop = False
-        self.main.isInHandle = False
+        self.main.SetIsInHandle(False)
+
+
+
 
     #一次性拉取数据
     async def OnMsgRequestAllData(self):
@@ -304,7 +330,6 @@ class RequestorClass:
 
 
 
-            self.main.isInHandle = True
             self.main.BoardCast("开始进行数据拉取")
             self.main.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
             
@@ -317,10 +342,9 @@ class RequestorClass:
             await self.RequestAdjust()
 
             #await self.RequestValue()
-            self.isInHandle = False
 
         except Exception as e:
-            self.isInHandle = True
+            self.main.SetIsInHandle(False)
             print(f"拉取失败失败: {e}")
             full_trace = traceback.format_exc()
             print(f"拉取失败失败: {full_trace}")
@@ -350,13 +374,11 @@ class RequestorClass:
 
             # 3. 转换回字符串格式（保持原格式）
             seven_days_ago_str = seven_days_ago.strftime(date_format)
-            self.main.isInHandle = True
             await self.RequestBasic()
-            self.isInHandle = False
 
 
         except Exception as e:
-            self.isInit = True
+            self.main.SetIsInHandle(False)
             print(f"股票列表拉取失败失败，等一个小时再拉，一天只能拉五次（包括失败的次数）: {e}")
             full_trace = traceback.format_exc()
             print(f"股票列表拉取失败失败，等一个小时再拉，一天只能拉五次（包括失败的次数: {full_trace}")
@@ -384,13 +406,11 @@ class RequestorClass:
 
             # 3. 转换回字符串格式（保持原格式）
             seven_days_ago_str = seven_days_ago.strftime(date_format)
-            self.main.isInHandle = True
             await self.RequestDaily(seven_days_ago_str, today_str)
-            self.isInHandle = False
 
 
         except Exception as e:
-            self.isInit = True
+            self.main.SetIsInHandle(False)
             print(f"日线数据拉取失败失败: {e}")
             full_trace = traceback.format_exc()
             print(f"日线数据拉取失败失败: {full_trace}")
@@ -420,13 +440,11 @@ class RequestorClass:
 
             # 3. 转换回字符串格式（保持原格式）
             seven_days_ago_str = seven_days_ago.strftime(date_format)
-            self.main.isInHandle = True
             await self.RequestAdjust()
-            self.isInHandle = False
 
 
         except Exception as e:
-            self.isInit = True
+            self.main.SetIsInHandle(False)
             print(f"复权数据拉取失败失败: {e}")
             full_trace = traceback.format_exc()
             print(f"复权数据拉取失败失败: {full_trace}")
@@ -458,13 +476,12 @@ class RequestorClass:
 
             # 3. 转换回字符串格式（保持原格式）
             seven_days_ago_str = seven_days_ago.strftime(date_format)
-            self.main.isInHandle = True
             await self.RequestValue()
-            self.isInHandle = False
 
 
         except Exception as e:
-            self.isInit = True
+            self.main.SetIsInHandle(False)
+
             print(f"价值数据拉取失败失败: {e}")
             full_trace = traceback.format_exc()
             print(f"价值数据拉取失败失败: {full_trace}")

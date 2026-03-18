@@ -1,17 +1,25 @@
 # ws_routes.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from src.main_code.Core import Main
 from enum import Enum
 import json
 import asyncio
+
+from typing import TYPE_CHECKING
+# 2. 仅在类型检查时导入需要的类（运行时不执行）
+if TYPE_CHECKING:
+    from src.main_code.Core import Main
+
 clients: set[WebSocket] = set()
-mainProcessor : Main.processor
+mainProcessor : "Main.processor"
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
+    CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
+    SC_IN_BUSY = "sc_in_busy"               # #服务器返回是否忙碌
+
 
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
     CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
@@ -40,11 +48,17 @@ async def SendMessage(msg_type, content):
     for ws in dead_ws:
         clients.remove(ws)
 
+
 async def safe_send(*args):
     try:
         await SendMessage(*args)
     except Exception as e:
         print("发送消息失败:", e)
+
+
+def SendMessage_A(*args):
+    asyncio.get_running_loop().create_task(safe_send(*args))
+    
 
 
 ## 广播函数
@@ -105,7 +119,7 @@ def HandleMsg(msg):
         return
     msgType = msg["type"]
     if(msgType == MessageType.CS_Stop_UPDATE_DATA):
-        print("停止拉取数据")
+        print("停止拉取或预热数据")
         mainProcessor.requestor.StopRequest()
         return
     if(mainProcessor.isInHandle == True):
@@ -114,21 +128,24 @@ def HandleMsg(msg):
         return
 
 
-    if(mainProcessor.isInBase or mainProcessor.isInFactor or mainProcessor.isInDaily ):
-        mainProcessor.BoardCast("正在拉取，请勿操作")
-        return
     print("处理消息，消息类型是：" + msg["type"])
     msgType = msg["type"]
     data = msg["payload"]
     if(msgType == MessageType.CS_UPDATE_DATA):
         mainProcessor.tuShareToken = data["token"]
         update_Type = data["type"]
-        task = asyncio.get_running_loop().create_task( mainProcessor.requestor.OnMsgRequestDataByType(update_Type))
-        task.add_done_callback(mainProcessor.task_finished_callback)
+        mainProcessor.requestor.StartRequest(update_Type)
+        
     elif(msgType == MessageType.CS_SELECT_STOCKS):
-        print("我在处理股票筛选的消息")
+        print("处理筛选的消息")
         mainProcessor.analysisHandle.RunGetStockListByCondition(data)
-        pass
+    elif(msgType == MessageType.CS_PREHEAT_DATA):
+        print("进行数据预热")
+        mainProcessor.calculationDataHandle.DataPreheating()
+
+
+
+
     elif(msgType == MessageType.CS_BACK_TEST):
         pass
     elif(msgType == MessageType.CS_DIAGNOSE):

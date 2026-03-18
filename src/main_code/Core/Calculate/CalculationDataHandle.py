@@ -15,11 +15,14 @@ import psutil
 import os
 import bisect
 import random
+import asyncio
 class BaseClass :
     def __init__(self):
+        self.isNeedStop = False
         pass
     def Init(self, main):
         self.main :Main.processor = main
+        self.task = None
         self.totalStockList = []
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
 
@@ -35,42 +38,65 @@ class BaseClass :
         self.CalculateBaseWindowAttrDic = {}
         self.CalculateIndustryBaseClassAttrDic = {}
         self.CalculateIndustryWindowClassAttrDic = {}
+        self.isInStop = False
 
         self.InitIndustry()
         CalculationFuncRegister.RegisterCalculateFunc(self)
+
+    async def DataPreheating(self, isNeedLog = True):
+        self.main.SetIsInHandle(True)
+
         today = self.GetToday()
 
         self.totalDateList = self.InitDateList(today, Const.dateListLength)
         print(self.totalDateList)
 
-
+        
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
+        await asyncio.sleep(1)
 
         mem_info = process.memory_info()
         rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
         vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
         t0 = time.perf_counter()
 
-        print(f"开始获取整个数据 ")
-        print(f"开始获取整个数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-
-
+        if isNeedLog:
+            print(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            self.main.BoardCast(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        if self.isInStop:
+            return
         self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
+        if self.isInStop:
+            return
+
+        if isNeedLog:
+            print(f"开始数据库读取完毕 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            self.main.BoardCast(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
 
-        print("      开始整理复权数据：")
+        if isNeedLog:
+            print("      开始整理复权数据：")
         self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
-        print(f"    复权数据整理完毕")
+
+        if self.isInStop:
+            return
+
+        if isNeedLog:
+            print(f"    复权数据整理完毕")
 
 
         #这里整理价值数据
-        print("     开始整理价值数据：")
+        if isNeedLog:
+            print("     开始整理价值数据：")
         self.InitValueData()
-        print(f"    价值数据整理完毕")
+        if isNeedLog:
+            print(f"    价值数据整理完毕")
 
+        if self.isInStop:
+            return
 
         mem_info = process.memory_info()
         rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
@@ -80,14 +106,14 @@ class BaseClass :
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
-        print(f"整个数据获取完毕 ")
+        #print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
+        #print(f"整个数据获取完毕 ")
 
 
 
-
-        print(f"开计算数据，数据日期长度{Const.dateListLength} ")
-        print(f"开计算数据 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        if isNeedLog:
+            print(f"开计算数据 数据日期长度{Const.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            self.main.BoardCast(f"开计算数据 数据日期长度{Const.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
         t0 = time.perf_counter()
 
 
@@ -100,8 +126,13 @@ class BaseClass :
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        print(f"数据计算完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
 
+
+        if isNeedLog:
+            print(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+            self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+
+        self.main.SetIsInHandle(False)
 
 
 
@@ -530,6 +561,8 @@ class BaseClass :
         if dt.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
             dayList.append(today)
         while len(dayList) < length and dt > end_dt:
+            if self.isInStop:
+                break
             dt -= timedelta(days=1)  # 往前一天
 
             if dt.weekday() >= 5:
@@ -543,7 +576,11 @@ class BaseClass :
     def InitAllBaseDataClsList(self, totalDateList, totalDbList):
         count = 0
         for date in totalDateList:
+            if self.isInStop:
+                break
             for code in self.totalStockList:
+                if self.isInStop:
+                    break
                 db = totalDbList.get((code, date))
                 if db is None:
                     continue

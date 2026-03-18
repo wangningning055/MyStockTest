@@ -23,19 +23,6 @@ const ChartInstances = {
     portfolioChart: null
 };
 
-const Message_Action = "/action";
-
-
-// 存储拉取按钮的原始文本
-const fetchButtonTexts = new Map();
-// 定义所有拉取按钮的ID
-const fetchButtonIds = [
-    'api-fetch-list',
-    'api-fetch-daily',
-    'api-fetch-adj',
-    'api-fetch-value',
-    'api-update-data'
-];
 
 let manager = null;
 
@@ -43,31 +30,6 @@ export function setEventManager(_manager) {
     manager = _manager;
 }
 
-
-/**
- * 设置按钮加载状态
- * @param {boolean} isLoading - 是否为加载中状态
- */
-function setFetchButtonsLoading(isLoading) {
-    fetchButtonIds.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            if (isLoading) {
-                // 保存原始文本
-                fetchButtonTexts.set(btnId, btn.textContent);
-                btn.textContent = '处理中...';
-                btn.disabled = true;
-                btn.classList.add('loading');
-            } else {
-                // 恢复原始文本
-                const originalText = fetchButtonTexts.get(btnId) || btn.textContent;
-                btn.textContent = originalText;
-                btn.disabled = false;
-                btn.classList.remove('loading');
-            }
-        }
-    });
-}
 
 
 export const EventManager = {
@@ -138,7 +100,7 @@ export const EventManager = {
         if (updateBtn2) {
             updateBtn2.addEventListener('click', () => {
                 if (manager) {
-                    setFetchButtonsLoading(true);
+                    //setFetchButtonsLoading(true);
                     manager.requestUpdateData(2);
                 }
             });
@@ -147,7 +109,7 @@ export const EventManager = {
         if (updateBtn3) {
             updateBtn3.addEventListener('click', () => {
                 if (manager) {
-                    setFetchButtonsLoading(true);
+                    //setFetchButtonsLoading(true);
                     manager.requestUpdateData(3);
                 }
             });
@@ -156,7 +118,7 @@ export const EventManager = {
         if (updateBtn4) {
             updateBtn4.addEventListener('click', () => {
                 if (manager) {
-                    setFetchButtonsLoading(true);
+                    //setFetchButtonsLoading(true);
                     manager.requestUpdateData(4);
                 }
             });
@@ -166,7 +128,7 @@ export const EventManager = {
         if (updateBtn5) {
             updateBtn5.addEventListener('click', () => {
                 if (manager) {
-                    setFetchButtonsLoading(true);
+                    //setFetchButtonsLoading(true);
                     manager.requestUpdateData(5);
                 }
             });
@@ -175,11 +137,21 @@ export const EventManager = {
         if (updateBtn6) {
             updateBtn6.addEventListener('click', () => {
                 if (manager) {
-                    setFetchButtonsLoading(false);
+                    //setFetchButtonsLoading(false);
                     manager.stopUpdateData();
                 }
             });
         }
+        const preheatBtn = document.getElementById('api-preheat');
+        if (preheatBtn) {
+            preheatBtn.addEventListener('click', () => {
+                if (manager) {
+                    //setFetchButtonsLoading(true);
+                    manager.preheatData();
+                }
+            });
+        }
+
         
         //const selectBtn = document.getElementById('api-select-stock');
         //if (selectBtn) {

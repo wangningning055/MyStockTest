@@ -21,12 +21,10 @@ import asyncio
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 class processor:
-    isInBase = False
-    isInFactor = False
-    isInDaily = False
     lastDayStr = const_proj.first_Data
     tuShareToken = 0000000
     dbHandler : DBHandler.DBHandlerClass
+    isInHandle : False
     def BoardCast(self, message: str):
         asyncio.get_running_loop().create_task(ws.broadcast(message))
 
@@ -34,11 +32,15 @@ class processor:
     def Init(self):
         print("开始进行初始化")
         today_str = datetime.date.today().strftime("%Y%m%d")
-        print(f"今天的日期是：{today_str}")
         self.InitLastUpdateTime()
+
         plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
         self.fileProcessor = self.InitFile()
+        self.recordHandler = self.InitRecorderHandle()
+        self.recordDataCls = self.recordHandler.ReadRecordData()
+        self.websocketHandler = ws
+
         self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
         self.requestor = self.InitRequest()
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
@@ -48,10 +50,9 @@ class processor:
         #self.planner.AddPlane(plane)
         #self.RequestData()
         self.todayStockDate = self.calculationDataHandle.GetToday()
-        print(f"初始化完毕, 最近的有效股票数据日期是：{self.todayStockDate}")
         self.isInit = True
         self.isInHandle = False
-
+        print(f"初始化完毕, 最近的有效股票数据日期是：{self.todayStockDate}")
 
 
         #self.Temp_ImportValue()
@@ -72,6 +73,15 @@ class processor:
         print("写入完成")
 
 
+    def SetIsInHandle(self, isIn):
+        if self.isInHandle == isIn:
+            return
+        self.isInHandle = isIn
+        if isIn == True:
+            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, 1)
+        if isIn == False:
+            self.requestor.StopRequest()
+            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, 0)
 
     def InitLastUpdateTime(self):
         if not os.path.exists(const_proj.Request_Data_rec_FileName):
@@ -127,7 +137,7 @@ class processor:
     def InitRecorderHandle(self):
         instance = RecordHandler.BaseClass()
         instance.Init(self)
-        print("分析模块初始化完毕")
+        print("记录模块初始化完毕")
         return instance
 
     
@@ -137,62 +147,32 @@ class processor:
  
 
 
-    def pullOver(self):
-        today_str = datetime.date.today().strftime("%Y%m%d")
-        self.lastDayStr = today_str
-        with open(const_proj.Request_Data_rec_FileName, "w", encoding="utf-8") as f:
-            f.write(today_str)
-        ws.SendLastUpdateTime()
+
 
     def task_finished_callback(self,task):
         #print("基础数据拉取 执行完毕")
         #self.BoardCast("基础数据拉取 执行完毕")
-        print("股票信息拉取流程结束")
+        print("股流程结束")
 
-        if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-            self.BoardCast("股票信息拉取流程结束")
-            print("股票信息拉取流程结束")
-            self.pullOver()
+        if(not self.isInHandle):
+            self.BoardCast("流程结束")
+            print("流程结束")
+            self.recordHandler.WriteRecordData()
+
         else:
-            print("股票信息拉取流程异常结束")
-            self.BoardCast(f"股票信息拉取流程异常结束:{self.isInBase}{self.isInFactor}{self.isInDaily}")
-            self.isInDaily = False
-            self.isInBase = False
-            self.isInFactor = False
+            print("流程异常结束")
+            self.BoardCast(f"流程异常结束")
+            self.SetIsInHandle(False)
             
         try:
             result = task.result()  # 捕获返回值或异常
-            print(f"拉取任务返回值:{result}")
-            self.BoardCast(f"拉取任务返回值:{result}")
+            print(f"任务返回值:{result}")
+            self.BoardCast(f"任务返回值:{result}")
+        except asyncio.CancelledError:
+        # 专门捕获取消异常（任务被主动停止）
+            print("任务取消")
+
         except Exception as e:
             print("任务异常:", e)
             full_trace = traceback.format_exc()
             print("任务异常:", full_trace)
-
-    #def task_finished_callback_Factor(self,task):
-    #    print("复权因子数据拉取执行完毕 ")
-    #    self.BoardCast("复权因子数据拉取执行完毕 ")
-    #    self.isInFactor = False
-    #    if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-    #        self.BoardCast("股票信息已经拉取完毕")
-    #        print("股票信息已经拉取完毕")
-    #        self.pullOver()
-    #    try:
-    #        result = task.result()  # 捕获返回值或异常
-    #    except Exception as e:
-    #        print("任务异常:", e)
-
-
-
-    #def task_finished_callback_Daily(self,task):
-    #    print("日线数据拉取 执行完毕")
-    #    self.BoardCast("日线数据拉取 执行完毕")
-    #    self.isInDaily = False
-    #    if(not (self.isInBase or self.isInDaily or self.isInFactor)):
-    #        self.BoardCast("股票信息已经拉取完毕")
-    #        print("股票信息已经拉取完毕")
-    #        self.pullOver()
-    #    try:
-    #        result = task.result()  # 捕获返回值或异常
-    #    except Exception as e:
-    #        print("任务异常:", e)

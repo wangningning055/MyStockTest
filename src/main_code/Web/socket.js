@@ -26,11 +26,15 @@ export const MessageType = Object.freeze({
     LAST_UPDATE_DATA: "last_update_data_time",      // 请求接受上次更新日期
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
     CS_STOP_UPDATE_DATA: "cs_stop_update_data",              // 客户端请求停止拉取数据
+    CS_PREHEAT_DATA: "cs_preheat_data",                  //#客户端请求预热数据
+    SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
+
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据
     CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选
     CS_BACK_TEST: "cs_back_test",                  // 客户端请求执行回测
     CS_DIAGNOSE: "cs_diagnose",                    // 客户端请求出仓判断
 });
+
 
 export function SetManager(_manager)
 {
@@ -115,7 +119,7 @@ function HandleMessage(data){
 function handleWebSocketMessage(data) {
     try {
         const message = JSON.parse(data);
-
+        console.log("接收到后端消息：", message)
         HandleMessage(message)
 
     } catch (error) {

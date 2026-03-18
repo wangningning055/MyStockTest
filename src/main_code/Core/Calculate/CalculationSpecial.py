@@ -1,6 +1,5 @@
 #这里的计算方法是主要因子，其他的都是配合的次要因子
 # 1. 先导入TYPE_CHECKING常量
-import json
 from typing import List, Optional, Callable, Dict, Any, Union,Tuple  
 from typing import TYPE_CHECKING
 # 2. 仅在类型检查时导入需要的类（运行时不执行）
