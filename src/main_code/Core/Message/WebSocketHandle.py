@@ -105,7 +105,7 @@ def register_ws(app: FastAPI):
 
 #发送上次更新日期
 def SendLastUpdateTime():
-    asyncio.get_running_loop().create_task(safe_send(MessageType.LAST_UPDATE_DATA, mainProcessor.lastDayStr))
+    asyncio.get_running_loop().create_task(safe_send(MessageType.LAST_UPDATE_DATA, mainProcessor.recordHandler.GetRecentRequestDateJsonStr()))
 
 
 
@@ -151,4 +151,5 @@ def HandleMsg(msg):
     elif(msgType == MessageType.CS_DIAGNOSE):
         pass
     elif(msgType == MessageType.LAST_UPDATE_DATA):
+        print("请求最近的更新日期")
         SendLastUpdateTime()
