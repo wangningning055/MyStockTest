@@ -134,6 +134,62 @@ class AppManager {
     }
 
     /**
+     * ==================== 事件绑定系统 ====================
+     */
+
+    /**
+     * 配置事件绑定（在app.js中调用）
+     */
+    onElementClick(elementId, callback) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.warn(`⚠️ 元素不存在: ${elementId}`);
+            return;
+        }
+        element.addEventListener('click', callback);
+        this.app.log(`✅ 事件已绑定: ${elementId} -> click`);
+    }
+
+    /**
+     * 绑定输入事件
+     */
+    onElementInput(elementId, callback) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.warn(`⚠️ 元素不存在: ${elementId}`);
+            return;
+        }
+        element.addEventListener('input', callback);
+        this.app.log(`✅ 事件已绑定: ${elementId} -> input`);
+    }
+
+    /**
+     * 绑定变化事件
+     */
+    onElementChange(elementId, callback) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.warn(`⚠️ 元素不存在: ${elementId}`);
+            return;
+        }
+        element.addEventListener('change', callback);
+        this.app.log(`✅ 事件已绑定: ${elementId} -> change`);
+    }
+
+    /**
+     * 绑定自定义事件（当app.js中定义了bindEvents函数时自动调用）
+     */
+    bindAllEvents() {
+        // 检查app.js中是否有bindEvents函数
+        if (typeof window.bindAppEvents === 'function') {
+            this.app.log("🔗 绑定app.js中定义的事件...");
+            window.bindAppEvents(this);
+        }
+    }
+
+
+
+    /**
      * 注册默认的消息处理器
      */
     registerDefaultHandlers() {
@@ -232,59 +288,6 @@ class AppManager {
         }
     }
 
-    /**
-     * ==================== 事件绑定系统 ====================
-     */
-
-    /**
-     * 配置事件绑定（在app.js中调用）
-     */
-    onElementClick(elementId, callback) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-            console.warn(`⚠️ 元素不存在: ${elementId}`);
-            return;
-        }
-        element.addEventListener('click', callback);
-        this.app.log(`✅ 事件已绑定: ${elementId} -> click`);
-    }
-
-    /**
-     * 绑定输入事件
-     */
-    onElementInput(elementId, callback) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-            console.warn(`⚠️ 元素不存在: ${elementId}`);
-            return;
-        }
-        element.addEventListener('input', callback);
-        this.app.log(`✅ 事件已绑定: ${elementId} -> input`);
-    }
-
-    /**
-     * 绑定变化事件
-     */
-    onElementChange(elementId, callback) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-            console.warn(`⚠️ 元素不存在: ${elementId}`);
-            return;
-        }
-        element.addEventListener('change', callback);
-        this.app.log(`✅ 事件已绑定: ${elementId} -> change`);
-    }
-
-    /**
-     * 绑定自定义事件（当app.js中定义了bindEvents函数时自动调用）
-     */
-    bindAllEvents() {
-        // 检查app.js中是否有bindEvents函数
-        if (typeof window.bindAppEvents === 'function') {
-            this.app.log("🔗 绑定app.js中定义的事件...");
-            window.bindAppEvents(this);
-        }
-    }
 
     /**
      * ==================== 快捷请求方法 ====================
