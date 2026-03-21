@@ -151,7 +151,14 @@ export const EventManager = {
                 }
             });
         }
-
+        const testBtn = document.getElementById('api-test');
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                if (manager) {
+                    manager.testData();
+                }
+            });
+        }
         
         //const selectBtn = document.getElementById('api-select-stock');
         //if (selectBtn) {

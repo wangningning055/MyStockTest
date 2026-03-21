@@ -13,6 +13,7 @@ clients: set[WebSocket] = set()
 mainProcessor : "Main.processor"
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
+    Test = "test"#测试
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
@@ -118,9 +119,14 @@ def HandleMsg(msg):
         print("主程序没有初始化完成")
         return
     msgType = msg["type"]
+    if(msgType == MessageType.Test):
+        print("进行数据测试")
+        mainProcessor.ExecuteTest()
+
     if(msgType == MessageType.CS_Stop_UPDATE_DATA):
         print("停止拉取或预热数据")
         mainProcessor.requestor.StopRequest()
+        mainProcessor.StopTest()
         return
     if(mainProcessor.isInHandle == True):
         mainProcessor.BoardCast("正在处理，等待处理完成")
@@ -131,25 +137,39 @@ def HandleMsg(msg):
     print("处理消息，消息类型是：" + msg["type"])
     msgType = msg["type"]
     data = msg["payload"]
+
     if(msgType == MessageType.CS_UPDATE_DATA):
         mainProcessor.tuShareToken = data["token"]
         update_Type = data["type"]
         mainProcessor.requestor.StartRequest(update_Type)
         
+
     elif(msgType == MessageType.CS_SELECT_STOCKS):
         print("处理筛选的消息")
         mainProcessor.analysisHandle.RunGetStockListByCondition(data)
+
+
     elif(msgType == MessageType.CS_PREHEAT_DATA):
         print("进行数据预热")
-        mainProcessor.calculationDataHandle.DataPreheating()
+        task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
+        #self.task.add_done_callback()
+
+
+        
 
 
 
 
     elif(msgType == MessageType.CS_BACK_TEST):
         pass
+
+
+
     elif(msgType == MessageType.CS_DIAGNOSE):
         pass
+
+
+    
     elif(msgType == MessageType.LAST_UPDATE_DATA):
         print("请求最近的更新日期")
         SendLastUpdateTime()

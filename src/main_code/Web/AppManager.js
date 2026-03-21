@@ -198,7 +198,7 @@ class AppManager {
         });
 
         this.registerHandler(SocketModule.MessageType.SC_IN_BUSY, (data) =>{
-            this.app.log(`📊 后端忙碌状态:${data.msg}`);
+            //this.app.log(`📊 后端忙碌状态:${data.msg}`);
             if(data.msg == 1)
             {
                 setFetchButtonsLoading(true)
@@ -211,35 +211,44 @@ class AppManager {
         });
         
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_DATA, (data) =>{
-            this.app.log(`📊 收到日期更新:${data.msg}`);
-            const jsonRes = JSON.parse(data.msg)
-            const stock = jsonRes.stock
-            const daily = jsonRes.daily
-            const adjust = jsonRes.adjust
-            const value = jsonRes.value
-            const industry = jsonRes.industry
+            //this.app.log(`📊 收到日期更新:${data.msg}`);
+            let jsonRes = JSON.parse(data.msg)
+            let stock = jsonRes.stock
+            let daily = jsonRes.daily
+            let adjust = jsonRes.adjust
+            let value = jsonRes.value
+            let industry = jsonRes.industry
             
-            console.log(jsonRes)
-            console.log(stock)
-            console.log(daily)
-            console.log(adjust)
-            console.log(value)
-            console.log(industry)
             let timeStrStock = `${stock.slice(0, 4)}/${stock.slice(4, 6)}/${stock.slice(6, 8)}`;
             let timeStrDaily = `${daily.slice(0, 4)}/${daily.slice(4, 6)}/${daily.slice(6, 8)}`;
             let timeStrAdjust = `${adjust.slice(0, 4)}/${adjust.slice(4, 6)}/${adjust.slice(6, 8)}`;
             let timeStrValue = `${value.slice(0, 4)}/${value.slice(4, 6)}/${value.slice(6, 8)}`;
             let timeStrIndustry = `${industry.slice(0, 4)}/${industry.slice(4, 6)}/${industry.slice(6, 8)}`;
-            console.log(timeStrStock)
-            console.log(timeStrDaily)
-            console.log(timeStrAdjust)
-            console.log(timeStrValue)
-            console.log(timeStrIndustry)
-            if (!/^\d{8}$/.test(data.msg)) {
-                throw new Error("非法日期格式，应为 YYYYMMDD");
+            //console.log(timeStrStock)
+            //console.log(timeStrDaily)
+            //console.log(timeStrAdjust)
+            //console.log(timeStrValue)
+            //console.log(timeStrIndustry)
+            if (!/^\d{8}$/.test(stock)) {
+                throw new Error("非法日期格式stock list，应为 YYYYMMDD");
             }
-            let timeStr = `${data.msg.slice(0, 4)}/${data.msg.slice(4, 6)}/${data.msg.slice(6, 8)}`;
-            this.ui.setLastUpdateTime(timeStr)
+            if (!/^\d{8}$/.test(daily)) {
+                throw new Error("非法日期格式daily，应为 YYYYMMDD");
+            }
+            if (!/^\d{8}$/.test(adjust)) {
+                throw new Error("非法日期格式adj，应为 YYYYMMDD");
+            }
+            if (!/^\d{8}$/.test(value)) {
+                throw new Error("非法日期格式value，应为 YYYYMMDD");
+            }
+            if (!/^\d{8}$/.test(industry)) {
+                throw new Error("非法日期格式industry，应为 YYYYMMDD");
+            }
+            this.ui.setLastStockListUpdateTime(timeStrStock)
+            this.ui.setLastDailyUpdateTime(timeStrDaily)
+            this.ui.setLastAdjustUpdateTime(timeStrAdjust)
+            this.ui.setLastValueUpdateTime(timeStrValue)
+            this.ui.setLastIndustryUpdateTime(timeStrIndustry)
         });
 
 
@@ -355,6 +364,12 @@ class AppManager {
         });
     }
 
+    testData() {
+        this.app.log("📤发送测试请求...", "system");
+        return this.socket.sendMessage(SocketModule.MessageType.TEST, {
+            timestamp: new Date().toISOString(),
+        });
+    }
     /**
      * 发送选股请求到后端
      * 

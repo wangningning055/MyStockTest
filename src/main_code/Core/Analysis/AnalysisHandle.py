@@ -60,9 +60,6 @@ class BaseClass :
             cls = self.main.calculationDataHandle.GetBaseDataClass(val, todayStr ,False)
             if cls == None:
                 continue
-            if cls.componyInfo.List_Status != "L":
-                print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 暂停上市，不执行")
-                continue
 
             if cls.trade_state != 1:
                 print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")

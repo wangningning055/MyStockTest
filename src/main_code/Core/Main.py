@@ -18,6 +18,7 @@ from src.main_code.Core.Test import Test
 from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
 import asyncio
+from src.main_code.Core.DataStruct.Base import RecordDataStruct
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 class processor:
@@ -25,30 +26,30 @@ class processor:
     tuShareToken = 0000000
     dbHandler : DBHandler.DBHandlerClass
     isInHandle : False
+    recordDataCls : RecordDataStruct.TotalRecordDataCls
     def BoardCast(self, message: str):
         asyncio.get_running_loop().create_task(ws.broadcast(message))
 
 
     def Init(self):
         print("开始进行初始化")
-        today_str = datetime.date.today().strftime("%Y%m%d")
-        self.InitLastUpdateTime()
 
-        plane = PlanStruct.PlaneClass()
         self.planner = self.InitPlanner()
+        #plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
+        #self.planner.AddPlane(plane)
+
         self.fileProcessor = self.InitFile()
         self.recordHandler = self.InitRecorderHandle()
-        self.recordDataCls = self.recordHandler.ReadRecordData()
+        self.lastDayStr = self.recordDataCls.daily_list_last_data
+
+
         self.websocketHandler = ws
 
         self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
         self.requestor = self.InitRequest()
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.analysisHandle = self.InitAnalysisHandle()
-        plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
         ws.mainProcessor = self
-        #self.planner.AddPlane(plane)
-        #self.RequestData()
         self.todayStockDate = self.calculationDataHandle.GetToday()
         self.isInit = True
         self.isInHandle = False
@@ -83,13 +84,7 @@ class processor:
             self.requestor.StopRequest()
             self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, 0)
 
-    def InitLastUpdateTime(self):
-        if not os.path.exists(const_proj.Request_Data_rec_FileName):
-            self.lastDayStr = const_proj.first_Data
-        else:
-            with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                self.lastDayStr = f.read().strip()
-        print("日期读取完毕")
+
 
     def planeFunc(self):
         self.RequestData()
@@ -98,7 +93,7 @@ class processor:
     def InitPlanner(self):
         instance = Planner.PlannerClass()
         instance.Init()
-
+        self.BoardCast("计划任务模块初始化完毕")
         return instance
     
     #初始化文件管理
@@ -119,6 +114,7 @@ class processor:
     def InitDB(self) ->DBHandler.DBHandlerClass :
         instance = DBHandler.DBHandlerClass()
         instance.Init(self)
+        print("数据库模块初始化完毕")
         return instance
     #初始化数据处理模块
     def InitCalculationDataHandle(self):
@@ -142,9 +138,10 @@ class processor:
 
     
     def ExecuteTest(self):
-        Test.TestCalculate(self.calculationDataHandle)
+        task = asyncio.get_running_loop().create_task(Test.TestCalculate(self.calculationDataHandle))
 
- 
+    def StopTest(self):
+        Test.Stop()
 
 
 
@@ -152,7 +149,6 @@ class processor:
     def task_finished_callback(self,task):
         #print("基础数据拉取 执行完毕")
         #self.BoardCast("基础数据拉取 执行完毕")
-        print("股流程结束")
 
         if(not self.isInHandle):
             self.BoardCast("流程结束")

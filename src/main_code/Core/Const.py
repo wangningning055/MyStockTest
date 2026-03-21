@@ -38,7 +38,6 @@ TradeNameSZSE = "SZSE"
 TradeNameSSE = "SSE"
 TradeNameBSE = "BSE"
 
-Request_Data_rec_FileName = "../TempFile/RequestRecorderData.txt"
 
 IndexHtmlPath = "Web/index.html"
 

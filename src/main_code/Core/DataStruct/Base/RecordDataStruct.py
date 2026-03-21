@@ -19,12 +19,12 @@ class TotalRecordDataCls:
 
 
     def __init__(self):
-        self.allDic = {}
+        self.industry_Analyze_Dic = {}
         self.stock_list_last_data = const_proj.first_Data
         self.daily_list_last_data = const_proj.first_Data
         self.adjust_list_last_data = const_proj.first_Data
         self.value_list_last_data = const_proj.first_Data
-        self.industry_analyze_last_data = "--:--:--"
+        self.industry_analyze_last_data = const_proj.first_Data
 
         self.daily_list_pull_record = []
         self.adjust_list_pull_record = []

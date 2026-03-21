@@ -329,10 +329,10 @@ class DBHandlerClass:
             if(ts_code in sameList):
                 print(f"这是相同的股票：{ts_code}")
                 continue
-            stateName = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.List_Status)
-            if(row_dict[stateName] != "L"):
-                print(f"这是是退市的股票：{ts_code}")
-                continue
+            #stateName = self.basicDbStruct.GetNameByEnum(BasicDBStruct.ColumnEnum.List_Status)
+            #if(row_dict[stateName] != "L"):
+            #    print(f"这是是退市的股票：{ts_code}")
+            #    continue
             if(ts_code.lower().endswith("bj")):
                 continue
             

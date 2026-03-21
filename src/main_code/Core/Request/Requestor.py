@@ -103,7 +103,9 @@ class RequestorClass:
                 break
 
             logCount = logCount + 1
-   
+            ##测试边界
+            #if logCount > 10:
+            #    break
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue
@@ -160,7 +162,11 @@ class RequestorClass:
 
             if self.isInStop:
                 break
-            #count = count + 1
+            count = count + 1
+            ##测试边界
+            #if count > 10:
+            #    break
+
             if code in sameList:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue
@@ -195,58 +201,61 @@ class RequestorClass:
         #task.add_done_callback(self.main.task_finished_callback_Daily)
         self.main.BoardCast("处理日线数据完成")
 
-    async def RequestValue(self):
+    async def RequestValue(self, dateTo):
         self.main.BoardCast("处理价值数据")
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
-        count = 0
+        async def pullVal(year, quarter):
+            #直接拉
+            year = year
+            quarter = quarter
+            clsList = []
+            count = 0
+            for code in codeList:
+                ##测试边界
+                #if count > 10:
+                #    break
+                if self.isInStop:
+                    break
+                df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
+                df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
+                df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
+                cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
+                
+                if cls is not None:
+                    clsList.append(cls)
+                    tempList = []
+                    tempList.append(cls)
+                    try:
+                        await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
+                    except Exception as e:
+                        print(f"写入数据库失败: {e}")
 
-        #2025 3, 2, 1
-        #2024 4 3 2  1(等待csv)
-        #2023 4(等待csv)  3 2 1
-        #2022 4 3 2 1
 
-        #直接拉
-        year = 2020
-        quarter = 2
-        clsList = []
-        for code in codeList:
-            if self.isInStop:
-                break
-            df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
-            df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
-            df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
-            cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
+                #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+                #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+                #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+
+                print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
+                count = count + 1
+                #if count > 3:
+                #    break
+                    #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
+
             
-            if cls is not None:
-                clsList.append(cls)
-                tempList = []
-                tempList.append(cls)
+            print(f"开始写入:长度为：{len(clsList)}")
+            if clsList is not None and len(clsList) > 0:
                 try:
-                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
+                    await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
                 except Exception as e:
                     print(f"写入数据库失败: {e}")
 
-
-            #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-
-            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
-            count = count + 1
-            #if count > 3:
-            #    break
-                #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
-
-        
-        print(f"开始写入:长度为：{len(clsList)}")
-        if clsList is not None and len(clsList) > 0:
-            try:
-                await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
-            except Exception as e:
-                print(f"写入数据库失败: {e}")
-
-        self.main.BoardCast("处理价值数据完成")
-
+            self.main.BoardCast("处理价值数据完成")
+        year, quarter, isNeedYear = self.get_report_quarter(dateTo)
+        if isNeedYear:
+            await pullVal(year, quarter)
+            await pullVal(year - 1, 4)
+        else:
+            await pullVal(year, quarter)
 
     async def _wait_task_cancel(self):
         try:
@@ -255,7 +264,6 @@ class RequestorClass:
             self.main.SetIsInHandle(False)
             self.isInStop = False
             self.isInRequester = False
-            print("任务已成功取消")
         finally:
             self.task = None  # 任务结束后再置空
 
@@ -283,65 +291,44 @@ class RequestorClass:
         self.main.SetIsInHandle(True)
 
         self.isInRequester = True
-        for i in range(100):
-            if self.isInStop == True:
-                break
-            print(f"开始进行数据拉取{i}")
-            await asyncio.sleep(1)
-        #if type == 1:
-        #    await self.OnMsgRequestStockListData()
-        #if type == 2:
-        #    await self.OnMsgRequestDailyData()
-        #if type == 3:
-        #    await self.OnMsgRequestAdjustData()
-        #if type == 4:
-        #    await self.OnMsgRequestValueData()
-        #if type == 5:
-        #    await self.OnMsgRequestAllData()
+        
+        if type == 1:
+            await self.OnMsgRequestStockListData()
+        if type == 2:
+            await self.OnMsgRequestDailyData()
+            print("日线数据拉取完毕")
+        if type == 3:
+            await self.OnMsgRequestAdjustData()
+        if type == 4:
+            await self.OnMsgRequestValueData()
+        if type == 5:
+            await self.OnMsgRequestAllData()
 
         self.isInRequester = False
         self.main.SetIsInHandle(False)
+        self.main.websocketHandler.SendLastUpdateTime()
 
-
-
+    #async def RequestTest(self):
+    #    lastDateStr = self.main.recordDataCls.daily_list_last_data
+    #    isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
+    #    if isNeedPull:
+    #        for i in range(10):
+    #            if self.isInStop == True:
+    #                break
+    #            print(f"开始进行数据拉取{i}")
+    #            await asyncio.sleep(1)
+    #        self.main.recordDataCls.daily_list_last_data = dateTo
+    #    else:
+    #        self.main.BoardCast("是最新数据无需拉取")
 
     #一次性拉取数据
     async def OnMsgRequestAllData(self):
         try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
 
-            #lastDayStr = "20251210"
-
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
-
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
-
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
-
-
-
-            self.main.BoardCast("开始进行数据拉取")
-            self.main.BoardCast(f"拉取数据区间为(从七天前开始拉)：{seven_days_ago_str}  ----  {today_str}")
-            
-            #await self.RequestBasic_ByCSV()
-
-            await self.RequestBasic()
-
-            await self.RequestDaily(seven_days_ago_str, today_str)
-
-            await self.RequestAdjust()
-
-            #await self.RequestValue()
+            await self.OnMsgRequestStockListData()
+            await self.OnMsgRequestDailyData()
+            await self.OnMsgRequestAdjustData()
+            #await self.OnMsgRequestValueData()
 
         except Exception as e:
             self.main.SetIsInHandle(False)
@@ -355,27 +342,11 @@ class RequestorClass:
     #拉取列表数据
     async def OnMsgRequestStockListData(self):
         try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
-
-            #lastDayStr = "20251210"
-
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
-
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
-
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
-            await self.RequestBasic()
-
+            lastDayStr = self.main.recordDataCls.stock_list_last_data
+            isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDayStr)
+            if isNeedPull:
+                await self.RequestBasic()
+                self.main.recordDataCls.stock_list_last_data = dateTo
 
         except Exception as e:
             self.main.SetIsInHandle(False)
@@ -387,26 +358,11 @@ class RequestorClass:
     #拉取日线数据
     async def OnMsgRequestDailyData(self):
         try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
-
-            #lastDayStr = "20251210"
-
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
-
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
-
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
-            await self.RequestDaily(seven_days_ago_str, today_str)
+            lastDateStr = self.main.recordDataCls.daily_list_last_data
+            isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
+            if isNeedPull:
+                await self.RequestDaily(dateFrom, dateTo)
+                self.main.recordDataCls.daily_list_last_data = dateTo
 
 
         except Exception as e:
@@ -421,27 +377,11 @@ class RequestorClass:
     #拉取复权数据
     async def OnMsgRequestAdjustData(self):
         try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
-
-            #lastDayStr = "20251210"
-
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
-
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
-
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
-            await self.RequestAdjust()
-
+            lastDateStr = self.main.recordDataCls.adjust_list_last_data
+            isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
+            if isNeedPull:
+                await self.RequestAdjust()
+                self.main.recordDataCls.adjust_list_last_data = dateTo
 
         except Exception as e:
             self.main.SetIsInHandle(False)
@@ -457,26 +397,11 @@ class RequestorClass:
     #拉取价值数据
     async def OnMsgRequestValueData(self):
         try:
-            #获取当天的日期
-            today_str = datetime.date.today().strftime("%Y%m%d")
-            lastDayStr = const_proj.first_Data
-            if not os.path.exists(const_proj.Request_Data_rec_FileName):
-                lastDayStr = const_proj.first_Data
-            else:
-                with open(const_proj.Request_Data_rec_FileName, "r", encoding="utf-8") as f:
-                    lastDayStr = f.read().strip()
-
-            #lastDayStr = "20251210"
-
-            date_format = "%Y%m%d"
-            original_date = datetime.datetime.strptime(lastDayStr, date_format)
-
-            # 2. 计算前7天的日期
-            seven_days_ago = original_date - datetime.timedelta(days=7)
-
-            # 3. 转换回字符串格式（保持原格式）
-            seven_days_ago_str = seven_days_ago.strftime(date_format)
-            await self.RequestValue()
+            lastDateStr = self.main.recordDataCls.value_list_last_data
+            isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
+            if isNeedPull:
+                await self.RequestValue(dateTo)
+                self.main.recordDataCls.value_list_last_data = dateTo
 
 
         except Exception as e:
@@ -487,17 +412,77 @@ class RequestorClass:
             print(f"价值数据拉取失败失败: {full_trace}")
             self.main.BoardCast(f"价值数据拉取失败失败: {e}")
 
+    #检查是否需要拉取
+    def CheckIsNeedPull(self, dataStr):
+        # 获取当前的日期和时间
+        now = datetime.datetime.now()
+        # 定义时间分割点：19点
+        cutoff_hour = 19
+
+        # 判断当前时间是否在19点之前
+        if now.hour < cutoff_hour:
+            # 19点前，获取前一天的日期
+            target_date = now.date() - datetime.timedelta(days=1)
+        else:
+            # 19点及以后，获取当天的日期
+            target_date = now.date()
+
+        today_str = target_date.strftime("%Y%m%d")
+
+        compare_date = datetime.datetime.strptime(dataStr, "%Y%m%d").date()
 
 
+        date_format = "%Y%m%d"
+        original_date = datetime.datetime.strptime(dataStr, date_format)
+
+        # 2. 计算前7天的日期
+        seven_days_ago = original_date - datetime.timedelta(days=7)
+
+        # 3. 转换回字符串格式（保持原格式）
+        seven_days_ago_str = seven_days_ago.strftime(date_format)
 
 
-
-
-
-
-
-
-
+        if compare_date < target_date:
+            #print(f"需要拉取:上次日期：{dataStr}，   当日日期{today_str}")
+            return True, seven_days_ago_str, today_str
+        else:
+            #print(f"无需拉取:上次日期：{dataStr}，   当日日期{today_str}")
+            return False, seven_days_ago_str, today_str
+            
+    def get_report_quarter(self, date_str):
+        # 1. 校验并解析日期字符串
+        try:
+            date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        except ValueError:
+            raise ValueError("输入日期格式错误，请使用YYYYMMDD格式，例如20200304")
+        
+        # 2. 提取年、月
+        year = date.year
+        month = date.month
+        
+        # 3. 根据月份判断对应的财报年度和季度
+        if 1 <= month <= 4:
+            # 1-4月：返回上一年，季度3（对应上一年年报）
+            report_year = year - 1
+            report_quarter = 3
+        elif 5 <= month <= 8:
+            # 5-8月：返回当年，季度1（对应当年一季报）
+            report_year = year
+            report_quarter = 1
+        elif 9 <= month <= 10:
+            # 9-10月：返回当年，季度2（对应当年半年报）
+            report_year = year
+            report_quarter = 2
+        elif 11 <= month <= 12:
+            # 11-12月：返回当年，季度3（对应当年三季报）
+            report_quarter = 3
+            report_year = year
+        else:
+            raise ValueError("无效的月份，月份范围应为1-12")
+        if  5 <= month <= 8:
+            return (report_year, report_quarter, True)
+        else:
+            return (report_year, report_quarter, False)
 
     def format_seconds(self, seconds: float) -> str:
         seconds = int(seconds)

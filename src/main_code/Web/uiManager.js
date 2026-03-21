@@ -104,9 +104,9 @@ export const UIManagerUtils = {
             }
         }
     },
-    
-    setLastUpdateTime(dateTime) {
-        const elem = document.getElementById('last-update-text');
+
+    setLastStockListUpdateTime(dateTime) {
+        const elem = document.getElementById('last-update-list');
         if (elem) {
             if (dateTime) {
                 elem.textContent = dateTime;
@@ -115,6 +115,53 @@ export const UIManagerUtils = {
             }
         }
     },
+
+
+    setLastDailyUpdateTime(dateTime) {
+        const elem = document.getElementById('last-update-daily');
+        if (elem) {
+            if (dateTime) {
+                elem.textContent = dateTime;
+            } else {
+                elem.textContent = '--';
+            }
+        }
+    },
+
+    setLastAdjustUpdateTime(dateTime) {
+        const elem = document.getElementById('last-update-adj');
+        if (elem) {
+            if (dateTime) {
+                elem.textContent = dateTime;
+            } else {
+                elem.textContent = '--';
+            }
+        }
+    },
+
+    setLastValueUpdateTime(dateTime) {
+        const elem = document.getElementById('last-update-value');
+        if (elem) {
+            if (dateTime) {
+                elem.textContent = dateTime;
+            } else {
+                elem.textContent = '--';
+            }
+        }
+    },
+
+
+    setLastIndustryUpdateTime(dateTime) {
+        const elem = document.getElementById('last-update-industry');
+        if (elem) {
+            if (dateTime) {
+                elem.textContent = dateTime;
+            } else {
+                elem.textContent = '--';
+            }
+        }
+    },
+
     
     setWeightThreshold(value) {
         const elem = document.getElementById('weight-threshold-slider');

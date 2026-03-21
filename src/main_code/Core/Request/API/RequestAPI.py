@@ -15,12 +15,20 @@ import asyncio
 class RequestAPIClass:
     def init(self, main):
         self.main =main
-        #self.bao = bs.login()
+        self.isLogin = False
         self.isInitShare = False
-        # 显示登陆返回信息
-        #self.main.BoardCast('login respond error_code:'+self.bao.error_code)
-        #self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
-        self.main.BoardCast("登录流程结束")
+
+    def Login(self):
+        try:
+            self.bao = bs.login()
+            # 显示登陆返回信息
+            self.main.BoardCast('login respond error_code:'+self.bao.error_code)
+            self.main.BoardCast('login respond  error_msg:'+self.bao.error_msg)
+            self.main.BoardCast("登录流程结束")
+
+            self.isLogin = True
+        except Exception as e:
+            self.main.BoardCast("BaoStock 登录失败" + e)
 
     def initShare(self):
         try:
@@ -35,6 +43,7 @@ class RequestAPIClass:
 
     #拉取基本数据
     async def Request_Basic(self):
+
         if self.pro is None or not  self.isInitShare:
             print("tushare尚未初始化")
             self.main.BoardCast("tushare尚未初始化")
@@ -49,6 +58,8 @@ class RequestAPIClass:
 
     #拉取基本信息数据
     async def Request_Company(self, exchangeName):
+
+        
         if self.pro is None:
             print("tushare尚未初始化")
             self.main.BoardCast("tushare尚未初始化")
@@ -90,6 +101,9 @@ class RequestAPIClass:
 
     #拉取股本数据  code的形式是xxxxxxx.SZ
     async def Request_TotalValue(self, stockCode):
+        if self.isLogin == False:
+            self.Login()
+
         year, quarter = self.get_last_quarter()
         code = self.TuShare_to_BaoStock(stockCode)
         profit_list = []
@@ -102,6 +116,9 @@ class RequestAPIClass:
 
     # 拉取复权因子 code的形式是xxxxxxx.SZ
     async def Request_Adjust(self, stockCode):
+        if self.isLogin == False:
+            self.Login()
+
         #获取复权因子
         code = self.TuShare_to_BaoStock(stockCode)
         rs_list = []
@@ -119,6 +136,9 @@ class RequestAPIClass:
 
     #拉取日线信息StockCode为xxxxx.SZ的格式
     async def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):
+        if self.isLogin == False:
+            self.Login()
+        
         if(baoStockCode.__contains__("bj")):
             return None
         if(baoStockCode.__contains__("BJ")):
@@ -153,6 +173,9 @@ class RequestAPIClass:
 
     #拉取股市价值信息StockCode为xxxxx.SZ的格式
     async def RequestValue_Roe(self, baoStockCode : str, year, quarter):
+        if self.isLogin == False:
+            self.Login()
+
         if(baoStockCode.__contains__("bj")):
             return None
         if(baoStockCode.__contains__("BJ")):
@@ -176,6 +199,9 @@ class RequestAPIClass:
 
 
     async def RequestValue_YOYNi(self, baoStockCode : str, year, quarter):
+        if self.isLogin == False:
+            self.Login()
+
         if(baoStockCode.__contains__("bj")):
             return None
         if(baoStockCode.__contains__("BJ")):
@@ -197,6 +223,9 @@ class RequestAPIClass:
         return df
 
     async def RequestValue_LiabilityTo(self, baoStockCode : str, year, quarter):
+        if self.isLogin == False:
+            self.Login()
+
         if(baoStockCode.__contains__("bj")):
             return None
         if(baoStockCode.__contains__("BJ")):

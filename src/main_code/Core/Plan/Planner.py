@@ -4,7 +4,7 @@ class PlannerClass:
     def Init(self):
         self.timer = Timer()
         self.planeList  = []
-        
+        print("计划任务模块初始化完毕")
 
     def AddPlane(self, plane):
         self.planeList.append(plane)

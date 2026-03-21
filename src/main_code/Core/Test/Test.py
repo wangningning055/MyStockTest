@@ -7,11 +7,18 @@ import psutil
 import os
 import bisect
 import random
-def TestCalculate(handler):
+def Stop():
+      CalculationSpecial.isNeed_CalculateIndustryInfoTotal_Stop = True
+async def TestCalculate(handler):
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
         todayStr = handler.GetToday()
+        if todayStr == None:
+            print("没有拉取数据记录，无法进行数据预热")
+            handler.main.BoardCast("没有拉取数据记录，无法进行测试")
+            return
+        
         t0 = time.perf_counter()
         mem_info = process.memory_info()
         rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
@@ -62,7 +69,7 @@ def TestCalculate(handler):
 
 
 
-        CalculationSpecial.CalculateIndustryInfoTotal(handler.main)
+        await CalculationSpecial.CalculateIndustryInfoTotal(handler.main)
 
         #print(f"#######行业总数量位：{len(indList)}")
         #for ind in indList:

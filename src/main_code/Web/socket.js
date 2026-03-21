@@ -23,6 +23,7 @@ let manager = null;
 
 export const MessageType = Object.freeze({
     LOG : "log",
+    TEST: "test",                  //#客户端请求预热数据
     LAST_UPDATE_DATA: "last_update_data_time",      // 请求接受上次更新日期
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
     CS_STOP_UPDATE_DATA: "cs_stop_update_data",              // 客户端请求停止拉取数据

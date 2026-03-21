@@ -8,6 +8,8 @@ class BaseClass:
     def Init(self, main):
         self.main :"Main.processor" = main
         self.recordCls : RecordDataStruct.TotalRecordDataCls = RecordDataStruct.TotalRecordDataCls()
+        self.ReadRecordData()
+        self.main.recordDataCls = self.recordCls
     #读出记录数据
     def ReadRecordData(self):
         fileJson = self.main.fileProcessor.GetRecordJsonStrByPath()
@@ -24,6 +26,7 @@ class BaseClass:
 
     #写入记录数据
     def WriteRecordData(self):
+        print("写入记录数据")
         jsonStr = json.dumps(self.main.recordDataCls.__dict__, ensure_ascii=False, indent=4)
         self.main.fileProcessor.SaveRecordJson(jsonStr)
 

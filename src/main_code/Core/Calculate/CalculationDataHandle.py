@@ -47,6 +47,12 @@ class BaseClass :
         self.main.SetIsInHandle(True)
 
         today = self.GetToday()
+        if today == None:
+            print("没有拉取数据记录，无法进行数据预热")
+            self.main.BoardCast("没有拉取数据记录，无法进行数据预热")
+            self.main.SetIsInHandle(False)
+            return
+        
 
         self.totalDateList = self.InitDateList(today, Const.dateListLength)
         print(self.totalDateList)
@@ -55,7 +61,6 @@ class BaseClass :
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
-        await asyncio.sleep(1)
 
         mem_info = process.memory_info()
         rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
@@ -118,7 +123,6 @@ class BaseClass :
 
 
 
-        todayStr = self.GetToday()
         self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList)
 
 
@@ -531,6 +535,9 @@ class BaseClass :
     #获取最近一次有效的交易日
     def GetToday(self):
         last = self.main.lastDayStr
+        if last == Const.first_Data:
+            return None
+        
         count = 0
         for i in range(10000):
             date_format = "%Y%m%d"
@@ -624,6 +631,11 @@ class BaseClass :
     #初始化价值数据
     def InitValueData(self):
         todayStr = self.GetToday()
+        if todayStr == None:
+            print("没有拉取数据记录，无法进行数据预热")
+            self.main.BoardCast("没有拉取数据记录，无法进行价值分析")
+            return
+
         todayDate = datetime.strptime(todayStr, "%Y%m%d")
         year = todayDate.year
         month = todayDate.month
