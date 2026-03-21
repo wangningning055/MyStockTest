@@ -32,11 +32,12 @@ class BaseClass:
         if self.recordCls is None:
             return ""
 
-        res1 = f"'stock:' : {self.recordCls.stock_list_last_data}"
-        res2 = f"'daily:' : {self.recordCls.daily_list_last_data}"
-        res3 = f"'adjust:' : {self.recordCls.adjust_list_last_data}"
-        res4 = f"'value:' : {self.recordCls.value_list_last_data}"
-        res5 = f"'industry:' : {self.recordCls.industry_analyze_last_data}"
+        res1 = "{" + f"\"stock\" : \"{self.recordCls.stock_list_last_data}\","
+        res2 = f"\"daily\" : \"{self.recordCls.daily_list_last_data}\","
+        res3 = f"\"adjust\" : \"{self.recordCls.adjust_list_last_data}\","
+        res4 = f"\"value\" : \"{self.recordCls.value_list_last_data}\","
+        res5 = f"\"industry\" : \"{self.recordCls.industry_analyze_last_data}\"" + "} "
+
 
         return res1 + res2 + res3 + res4 + res5 
     

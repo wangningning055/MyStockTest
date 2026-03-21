@@ -212,6 +212,29 @@ class AppManager {
         
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_DATA, (data) =>{
             this.app.log(`📊 收到日期更新:${data.msg}`);
+            const jsonRes = JSON.parse(data.msg)
+            const stock = jsonRes.stock
+            const daily = jsonRes.daily
+            const adjust = jsonRes.adjust
+            const value = jsonRes.value
+            const industry = jsonRes.industry
+            
+            console.log(jsonRes)
+            console.log(stock)
+            console.log(daily)
+            console.log(adjust)
+            console.log(value)
+            console.log(industry)
+            let timeStrStock = `${stock.slice(0, 4)}/${stock.slice(4, 6)}/${stock.slice(6, 8)}`;
+            let timeStrDaily = `${daily.slice(0, 4)}/${daily.slice(4, 6)}/${daily.slice(6, 8)}`;
+            let timeStrAdjust = `${adjust.slice(0, 4)}/${adjust.slice(4, 6)}/${adjust.slice(6, 8)}`;
+            let timeStrValue = `${value.slice(0, 4)}/${value.slice(4, 6)}/${value.slice(6, 8)}`;
+            let timeStrIndustry = `${industry.slice(0, 4)}/${industry.slice(4, 6)}/${industry.slice(6, 8)}`;
+            console.log(timeStrStock)
+            console.log(timeStrDaily)
+            console.log(timeStrAdjust)
+            console.log(timeStrValue)
+            console.log(timeStrIndustry)
             if (!/^\d{8}$/.test(data.msg)) {
                 throw new Error("非法日期格式，应为 YYYYMMDD");
             }
