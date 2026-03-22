@@ -1,5 +1,5 @@
 #from src.main_code.Core.Calculate import CalculationDataHandle
-#from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+import src.main_code.Core.Calculate.CalculationSpecial as CalculationSpecial
 from operator import attrgetter
 from datetime import date,datetime, timedelta
 from datetime import date
@@ -106,6 +106,82 @@ def CalculateIndustryBase(industryCls: "CalculationDataStruct.StructIndustryInfo
         #print(f"正在计算公司基本净，盈，销，现：{current_index}/{stock_count}, 循环次数：{dayCount}")
     #print("公司基本净，盈，销，现计算完毕")
 
+#获取上压力位
+def GetUpPressure(NowData:"CalculationDataStruct.StructBaseClass", BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateUpPressure(NowData, 0, BreakWindowCount, handler)
+
+#获取下压力位
+def GetDownPressure(NowData:"CalculationDataStruct.StructBaseClass", BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressure(NowData, 0, BreakWindowCount, handler)
+
+#是否突破上压力位
+def GetIsBreakUpPressure(NowData:"CalculationDataStruct.StructBaseClass", BreakWindowCount):
+    pressure = None
+    if NowData == None:
+        return 0
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure == None:
+        return 0
+
+    close = NowData.close
+    
+    ratio = (close - pressure) / pressure
+    if ratio > 0.01:
+        return 1
+    return 0
+
+
+#是否突破下压力位
+def GetIsBreakDownPressure(NowData:"CalculationDataStruct.StructBaseClass", BreakWindowCount):
+    pressure = None
+    if NowData == None:
+        return 0
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure == None:
+        return 0
+
+    close = NowData.close
+    
+    ratio = (close - pressure) / pressure
+    if ratio < -0.01:
+        return 1
+    return 0
+
+#获取价值股分数
+def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateValueScore(NowData, handler)
+
+#获取成长股分数
+def GetGrowScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateGrowScore(NowData, handler)
 
 #涨跌幅计算(只算第一天和最后num天)
 def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num = 1):
@@ -801,6 +877,287 @@ def GetAmplitudeState(NowData : "CalculationDataStruct.StructBaseClass", num):
         return 1
     else:
         return -1
+
+
+
+#获取突破上压力位次数
+def GetBreakUpCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount):
+    dataList_240 = NowData.dataList_240
+    count = 0
+    BreakCount = 0
+    ToDayCount = len(NowData.dataList_240) if ToDayCount > len(NowData.dataList_240) else ToDayCount 
+
+    for single in dataList_240:
+        if count >= StartDayCount and count < ToDayCount:
+           
+            if BreakWindowCount == 20:
+                if single.is_break_upper_20 == 1:
+                    BreakCount += 1
+
+
+            if BreakWindowCount == 40:
+                if single.is_break_upper_40 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 60:
+                if single.is_break_upper_60 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 120:
+                if single.is_break_upper_120 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 240:
+                if single.is_break_upper_240 == 1:
+                    BreakCount += 1
+
+        if count >= ToDayCount:
+            break
+        count = count + 1
+    return BreakCount
+
+
+#获取突破下压力位次数
+def GetBreakDownCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount):
+    dataList_240 = NowData.dataList_240
+    count = 0
+    BreakCount = 0
+    ToDayCount = len(NowData.dataList_240) if ToDayCount > len(NowData.dataList_240) else ToDayCount 
+        
+    for single in dataList_240:
+        if count >= StartDayCount and count < ToDayCount:
+           
+            if BreakWindowCount == 20:
+                if single.is_break_lower_20 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 40:
+                if single.is_break_lower_40 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 60:
+                if single.is_break_lower_60 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 120:
+                if single.is_break_lower_120 == 1:
+                    BreakCount += 1
+
+            if BreakWindowCount == 240:
+                if single.is_break_lower_240 == 1:
+                    BreakCount += 1
+
+        if count >= ToDayCount:
+            break
+        count = count + 1
+    return BreakCount
+
+
+#区间平均开盘价与X日上压力位的比
+def Get_Open_Break_Up_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_open
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure == None:
+        return 0
+    return open / pressure
+#区间平均收盘价与X日上压力位的比
+def Get_Close_Break_Up_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_close
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均均价与X日上压力位的比
+def Get_Avg_Break_Up_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_avg  
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均最高价与X日上压力位的比
+def Get_High_Break_Up_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_high
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均最低价与X日上压力位的比
+def Get_Low_Break_Up_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_low
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.up_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.up_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.up_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.up_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.up_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均开盘价与X日下压力位的比
+def Get_Open_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_open  # 区间平均开盘价
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均收盘价与X日下压力位的比
+def Get_Close_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_close
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均均价与X日下压力位的比
+def Get_Avg_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_avg 
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均最高价与X日下压力位的比
+def Get_High_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_high  
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+#区间平均最低价与X日下压力位的比
+def Get_Low_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    windowData = handler.GetWindowDataClass(NowData.code, NowData.trade_date, StartDayCount, ToDayCount)
+    price = windowData.avg_low  
+    pressure = None
+    if BreakWindowCount == 20:
+        pressure = NowData.down_pressure_20
+    if BreakWindowCount == 40:
+        pressure = NowData.down_pressure_40
+    if BreakWindowCount == 60:
+        pressure = NowData.down_pressure_60
+    if BreakWindowCount == 120:
+        pressure = NowData.down_pressure_120
+    if BreakWindowCount == 240:
+        pressure = NowData.down_pressure_240
+
+    if pressure is None or pressure == 0:
+        return 0
+    return price / pressure
+
+
+
 
 
 #获取涨停次数
@@ -2816,7 +3173,6 @@ def GetIndustry_Volume_Price_Ratio_Window(industryInfo :"CalculationDataStruct.S
 def GetIndustry_Change_Ratio_Window(industryInfo :"CalculationDataStruct.StructIndustryInfoClass", trade_date, StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     dayCount = 0
     fullDataList = handler.totalDateList
-
     for day in fullDataList:
         price =  GetIndustry_Avg_Price(industryInfo, day, handler)
         if price == ConstVal.NoneValue:

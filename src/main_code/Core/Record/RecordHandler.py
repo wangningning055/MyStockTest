@@ -14,8 +14,12 @@ class BaseClass:
     def ReadRecordData(self):
         fileJson = self.main.fileProcessor.GetRecordJsonStrByPath()
         if fileJson == None:
-            return RecordDataStruct.TotalRecordDataCls()
-        print(fileJson)
+            cls = RecordDataStruct.TotalRecordDataCls()
+            self.recordCls = cls
+            self.main.recordDataCls = cls
+            self.WriteRecordData()
+            return cls
+        #print(fileJson)
         data = json.loads(fileJson)
         classBase2 = RecordDataStruct.TotalRecordDataCls()
         classBase2.__dict__.update(data)
@@ -34,7 +38,7 @@ class BaseClass:
     def GetRecentRequestDateJsonStr(self):
         if self.recordCls is None:
             return ""
-
+ 
         res1 = "{" + f"\"stock\" : \"{self.recordCls.stock_list_last_data}\","
         res2 = f"\"daily\" : \"{self.recordCls.daily_list_last_data}\","
         res3 = f"\"adjust\" : \"{self.recordCls.adjust_list_last_data}\","

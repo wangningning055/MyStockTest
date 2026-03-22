@@ -14,12 +14,13 @@ mainProcessor : "Main.processor"
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     Test = "test"#测试
+    SC_IN_BUSY = "sc_in_busy"               # #服务器返回是否忙碌
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
     CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
-    SC_IN_BUSY = "sc_in_busy"               # #服务器返回是否忙碌
+    CS_INDUSTRY_UP_DATA = "cs_industry_up_data"               #客户端请求分析行业上涨
 
 
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
@@ -154,7 +155,9 @@ def HandleMsg(msg):
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
         #self.task.add_done_callback()
 
-
+    elif(msgType == MessageType.CS_INDUSTRY_UP_DATA):
+        print("进行行业分析")
+        mainProcessor.calculationDataHandle.AnalyzeIndustry()
         
 
 

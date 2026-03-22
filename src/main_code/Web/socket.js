@@ -25,10 +25,15 @@ export const MessageType = Object.freeze({
     LOG : "log",
     TEST: "test",                  //#客户端请求预热数据
     LAST_UPDATE_DATA: "last_update_data_time",      // 请求接受上次更新日期
+    SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
+
+
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
     CS_STOP_UPDATE_DATA: "cs_stop_update_data",              // 客户端请求停止拉取数据
     CS_PREHEAT_DATA: "cs_preheat_data",                  //#客户端请求预热数据
-    SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
+    CS_INDUSTRY_UP_DATA: "cs_industry_up_data",          //客户端请求分析行业上涨
+
+
 
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据
     CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选

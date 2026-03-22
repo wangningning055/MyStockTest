@@ -1550,33 +1550,33 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
 
 
 isNeed_CalculateIndustryInfoTotal_Stop = False
-#计算是否处在行业上涨周期，用于板块轮动买入判断
-async def CalculateIndustryInfo(main:"Main.processor", dayStr, Length, target):
+
+async def Private_CalculateIndustryInfo(main:"Main.processor", dayStr, Length, target):
     if isNeed_CalculateIndustryInfoTotal_Stop:
         return
     handler = main.InitCalculationDataHandle()
-    print("开始准备计算数据")
+    #print("开始准备计算数据")
     handler.Init(main)
-    print("开始准备计算日期")
+    #print("开始准备计算日期")
     totalDateList = handler.InitDateList(dayStr, Length)
     handler.totalDateList = totalDateList
     totalDbList = handler.main.dbHandler.GetDailyRowByCodeListAndDateList(handler.totalStockList, totalDateList)
     handler.totalDbList = totalDbList
 
-    print("初始化全部数据")
+    #print("初始化全部数据")
     pid = os.getpid()
     process = psutil.Process(pid)
     mem_info = process.memory_info()
     rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
     vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-    print(f"物理内存占用1：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+    #print(f"物理内存占用1：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
     handler.InitAllBaseDataClsList(totalDateList, totalDbList)
 
     mem_info = process.memory_info()
     rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
     vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
-    print(f"物理内存占用2：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+    #print(f"物理内存占用2：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
     
     count = 0
     upIndustry = []
@@ -1585,10 +1585,9 @@ async def CalculateIndustryInfo(main:"Main.processor", dayStr, Length, target):
         windowData = handler.GetIndustryWindowDataByCls(dayStr, 0, 20, indusCls)
         if windowData is None:
             continue
-        if windowData.change_Ratio_Total is None:
+        if windowData.change_Ratio is None:
             continue
-
-        if windowData.change_Ratio_Total > 5 and not (upIndustry.__contains__(indusCls)):
+        if windowData.change_Ratio > 5 and not (upIndustry.__contains__(indusCls)):
             upIndustry.append(indusCls) 
         #print(f"行业总结中，已总结数：{count} / {len(handler.totalComponyIns.industryList)}")
         await asyncio.sleep(0)
@@ -1598,19 +1597,21 @@ async def CalculateIndustryInfo(main:"Main.processor", dayStr, Length, target):
             continue
         if ind.industryName == None:
             continue
-        print(f"总结完毕，行业数量：{count}，  {dayStr}上涨的行业是：{ind.industryName}")
+        #print(f"总结完毕，行业数量：{count}，  {dayStr}上涨的行业是：{ind.industryName}")
         industryList.append(ind.industryName)
 
     main.recordDataCls.industry_Analyze_Dic[target] = industryList
     handler.ClearDic()
-    
+
+
+#计算是否处在行业上涨周期，用于板块轮动买入判断
 async def CalculateIndustryInfoTotal(main:"Main.processor"):
     main.SetIsInHandle(True)
     await asyncio.sleep(0)
     now = datetime.datetime.now()
     year = now.year
     curYear = year
-    recordNum = 5
+    recordNum = 1
     yearList = []
     while recordNum > 0:
         recordNum = recordNum - 1
@@ -1620,85 +1621,31 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
     for singleYear in yearList:
         month = 1
         while month <= 12:
-            print(f"n:{singleYear}  m:{month}")
+
+            # 1. 先构造当月1号的日期对象
+            current_date = datetime.date(singleYear, month, 1)
+            # 2. 计算下个月1号：如果是12月，会自动进位到下一年1月
+            #    方法：先取当月最后一天（用下月1号减1天），再加1天
+            if month == 12:
+                next_month_date = datetime.date(singleYear + 1, 1, 1)
+            else:
+                next_month_date = datetime.date(singleYear, month + 1, 1)
+            # 3. 格式化为 年年年年月月日日 的字符串
+            now_month_str = current_date.strftime("%Y%m%d")
+            next_month_str = next_month_date.strftime("%Y%m%d")
+            
+            # 打印结果验证
+            print(f"n:{singleYear}  m:{month}, str: {next_month_str},  now:{now_month_str}")
+            await Private_CalculateIndustryInfo(main, next_month_str, 40, now_month_str)
             month = month + 1
+        
 
 
-    #await CalculateIndustryInfo(main, "20210201", 40, "202101")
-
-
-    #await CalculateIndustryInfo(main, "20210301", 40, "202102")
-    #await CalculateIndustryInfo(main, "20210331", 40, "202103")
-    
-    #CalculateIndustryInfo(main, "20210430", 40)
-    #CalculateIndustryInfo(main, "20210531", 40)
-    #CalculateIndustryInfo(main, "20210630", 40)
-    #CalculateIndustryInfo(main, "20210730", 40)
-    #CalculateIndustryInfo(main, "20210831", 40)
-    #CalculateIndustryInfo(main, "20210930", 40)
-    #CalculateIndustryInfo(main, "20211029", 40)
-    #CalculateIndustryInfo(main, "20211130", 40)
-    #CalculateIndustryInfo(main, "20211231", 40)
-
-
-    #CalculateIndustryInfo(main, "20220128", 40)
-    #CalculateIndustryInfo(main, "20220228", 40)
-    #CalculateIndustryInfo(main, "20220331", 40)
-    #CalculateIndustryInfo(main, "20220429", 40)
-    #CalculateIndustryInfo(main, "20220531", 40)
-    #CalculateIndustryInfo(main, "20220630", 40)
-    #CalculateIndustryInfo(main, "20220729", 40)
-    #CalculateIndustryInfo(main, "20220831", 40)
-    #CalculateIndustryInfo(main, "20220930", 40)
-    #CalculateIndustryInfo(main, "20221031", 40)
-    #CalculateIndustryInfo(main, "20221130", 40)
-    #CalculateIndustryInfo(main, "20221230", 40)
-
-
-
-    #CalculateIndustryInfo(main, "20230131", 40)
-    #CalculateIndustryInfo(main, "20230228", 40)
-    #CalculateIndustryInfo(main, "20230331", 40)
-    #CalculateIndustryInfo(main, "20230428", 40)
-    #CalculateIndustryInfo(main, "20230531", 40)
-    #CalculateIndustryInfo(main, "20230630", 40)
-    #CalculateIndustryInfo(main, "20230731", 40)
-    #CalculateIndustryInfo(main, "20230831", 40)
-    #CalculateIndustryInfo(main, "20230928", 40)
-    #CalculateIndustryInfo(main, "20231031", 40)
-    #CalculateIndustryInfo(main, "20231130", 40)
-    #CalculateIndustryInfo(main, "20231229", 40)
-
-
-
-    #CalculateIndustryInfo(main, "20240131", 40)
-    #CalculateIndustryInfo(main, "20240229", 40)
-    #CalculateIndustryInfo(main, "20240329", 40)
-    #CalculateIndustryInfo(main, "20240430", 40)
-    #CalculateIndustryInfo(main, "20240531", 40)
-    #CalculateIndustryInfo(main, "20240628", 40)
-    #CalculateIndustryInfo(main, "20240731", 40)
-    #CalculateIndustryInfo(main, "20240830", 40)
-    #CalculateIndustryInfo(main, "20240930", 40)
-    #CalculateIndustryInfo(main, "20241031", 40)
-    #CalculateIndustryInfo(main, "20241129", 40)
-    #CalculateIndustryInfo(main, "20241231", 40)
-
-
-
-    #CalculateIndustryInfo(main, "20250127", 40)
-    #CalculateIndustryInfo(main, "20250228", 40)
-    #CalculateIndustryInfo(main, "20250331", 40)
-    #CalculateIndustryInfo(main, "20250430", 40)
-    #CalculateIndustryInfo(main, "20250530", 40)
-    #CalculateIndustryInfo(main, "20250630", 40)
-    #CalculateIndustryInfo(main, "20250731", 40)
-    #CalculateIndustryInfo(main, "20250829", 40)
-    #CalculateIndustryInfo(main, "20250930", 40)
-    #CalculateIndustryInfo(main, "20251031", 40)
-    #CalculateIndustryInfo(main, "20251128", 40)
-    #CalculateIndustryInfo(main, "20251231", 40)
-
+    print("行业总结完毕")
+    now = datetime.datetime.now()
+    todayStr = now.strftime("%Y%m%d")
+    main.recordDataCls.industry_analyze_last_data = todayStr
     main.recordHandler.WriteRecordData()
     main.SetIsInHandle(False)
+    main.websocketHandler.SendLastUpdateTime()
 

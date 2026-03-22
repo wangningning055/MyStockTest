@@ -506,6 +506,9 @@ class BaseClass :
         print(f"行业平均下跌股比例 {industryWindowClass.stockNum_down_Ratio}")
 
 
+    def AnalyzeIndustry(self):
+        asyncio.get_running_loop().create_task(CalculationSpecial.CalculateIndustryInfoTotal(self.main))
+
     #获取前X天的交易数据
     def GetLastDateDataByNum(self, cls, dayNum):
         clsList = []

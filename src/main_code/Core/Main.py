@@ -33,7 +33,9 @@ class processor:
 
     def Init(self):
         print("开始进行初始化")
-
+        now = datetime.datetime.now()
+        todayStr = now.strftime("%Y%m%d")
+        print(f"今天是：{todayStr}")
         self.planner = self.InitPlanner()
         #plane.InitPlane(self.planeFunc, PlanStruct.PlanEnum.Daily, "19:00:00")
         #self.planner.AddPlane(plane)

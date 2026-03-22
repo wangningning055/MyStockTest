@@ -363,6 +363,13 @@ class AppManager {
             timestamp: new Date().toISOString(),
         });
     }
+    preheatData() {
+        this.app.log("📤发送行业上涨请求...", "system");
+        return this.socket.sendMessage(SocketModule.MessageType.CS_INDUSTRY_UP_DATA, {
+            timestamp: new Date().toISOString(),
+        });
+    }
+
 
     testData() {
         this.app.log("📤发送测试请求...", "system");

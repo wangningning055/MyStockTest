@@ -1,30 +1,71 @@
 {
   "factors": {
-
-    "stock_daily": {
-      "name": "个股当日条件",
-      "description": "股票在单一交易日内的行情、成交、估值及排名数据",
+    "stock_daily_value":{
+      "name": "个股当日------价值数据",
+      "description": "股票在价值相关的评分",
       "items": [
+      ]
+    },
+    "stock_daily_pressure":{
+      "name": "个股当日------压力位数据",
+      "description": "股票在压力位相关的评分",
+      "items": [
+      ]
+    },
+    "stock_daily_industry":{
+      "name": "个股当日------行业趋势数据",
+      "description": "股票在行业趋势相关的评分",
+      "items": [
+      ]
+    },
+
+
+    "stock_daily_base":{
+      "name": "个股当日------基本价格数据",
+      "description": "股票在单一交易日内的基本量价数据",
+      "items": [
+
         { "id": 1001, "name_field": "open_ori", "name": "当日开盘价", "type": "float", "description": "股票当日的开盘成交价格" },
         { "id": 1002, "name_field": "close_ori", "name": "当日收盘价", "type": "float", "description": "股票当日的收盘成交价格" },
         { "id": 1003, "name_field": "last_close", "name": "当日昨收价", "type": "float", "description": "股票上一交易日的收盘价" },
         { "id": 1004, "name_field": "high_ori", "name": "当日最高价", "type": "float", "description": "股票当日成交的最高价格" },
         { "id": 1005, "name_field": "low_ori", "name": "当日最低价", "type": "float", "description": "股票当日成交的最低价格" },
+        { "id": 1018, "name_field": "avg_ori", "name": "均价", "type": "float", "description": "股票当日的成交均价" },
         { "id": 1006, "name_field": "volume", "name": "当日成交量", "type": "float", "description": "股票当日的成交数量" },
-        { "id": 1007, "name_field": "change_Ratio", "name": "当日涨跌幅", "type": "float", "description": "股票当日的价格涨跌幅" },
         { "id": 1008, "name_field": "volume_price", "name": "当日成交额", "type": "Optional[float]", "description": "股票当日的成交金额" },
-        { "id": 1009, "name_field": "turn", "name": "当日换手率", "type": "float", "description": "股票当日的换手率" },
         { "id": 1010, "name_field": "total_value", "name": "当日总流通市值", "type": "float", "description": "股票当日的总流通市值" },
         { "id": 1011, "name_field": "earn", "name": "当日市盈率", "type": "float", "description": "股票当日的市盈率" },
         { "id": 1012, "name_field": "clean", "name": "当日市净率", "type": "float", "description": "股票当日的市净率" },
         { "id": 1013, "name_field": "cash", "name": "当日市销率", "type": "float", "description": "股票当日的市销率" },
         { "id": 1014, "name_field": "sale", "name": "当日市现率", "type": "float", "description": "股票当日的市现率" },
-        { "id": 1015, "name_field": "amplitude", "name": "当日振幅", "type": "float", "description": "股票当日的价格振幅" },
         { "id": 1016, "name_field": "isST", "name": "是否ST股", "type": "int", "description": "股票是否为ST股，1表示是，0表示否" },
-        { "id": 1017, "name_field": "trade_state", "name": "当日交易状态", "type": "int", "description": "股票的交易状态，1表示正常交易，0表示停牌" },
-        { "id": 1018, "name_field": "avg_ori", "name": "均价", "type": "float", "description": "股票当日的成交均价" },
+        { "id": 1017, "name_field": "trade_state", "name": "当日交易状态", "type": "int", "description": "股票的交易状态，1表示正常交易，0表示停牌" }
+      ]
+    },
+
+
+
+    "stock_daily_ratio":{
+      "name": "个股当日------基本涨跌数据",
+      "description": "股票在单一交易日内的基本涨跌换手等数据",
+      "items": [
+        { "id": 1007, "name_field": "change_Ratio", "name": "当日涨跌幅", "type": "float", "description": "股票当日的价格涨跌幅" },
+        { "id": 1009, "name_field": "turn", "name": "当日换手率", "type": "float", "description": "股票当日的换手率" },
+        { "id": 1015, "name_field": "amplitude", "name": "当日振幅", "type": "float", "description": "股票当日的价格振幅" },
         { "id": 1019, "name_field": "turn_value", "name": "资金流通率", "type": "float", "description": "成交额除以流通市值" },
 
+        { "id": 1038, "name_field": "volume_ratio_5", "name": "当日量比", "type": "float", "description": "股票当日的量比" },
+        { "id": 1039, "name_field": "volume_ratio", "name": "当日成交量涨跌幅", "type": "float", "description": "股票当日成交量的涨跌幅" },
+        { "id": 1040, "name_field": "volume_price_ratio", "name": "当日成交额涨跌幅", "type": "Optional[float]", "description": "股票当日成交额的涨跌幅" },
+        { "id": 1041, "name_field": "avg_ratio", "name": "均价涨跌幅", "type": "float", "description": "股票当日均价的涨跌幅" }
+
+      ]
+    },
+
+    "stock_daily_stop":{
+      "name": "个股当日------基本K线形态数据",
+      "description": "股票在单一交易日内的K线形态数据",
+      "items": [
         { "id": 1020, "name_field": "is_up_stop", "name": "是否涨停", "type": "int", "description": "是否涨停" },
         { "id": 1021, "name_field": "is_down_stop", "name": "是否跌停", "type": "int", "description": "是否跌停" },
         { "id": 1022, "name_field": "is_touch_up_stop", "name": "是否触及涨停", "type": "int", "description": "是否触及涨停" },
@@ -37,17 +78,19 @@
         { "id": 1025, "name_field": "is_long_cross", "name": "是否长十字", "type": "int", "description": "是否长十字" },
         { "id": 1026, "name_field": "is_short_cross", "name": "是否短十字", "type": "int", "description": "是否短十字" },
         { "id": 1027, "name_field": "is_T_up", "name": "是否正T字", "type": "int", "description": "是否正T字" },
-        { "id": 1028, "name_field": "is_T_down", "name": "是否倒T字", "type": "int", "description": "是否倒T字" },
+        { "id": 1028, "name_field": "is_T_down", "name": "是否倒T字", "type": "int", "description": "是否倒T字" }
+        
+      ]
+    },
 
 
 
 
-        { "id": 1038, "name_field": "volume_ratio_5", "name": "当日量比", "type": "float", "description": "股票当日的量比" },
-        { "id": 1039, "name_field": "volume_ratio", "name": "当日成交量涨跌幅", "type": "float", "description": "股票当日成交量的涨跌幅" },
-        { "id": 1040, "name_field": "volume_price_ratio", "name": "当日成交额涨跌幅", "type": "Optional[float]", "description": "股票当日成交额的涨跌幅" },
-        { "id": 1041, "name_field": "avg_ratio", "name": "均价涨跌幅", "type": "float", "description": "股票当日均价的涨跌幅" },
 
-
+    "stock_daily_vp_quick":{
+      "name": "个股当日------快捷量价数据",
+      "description": "股票在单一交易日快捷量价数据",
+      "items": [
         { "id": 1042, "name_field": "is_up_up", "name": "当日是否放量增长", "type": "float", "description": "股票是否放量增长（数值大于1表示是，小于1表示否）" },
         { "id": 1043, "name_field": "is_low_up", "name": "当日是否缩量增长", "type": "float", "description": "股票是否缩量增长（数值大于1表示是，小于1表示否）" },
         { "id": 1044, "name_field": "is_up_low", "name": "当日是否放量降低", "type": "float", "description": "股票是否放量降低（数值大于1表示是，小于1表示否）" },
@@ -57,9 +100,16 @@
         { "id": 1048, "name_field": "is_mid_up", "name": "当日是否平量增长", "type": "float", "description": "股票是否平量增长（数值大于1表示是，小于1表示否）" },
         { "id": 1049, "name_field": "is_mid_low", "name": "当日是否平量降低", "type": "float", "description": "股票是否平量降低（数值大于1表示是，小于1表示否）" },
         { "id": 1050, "name_field": "is_pop_up", "name": "当日是否震荡上行", "type": "float", "description": "股票是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1051, "name_field": "is_pop_down", "name": "当日是否震荡下行", "type": "float", "description": "股票是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1051, "name_field": "is_pop_down", "name": "当日是否震荡下行", "type": "float", "description": "股票是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
 
+    "stock_daily_3":{
+      "name": "个股当日------3日数据",
+      "description": "股票在单一交易日3日数据",
+      "items": [
         { "id": 1052, "name_field": "change_Ratio_3", "name": "3日整体涨跌幅", "type": "float", "description": "股票3日内的价格涨跌幅" },
         { "id": 1029, "name_field": "change_Ratio_single_3", "name": "3日距今涨跌幅", "type": "float", "description": "股票3日内的价格涨跌幅" },
         { "id": 1053, "name_field": "volume_price_ratio_3", "name": "3日成交额涨跌幅", "type": "Optional[float]", "description": "股票3日内成交额的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
@@ -74,9 +124,16 @@
         { "id": 1062, "name_field": "is_mid_up_3", "name": "3日是否平量增长", "type": "float", "description": "股票3日内是否平量增长" },
         { "id": 1063, "name_field": "is_mid_low_3", "name": "3日是否平量降低", "type": "float", "description": "股票3日内是否平量降低" },
         { "id": 1064, "name_field": "is_pop_up_3", "name": "3日是否震荡上行", "type": "float", "description": "股票3日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1065, "name_field": "is_pop_down_3", "name": "3日是否震荡下行", "type": "float", "description": "股票3日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1065, "name_field": "is_pop_down_3", "name": "3日是否震荡下行", "type": "float", "description": "股票3日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
 
+    "stock_daily_5":{
+      "name": "个股当日------5日数据",
+      "description": "股票在单一交易日5日数据",
+      "items": [
         { "id": 1070, "name_field": "avg_5", "name": "5日均价", "type": "float", "description": "股票5日内的成交均价" },
         { "id": 1071, "name_field": "avg_ratio_5", "name": "当日均价与5日均价比", "type": "float", "description": "股票当日均价与5日均价的比值" },
         { "id": 1066, "name_field": "volume_price_ratio_5", "name": "5日整体成交额涨跌幅", "type": "Optional[float]", "description": "股票5日内成交额的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
@@ -93,8 +150,16 @@
         { "id": 1078, "name_field": "is_mid_up_5", "name": "5日是否平量增长", "type": "float", "description": "股票5日内是否平量增长" },
         { "id": 1079, "name_field": "is_mid_low_5", "name": "5日是否平量降低", "type": "float", "description": "股票5日内是否平量降低" },
         { "id": 1080, "name_field": "is_pop_up_5", "name": "5日是否震荡上行", "type": "float", "description": "股票5日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1081, "name_field": "is_pop_down_5", "name": "5日是否震荡下行", "type": "float", "description": "股票5日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1081, "name_field": "is_pop_down_5", "name": "5日是否震荡下行", "type": "float", "description": "股票5日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
+
+    "stock_daily_10":{
+      "name": "个股当日------10日数据",
+      "description": "股票在单一交易日10日数据",
+      "items": [
 
         { "id": 1086, "name_field": "avg_10", "name": "10日均价", "type": "float", "description": "股票10日内的成交均价" },
         { "id": 1087, "name_field": "avg_ratio_10", "name": "当日均价与10日均价比", "type": "float", "description": "股票当日均价与10日均价的比值" },
@@ -112,8 +177,15 @@
         { "id": 1094, "name_field": "is_mid_up_10", "name": "10日是否平量增长", "type": "float", "description": "股票10日内是否平量增长" },
         { "id": 1095, "name_field": "is_mid_low_10", "name": "10日是否平量降低", "type": "float", "description": "股票10日内是否平量降低" },
         { "id": 1096, "name_field": "is_pop_up_10", "name": "10日是否震荡上行", "type": "float", "description": "股票10日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1097, "name_field": "is_pop_down_10", "name": "10日是否震荡下行", "type": "float", "description": "股票10日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1097, "name_field": "is_pop_down_10", "name": "10日是否震荡下行", "type": "float", "description": "股票10日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
+    "stock_daily_20":{
+      "name": "个股当日------20日数据",
+      "description": "股票在单一交易日20日数据",
+      "items": [
         { "id": 1141, "name_field": "avg_20", "name": "20日均价", "type": "float", "description": "股票20日内的成交均价" },
         { "id": 1142, "name_field": "avg_ratio_20", "name": "当日均价与20日均价比", "type": "float", "description": "股票当日均价与20日均价的比值" },
         { "id": 1032, "name_field": "change_Ratio_single_20", "name": "20日距今涨跌幅", "type": "float", "description": "股票20日内的价格涨跌幅" },
@@ -129,10 +201,15 @@
         { "id": 1104, "name_field": "is_mid_up_20", "name": "20日是否平量增长", "type": "float", "description": "股票20日内是否平量增长" },
         { "id": 1105, "name_field": "is_mid_low_20", "name": "20日是否平量降低", "type": "float", "description": "股票20日内是否平量降低" },
         { "id": 1106, "name_field": "is_pop_up_20", "name": "20日是否震荡上行", "type": "float", "description": "股票20日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1107, "name_field": "is_pop_down_20", "name": "20日是否震荡下行", "type": "float", "description": "股票20日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1107, "name_field": "is_pop_down_20", "name": "20日是否震荡下行", "type": "float", "description": "股票20日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
-
-
+    "stock_daily_40":{
+      "name": "个股当日------40日数据",
+      "description": "股票在单一交易日40日数据",
+      "items": [
 
         { "id": 1146, "name_field": "avg_40", "name": "40日均价", "type": "float", "description": "股票40日内的成交均价" },
         { "id": 1147, "name_field": "avg_ratio_40", "name": "当日均价与40日均价比", "type": "float", "description": "股票当日均价与40日均价的比值" },
@@ -149,9 +226,16 @@
         { "id": 1114, "name_field": "is_mid_up_40", "name": "40日是否平量增长", "type": "float", "description": "股票40日内是否平量增长" },
         { "id": 1115, "name_field": "is_mid_low_40", "name": "40日是否平量降低", "type": "float", "description": "股票40日内是否平量降低" },
         { "id": 1116, "name_field": "is_pop_up_40", "name": "40日是否震荡上行", "type": "float", "description": "股票40日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1117, "name_field": "is_pop_down_40", "name": "40日是否震荡下行", "type": "float", "description": "股票40日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1117, "name_field": "is_pop_down_40", "name": "40日是否震荡下行", "type": "float", "description": "股票40日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+      ]
+    },
 
 
+
+    "stock_daily_60":{
+      "name": "个股当日------60日数据",
+      "description": "股票在单一交易日60日数据",
+      "items": [
 
         { "id": 1149, "name_field": "avg_60", "name": "60日均价", "type": "float", "description": "股票60日内的成交均价" },
         { "id": 1150, "name_field": "avg_ratio_60", "name": "当日均价与60日均价比", "type": "float", "description": "股票当日均价与60日均价的比值" },
@@ -166,11 +250,14 @@
         { "id": 1124, "name_field": "is_mid_up_60", "name": "60日是否平量增长", "type": "float", "description": "股票60日内是否平量增长" },
         { "id": 1125, "name_field": "is_mid_low_60", "name": "60日是否平量降低", "type": "float", "description": "股票60日内是否平量降低" },
         { "id": 1126, "name_field": "is_pop_up_60", "name": "60日是否震荡上行", "type": "float", "description": "股票60日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1127, "name_field": "is_pop_down_60", "name": "60日是否震荡下行", "type": "float", "description": "股票60日内是否震荡下行（数值大于1表示是，小于1表示否）" },
-
-
-
-
+        { "id": 1127, "name_field": "is_pop_down_60", "name": "60日是否震荡下行", "type": "float", "description": "股票60日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
+    "stock_daily_120":{
+      "name": "个股当日------120日数据",
+      "description": "股票在单一交易日120日数据",
+      "items": [
         { "id": 1138, "name_field": "avg_120", "name": "120日均价", "type": "float", "description": "股票120日内的成交均价" },
         { "id": 1035, "name_field": "change_Ratio_single_120", "name": "120日距今涨跌幅", "type": "float", "description": "股票120日内的价格涨跌幅" },
         { "id": 1151, "name_field": "change_Ratio_120", "name": "120日整体涨跌幅", "type": "float", "description": "股票120日内的价格涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
@@ -183,12 +270,15 @@
         { "id": 1134, "name_field": "is_mid_up_120", "name": "120日是否平量增长", "type": "float", "description": "股票120日内是否平量增长" },
         { "id": 1135, "name_field": "is_mid_low_120", "name": "120日是否平量降低", "type": "float", "description": "股票120日内是否平量降低" },
         { "id": 1136, "name_field": "is_pop_up_120", "name": "120日是否震荡上行", "type": "float", "description": "股票120日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1137, "name_field": "is_pop_down_120", "name": "120日是否震荡下行", "type": "float", "description": "股票120日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1137, "name_field": "is_pop_down_120", "name": "120日是否震荡下行", "type": "float", "description": "股票120日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
-
-
-
-
+    "stock_daily_240":{
+      "name": "个股当日------240日数据",
+      "description": "股票在单一交易日240日数据",
+      "items": [
         { "id": 1139, "name_field": "avg_240", "name": "240日均价", "type": "float", "description": "股票240日内的成交均价" },
         { "id": 1154, "name_field": "avg_ratio_240", "name": "当日均价与240日均价比", "type": "float", "description": "股票当日均价与240日均价的比值" },
         { "id": 1036, "name_field": "change_Ratio_single_240", "name": "240日距今涨跌幅", "type": "float", "description": "股票240日内的价格涨跌幅" },
@@ -202,9 +292,15 @@
         { "id": 1176, "name_field": "is_mid_up_240", "name": "240日是否平量增长", "type": "float", "description": "股票240日内是否平量增长" },
         { "id": 1177, "name_field": "is_mid_low_240", "name": "240日是否平量降低", "type": "float", "description": "股票240日内是否平量降低" },
         { "id": 1178, "name_field": "is_pop_up_240", "name": "240日是否震荡上行", "type": "float", "description": "股票240日内是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 1179, "name_field": "is_pop_down_240", "name": "240日是否震荡下行", "type": "float", "description": "股票240日内是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 1179, "name_field": "is_pop_down_240", "name": "240日是否震荡下行", "type": "float", "description": "股票240日内是否震荡下行（数值大于1表示是，小于1表示否）" }
+        
+      ]
+    },
 
-
+    "stock_daily_rank": {
+      "name": "个股当日排名条件",
+      "description": "股票在单一交易日内排名数据",
+      "items": [
         { "id": 1155, "name_field": "total_value_ratio", "name": "当日总流通市值行业排名", "type": "float", "description": "股票总流通市值在所属行业中的排名（前几名）" },
         { "id": 1156, "name_field": "earn_ratio", "name": "当日市盈率行业排名", "type": "float", "description": "股票市盈率在所属行业中的排名（前几名）" },
         { "id": 1157, "name_field": "clean_ratio", "name": "当日市净率行业排名", "type": "float", "description": "股票市净率在所属行业中的排名（前几名）" },
@@ -221,22 +317,13 @@
       ]
     },
 
-    "stock_window": {
-      "name": "个股日期区间条件",
-      "description": "股票在指定时间区间内的整体统计表现",
-      "items": [
-        { "id": 200198, "name_field": "up_stopCount", "name": "区间涨停次数", "type": "int", "description": "股票的涨停次数" },
-        { "id": 200199, "name_field": "down_stopCount", "name": "区间跌停次数", "type": "int", "description": "股票的跌停次数" },
 
+    "stock_window_base": {
+      "name": "个股日期区间基本数据条件",
+      "description": "个股日期区间基本数据条件",
+      "items": [
         { "id": 200202, "name_field": "volume", "name": "区间整体成交量", "type": "float", "description": "股票的整体成交数量" },
         { "id": 200203, "name_field": "volume_price", "name": "区间整体成交额", "type": "float", "description": "股票的整体成交金额" },
-        { "id": 200204, "name_field": "volume_ratio", "name": "区间整体成交量涨跌幅", "type": "float", "description": "股票整体成交量的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
-        { "id": 200205, "name_field": "volume_price_ratio", "name": "区间整体成交额涨跌幅", "type": "float", "description": "股票整体成交额的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
-        { "id": 200207, "name_field": "change_Ratio", "name": "区间涨跌幅", "type": "float", "description": "股票的价格涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
-        { "id": 200208, "name_field": "change_Ratio_Total", "name": "区间整体涨跌幅", "type": "float", "description": "股票的整体价格涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
-        { "id": 200209, "name_field": "avg_Ratio", "name": "区间均价涨跌幅", "type": "float", "description": "股票均价的涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
-        { "id": 200210, "name_field": "avg_Ratio_Total", "name": "区间整体均价涨跌幅", "type": "float", "description": "股票整体均价的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
-
         { "id": 200211, "name_field": "avg_open", "name": "区间平均开盘价", "type": "float", "description": "股票的平均开盘成交价格" },
         { "id": 200212, "name_field": "avg_close", "name": "区间平均收盘价", "type": "float", "description": "股票的平均收盘成交价格" },
         { "id": 200213, "name_field": "avg_high", "name": "区间平均最高价", "type": "float", "description": "股票的平均最高成交价格" },
@@ -244,11 +331,7 @@
         { "id": 200215, "name_field": "avg_volume", "name": "区间平均成交量", "type": "float", "description": "股票的平均成交数量" },
         { "id": 200216, "name_field": "avg_volume_price", "name": "区间平均成交额", "type": "Optional[float]", "description": "股票的平均成交金额" },
         { "id": 200217, "name_field": "avg_volume_rito", "name": "区间平均量比", "type": "float", "description": "股票的平均量比（整个期间的量比加起来除以天数）" },
-        { "id": 200218, "name_field": "avg_turn", "name": "区间平均换手率", "type": "float", "description": "股票的平均换手率（整个期间的换手率加起来除以天数）" },
-        { "id": 200219, "name_field": "avg_change_Ratio", "name": "区间平均涨跌幅", "type": "float", "description": "股票的平均价格涨跌幅（整个期间的涨跌幅加起来除以天数）" },
-        { "id": 200220, "name_field": "avg_amplitude", "name": "区间平均振幅", "type": "float", "description": "股票的平均价格振幅（整个期间的振幅加起来除以天数）" },
         { "id": 200221, "name_field": "avg_avg", "name": "区间平均均价", "type": "float", "description": "股票的平均成交均价（整个期间的成交均价加起来除以天数）" },
-
         { "id": 200222, "name_field": "min_open", "name": "区间最低开盘价", "type": "float", "description": "股票的最低开盘成交价格" },
         { "id": 200223, "name_field": "min_close", "name": "区间最低收盘价", "type": "float", "description": "股票的最低收盘成交价格" },
         { "id": 200224, "name_field": "min_last_close", "name": "区间最低昨收价", "type": "float", "description": "股票的最低上一交易日收盘价" },
@@ -256,12 +339,7 @@
         { "id": 200226, "name_field": "min_low", "name": "区间最低最低价", "type": "float", "description": "股票的最低最低成交价格" },
         { "id": 200227, "name_field": "min_volume", "name": "区间最低成交量", "type": "float", "description": "股票的最低成交数量" },
         { "id": 200228, "name_field": "min_volume_price", "name": "区间最低成交额", "type": "Optional[float]", "description": "股票的最低成交金额" },
-        { "id": 200229, "name_field": "min_volume_rito", "name": "区间最低量比", "type": "float", "description": "股票的最低量比" },
-        { "id": 200230, "name_field": "min_turn", "name": "区间最低换手率", "type": "float", "description": "股票的最低换手率" },
-        { "id": 200231, "name_field": "min_change_Ratio", "name": "区间最低涨跌幅", "type": "float", "description": "股票的最低价格涨跌幅" },
-        { "id": 200232, "name_field": "min_amplitude", "name": "区间最低振幅", "type": "float", "description": "股票的最低价格振幅" },
         { "id": 200233, "name_field": "min_avg",	"name":"区间最低均价","type":"float","description":"股票的最低成交均价" },
-
         { "id": 200234, "name_field": "max_open", "name": "区间区间最高开盘价", "type": "float", "description": "股票的最高开盘成交价格" },
         { "id": 200235, "name_field": "max_close", "name": "区间最高收盘价", "type": "float", "description": "股票的最高收盘成交价格" },
         { "id": 200236, "name_field": "max_last_close", "name": "区间最高昨收价", "type": "float", "description": "股票的最高上一交易日收盘价" },
@@ -269,13 +347,49 @@
         { "id": 200238, "name_field": "max_low",	"name":"区间最高最低价","type":"float","description":"股票的最高最低成交价格" },
         { "id": 200239,	"name_field":"max_volume","name":"区间最高成交量","type":"float","description":"股票的最高成交数量" },
         { "id": 200240, "name_field": "max_volume_price", "name": "区间最高成交额", "type": "Optional[float]", "description": "股票的最高成交金额" },
+        { "id": 200245,	"name_field":"max_avg","name":"区间最高均价","type":"float","description":"股票的最高成交均价" }
+
+      ]
+    },
+
+
+    "stock_window_ratio": {
+      "name": "个股日期区间涨跌条件",
+      "description": "个股日期区间涨跌条件",
+      "items": [
+        { "id": 200207, "name_field": "change_Ratio", "name": "区间涨跌幅", "type": "float", "description": "股票的价格涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
+        { "id": 200208, "name_field": "change_Ratio_Total", "name": "区间整体涨跌幅", "type": "float", "description": "股票的整体价格涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
+        { "id": 200204, "name_field": "volume_ratio", "name": "区间整体成交量涨跌幅", "type": "float", "description": "股票整体成交量的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
+        { "id": 200205, "name_field": "volume_price_ratio", "name": "区间整体成交额涨跌幅", "type": "float", "description": "股票整体成交额的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
+        { "id": 200209, "name_field": "avg_Ratio", "name": "区间均价涨跌幅", "type": "float", "description": "股票均价的涨跌幅（计算逻辑是首天和尾天的涨跌幅）" },
+        { "id": 200210, "name_field": "avg_Ratio_Total", "name": "区间整体均价涨跌幅", "type": "float", "description": "股票整体均价的涨跌幅（计算逻辑是前一半和后一半均值的涨跌幅）" },
+
+
+        { "id": 200218, "name_field": "avg_turn", "name": "区间平均换手率", "type": "float", "description": "股票的平均换手率（整个期间的换手率加起来除以天数）" },
+        { "id": 200219, "name_field": "avg_change_Ratio", "name": "区间平均涨跌幅", "type": "float", "description": "股票的平均价格涨跌幅（整个期间的涨跌幅加起来除以天数）" },
+        { "id": 200220, "name_field": "avg_amplitude", "name": "区间平均振幅", "type": "float", "description": "股票的平均价格振幅（整个期间的振幅加起来除以天数）" },
+
+
+        { "id": 200229, "name_field": "min_volume_rito", "name": "区间最低量比", "type": "float", "description": "股票的最低量比" },
+        { "id": 200230, "name_field": "min_turn", "name": "区间最低换手率", "type": "float", "description": "股票的最低换手率" },
+        { "id": 200231, "name_field": "min_change_Ratio", "name": "区间最低涨跌幅", "type": "float", "description": "股票的最低价格涨跌幅" },
+        { "id": 200232, "name_field": "min_amplitude", "name": "区间最低振幅", "type": "float", "description": "股票的最低价格振幅" },
+
+
         { "id": 200241, "name_field": "max_volume_rito", "name": "区间最高量比", "type": "float", "description": "股票的最高量比" },
         { "id": 200242, "name_field": "max_turn", "name": "区间最高换手率", "type": "float", "description": "股票的最高换手率" },
         { "id": 200243, "name_field": "max_change_Ratio", "name": "区间区间最高涨跌幅", "type": "float", "description": "股票的最高价格涨跌幅" },
-        { "id": 200244, "name_field": "max_amplitude",	"name":"区间最高振幅","type":"float","description":"股票的最高价格振幅" },
-        { "id": 200245,	"name_field":"max_avg","name":"区间最高均价","type":"float","description":"股票的最高成交均价" },
+        { "id": 200244, "name_field": "max_amplitude",	"name":"区间最高振幅","type":"float","description":"股票的最高价格振幅" }
 
+      ]
+    },
 
+    "stock_window_quick": {
+      "name": "个股日期区间量价快捷条件",
+      "description": "股票在指定时间区间内的整体统计表现",
+      "items": [
+        { "id": 200198, "name_field": "up_stopCount", "name": "区间涨停次数", "type": "int", "description": "股票的涨停次数" },
+        { "id": 200199, "name_field": "down_stopCount", "name": "区间跌停次数", "type": "int", "description": "股票的跌停次数" },
 
         { "id": 200254, "name_field": "is_up_up", "name": "区间是否放量增长", "type": "float", "description": "股票是否放量增长（数值大于1表示是，小于1表示否）" },
         { "id": 200255, "name_field": "is_low_up", "name": "区间是否缩量增长", "type": "float", "description": "股票是否缩量增长（数值大于1表示是，小于1表示否）" },
@@ -286,9 +400,17 @@
         { "id": 200260, "name_field": "is_mid_up", "name": "区间是否平量增长", "type": "float", "description": "股票是否平量增长（数值大于1表示是，小于1表示否）" },
         { "id": 200261, "name_field": "is_mid_low", "name": "区间是否平量降低", "type": "float", "description": "股票是否平量降低（数值大于1表示是，小于1表示否）" },
         { "id": 200262, "name_field": "is_pop_up", "name": "区间是否震荡上行", "type": "float", "description": "股票是否震荡上行（数值大于1表示是，小于1表示否）" },
-        { "id": 200263, "name_field": "is_pop_down", "name": "区间是否震荡下行", "type": "float", "description": "股票是否震荡下行（数值大于1表示是，小于1表示否）" },
+        { "id": 200263, "name_field": "is_pop_down", "name": "区间是否震荡下行", "type": "float", "description": "股票是否震荡下行（数值大于1表示是，小于1表示否）" }
 
 
+
+      ]
+    },
+
+    "stock_window_rank": {
+      "name": "个股日期区间排名条件",
+      "description": "股票在指定时间区间内的整体统计表现",
+      "items": [
         { "id": 200246, "name_field": "volume_industry_rank", "name": "区间成交量行业排名", "type": "float", "description": "股票成交量在所属行业中的排名（前几名）" },
         { "id": 200247, "name_field": "total_price_industry_rank", "name": "区间成交额行业排名", "type": "float", "description": "股票成交额在所属行业中的排名（前几名）" },
         { "id": 200248, "name_field": "total_price_ratio_industry_rank", "name": "区间成交额涨跌幅行业排名", "type": "float", "description": "股票成交额涨跌幅在所属行业中的排名（前几名）" },
@@ -296,6 +418,7 @@
         { "id": 200250, "name_field": "ratio_industry_rank", "name": "区间涨跌幅行业排名", "type": "float", "description": "股票价格涨跌幅在所属行业中的排名（前几名）" },
         { "id": 200251, "name_field": "amplitude_industry_rank",	"name":"区间振幅行业排名","type":"float","description":"股票价格振幅在所属行业中的排名（前几名）" },
         { "id": 200253, "name_field": "avg_industry_rank", "name": "区间均价涨跌幅行业排名", "type": "float", "description": "股票均价涨跌幅在所属行业中的排名（前几名）" }
+
       ]
     },
 

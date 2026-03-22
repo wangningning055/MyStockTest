@@ -142,6 +142,16 @@ export const EventManager = {
                 }
             });
         }
+        const industryBtn = document.getElementById('api-update-industry');
+        if (industryBtn) {
+            industryBtn.addEventListener('click', () => {
+                if (manager) {
+                    //setFetchButtonsLoading(true);
+                    manager.preheatData();
+                }
+            });
+        }
+
         const preheatBtn = document.getElementById('api-preheat');
         if (preheatBtn) {
             preheatBtn.addEventListener('click', () => {
@@ -151,6 +161,8 @@ export const EventManager = {
                 }
             });
         }
+
+
         const testBtn = document.getElementById('api-test');
         if (testBtn) {
             testBtn.addEventListener('click', () => {
