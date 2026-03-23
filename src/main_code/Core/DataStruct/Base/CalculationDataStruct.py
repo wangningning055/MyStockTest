@@ -642,8 +642,8 @@ class StructBaseWindowClass :
         self.trade_date_from = self.startDataCls.trade_date
         self.industry = handler.totalComponyIns.GetComponyInfo(self.code).Industry
         self.isST = self.startDataCls.isST
-        if self.code == "688152.SH":
-            print(f"麒麟信安的设置：{self.startCount}，  {self.toCount}")
+        #if self.code == "688152.SH":
+        #    print(f"麒麟信安的设置：{self.startCount}，  {self.toCount}")
 
     def __getattr__(self, field_name):
         if self.isInit == False:

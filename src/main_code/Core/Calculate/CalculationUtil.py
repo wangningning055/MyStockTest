@@ -192,7 +192,7 @@ def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass",
 
 
 #是否连续X日突破X日下压力位
-def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+def GetIsBreakDownPressure_Length(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
     breakCount= 0
     for single in NowData.dataList_240:
         isBreak = GetIsBreakDownPressure(single, BreakWindowCount)
@@ -206,6 +206,34 @@ def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass",
         return 1
     return 0
 
+#获取X日均价与X日压力位的比值
+def GetRatioDayAvg_Up_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+    count= 0
+    total = 0
+    for single in NowData.dataList_240:
+        if count >= Length:
+            break
+        total += single.close
+        count += 1
+
+    total = total / count
+    pressure = GetUpPressure(NowData, BreakWindowCount)
+    return total / pressure
+
+#获取X日均价与X日压力位的比值
+def GetRatioDayAvg_Down_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+    count= 0
+    total = 0
+    for single in NowData.dataList_240:
+        if count >= Length:
+            break
+        total += single.close
+        count += 1
+
+    total = total / count
+    pressure = GetDownPressure(NowData, BreakWindowCount)
+    return total / pressure
+
 
 #获取价值股分数
 def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
@@ -216,7 +244,7 @@ def GetGrowScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"Calcu
     return CalculationSpecial.CalculateGrowScore(NowData, handler)
 
 #获取是否在行业上涨周期
-def GetInInIndustryUp(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+def GetIsInIndustryUp(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     now = datetime.now()
     month = now.month
     industry_self = handler.totalComponyIns.GetIndustryStrByCode(NowData)
@@ -962,6 +990,23 @@ def GetBreakUpCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayC
         count = count + 1
     return BreakCount
 
+def GetBreakUpCount_20(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakUpCount(NowData, StartDayCount, ToDayCount, 20)
+
+def GetBreakUpCount_40(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakUpCount(NowData, StartDayCount, ToDayCount, 40)
+
+def GetBreakUpCount_60(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakUpCount(NowData, StartDayCount, ToDayCount, 60)
+
+def GetBreakUpCount_120(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakUpCount(NowData, StartDayCount, ToDayCount, 120)
+
+def GetBreakUpCount_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakUpCount(NowData, StartDayCount, ToDayCount, 240)
+
+
+
 
 #获取突破下压力位次数
 def GetBreakDownCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, BreakWindowCount):
@@ -997,6 +1042,23 @@ def GetBreakDownCount(NowData : "CalculationDataStruct.StructBaseClass", StartDa
             break
         count = count + 1
     return BreakCount
+
+def GetBreakDownCount_20(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakDownCount(NowData, StartDayCount, ToDayCount, 20)
+
+def GetBreakDownCount_40(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakDownCount(NowData, StartDayCount, ToDayCount, 40)
+
+def GetBreakDownCount_60(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakDownCount(NowData, StartDayCount, ToDayCount, 60)
+
+def GetBreakDownCount_120(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakDownCount(NowData, StartDayCount, ToDayCount, 120)
+
+def GetBreakDownCount_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
+    return GetBreakDownCount(NowData, StartDayCount, ToDayCount, 240)
+
+
 
 
 #区间平均开盘价与X日上压力位的比
@@ -1201,6 +1263,41 @@ def Get_Low_Break_Low_Ratio(NowData : "CalculationDataStruct.StructBaseClass", S
     if pressure is None or pressure == 0:
         return 0
     return price / pressure
+
+
+def Get_Close_Break_Up_Ratio_20(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Up_Ratio(NowData, StartDayCount, ToDayCount, 20, handler)
+
+def Get_Close_Break_Up_Ratio_40(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Up_Ratio(NowData, StartDayCount, ToDayCount, 40, handler)
+
+def Get_Close_Break_Up_Ratio_60(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Up_Ratio(NowData, StartDayCount, ToDayCount, 60, handler)
+
+def Get_Close_Break_Up_Ratio_120(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Up_Ratio(NowData, StartDayCount, ToDayCount, 120, handler)
+
+def Get_Close_Break_Up_Ratio_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Up_Ratio(NowData, StartDayCount, ToDayCount, 240, handler)
+
+
+
+
+
+def Get_Close_Break_Low_Ratio_20(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 20, handler)
+
+def Get_Close_Break_Low_Ratio_40(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 40, handler)
+
+def Get_Close_Break_Low_Ratio_60(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 60, handler)
+
+def Get_Close_Break_Low_Ratio_120(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 120, handler)
+
+def Get_Close_Break_Low_Ratio_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 240, handler)
 
 
 
