@@ -4,18 +4,175 @@
       "name": "个股当日------价值数据",
       "description": "股票在价值相关的评分",
       "items": [
+        { "id": 1, "name_field": "ValueScore", "name": "价值股评分", "type": "float", "description": "价值股评分" },
+        { "id": 2, "name_field": "GrowScore", "name": "成长股评分", "type": "float", "description": "成长股评分" }
       ]
     },
-    "stock_daily_pressure":{
-      "name": "个股当日------压力位数据",
+
+    "stock_daily_pressure_20":{
+      "name": "个股当日------20日压力位数据",
       "description": "股票在压力位相关的评分",
       "items": [
+
+        { "id": 30, "name_field": "is_break_upper_20", "name": "是否突破20日上压力位", "type": "int", "description": "单一日是否突破20日上压力位，1表示突破，0表示未突破" },
+        { "id": 31, "name_field": "is_break_lower_20", "name": "是否跌破20日下压力位", "type": "int", "description": "单一日是否跌破20日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 40, "name_field": "is_break_upper_20_2", "name": "是否连续2日突破20日上压力位", "type": "int", "description": "连续2日是否突破20日上压力位，1表示突破，0表示未突破" },
+        { "id": 41, "name_field": "is_break_lower_20_2", "name": "是否连续2日跌破20日下压力位", "type": "int", "description": "连续2日是否跌破20日下压力位，1表示跌破，0表示未跌破" },
+        { "id": 50, "name_field": "is_break_upper_20_3", "name": "是否连续3日突破20日上压力位", "type": "int", "description": "连续3日是否突破20日上压力位，1表示突破，0表示未突破" },
+        { "id": 51, "name_field": "is_break_lower_20_3", "name": "是否连续3日跌破20日下压力位", "type": "int", "description": "连续3日是否跌破20日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 60, "name_field": "is_break_upper_20_5", "name": "是否连续5日突破20日上压力位", "type": "int", "description": "连续5日是否突破20日上压力位，1表示突破，0表示未突破" },
+        { "id": 61, "name_field": "is_break_lower_20_5", "name": "是否连续5日跌破20日下压力位", "type": "int", "description": "连续5日是否跌破20日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 71, "name_field": "ratio_close_upper_20", "name": "当日收盘价与20日上压力位的比", "type": "float", "description": "当日收盘价除以20日上压力位的比值" },
+        { "id": 76, "name_field": "ratio_close_lower_20", "name": "当日收盘价与20日下压力位的比", "type": "float", "description": "当日收盘价除以20日下压力位的比值" },
+
+        
+        { "id": 121, "name_field": "ratio_close_upper_2_20", "name": "2日平均收盘价与20日上压力位的比", "type": "float", "description": "2日平均收盘价除以20日上压力位的比值" },
+        { "id": 126, "name_field": "ratio_close_lower_2_20", "name": "2日平均收盘价与20日下压力位的比", "type": "float", "description": "2日平均收盘价除以20日下压力位的比值" },
+
+        { "id": 171, "name_field": "ratio_close_upper_3_20", "name": "3日平均收盘价与20日上压力位的比", "type": "float", "description": "3日平均收盘价除以20日上压力位的比值" },
+        { "id": 176, "name_field": "ratio_close_lower_3_20", "name": "3日平均收盘价与20日下压力位的比", "type": "float", "description": "3日平均收盘价除以20日下压力位的比值" },
+
+        { "id": 221, "name_field": "ratio_close_upper_5_20", "name": "5日平均收盘价与20日上压力位的比", "type": "float", "description": "5日平均收盘价除以20日上压力位的比值" },
+        { "id": 226, "name_field": "ratio_close_lower_5_20", "name": "5日平均收盘价与20日下压力位的比", "type": "float", "description": "5日平均收盘价除以20日下压力位的比值" }
       ]
     },
+    "stock_daily_pressure_40":{
+      "name": "个股当日------40日压力位数据",
+      "description": "股票在压力位相关的评分",
+      "items": [
+        { "id": 32, "name_field": "is_break_upper_40", "name": "是否突破40日上压力位", "type": "int", "description": "单一日是否突破40日上压力位，1表示突破，0表示未突破" },
+        { "id": 33, "name_field": "is_break_lower_40", "name": "是否跌破40日下压力位", "type": "int", "description": "单一日是否跌破40日下压力位，1表示跌破，0表示未跌破" },
+        { "id": 42, "name_field": "is_break_upper_40_2", "name": "是否连续2日突破40日上压力位", "type": "int", "description": "连续2日是否突破40日上压力位，1表示突破，0表示未突破" },
+        { "id": 43, "name_field": "is_break_lower_40_2", "name": "是否连续2日跌破40日下压力位", "type": "int", "description": "连续2日是否跌破40日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 52, "name_field": "is_break_upper_40_3", "name": "是否连续3日突破40日上压力位", "type": "int", "description": "连续3日是否突破40日上压力位，1表示突破，0表示未突破" },
+        { "id": 53, "name_field": "is_break_lower_40_3", "name": "是否连续3日跌破40日下压力位", "type": "int", "description": "连续3日是否跌破40日下压力位，1表示跌破，0表示未跌破" },
+        { "id": 62, "name_field": "is_break_upper_40_5", "name": "是否连续5日突破40日上压力位", "type": "int", "description": "连续5日是否突破40日上压力位，1表示突破，0表示未突破" },
+        { "id": 63, "name_field": "is_break_lower_40_5", "name": "是否连续5日跌破40日下压力位", "type": "int", "description": "连续5日是否跌破40日下压力位，1表示跌破，0表示未跌破" },
+        
+        { "id": 81, "name_field": "ratio_close_upper_40", "name": "当日收盘价与40日上压力位的比", "type": "float", "description": "当日收盘价除以40日上压力位的比值" },
+        { "id": 86, "name_field": "ratio_close_lower_40", "name": "当日收盘价与40日下压力位的比", "type": "float", "description": "当日收盘价除以40日下压力位的比值" },
+        { "id": 131, "name_field": "ratio_close_upper_2_40", "name": "2日平均收盘价与40日上压力位的比", "type": "float", "description": "2日平均收盘价除以40日上压力位的比值" },
+        { "id": 136, "name_field": "ratio_close_lower_2_40", "name": "2日平均收盘价与40日下压力位的比", "type": "float", "description": "2日平均收盘价除以40日下压力位的比值" },
+        { "id": 181, "name_field": "ratio_close_upper_3_40", "name": "3日平均收盘价与40日上压力位的比", "type": "float", "description": "3日平均收盘价除以40日上压力位的比值" },
+        { "id": 186, "name_field": "ratio_close_lower_3_40", "name": "3日平均收盘价与40日下压力位的比", "type": "float", "description": "3日平均收盘价除以40日下压力位的比值" },
+        { "id": 231, "name_field": "ratio_close_upper_5_40", "name": "5日平均收盘价与40日上压力位的比", "type": "float", "description": "5日平均收盘价除以40日上压力位的比值" },
+        { "id": 236, "name_field": "ratio_close_lower_5_40", "name": "5日平均收盘价与40日下压力位的比", "type": "float", "description": "5日平均收盘价除以40日下压力位的比值" }
+
+      ]
+    },
+
+    "stock_daily_pressure_60":{
+      "name": "个股当日------60日压力位数据",
+      "description": "股票在压力位相关的评分",
+      "items": [
+        { "id": 34, "name_field": "is_break_upper_60", "name": "是否突破60日上压力位", "type": "int", "description": "单一日是否突破60日上压力位，1表示突破，0表示未突破" },
+        { "id": 35, "name_field": "is_break_lower_60", "name": "是否跌破60日下压力位", "type": "int", "description": "单一日是否跌破60日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 44, "name_field": "is_break_upper_60_2", "name": "是否连续2日突破60日上压力位", "type": "int", "description": "连续2日是否突破60日上压力位，1表示突破，0表示未突破" },
+        { "id": 45, "name_field": "is_break_lower_60_2", "name": "是否连续2日跌破60日下压力位", "type": "int", "description": "连续2日是否跌破60日下压力位，1表示跌破，0表示未跌破" },
+        
+
+        { "id": 54, "name_field": "is_break_upper_60_3", "name": "是否连续3日突破60日上压力位", "type": "int", "description": "连续3日是否突破60日上压力位，1表示突破，0表示未突破" },
+        { "id": 55, "name_field": "is_break_lower_60_3", "name": "是否连续3日跌破60日下压力位", "type": "int", "description": "连续3日是否跌破60日下压力位，1表示跌破，0表示未跌破" },
+        
+
+        { "id": 64, "name_field": "is_break_upper_60_5", "name": "是否连续5日突破60日上压力位", "type": "int", "description": "连续5日是否突破60日上压力位，1表示突破，0表示未突破" },
+        { "id": 65, "name_field": "is_break_lower_60_5", "name": "是否连续5日跌破60日下压力位", "type": "int", "description": "连续5日是否跌破60日下压力位，1表示跌破，0表示未跌破" },
+        
+        { "id": 91, "name_field": "ratio_close_upper_60", "name": "当日收盘价与60日上压力位的比", "type": "float", "description": "当日收盘价除以60日上压力位的比值" },
+        { "id": 96, "name_field": "ratio_close_lower_60", "name": "当日收盘价与60日下压力位的比", "type": "float", "description": "当日收盘价除以60日下压力位的比值" },
+
+        { "id": 141, "name_field": "ratio_close_upper_2_60", "name": "2日平均收盘价与60日上压力位的比", "type": "float", "description": "2日平均收盘价除以60日上压力位的比值" },
+        { "id": 146, "name_field": "ratio_close_lower_2_60", "name": "2日平均收盘价与60日下压力位的比", "type": "float", "description": "2日平均收盘价除以60日下压力位的比值" },
+
+        { "id": 191, "name_field": "ratio_close_upper_3_60", "name": "3日平均收盘价与60日上压力位的比", "type": "float", "description": "3日平均收盘价除以60日上压力位的比值" },
+        { "id": 196, "name_field": "ratio_close_lower_3_60", "name": "3日平均收盘价与60日下压力位的比", "type": "float", "description": "3日平均收盘价除以60日下压力位的比值" },
+
+        { "id": 241, "name_field": "ratio_close_upper_5_60", "name": "5日平均收盘价与60日上压力位的比", "type": "float", "description": "5日平均收盘价除以60日上压力位的比值" },
+        { "id": 246, "name_field": "ratio_close_lower_5_60", "name": "5日平均收盘价与60日下压力位的比", "type": "float", "description": "5日平均收盘价除以60日下压力位的比值" }
+
+      ]
+    },
+
+
+    "stock_daily_pressure_120":{
+      "name": "个股当日------120日压力位数据",
+      "description": "股票在压力位相关的评分",
+      "items": [
+
+        { "id": 36, "name_field": "is_break_upper_120", "name": "是否突破120日上压力位", "type": "int", "description": "单一日是否突破120日上压力位，1表示突破，0表示未突破" },
+        { "id": 37, "name_field": "is_break_lower_120", "name": "是否跌破120日下压力位", "type": "int", "description": "单一日是否跌破120日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 46, "name_field": "is_break_upper_120_2", "name": "是否连续2日突破120日上压力位", "type": "int", "description": "连续2日是否突破120日上压力位，1表示突破，0表示未突破" },
+        { "id": 47, "name_field": "is_break_lower_120_2", "name": "是否连续2日跌破120日下压力位", "type": "int", "description": "连续2日是否跌破120日下压力位，1表示跌破，0表示未跌破" },
+        
+        { "id": 46, "name_field": "is_break_upper_120_3", "name": "是否连续3日突破120日上压力位", "type": "int", "description": "连续3日是否突破120日上压力位，1表示突破，0表示未突破" },
+        { "id": 47, "name_field": "is_break_lower_120_3", "name": "是否连续3日跌破120日下压力位", "type": "int", "description": "连续3日是否跌破120日下压力位，1表示跌破，0表示未跌破" },
+        
+
+        { "id": 66, "name_field": "is_break_upper_120_5", "name": "是否连续5日突破120日上压力位", "type": "int", "description": "连续5日是否突破120日上压力位，1表示突破，0表示未突破" },
+        { "id": 67, "name_field": "is_break_lower_120_5", "name": "是否连续5日跌破120日下压力位", "type": "int", "description": "连续5日是否跌破120日下压力位，1表示跌破，0表示未跌破" },
+        
+        { "id": 101, "name_field": "ratio_close_upper_120", "name": "当日收盘价与120日上压力位的比", "type": "float", "description": "当日收盘价除以120日上压力位的比值" },
+        { "id": 106, "name_field": "ratio_close_lower_120", "name": "当日收盘价与120日下压力位的比", "type": "float", "description": "当日收盘价除以120日下压力位的比值" },
+        { "id": 151, "name_field": "ratio_close_upper_2_120", "name": "2日平均收盘价与120日上压力位的比", "type": "float", "description": "2日平均收盘价除以120日上压力位的比值" },
+        { "id": 156, "name_field": "ratio_close_lower_2_120", "name": "2日平均收盘价与120日下压力位的比", "type": "float", "description": "2日平均收盘价除以120日下压力位的比值" },
+        { "id": 201, "name_field": "ratio_close_upper_3_120", "name": "3日平均收盘价与120日上压力位的比", "type": "float", "description": "3日平均收盘价除以120日上压力位的比值" },
+        { "id": 206, "name_field": "ratio_close_lower_3_120", "name": "3日平均收盘价与120日下压力位的比", "type": "float", "description": "3日平均收盘价除以120日下压力位的比值" },
+        { "id": 251, "name_field": "ratio_close_upper_5_120", "name": "5日平均收盘价与120日上压力位的比", "type": "float", "description": "5日平均收盘价除以120日上压力位的比值" },
+        { "id": 256, "name_field": "ratio_close_lower_5_120", "name": "5日平均收盘价与120日下压力位的比", "type": "float", "description": "5日平均收盘价除以120日下压力位的比值" }
+
+      ]
+    },
+
+    "stock_daily_pressure_240":{
+      "name": "个股当日------240日压力位数据",
+      "description": "股票在压力位相关的评分",
+      "items": [
+
+        { "id": 38, "name_field": "is_break_upper_240", "name": "是否突破240日上压力位", "type": "int", "description": "单一日是否突破240日上压力位，1表示突破，0表示未突破" },
+        { "id": 39, "name_field": "is_break_lower_240", "name": "是否跌破240日下压力位", "type": "int", "description": "单一日是否跌破240日下压力位，1表示跌破，0表示未跌破" },
+        
+        { "id": 48, "name_field": "is_break_upper_240_2", "name": "是否连续2日突破240日上压力位", "type": "int", "description": "连续2日是否突破240日上压力位，1表示突破，0表示未突破" },
+        { "id": 49, "name_field": "is_break_lower_240_2", "name": "是否连续2日跌破240日下压力位", "type": "int", "description": "连续2日是否跌破240日下压力位，1表示跌破，0表示未跌破" },
+
+        { "id": 56, "name_field": "is_break_upper_240_3", "name": "是否连续3日突破240日上压力位", "type": "int", "description": "连续3日是否突破240日上压力位，1表示突破，0表示未突破" },
+        { "id": 57, "name_field": "is_break_lower_240_3", "name": "是否连续3日跌破240日下压力位", "type": "int", "description": "连续3日是否跌破240日下压力位，1表示跌破，0表示未跌破" },
+        
+
+        { "id": 68, "name_field": "is_break_upper_240_5", "name": "是否连续5日突破240日上压力位", "type": "int", "description": "连续5日是否突破240日上压力位，1表示突破，0表示未突破" },
+        { "id": 69, "name_field": "is_break_lower_240_5", "name": "是否连续5日跌破240日下压力位", "type": "int", "description": "连续5日是否跌破240日下压力位，1表示跌破，0表示未跌破" },
+
+
+
+        { "id": 111, "name_field": "ratio_close_upper_240", "name": "当日收盘价与240日上压力位的比", "type": "float", "description": "当日收盘价除以240日上压力位的比值" },
+        { "id": 116, "name_field": "ratio_close_lower_240", "name": "当日收盘价与240日下压力位的比", "type": "float", "description": "当日收盘价除以240日下压力位的比值" },
+
+
+        { "id": 161, "name_field": "ratio_close_upper_2_240", "name": "2日平均收盘价与240日上压力位的比", "type": "float", "description": "2日平均收盘价除以240日上压力位的比值" },
+        { "id": 166, "name_field": "ratio_close_lower_2_240", "name": "2日平均收盘价与240日下压力位的比", "type": "float", "description": "2日平均收盘价除以240日下压力位的比值" },
+
+        { "id": 211, "name_field": "ratio_close_upper_3_240", "name": "3日平均收盘价与240日上压力位的比", "type": "float", "description": "3日平均收盘价除以240日上压力位的比值" },
+        { "id": 216, "name_field": "ratio_close_lower_3_240", "name": "3日平均收盘价与240日下压力位的比", "type": "float", "description": "3日平均收盘价除以240日下压力位的比值" },
+
+
+        { "id": 251, "name_field": "ratio_close_upper_5_240", "name": "5日平均收盘价与240日上压力位的比", "type": "float", "description": "5日平均收盘价除以240日上压力位的比值" },
+        { "id": 256, "name_field": "ratio_close_lower_5_240", "name": "5日平均收盘价与240日下压力位的比", "type": "float", "description": "5日平均收盘价除以240日下压力位的比值" }
+
+
+      ]
+
+    },
+
     "stock_daily_industry":{
       "name": "个股当日------行业趋势数据",
       "description": "股票在行业趋势相关的评分",
       "items": [
+        { "id": 500, "name_field": "isInIndustryUp", "name": "是否处在行业上涨周期", "type": "int", "description": "是否处在行业上涨周期" }
       ]
     },
 
@@ -351,7 +508,32 @@
 
       ]
     },
-
+    "stock_window_pressure": {
+      "name": "个股日期区间压力位条件",
+      "description": "个股日期区间压力位条件",
+      "items": [
+        { "id": 200001, "name_field": "break_upper_count_20", "name": "区间突破20日上压力位次数", "type": "int", "description": "统计指定区间内价格突破20日上压力位的总次数" },
+        { "id": 200002, "name_field": "break_lower_count_20", "name": "区间跌破20日下压力位次数", "type": "int", "description": "统计指定区间内价格跌破20日下压力位的总次数" },
+        { "id": 200003, "name_field": "break_upper_count_40", "name": "区间突破40日上压力位次数", "type": "int", "description": "统计指定区间内价格突破40日上压力位的总次数" },
+        { "id": 200004, "name_field": "break_lower_count_40", "name": "区间跌破40日下压力位次数", "type": "int", "description": "统计指定区间内价格跌破40日下压力位的总次数" },
+        { "id": 200005, "name_field": "break_upper_count_60", "name": "区间突破60日上压力位次数", "type": "int", "description": "统计指定区间内价格突破60日上压力位的总次数" },
+        { "id": 200006, "name_field": "break_lower_count_60", "name": "区间跌破60日下压力位次数", "type": "int", "description": "统计指定区间内价格跌破60日下压力位的总次数" },
+        { "id": 200007, "name_field": "break_upper_count_120", "name": "区间突破120日上压力位次数", "type": "int", "description": "统计指定区间内价格突破120日上压力位的总次数" },
+        { "id": 200008, "name_field": "break_lower_count_120", "name": "区间跌破120日下压力位次数", "type": "int", "description": "统计指定区间内价格跌破120日下压力位的总次数" },
+        { "id": 200009, "name_field": "break_upper_count_240", "name": "区间突破240日上压力位次数", "type": "int", "description": "统计指定区间内价格突破240日上压力位的总次数" },
+        { "id": 200010, "name_field": "break_lower_count_240", "name": "区间跌破240日下压力位次数", "type": "int", "description": "统计指定区间内价格跌破240日下压力位的总次数" },
+        { "id": 200011, "name_field": "ratio_avg_close_upper_20", "name": "区间平均收盘价与20日上压力位的比", "type": "float", "description": "指定区间内平均收盘价除以20日上压力位的比值" },
+        { "id": 200012, "name_field": "ratio_avg_close_lower_20", "name": "区间平均收盘价与20日下压力位的比", "type": "float", "description": "指定区间内平均收盘价除以20日下压力位的比值" },
+        { "id": 200013, "name_field": "ratio_avg_close_upper_40", "name": "区间平均收盘价与40日上压力位的比", "type": "float", "description": "指定区间内平均收盘价除以40日上压力位的比值" },
+        { "id": 200014, "name_field": "ratio_avg_close_lower_40", "name": "区间平均收盘价与40日下压力位的比", "type": "float", "description": "指定区间内平均收盘价除以40日下压力位的比值" },
+        { "id": 200015, "name_field": "ratio_avg_close_upper_60", "name": "区间平均收盘价与60日上压力位的比", "type": "float", "description": "指定区间内平均收盘价除以60日上压力位的比值" },
+        { "id": 200016, "name_field": "ratio_avg_close_lower_60", "name": "区间平均收盘价与60日下压力位的比", "type": "float", "description": "指定区间内平均收盘价除以60日下压力位的比值" },
+        { "id": 200017, "name_field": "ratio_avg_close_upper_120", "name": "区间平均收盘价与120日上压力位的比", "type": "float", "description": "指定区间内平均收盘价除以120日上压力位的比值" },
+        { "id": 200018, "name_field": "ratio_avg_close_lower_120", "name": "区间平均收盘价与120日下压力位的比", "type": "float", "description": "指定区间内平均收盘价除以120日下压力位的比值" },
+        { "id": 200019, "name_field": "ratio_avg_close_upper_240", "name": "区间平均收盘价与240日上压力位的比", "type": "float", "description": "指定区间内平均收盘价除以240日上压力位的比值" },
+        { "id": 200020, "name_field": "ratio_avg_close_lower_240", "name": "区间平均收盘价与240日下压力位的比", "type": "float", "description": "指定区间内平均收盘价除以240日下压力位的比值" }
+      ]
+    },
 
     "stock_window_ratio": {
       "name": "个股日期区间涨跌条件",

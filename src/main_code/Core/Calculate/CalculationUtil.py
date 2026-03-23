@@ -175,6 +175,38 @@ def GetIsBreakDownPressure(NowData:"CalculationDataStruct.StructBaseClass", Brea
         return 1
     return 0
 
+#是否连续X日突破X日上压力位
+def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+    breakCount= 0
+    for single in NowData.dataList_240:
+        isBreak = GetIsBreakUpPressure(single, BreakWindowCount)
+        if isBreak:
+            breakCount += 1
+            if breakCount >= Length:
+                return 1
+        else:
+            break
+    if breakCount >= Length:
+        return 1
+    return 0
+
+
+#是否连续X日突破X日下压力位
+def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+    breakCount= 0
+    for single in NowData.dataList_240:
+        isBreak = GetIsBreakDownPressure(single, BreakWindowCount)
+        if isBreak:
+            breakCount += 1
+            if breakCount >= Length:
+                return 1
+        else:
+            break
+    if breakCount >= Length:
+        return 1
+    return 0
+
+
 #获取价值股分数
 def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateValueScore(NowData, handler)
@@ -182,6 +214,20 @@ def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"Calc
 #获取成长股分数
 def GetGrowScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateGrowScore(NowData, handler)
+
+#获取是否在行业上涨周期
+def GetInInIndustryUp(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+    now = datetime.now()
+    month = now.month
+    industry_self = handler.totalComponyIns.GetIndustryStrByCode(NowData)
+    industryList = handler.main.recordDataCls.industry_Increase_Dic.get(month)
+    if industryList == None:
+        return 0
+    for ind in industryList:
+        if ind == industry_self:
+            return 1
+    return 0
+
 
 #涨跌幅计算(只算第一天和最后num天)
 def GetChange_Ratio(NowData:"CalculationDataStruct.StructBaseClass", num = 1):

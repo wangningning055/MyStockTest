@@ -1611,7 +1611,7 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
     now = datetime.datetime.now()
     year = now.year
     curYear = year
-    recordNum = 1
+    recordNum = 5
     yearList = []
     while recordNum > 0:
         recordNum = recordNum - 1
@@ -1642,6 +1642,41 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
 
 
     print("行业总结完毕")
+
+    main.recordDataCls.industry_Increase_Dic = {}
+    recordNum = 5
+    yearList = []
+    curYear = year
+    tempDic = {}
+    resDic:Dict[int, List[str]] = {}
+    while recordNum > 0:
+        recordNum = recordNum - 1
+        curYear = curYear - 1
+        yearList.append(curYear)
+
+    for singleYear in yearList:
+        month = 1
+        while month <= 12:
+            current_date = datetime.date(singleYear, month, 1)
+            now_month_str = current_date.strftime("%Y%m%d")
+            upList = main.recordDataCls.industry_Analyze_Dic[now_month_str]
+            for industry in upList:
+                catchKey = (industry , month)
+                res = tempDic.get(catchKey)
+                if res == None:
+                    tempDic[catchKey] = 1
+                else:
+                    tempDic[catchKey] += 1
+                    if tempDic[catchKey] >= 3:
+                        resList = resDic.get(month)
+                        if(resList == None):
+                            resDic[month] = []
+                            resDic[month].append(catchKey[0])
+                        else:
+                            if not resDic[month].__contains__(catchKey[0]):
+                                resDic[month].append(catchKey[0])
+            month = month + 1
+    main.recordDataCls.industry_Increase_Dic = resDic
     now = datetime.datetime.now()
     todayStr = now.strftime("%Y%m%d")
     main.recordDataCls.industry_analyze_last_data = todayStr

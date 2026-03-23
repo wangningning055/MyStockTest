@@ -173,8 +173,8 @@ class StructBaseClass :
     dataList_240 : list[StructBaseClass]
     componyInfo: StructComponyInfoClass
     code:str
-    ValueScore:int     #价值股评分
-    GrowScore:int      #成长股评分
+    ValueScore:float     #价值股评分
+    GrowScore:float      #成长股评分
 
     adjst:float #前复权因子
     trade_date:date #交易日期
@@ -193,21 +193,23 @@ class StructBaseClass :
     low_ori: float      #当日最低价(原始价格)
     avg_ori: float      #当日均价(原始价格)
 
+    isInIndustryUp:int  #是否处在行业上涨周期
+
     #压力位开始----------------------------------------------------------------‘、
-    up_pressure_20:int         #20日上压力位
-    down_pressure_20:int       #20日下压力位
+    up_pressure_20:float         #20日上压力位
+    down_pressure_20:float       #20日下压力位
 
-    up_pressure_40:int         #40日上压力位
-    down_pressure_40:int       #40日下压力位
+    up_pressure_40:float         #40日上压力位
+    down_pressure_40:float       #40日下压力位
 
-    up_pressure_60:int         #60日上压力位
-    down_pressure_60:int       #60日下压力位
+    up_pressure_60:float         #60日上压力位
+    down_pressure_60:float       #60日下压力位
 
-    up_pressure_120:int         #120日上压力位
-    down_pressure_120:int       #120日下压力位
+    up_pressure_120:float         #120日上压力位
+    down_pressure_120:float       #120日下压力位
 
-    up_pressure_240:int         #240日上压力位
-    down_pressure_240:int       #240日下压力位
+    up_pressure_240:float         #240日上压力位
+    down_pressure_240:float       #240日下压力位
 
 
     # 单一日突破/跌破对应周期压力位（整型）
@@ -259,244 +261,84 @@ class StructBaseClass :
     is_break_lower_240_5: int  #是否连续5日跌破240日下压力位
 
     # 当日价格与20日压力位比值（浮点型）
-    ratio_open_upper_20: float   #当日开盘价与20日上压力位的比
     ratio_close_upper_20: float  #当日收盘价与20日上压力位的比
-    ratio_avg_upper_20: float    #当日均价与20日上压力位的比
-    ratio_high_upper_20: float   #当日最高价与20日上压力位的比
-    ratio_low_upper_20: float    #当日最低价与20日上压力位的比
-    ratio_open_lower_20: float   #当日开盘价与20日下压力位的比
     ratio_close_lower_20: float  #当日收盘价与20日下压力位的比
-    ratio_avg_lower_20: float    #当日均价与20日下压力位的比
-    ratio_high_lower_20: float   #当日最高价与20日下压力位的比
-    ratio_low_lower_20: float    #当日最低价与20日下压力位的比
 
     # 当日价格与40日压力位比值（浮点型）
-    ratio_open_upper_40: float   #当日开盘价与40日上压力位的比
     ratio_close_upper_40: float  #当日收盘价与40日上压力位的比
-    ratio_avg_upper_40: float    #当日均价与40日上压力位的比
-    ratio_high_upper_40: float   #当日最高价与40日上压力位的比
-    ratio_low_upper_40: float    #当日最低价与40日上压力位的比
-    ratio_open_lower_40: float   #当日开盘价与40日下压力位的比
     ratio_close_lower_40: float  #当日收盘价与40日下压力位的比
-    ratio_avg_lower_40: float    #当日均价与40日下压力位的比
-    ratio_high_lower_40: float   #当日最高价与40日下压力位的比
-    ratio_low_lower_40: float    #当日最低价与40日下压力位的比
 
     # 当日价格与60日压力位比值（浮点型）
-    ratio_open_upper_60: float   #当日开盘价与60日上压力位的比
     ratio_close_upper_60: float  #当日收盘价与60日上压力位的比
-    ratio_avg_upper_60: float    #当日均价与60日上压力位的比
-    ratio_high_upper_60: float   #当日最高价与60日上压力位的比
-    ratio_low_upper_60: float    #当日最低价与60日上压力位的比
-    ratio_open_lower_60: float   #当日开盘价与60日下压力位的比
     ratio_close_lower_60: float  #当日收盘价与60日下压力位的比
-    ratio_avg_lower_60: float    #当日均价与60日下压力位的比
-    ratio_high_lower_60: float   #当日最高价与60日下压力位的比
-    ratio_low_lower_60: float    #当日最低价与60日下压力位的比
 
     # 当日价格与120日压力位比值（浮点型）
-    ratio_open_upper_120: float  #当日开盘价与120日上压力位的比
     ratio_close_upper_120: float #当日收盘价与120日上压力位的比
-    ratio_avg_upper_120: float   #当日均价与120日上压力位的比
-    ratio_high_upper_120: float  #当日最高价与120日上压力位的比
-    ratio_low_upper_120: float   #当日最低价与120日上压力位的比
-    ratio_open_lower_120: float  #当日开盘价与120日下压力位的比
     ratio_close_lower_120: float #当日收盘价与120日下压力位的比
-    ratio_avg_lower_120: float   #当日均价与120日下压力位的比
-    ratio_high_lower_120: float  #当日最高价与120日下压力位的比
-    ratio_low_lower_120: float   #当日最低价与120日下压力位的比
 
     # 当日价格与240日压力位比值（浮点型）
-    ratio_open_upper_240: float  #当日开盘价与240日上压力位的比
     ratio_close_upper_240: float #当日收盘价与240日上压力位的比
-    ratio_avg_upper_240: float   #当日均价与240日上压力位的比
-    ratio_high_upper_240: float  #当日最高价与240日上压力位的比
-    ratio_low_upper_240: float   #当日最低价与240日上压力位的比
-    ratio_open_lower_240: float  #当日开盘价与240日下压力位的比
     ratio_close_lower_240: float #当日收盘价与240日下压力位的比
-    ratio_avg_lower_240: float   #当日均价与240日下压力位的比
-    ratio_high_lower_240: float  #当日最高价与240日下压力位的比
-    ratio_low_lower_240: float   #当日最低价与240日下压力位的比
 
     # 2日平均价格与20日压力位比值（浮点型）
-    ratio_open_upper_2_20: float  #2日平均开盘价与20日上压力位的比
     ratio_close_upper_2_20: float #2日平均收盘价与20日上压力位的比
-    ratio_avg_upper_2_20: float   #2日平均均价与20日上压力位的比
-    ratio_high_upper_2_20: float  #2日平均最高价与20日上压力位的比
-    ratio_low_upper_2_20: float   #2日平均最低价与20日上压力位的比
-    ratio_open_lower_2_20: float  #2日平均开盘价与20日下压力位的比
     ratio_close_lower_2_20: float #2日平均收盘价与20日下压力位的比
-    ratio_avg_lower_2_20: float   #2日平均均价与20日下压力位的比
-    ratio_high_lower_2_20: float  #2日平均最高价与20日下压力位的比
-    ratio_low_lower_2_20: float   #2日平均最低价与20日下压力位的比
 
     # 2日平均价格与40日压力位比值（浮点型）
-    ratio_open_upper_2_40: float  #2日平均开盘价与40日上压力位的比
     ratio_close_upper_2_40: float #2日平均收盘价与40日上压力位的比
-    ratio_avg_upper_2_40: float   #2日平均均价与40日上压力位的比
-    ratio_high_upper_2_40: float  #2日平均最高价与40日上压力位的比
-    ratio_low_upper_2_40: float   #2日平均最低价与40日上压力位的比
-    ratio_open_lower_2_40: float  #2日平均开盘价与40日下压力位的比
     ratio_close_lower_2_40: float #2日平均收盘价与40日下压力位的比
-    ratio_avg_lower_2_40: float   #2日平均均价与40日下压力位的比
-    ratio_high_lower_2_40: float  #2日平均最高价与40日下压力位的比
-    ratio_low_lower_2_40: float   #2日平均最低价与40日下压力位的比
 
     # 2日平均价格与60日压力位比值（浮点型）
-    ratio_open_upper_2_60: float  #2日平均开盘价与60日上压力位的比
     ratio_close_upper_2_60: float #2日平均收盘价与60日上压力位的比
-    ratio_avg_upper_2_60: float   #2日平均均价与60日上压力位的比
-    ratio_high_upper_2_60: float  #2日平均最高价与60日上压力位的比
-    ratio_low_upper_2_60: float   #2日平均最低价与60日上压力位的比
-    ratio_open_lower_2_60: float  #2日平均开盘价与60日下压力位的比
     ratio_close_lower_2_60: float #2日平均收盘价与60日下压力位的比
-    ratio_avg_lower_2_60: float   #2日平均均价与60日下压力位的比
-    ratio_high_lower_2_60: float  #2日平均最高价与60日下压力位的比
-    ratio_low_lower_2_60: float   #2日平均最低价与60日下压力位的比
 
     # 2日平均价格与120日压力位比值（浮点型）
-    ratio_open_upper_2_120: float #2日平均开盘价与120日上压力位的比
     ratio_close_upper_2_120: float #2日平均收盘价与120日上压力位的比
-    ratio_avg_upper_2_120: float  #2日平均均价与120日上压力位的比
-    ratio_high_upper_2_120: float #2日平均最高价与120日上压力位的比
-    ratio_low_upper_2_120: float  #2日平均最低价与120日上压力位的比
-    ratio_open_lower_2_120: float #2日平均开盘价与120日下压力位的比
     ratio_close_lower_2_120: float #2日平均收盘价与120日下压力位的比
-    ratio_avg_lower_2_120: float  #2日平均均价与120日下压力位的比
-    ratio_high_lower_2_120: float #2日平均最高价与120日下压力位的比
-    ratio_low_lower_2_120: float  #2日平均最低价与120日下压力位的比
 
     # 2日平均价格与240日压力位比值（浮点型）
-    ratio_open_upper_2_240: float #2日平均开盘价与240日上压力位的比
     ratio_close_upper_2_240: float #2日平均收盘价与240日上压力位的比
-    ratio_avg_upper_2_240: float  #2日平均均价与240日上压力位的比
-    ratio_high_upper_2_240: float #2日平均最高价与240日上压力位的比
-    ratio_low_upper_2_240: float  #2日平均最低价与240日上压力位的比
-    ratio_open_lower_2_240: float #2日平均开盘价与240日下压力位的比
     ratio_close_lower_2_240: float #2日平均收盘价与240日下压力位的比
-    ratio_avg_lower_2_240: float  #2日平均均价与240日下压力位的比
-    ratio_high_lower_2_240: float #2日平均最高价与240日下压力位的比
-    ratio_low_lower_2_240: float  #2日平均最低价与240日下压力位的比
 
     # 3日平均价格与20日压力位比值（浮点型）
-    ratio_open_upper_3_20: float  #3日平均开盘价与20日上压力位的比
     ratio_close_upper_3_20: float #3日平均收盘价与20日上压力位的比
-    ratio_avg_upper_3_20: float   #3日平均均价与20日上压力位的比
-    ratio_high_upper_3_20: float  #3日平均最高价与20日上压力位的比
-    ratio_low_upper_3_20: float   #3日平均最低价与20日上压力位的比
-    ratio_open_lower_3_20: float  #3日平均开盘价与20日下压力位的比
     ratio_close_lower_3_20: float #3日平均收盘价与20日下压力位的比
-    ratio_avg_lower_3_20: float   #3日平均均价与20日下压力位的比
-    ratio_high_lower_3_20: float  #3日平均最高价与20日下压力位的比
-    ratio_low_lower_3_20: float   #3日平均最低价与20日下压力位的比
 
     # 3日平均价格与40日压力位比值（浮点型）
-    ratio_open_upper_3_40: float  #3日平均开盘价与40日上压力位的比
     ratio_close_upper_3_40: float #3日平均收盘价与40日上压力位的比
-    ratio_avg_upper_3_40: float   #3日平均均价与40日上压力位的比
-    ratio_high_upper_3_40: float  #3日平均最高价与40日上压力位的比
-    ratio_low_upper_3_40: float   #3日平均最低价与40日上压力位的比
-    ratio_open_lower_3_40: float  #3日平均开盘价与40日下压力位的比
     ratio_close_lower_3_40: float #3日平均收盘价与40日下压力位的比
-    ratio_avg_lower_3_40: float   #3日平均均价与40日下压力位的比
-    ratio_high_lower_3_40: float  #3日平均最高价与40日下压力位的比
-    ratio_low_lower_3_40: float   #3日平均最低价与40日下压力位的比
 
     # 3日平均价格与60日压力位比值（浮点型）
-    ratio_open_upper_3_60: float  #3日平均开盘价与60日上压力位的比
     ratio_close_upper_3_60: float #3日平均收盘价与60日上压力位的比
-    ratio_avg_upper_3_60: float   #3日平均均价与60日上压力位的比
-    ratio_high_upper_3_60: float  #3日平均最高价与60日上压力位的比
-    ratio_low_upper_3_60: float   #3日平均最低价与60日上压力位的比
-    ratio_open_lower_3_60: float  #3日平均开盘价与60日下压力位的比
     ratio_close_lower_3_60: float #3日平均收盘价与60日下压力位的比
-    ratio_avg_lower_3_60: float   #3日平均均价与60日下压力位的比
-    ratio_high_lower_3_60: float  #3日平均最高价与60日下压力位的比
-    ratio_low_lower_3_60: float   #3日平均最低价与60日下压力位的比
 
     # 3日平均价格与120日压力位比值（浮点型）
-    ratio_open_upper_3_120: float #3日平均开盘价与120日上压力位的比
     ratio_close_upper_3_120: float #3日平均收盘价与120日上压力位的比
-    ratio_avg_upper_3_120: float  #3日平均均价与120日上压力位的比
-    ratio_high_upper_3_120: float #3日平均最高价与120日上压力位的比
-    ratio_low_upper_3_120: float  #3日平均最低价与120日上压力位的比
-    ratio_open_lower_3_120: float #3日平均开盘价与120日下压力位的比
     ratio_close_lower_3_120: float #3日平均收盘价与120日下压力位的比
-    ratio_avg_lower_3_120: float  #3日平均均价与120日下压力位的比
-    ratio_high_lower_3_120: float #3日平均最高价与120日下压力位的比
-    ratio_low_lower_3_120: float  #3日平均最低价与120日下压力位的比
 
     # 3日平均价格与240日压力位比值（浮点型）
-    ratio_open_upper_3_240: float #3日平均开盘价与240日上压力位的比
     ratio_close_upper_3_240: float #3日平均收盘价与240日上压力位的比
-    ratio_avg_upper_3_240: float  #3日平均均价与240日上压力位的比
-    ratio_high_upper_3_240: float #3日平均最高价与240日上压力位的比
-    ratio_low_upper_3_240: float  #3日平均最低价与240日上压力位的比
-    ratio_open_lower_3_240: float #3日平均开盘价与240日下压力位的比
     ratio_close_lower_3_240: float #3日平均收盘价与240日下压力位的比
-    ratio_avg_lower_3_240: float  #3日平均均价与240日下压力位的比
-    ratio_high_lower_3_240: float #3日平均最高价与240日下压力位的比
-    ratio_low_lower_3_240: float  #3日平均最低价与240日下压力位的比
 
     # 5日平均价格与20日压力位比值（浮点型）
-    ratio_open_upper_5_20: float  #5日平均开盘价与20日上压力位的比
     ratio_close_upper_5_20: float #5日平均收盘价与20日上压力位的比
-    ratio_avg_upper_5_20: float   #5日平均均价与20日上压力位的比
-    ratio_high_upper_5_20: float  #5日平均最高价与20日上压力位的比
-    ratio_low_upper_5_20: float   #5日平均最低价与20日上压力位的比
-    ratio_open_lower_5_20: float  #5日平均开盘价与20日下压力位的比
     ratio_close_lower_5_20: float #5日平均收盘价与20日下压力位的比
-    ratio_avg_lower_5_20: float   #5日平均均价与20日下压力位的比
-    ratio_high_lower_5_20: float  #5日平均最高价与20日下压力位的比
-    ratio_low_lower_5_20: float   #5日平均最低价与20日下压力位的比
 
     # 5日平均价格与40日压力位比值（浮点型）
-    ratio_open_upper_5_40: float  #5日平均开盘价与40日上压力位的比
     ratio_close_upper_5_40: float #5日平均收盘价与40日上压力位的比
-    ratio_avg_upper_5_40: float   #5日平均均价与40日上压力位的比
-    ratio_high_upper_5_40: float  #5日平均最高价与40日上压力位的比
-    ratio_low_upper_5_40: float   #5日平均最低价与40日上压力位的比
-    ratio_open_lower_5_40: float  #5日平均开盘价与40日下压力位的比
     ratio_close_lower_5_40: float #5日平均收盘价与40日下压力位的比
-    ratio_avg_lower_5_40: float   #5日平均均价与40日下压力位的比
-    ratio_high_lower_5_40: float  #5日平均最高价与40日下压力位的比
-    ratio_low_lower_5_40: float   #5日平均最低价与40日下压力位的比
 
     # 5日平均价格与60日压力位比值（浮点型）
-    ratio_open_upper_5_60: float  #5日平均开盘价与60日上压力位的比
     ratio_close_upper_5_60: float #5日平均收盘价与60日上压力位的比
-    ratio_avg_upper_5_60: float   #5日平均均价与60日上压力位的比
-    ratio_high_upper_5_60: float  #5日平均最高价与60日上压力位的比
-    ratio_low_upper_5_60: float   #5日平均最低价与60日上压力位的比
-    ratio_open_lower_5_60: float  #5日平均开盘价与60日下压力位的比
     ratio_close_lower_5_60: float #5日平均收盘价与60日下压力位的比
-    ratio_avg_lower_5_60: float   #5日平均均价与60日下压力位的比
-    ratio_high_lower_5_60: float  #5日平均最高价与60日下压力位的比
-    ratio_low_lower_5_60: float   #5日平均最低价与60日下压力位的比
 
     # 5日平均价格与120日压力位比值（浮点型）
-    ratio_open_upper_5_120: float #5日平均开盘价与120日上压力位的比
     ratio_close_upper_5_120: float #5日平均收盘价与120日上压力位的比
-    ratio_avg_upper_5_120: float  #5日平均均价与120日上压力位的比
-    ratio_high_upper_5_120: float #5日平均最高价与120日上压力位的比
-    ratio_low_upper_5_120: float  #5日平均最低价与120日上压力位的比
-    ratio_open_lower_5_120: float #5日平均开盘价与120日下压力位的比
     ratio_close_lower_5_120: float #5日平均收盘价与120日下压力位的比
-    ratio_avg_lower_5_120: float  #5日平均均价与120日下压力位的比
-    ratio_high_lower_5_120: float #5日平均最高价与120日下压力位的比
-    ratio_low_lower_5_120: float  #5日平均最低价与120日下压力位的比
 
     # 5日平均价格与240日压力位比值（浮点型）
-    ratio_open_upper_5_240: float #5日平均开盘价与240日上压力位的比
     ratio_close_upper_5_240: float #5日平均收盘价与240日上压力位的比
-    ratio_avg_upper_5_240: float  #5日平均均价与240日上压力位的比
-    ratio_high_upper_5_240: float #5日平均最高价与240日上压力位的比
-    ratio_low_upper_5_240: float  #5日平均最低价与240日上压力位的比
-    ratio_open_lower_5_240: float #5日平均开盘价与240日下压力位的比
     ratio_close_lower_5_240: float #5日平均收盘价与240日下压力位的比
-    ratio_avg_lower_5_240: float  #5日平均均价与240日下压力位的比
-    ratio_high_lower_5_240: float #5日平均最高价与240日下压力位的比
-    ratio_low_lower_5_240: float  #5日平均最低价与240日下压力位的比
 
 
 
@@ -893,64 +735,24 @@ class StructBaseWindowClass :
     break_lower_count_240: int     #区间跌破240日下压力位次数
 
     # 区间平均价格与20日压力位比值（浮点型）
-    ratio_avg_open_upper_20: float   #区间平均开盘价与20日上压力位的比
     ratio_avg_close_upper_20: float  #区间平均收盘价与20日上压力位的比
-    ratio_avg_avg_upper_20: float    #区间平均均价与20日上压力位的比
-    ratio_avg_high_upper_20: float   #区间平均最高价与20日上压力位的比
-    ratio_avg_low_upper_20: float    #区间平均最低价与20日上压力位的比
-    ratio_avg_open_lower_20: float   #区间平均开盘价与20日下压力位的比
     ratio_avg_close_lower_20: float  #区间平均收盘价与20日下压力位的比
-    ratio_avg_avg_lower_20: float    #区间平均均价与20日下压力位的比
-    ratio_avg_high_lower_20: float   #区间平均最高价与20日下压力位的比
-    ratio_avg_low_lower_20: float    #区间平均最低价与20日下压力位的比
 
     # 区间平均价格与40日压力位比值（浮点型）
-    ratio_avg_open_upper_40: float   #区间平均开盘价与40日上压力位的比
     ratio_avg_close_upper_40: float  #区间平均收盘价与40日上压力位的比
-    ratio_avg_avg_upper_40: float    #区间平均均价与40日上压力位的比
-    ratio_avg_high_upper_40: float   #区间平均最高价与40日上压力位的比
-    ratio_avg_low_upper_40: float    #区间平均最低价与40日上压力位的比
-    ratio_avg_open_lower_40: float   #区间平均开盘价与40日下压力位的比
     ratio_avg_close_lower_40: float  #区间平均收盘价与40日下压力位的比
-    ratio_avg_avg_lower_40: float    #区间平均均价与40日下压力位的比
-    ratio_avg_high_lower_40: float   #区间平均最高价与40日下压力位的比
-    ratio_avg_low_lower_40: float    #区间平均最低价与40日下压力位的比
 
     # 区间平均价格与60日压力位比值（浮点型）
-    ratio_avg_open_upper_60: float   #区间平均开盘价与60日上压力位的比
     ratio_avg_close_upper_60: float  #区间平均收盘价与60日上压力位的比
-    ratio_avg_avg_upper_60: float    #区间平均均价与60日上压力位的比
-    ratio_avg_high_upper_60: float   #区间平均最高价与60日上压力位的比
-    ratio_avg_low_upper_60: float    #区间平均最低价与60日上压力位的比
-    ratio_avg_open_lower_60: float   #区间平均开盘价与60日下压力位的比
     ratio_avg_close_lower_60: float  #区间平均收盘价与60日下压力位的比
-    ratio_avg_avg_lower_60: float    #区间平均均价与60日下压力位的比
-    ratio_avg_high_lower_60: float   #区间平均最高价与60日下压力位的比
-    ratio_avg_low_lower_60: float    #区间平均最低价与60日下压力位的比
 
     # 区间平均价格与120日压力位比值（浮点型）
-    ratio_avg_open_upper_120: float  #区间平均开盘价与120日上压力位的比
     ratio_avg_close_upper_120: float #区间平均收盘价与120日上压力位的比
-    ratio_avg_avg_upper_120: float   #区间平均均价与120日上压力位的比
-    ratio_avg_high_upper_120: float  #区间平均最高价与120日上压力位的比
-    ratio_avg_low_upper_120: float   #区间平均最低价与120日上压力位的比
-    ratio_avg_open_lower_120: float  #区间平均开盘价与120日下压力位的比
     ratio_avg_close_lower_120: float #区间平均收盘价与120日下压力位的比
-    ratio_avg_avg_lower_120: float   #区间平均均价与120日下压力位的比
-    ratio_avg_high_lower_120: float  #区间平均最高价与120日下压力位的比
-    ratio_avg_low_lower_120: float   #区间平均最低价与120日下压力位的比
 
     # 区间平均价格与240日压力位比值（浮点型）
-    ratio_avg_open_upper_240: float  #区间平均开盘价与240日上压力位的比
     ratio_avg_close_upper_240: float #区间平均收盘价与240日上压力位的比
-    ratio_avg_avg_upper_240: float   #区间平均均价与240日上压力位的比
-    ratio_avg_high_upper_240: float  #区间平均最高价与240日上压力位的比
-    ratio_avg_low_upper_240: float   #区间平均最低价与240日上压力位的比
-    ratio_avg_open_lower_240: float  #区间平均开盘价与240日下压力位的比
     ratio_avg_close_lower_240: float #区间平均收盘价与240日下压力位的比
-    ratio_avg_avg_lower_240: float   #区间平均均价与240日下压力位的比
-    ratio_avg_high_lower_240: float  #区间平均最高价与240日下压力位的比
-    ratio_avg_low_lower_240: float   #区间平均最低价与240日下压力位的比
     #压力位结束---------------------------------------------------------------------------
 
 

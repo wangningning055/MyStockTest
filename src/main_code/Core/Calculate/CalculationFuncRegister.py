@@ -95,6 +95,156 @@ def RegisterCalculateFunc(calculationHandler):
 
     calculationHandler.CalculateBaseAttrDic = {
         "dataList_240" :partial(calculationHandler.GetLastDateDataByNum, dayNum = 240),
+
+
+
+        "up_pressure_20": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 20, handler = calculationHandler),
+        "down_pressure_20": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 20, handler = calculationHandler),
+
+        "up_pressure_40": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 40, handler = calculationHandler),
+        "down_pressure_40": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 40, handler = calculationHandler),
+
+        "up_pressure_60": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 60, handler = calculationHandler),
+        "down_pressure_60": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 60, handler = calculationHandler),
+
+        "up_pressure_120": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 120, handler = calculationHandler),
+        "down_pressure_120": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 120, handler = calculationHandler),
+
+        "up_pressure_240": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 240, handler = calculationHandler),
+        "down_pressure_240": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 240, handler = calculationHandler),
+
+
+        ## 单一日突破/跌破对应周期压力位（整型）
+        #is_break_upper_20: int      #是否突破20日上压力位
+        #is_break_lower_20: int      #是否跌破20日下压力位
+        #is_break_upper_40: int      #是否突破40日上压力位
+        #is_break_lower_40: int      #是否跌破40日下压力位
+        #is_break_upper_60: int      #是否突破60日上压力位
+        #is_break_lower_60: int      #是否跌破60日下压力位
+        #is_break_upper_120: int     #是否突破120日上压力位
+        #is_break_lower_120: int     #是否跌破120日下压力位
+        #is_break_upper_240: int     #是否突破240日上压力位
+        #is_break_lower_240: int     #是否跌破240日下压力位
+
+        ## 连续2日突破/跌破对应周期压力位（整型）
+        #is_break_upper_20_2: int   #是否连续2日突破20日上压力位
+        #is_break_lower_20_2: int   #是否连续2日跌破20日下压力位
+        #is_break_upper_40_2: int   #是否连续2日突破40日上压力位
+        #is_break_lower_40_2: int   #是否连续2日跌破40日下压力位
+        #is_break_upper_60_2: int   #是否连续2日突破60日上压力位
+        #is_break_lower_60_2: int   #是否连续2日跌破60日下压力位
+        #is_break_upper_120_2: int  #是否连续2日突破120日上压力位
+        #is_break_lower_120_2: int  #是否连续2日跌破120日下压力位
+        #is_break_upper_240_2: int  #是否连续2日突破240日上压力位
+        #is_break_lower_240_2: int  #是否连续2日跌破240日下压力位
+
+        ## 连续3日突破/跌破对应周期压力位（整型）
+        #is_break_upper_20_3: int   #是否连续3日突破20日上压力位
+        #is_break_lower_20_3: int   #是否连续3日跌破20日下压力位
+        #is_break_upper_40_3: int   #是否连续3日突破40日上压力位
+        #is_break_lower_40_3: int   #是否连续3日跌破40日下压力位
+        #is_break_upper_60_3: int   #是否连续3日突破60日上压力位
+        #is_break_lower_60_3: int   #是否连续3日跌破60日下压力位
+        #is_break_upper_120_3: int  #是否连续3日突破120日上压力位
+        #is_break_lower_120_3: int  #是否连续3日跌破120日下压力位
+        #is_break_upper_240_3: int  #是否连续3日突破240日上压力位
+        #is_break_lower_240_3: int  #是否连续3日跌破240日下压力位
+
+        ## 连续5日突破/跌破对应周期压力位（整型）
+        #is_break_upper_20_5: int   #是否连续5日突破20日上压力位
+        #is_break_lower_20_5: int   #是否连续5日跌破20日下压力位
+        #is_break_upper_40_5: int   #是否连续5日突破40日上压力位
+        #is_break_lower_40_5: int   #是否连续5日跌破40日下压力位
+        #is_break_upper_60_5: int   #是否连续5日突破60日上压力位
+        #is_break_lower_60_5: int   #是否连续5日跌破60日下压力位
+        #is_break_upper_120_5: int  #是否连续5日突破120日上压力位
+        #is_break_lower_120_5: int  #是否连续5日跌破120日下压力位
+        #is_break_upper_240_5: int  #是否连续5日突破240日上压力位
+        #is_break_lower_240_5: int  #是否连续5日跌破240日下压力位
+
+        ## 当日价格与20日压力位比值（浮点型）
+        #ratio_close_upper_20: float  #当日收盘价与20日上压力位的比
+        #ratio_close_lower_20: float  #当日收盘价与20日下压力位的比
+
+        ## 当日价格与40日压力位比值（浮点型）
+        #ratio_close_upper_40: float  #当日收盘价与40日上压力位的比
+        #ratio_close_lower_40: float  #当日收盘价与40日下压力位的比
+
+        ## 当日价格与60日压力位比值（浮点型）
+        #ratio_close_upper_60: float  #当日收盘价与60日上压力位的比
+        #ratio_close_lower_60: float  #当日收盘价与60日下压力位的比
+
+        ## 当日价格与120日压力位比值（浮点型）
+        #ratio_close_upper_120: float #当日收盘价与120日上压力位的比
+        #ratio_close_lower_120: float #当日收盘价与120日下压力位的比
+
+        ## 当日价格与240日压力位比值（浮点型）
+        #ratio_close_upper_240: float #当日收盘价与240日上压力位的比
+        #ratio_close_lower_240: float #当日收盘价与240日下压力位的比
+
+        ## 2日平均价格与20日压力位比值（浮点型）
+        #ratio_close_upper_2_20: float #2日平均收盘价与20日上压力位的比
+        #ratio_close_lower_2_20: float #2日平均收盘价与20日下压力位的比
+
+        ## 2日平均价格与40日压力位比值（浮点型）
+        #ratio_close_upper_2_40: float #2日平均收盘价与40日上压力位的比
+        #ratio_close_lower_2_40: float #2日平均收盘价与40日下压力位的比
+
+        ## 2日平均价格与60日压力位比值（浮点型）
+        #ratio_close_upper_2_60: float #2日平均收盘价与60日上压力位的比
+        #ratio_close_lower_2_60: float #2日平均收盘价与60日下压力位的比
+
+        ## 2日平均价格与120日压力位比值（浮点型）
+        #ratio_close_upper_2_120: float #2日平均收盘价与120日上压力位的比
+        #ratio_close_lower_2_120: float #2日平均收盘价与120日下压力位的比
+
+        ## 2日平均价格与240日压力位比值（浮点型）
+        #ratio_close_upper_2_240: float #2日平均收盘价与240日上压力位的比
+        #ratio_close_lower_2_240: float #2日平均收盘价与240日下压力位的比
+
+        ## 3日平均价格与20日压力位比值（浮点型）
+        #ratio_close_upper_3_20: float #3日平均收盘价与20日上压力位的比
+        #ratio_close_lower_3_20: float #3日平均收盘价与20日下压力位的比
+
+        ## 3日平均价格与40日压力位比值（浮点型）
+        #ratio_close_upper_3_40: float #3日平均收盘价与40日上压力位的比
+        #ratio_close_lower_3_40: float #3日平均收盘价与40日下压力位的比
+
+        ## 3日平均价格与60日压力位比值（浮点型）
+        #ratio_close_upper_3_60: float #3日平均收盘价与60日上压力位的比
+        #ratio_close_lower_3_60: float #3日平均收盘价与60日下压力位的比
+
+        ## 3日平均价格与120日压力位比值（浮点型）
+        #ratio_close_upper_3_120: float #3日平均收盘价与120日上压力位的比
+        #ratio_close_lower_3_120: float #3日平均收盘价与120日下压力位的比
+
+        ## 3日平均价格与240日压力位比值（浮点型）
+        #ratio_close_upper_3_240: float #3日平均收盘价与240日上压力位的比
+        #ratio_close_lower_3_240: float #3日平均收盘价与240日下压力位的比
+
+        ## 5日平均价格与20日压力位比值（浮点型）
+        #ratio_close_upper_5_20: float #5日平均收盘价与20日上压力位的比
+        #ratio_close_lower_5_20: float #5日平均收盘价与20日下压力位的比
+
+        ## 5日平均价格与40日压力位比值（浮点型）
+        #ratio_close_upper_5_40: float #5日平均收盘价与40日上压力位的比
+        #ratio_close_lower_5_40: float #5日平均收盘价与40日下压力位的比
+
+        ## 5日平均价格与60日压力位比值（浮点型）
+        #ratio_close_upper_5_60: float #5日平均收盘价与60日上压力位的比
+        #ratio_close_lower_5_60: float #5日平均收盘价与60日下压力位的比
+
+        ## 5日平均价格与120日压力位比值（浮点型）
+        #ratio_close_upper_5_120: float #5日平均收盘价与120日上压力位的比
+        #ratio_close_lower_5_120: float #5日平均收盘价与120日下压力位的比
+
+        ## 5日平均价格与240日压力位比值（浮点型）
+        #ratio_close_upper_5_240: float #5日平均收盘价与240日上压力位的比
+        #ratio_close_lower_5_240: float #5日平均收盘价与240日下压力位的比
+
+
+
+
         # -------------------------- 振幅相关 --------------------------
         "amplitude_3": partial(CalculationUtil.GetAmplitude_Avg, num =3),
         "amplitude_5": partial(CalculationUtil.GetAmplitude_Avg, num =5),

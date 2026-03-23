@@ -5,6 +5,7 @@ import src.main_code.Core.Const as const_proj
 from typing import List, Optional, Callable, Dict, Any, Union,Tuple  
 class TotalRecordDataCls:
     industry_Analyze_Dic:Dict[str, List[str]]                     #行业过去的{"202505", list[str]} 对应的年月所增长的行业
+    industry_Increase_Dic:Dict[str, int]                     #总结出过去的五年中某个月，该行业连续上涨次数
 
     stock_list_last_data:str                                      #股票列表上次的拉取日期
     daily_list_last_data:str                                        #日线列表上次完整拉取的日期

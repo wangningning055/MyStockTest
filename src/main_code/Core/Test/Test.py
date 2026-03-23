@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional, Callable, Dict, Any, Union
 from src.main_code.Core import Const
 from src.main_code.Core.Calculate import CalculationSpecial
+from src.main_code.Core.Calculate import CalculationDataHandle
 import time
 import psutil
 import os
@@ -9,7 +10,7 @@ import bisect
 import random
 def Stop():
       CalculationSpecial.isNeed_CalculateIndustryInfoTotal_Stop = True
-async def TestCalculate(handler):
+async def TestCalculate(handler : CalculationDataHandle.BaseClass):
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
@@ -69,7 +70,9 @@ async def TestCalculate(handler):
 
 
 
-        await CalculationSpecial.CalculateIndustryInfoTotal(handler.main)
+                
+            
+
 
         #print(f"#######行业总数量位：{len(indList)}")
         #for ind in indList:
