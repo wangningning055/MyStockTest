@@ -94,7 +94,6 @@ class AppManager {
         
         // 步骤4: 尝试连接
         this.connect();
-        
         this.app.log("✅ AppManager 初始化完成");
         return this;
     }
@@ -363,7 +362,7 @@ class AppManager {
             timestamp: new Date().toISOString(),
         });
     }
-    preheatData() {
+    industryUpData() {
         this.app.log("📤发送行业上涨请求...", "system");
         return this.socket.sendMessage(SocketModule.MessageType.CS_INDUSTRY_UP_DATA, {
             timestamp: new Date().toISOString(),

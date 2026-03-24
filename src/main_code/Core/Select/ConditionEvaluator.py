@@ -216,7 +216,7 @@ class ConditionEvaluator:
             #当日单股数据
             todayStr = self.main.todayStockDate
             #print(f"条件id是：{id}， 日期是：{todayStr}")
-            if id >= 1000 and id < 200000:
+            if id >= 0 and id < 200000:
                 #print("计算当日条件")
                 data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr)
 

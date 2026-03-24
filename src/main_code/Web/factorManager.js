@@ -316,12 +316,12 @@ export const FactorManager = {
      */
     bindFactorEvents() {
         document.getElementById('btn-add-buy-factor').addEventListener('click', () => App.showFactorModal('buy'));
-        document.getElementById('btn-add-sell-factor').addEventListener('click', () => App.showFactorModal('sell'));
+        //document.getElementById('btn-add-sell-factor').addEventListener('click', () => App.showFactorModal('sell'));
         document.getElementById('api-export-buy-config').addEventListener('click', () => App.exportConfig('buy'));
-        document.getElementById('api-export-sell-config').addEventListener('click', () => App.exportConfig('sell'));
+        //document.getElementById('api-export-sell-config').addEventListener('click', () => App.exportConfig('sell'));
         document.getElementById('api-import-buy-config').addEventListener('click', () => App.importConfig('buy'));
-        document.getElementById('api-import-sell-config').addEventListener('click', () => App.importConfig('sell'));
-        document.getElementById('api-load-buy-file').addEventListener('click', () => App.loadConfigFile('backtest-buy-source'));
-        document.getElementById('api-load-sell-file').addEventListener('click', () => App.loadConfigFile('backtest-sell-source'));
+        //document.getElementById('api-import-sell-config').addEventListener('click', () => App.importConfig('sell'));
+        //document.getElementById('api-load-buy-file').addEventListener('click', () => App.loadConfigFile('backtest-buy-source'));
+        //document.getElementById('api-load-sell-file').addEventListener('click', () => App.loadConfigFile('backtest-sell-source'));
     }
 };

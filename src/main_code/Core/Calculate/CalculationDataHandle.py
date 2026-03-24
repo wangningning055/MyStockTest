@@ -42,10 +42,11 @@ class BaseClass :
 
         self.InitIndustry()
         CalculationFuncRegister.RegisterCalculateFunc(self)
+        self.isPreheating = False
 
     async def DataPreheating(self, isNeedLog = True):
         self.main.SetIsInHandle(True)
-
+        await asyncio.sleep(0)
         today = self.GetToday()
         if today == None:
             print("没有拉取数据记录，无法进行数据预热")
@@ -53,7 +54,9 @@ class BaseClass :
             self.main.SetIsInHandle(False)
             return
         
-
+        if isNeedLog:
+            print("开始数据预热")
+            self.main.BoardCast("开始数据预热")
         self.totalDateList = self.InitDateList(today, Const.dateListLength)
         print(self.totalDateList)
 
@@ -138,6 +141,7 @@ class BaseClass :
 
         self.main.SetIsInHandle(False)
 
+        self.isPreheating = True
 
 
     def InitIndustry(self):
@@ -194,6 +198,10 @@ class BaseClass :
 
 
     def GetBaseDataClass(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
         if (stockCode, date) in self.totalBaseDailyData:
             baseClass = self.totalBaseDailyData[(stockCode, date)]
@@ -313,11 +321,127 @@ class BaseClass :
         print(f"5日震荡下行状态：{baseClass.is_pop_down_5}")
         print(f"10日震荡上行状态：{baseClass.is_pop_up_10}")
         print(f"10日震荡下行状态：{baseClass.is_pop_down_10}")
+        
+
+        print(f"价值股评分：{baseClass.ValueScore}")
+        print(f"成长股评分：{baseClass.GrowScore}")
+        print(f"是否处在行业上涨周期:{baseClass.isInIndustryUp}")
+
+        print(f"20日上压力位:{baseClass.up_pressure_20}")
+        print(f"20日下压力位:{baseClass.down_pressure_20}")
+        print(f"40日上压力位:{baseClass.up_pressure_40}")
+        print(f"40日下压力位:{baseClass.down_pressure_40}")
+        print(f"60日上压力位:{baseClass.up_pressure_60}")
+        print(f"60日下压力位:{baseClass.down_pressure_60}")
+        print(f"120日上压力位:{baseClass.up_pressure_120}")
+        print(f"120日下压力位:{baseClass.down_pressure_120}")
+        print(f"240日上压力位:{baseClass.up_pressure_240}")
+        print(f"240日下压力位:{baseClass.down_pressure_240}")
+
+        # 单一日突破/跌破打印
+        print(f"是否突破20日上压力位:{baseClass.is_break_upper_20}")
+        print(f"是否跌破20日下压力位:{baseClass.is_break_lower_20}")
+        print(f"是否突破40日上压力位:{baseClass.is_break_upper_40}")
+        print(f"是否跌破40日下压力位:{baseClass.is_break_lower_40}")
+        print(f"是否突破60日上压力位:{baseClass.is_break_upper_60}")
+        print(f"是否跌破60日下压力位:{baseClass.is_break_lower_60}")
+        print(f"是否突破120日上压力位:{baseClass.is_break_upper_120}")
+        print(f"是否跌破120日下压力位:{baseClass.is_break_lower_120}")
+        print(f"是否突破240日上压力位:{baseClass.is_break_upper_240}")
+        print(f"是否跌破240日下压力位:{baseClass.is_break_lower_240}")
+
+        # 连续2日突破/跌破打印
+        print(f"是否连续2日突破20日上压力位:{baseClass.is_break_upper_20_2}")
+        print(f"是否连续2日跌破20日下压力位:{baseClass.is_break_lower_20_2}")
+        print(f"是否连续2日突破40日上压力位:{baseClass.is_break_upper_40_2}")
+        print(f"是否连续2日跌破40日下压力位:{baseClass.is_break_lower_40_2}")
+        print(f"是否连续2日突破60日上压力位:{baseClass.is_break_upper_60_2}")
+        print(f"是否连续2日跌破60日下压力位:{baseClass.is_break_lower_60_2}")
+        print(f"是否连续2日突破120日上压力位:{baseClass.is_break_upper_120_2}")
+        print(f"是否连续2日跌破120日下压力位:{baseClass.is_break_lower_120_2}")
+        print(f"是否连续2日突破240日上压力位:{baseClass.is_break_upper_240_2}")
+        print(f"是否连续2日跌破240日下压力位:{baseClass.is_break_lower_240_2}")
+
+        # 连续3日突破/跌破打印
+        print(f"是否连续3日突破20日上压力位:{baseClass.is_break_upper_20_3}")
+        print(f"是否连续3日跌破20日下压力位:{baseClass.is_break_lower_20_3}")
+        print(f"是否连续3日突破40日上压力位:{baseClass.is_break_upper_40_3}")
+        print(f"是否连续3日跌破40日下压力位:{baseClass.is_break_lower_40_3}")
+        print(f"是否连续3日突破60日上压力位:{baseClass.is_break_upper_60_3}")
+        print(f"是否连续3日跌破60日下压力位:{baseClass.is_break_lower_60_3}")
+        print(f"是否连续3日突破120日上压力位:{baseClass.is_break_upper_120_3}")
+        print(f"是否连续3日跌破120日下压力位:{baseClass.is_break_lower_120_3}")
+        print(f"是否连续3日突破240日上压力位:{baseClass.is_break_upper_240_3}")
+        print(f"是否连续3日跌破240日下压力位:{baseClass.is_break_lower_240_3}")
+
+        # 连续5日突破/跌破打印
+        print(f"是否连续5日突破20日上压力位:{baseClass.is_break_upper_20_5}")
+        print(f"是否连续5日跌破20日下压力位:{baseClass.is_break_lower_20_5}")
+        print(f"是否连续5日突破40日上压力位:{baseClass.is_break_upper_40_5}")
+        print(f"是否连续5日跌破40日下压力位:{baseClass.is_break_lower_40_5}")
+        print(f"是否连续5日突破60日上压力位:{baseClass.is_break_upper_60_5}")
+        print(f"是否连续5日跌破60日下压力位:{baseClass.is_break_lower_60_5}")
+        print(f"是否连续5日突破120日上压力位:{baseClass.is_break_upper_120_5}")
+        print(f"是否连续5日跌破120日下压力位:{baseClass.is_break_lower_120_5}")
+        print(f"是否连续5日突破240日上压力位:{baseClass.is_break_upper_240_5}")
+        print(f"是否连续5日跌破240日下压力位:{baseClass.is_break_lower_240_5}")
+
+        # 当日价格与压力位比值打印
+        print(f"当日收盘价与20日上压力位的比:{baseClass.ratio_close_upper_20}")
+        print(f"当日收盘价与20日下压力位的比:{baseClass.ratio_close_lower_20}")
+        print(f"当日收盘价与40日上压力位的比:{baseClass.ratio_close_upper_40}")
+        print(f"当日收盘价与40日下压力位的比:{baseClass.ratio_close_lower_40}")
+        print(f"当日收盘价与60日上压力位的比:{baseClass.ratio_close_upper_60}")
+        print(f"当日收盘价与60日下压力位的比:{baseClass.ratio_close_lower_60}")
+        print(f"当日收盘价与120日上压力位的比:{baseClass.ratio_close_upper_120}")
+        print(f"当日收盘价与120日下压力位的比:{baseClass.ratio_close_lower_120}")
+        print(f"当日收盘价与240日上压力位的比:{baseClass.ratio_close_upper_240}")
+        print(f"当日收盘价与240日下压力位的比:{baseClass.ratio_close_lower_240}")
+
+        # 2日平均价格与压力位比值打印
+        print(f"2日平均收盘价与20日上压力位的比:{baseClass.ratio_close_upper_2_20}")
+        print(f"2日平均收盘价与20日下压力位的比:{baseClass.ratio_close_lower_2_20}")
+        print(f"2日平均收盘价与40日上压力位的比:{baseClass.ratio_close_upper_2_40}")
+        print(f"2日平均收盘价与40日下压力位的比:{baseClass.ratio_close_lower_2_40}")
+        print(f"2日平均收盘价与60日上压力位的比:{baseClass.ratio_close_upper_2_60}")
+        print(f"2日平均收盘价与60日下压力位的比:{baseClass.ratio_close_lower_2_60}")
+        print(f"2日平均收盘价与120日上压力位的比:{baseClass.ratio_close_upper_2_120}")
+        print(f"2日平均收盘价与120日下压力位的比:{baseClass.ratio_close_lower_2_120}")
+        print(f"2日平均收盘价与240日上压力位的比:{baseClass.ratio_close_upper_2_240}")
+        print(f"2日平均收盘价与240日下压力位的比:{baseClass.ratio_close_lower_2_240}")
+
+        # 3日平均价格与压力位比值打印
+        print(f"3日平均收盘价与20日上压力位的比:{baseClass.ratio_close_upper_3_20}")
+        print(f"3日平均收盘价与20日下压力位的比:{baseClass.ratio_close_lower_3_20}")
+        print(f"3日平均收盘价与40日上压力位的比:{baseClass.ratio_close_upper_3_40}")
+        print(f"3日平均收盘价与40日下压力位的比:{baseClass.ratio_close_lower_3_40}")
+        print(f"3日平均收盘价与60日上压力位的比:{baseClass.ratio_close_upper_3_60}")
+        print(f"3日平均收盘价与60日下压力位的比:{baseClass.ratio_close_lower_3_60}")
+        print(f"3日平均收盘价与120日上压力位的比:{baseClass.ratio_close_upper_3_120}")
+        print(f"3日平均收盘价与120日下压力位的比:{baseClass.ratio_close_lower_3_120}")
+        print(f"3日平均收盘价与240日上压力位的比:{baseClass.ratio_close_upper_3_240}")
+        print(f"3日平均收盘价与240日下压力位的比:{baseClass.ratio_close_lower_3_240}")
+
+        # 5日平均价格与压力位比值打印
+        print(f"5日平均收盘价与20日上压力位的比:{baseClass.ratio_close_upper_5_20}")
+        print(f"5日平均收盘价与20日下压力位的比:{baseClass.ratio_close_lower_5_20}")
+        print(f"5日平均收盘价与40日上压力位的比:{baseClass.ratio_close_upper_5_40}")
+        print(f"5日平均收盘价与40日下压力位的比:{baseClass.ratio_close_lower_5_40}")
+        print(f"5日平均收盘价与60日上压力位的比:{baseClass.ratio_close_upper_5_60}")
+        print(f"5日平均收盘价与60日下压力位的比:{baseClass.ratio_close_lower_5_60}")
+        print(f"5日平均收盘价与120日上压力位的比:{baseClass.ratio_close_upper_5_120}")
+        print(f"5日平均收盘价与120日下压力位的比:{baseClass.ratio_close_lower_5_120}")
+        print(f"5日平均收盘价与240日上压力位的比:{baseClass.ratio_close_upper_5_240}")
+        print(f"5日平均收盘价与240日下压力位的比:{baseClass.ratio_close_lower_5_240}")
+
         pass
 
     def GetWindowDataClass(self, stockCode, tradeDate, startDateCount, toDateCount, isJustSetRank = False):
-        from src.main_code.Core.Calculate import CalculationUtil
-        print(f"尝试获取股票：{stockCode}")
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+        #print(f"尝试获取股票：{stockCode}")
         cache_key = (stockCode, tradeDate, startDateCount, toDateCount)
         res = None
         if cache_key in self.totalBaseWindowData:
@@ -333,7 +457,7 @@ class BaseClass :
             return None
         if startDataClass.trade_state == 0:
             return None
-        print(f"股票未缓存：{stockCode}， {startDateCount}，   {toDateCount}")
+        #print(f"股票未缓存：{stockCode}， {startDateCount}，   {toDateCount}")
         windowsClass = CalculationDataStruct.StructBaseWindowClass()
         windowsClass.Init(startDataClass, startDateCount, toDateCount, self)
         self.totalBaseWindowData[cache_key] = windowsClass
@@ -403,18 +527,45 @@ class BaseClass :
             print(f"当日震荡上行状态：{windowsClass.is_pop_up}")
             print(f"当日震荡下行状态：{windowsClass.is_pop_down}")
 
-            if windowsClass.isCalculateRank:
-                print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
-                print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
-                print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
-                print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
-                print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
-                print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
-                print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
-                print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
+            print(f"成交量行业排名是 {windowsClass.volume_industry_rank}%")
+            print(f"成交额行业排名是 {windowsClass.total_price_industry_rank}%")
+            print(f"成交额涨跌幅行业排名是 {windowsClass.total_price_ratio_industry_rank}%")
+            print(f"成交量涨跌幅行业排名是 {windowsClass.volume_ratio_industry_rank}%")
+            print(f"涨跌幅行业排名是 {windowsClass.ratio_industry_rank}%")
+            print(f"振幅行业排名是 {windowsClass.amplitude_industry_rank}%")
+            print(f"换手率涨跌幅行业排名是 {windowsClass.turn_ratio_industry_rank}%")
+            print(f"均价行业排名是 {windowsClass.avg_industry_rank}%")
+            # 区间压力位突破/跌破次数打印
+            print(f"区间突破20日上压力位次数:{windowsClass.break_upper_count_20}")
+            print(f"区间跌破20日下压力位次数:{windowsClass.break_lower_count_20}")
+            print(f"区间突破40日上压力位次数:{windowsClass.break_upper_count_40}")
+            print(f"区间跌破40日下压力位次数:{windowsClass.break_lower_count_40}")
+            print(f"区间突破60日上压力位次数:{windowsClass.break_upper_count_60}")
+            print(f"区间跌破60日下压力位次数:{windowsClass.break_lower_count_60}")
+            print(f"区间突破120日上压力位次数:{windowsClass.break_upper_count_120}")
+            print(f"区间跌破120日下压力位次数:{windowsClass.break_lower_count_120}")
+            print(f"区间突破240日上压力位次数:{windowsClass.break_upper_count_240}")
+            print(f"区间跌破240日下压力位次数:{windowsClass.break_lower_count_240}")
+
+            # 区间平均价格与压力位比值打印
+            print(f"区间平均收盘价与20日上压力位的比:{windowsClass.ratio_avg_close_upper_20}")
+            print(f"区间平均收盘价与20日下压力位的比:{windowsClass.ratio_avg_close_lower_20}")
+            print(f"区间平均收盘价与40日上压力位的比:{windowsClass.ratio_avg_close_upper_40}")
+            print(f"区间平均收盘价与40日下压力位的比:{windowsClass.ratio_avg_close_lower_40}")
+            print(f"区间平均收盘价与60日上压力位的比:{windowsClass.ratio_avg_close_upper_60}")
+            print(f"区间平均收盘价与60日下压力位的比:{windowsClass.ratio_avg_close_lower_60}")
+            print(f"区间平均收盘价与120日上压力位的比:{windowsClass.ratio_avg_close_upper_120}")
+            print(f"区间平均收盘价与120日下压力位的比:{windowsClass.ratio_avg_close_lower_120}")
+            print(f"区间平均收盘价与240日上压力位的比:{windowsClass.ratio_avg_close_upper_240}")
+            print(f"区间平均收盘价与240日下压力位的比:{windowsClass.ratio_avg_close_lower_240}")
 
                 
     def GetIndustryBaseDataByCls(self,trade_date, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+
         if (industryInfoCls, trade_date) in self.CalculateIndustryBaseClassDic:
             baseClass = self.CalculateIndustryBaseClassDic[(industryInfoCls, trade_date)]
             #print(f"直接返回：{stockCode}  {date}")
@@ -427,6 +578,11 @@ class BaseClass :
             return baseClass
 
     def GetIndustryBaseData(self, stockCode, trade_date:str):
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+
         #componenyInfo = self.totalComponyIns.GetComponyInfo(stockCode)
         #print(f"开始计算基本行业数据, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date} ")
         industryInfoCls = self.totalComponyIns.GetIndustryClsByCode(stockCode)
@@ -440,6 +596,8 @@ class BaseClass :
             baseClass.Init(industryInfoCls, trade_date, self)
             self.CalculateIndustryBaseClassDic[(industryInfoCls, trade_date)] = baseClass
             return baseClass
+    
+    
     def CalculateIndustryBaseData(self,industryBaseClass):
         print(f"行业名称是 {industryBaseClass.name}, 行业股数量是 {len(industryBaseClass.industryInfoCls.stockList)}")
         print(f"交易日期是 {industryBaseClass.trade_date}")
@@ -466,6 +624,11 @@ class BaseClass :
 
 
     def GetIndustryWindowData(self, stockCode, tradeDate, startDateCount, toDateCount):
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
         industryInfoCls = self.totalComponyIns.GetIndustryClsByCode(stockCode)
         if (industryInfoCls, tradeDate, startDateCount, toDateCount) in self.CalculateIndustryWindowClassDic:
@@ -479,6 +642,11 @@ class BaseClass :
             return baseClass
 
     def GetIndustryWindowDataByCls(self, tradeDate, startDateCount, toDateCount, industryInfoCls:CalculationDataStruct.StructIndustryInfoClass):
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+
         if (industryInfoCls, tradeDate, startDateCount, toDateCount) in self.CalculateIndustryWindowClassDic:
             baseClass = self.CalculateIndustryWindowClassDic[(industryInfoCls, tradeDate, startDateCount, toDateCount)]
             return baseClass

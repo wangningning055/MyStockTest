@@ -502,5 +502,88 @@ export const UIManagerUtils = {
     getLastUpdateTime() {
         const elem = document.getElementById('last-update-text');
         return elem ? elem.textContent : null;
-    }
+    },
+
+
+    // ============ 分仓 UI 管理 ============
+    
+    getHoldingsInitialFund() {
+        return parseFloat(document.getElementById('holdings-initial-fund').value) || 100000;
+    },
+    
+    setHoldingsInitialFund(amount) {
+        const elem = document.getElementById('holdings-initial-fund');
+        if (elem) elem.value = amount;
+    },
+
+    getDivisionWeight(divisionId) {
+        const elem = document.getElementById(`division-weight-${divisionId}`);
+        return elem ? parseFloat(elem.value) : 0;
+    },
+
+    getDivisionMinHoldingTime(divisionId) {
+        const elem = document.getElementById(`division-hold-time-min-${divisionId}`);
+        return elem ? parseInt(elem.value) : 0;
+    },
+
+    getDivisionMaxHoldingTime(divisionId) {
+        const elem = document.getElementById(`division-hold-time-max-${divisionId}`);
+        return elem ? parseInt(elem.value) : 999;
+    },
+
+    getDivisionStopLoss(divisionId) {
+        const elem = document.getElementById(`division-stop-loss-${divisionId}`);
+        return elem ? parseFloat(elem.value) : 0;
+    },
+
+    getDivisionTakeProfit(divisionId) {
+        const elem = document.getElementById(`division-take-profit-${divisionId}`);
+        return elem ? parseFloat(elem.value) : 0;
+    },
+
+    updateHoldingsTotalChart(data) {
+        // 由 ChartManager 处理
+    },
+
+    updateHoldingsDivisionChart(divisionId, data) {
+        // 由 ChartManager 处理
+    },
+
+    updateHoldingsTotalLogTable(transactions) {
+        const tbody = document.getElementById('holdings-total-log-table');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        (transactions || []).forEach(tx => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${tx.date}</td>
+                <td>${tx.division || '-'}</td>
+                <td>${tx.stock}</td>
+                <td>${tx.action}</td>
+                <td>¥${tx.price.toFixed(2)}</td>
+                <td>${tx.profit ? `¥${tx.profit.toFixed(2)}` : '-'}</td>
+                <td>¥${tx.balance.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    },
+
+    updateHoldingsDivisionLogTable(transactions) {
+        const tbody = document.getElementById('holdings-division-log-table');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        (transactions || []).forEach(tx => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${tx.date}</td>
+                <td>${tx.stock}</td>
+                <td>${tx.action}</td>
+                <td>¥${tx.price.toFixed(2)}</td>
+                <td>${tx.profit ? `¥${tx.profit.toFixed(2)}` : '-'}</td>
+                <td>¥${tx.balance.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    },
+
 };

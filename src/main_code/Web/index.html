@@ -105,8 +105,7 @@
     <!-- 新增：页签导航栏（单独抽离，放在top-bar下方） -->
     <nav class="main-nav-container">
         <button class="nav-tab active" data-target="view-selection">🎯 选股页签</button>
-        <button class="nav-tab" data-target="view-backtest">📊 回测页签</button>
-        <button class="nav-tab" data-target="view-holdings">💼 持仓页签</button>
+        <button class="nav-tab" data-target="view-holdings">💼 回测页签</button>
         <button class="nav-tab" data-target="view-stock-query">🔍 股票经营内容查询</button>
         <button class="nav-tab" data-target="view-industry-rotation">🔄 行业轮动（按月）</button>
         <button class="nav-tab" data-target="view-value-growth">📈 价值/成长股筛选</button>
@@ -210,139 +209,117 @@
             </main>
         </div>
 
-        <div id="view-backtest" class="view-container">
-            <aside class="sidebar">
-                <div class="panel-header">⚙️ 回测策略源</div>
-                <div class="config-form">
-                    <div class="form-item">
-                        <label>买入策略</label>
-                        <select id="backtest-buy-source" class="input-dark">
-                            <option value="current">使用当前选股页配置</option>
-                        </select>
-                        <button class="btn btn-sm btn-outline" id="api-load-buy-file">📂 加载文件</button>
-                    </div>
-                    <div class="form-item">
-                        <label>卖出策略</label>
-                        <select id="backtest-sell-source" class="input-dark">
-                            <option value="current">使用当前持仓页配置</option>
-                        </select>
-                        <button class="btn btn-sm btn-outline" id="api-load-sell-file">📂 加载文件</button>
-                    </div>
-                </div>
-                
-                <div class="initial-fund-section">
-                    <div class="section-title">💰 初始本金设置</div>
-                    <div class="fund-input-group">
-                        <input type="number" id="initialFundInput" class="fund-input" value="100000">
-                        <button class="btn" id="setInitialFundBtn">设置</button>
-                    </div>
-                </div>
-            </aside>
 
-            <main class="main-content">
-                <div class="toolbar">
-                    <div class="tool-group">
-                        <label>时间范围</label>
-                        <input type="date" id="bt-start-date" class="input-dark">
-                        <span>至</span>
-                        <input type="date" id="bt-end-date" class="input-dark">
-                    </div>
-                    <div class="tool-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="bt-is-ideal"> 是否为理想买入卖出
-                        </label>
-                    </div>
-                    <button class="btn btn-primary" id="api-run-backtest">▶ 开始回测</button>
-                </div>
-                
-                <div class="chart-wrapper">
-                    <div class="chart-area portfolio-chart">
-                        <div class="section-title">📈 收益走势图</div>
-                        <div id="portfolioChart" class="echarts-full-container"></div>
-                    </div>
-                </div>
-
-                <div class="summary-grid">
-                    <div class="summary-card">
-                        <div class="label">最终总盈亏</div>
-                        <div class="value highlight" id="res-total-pnl">0.00%</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="label">胜率</div>
-                        <div class="value" id="res-win-rate">0%</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="label">最大回撤</div>
-                        <div class="value down" id="res-max-drawdown">0.00%</div>
-                    </div>
-                </div>
-
-                <div class="table-area">
-                    <div class="section-title">📃 回测交易流水</div>
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>日期</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th></tr>
-                        </thead>
-                        <tbody id="backtest-log-table"></tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
 
         <div id="view-holdings" class="view-container">
+            <!-- 侧边栏改为分仓管理 -->
             <aside class="sidebar">
                 <div class="panel-header">
-                    <span>✂️ 卖出策略配置</span>
+                    <span>💼 分仓管理</span>
                     <div class="mini-tools">
-                        <button class="icon-btn" id="api-export-sell-config">💾</button>
-                        <button class="icon-btn" id="api-import-sell-config">📥</button>
+                        <button class="icon-btn" id="holdings-export-all-config">💾 导出全部</button>
+                        <button class="icon-btn" id="holdings-import-all-config">📥 导入全部</button>
                     </div>
                 </div>
 
-                <div class="config-list" id="sell-factor-container"></div>
+                <!-- 初始本金设置 -->
+                <div class="holdings-init-fund-section">
+                    <div class="form-item">
+                        <label>初始本金 (¥)</label>
+                        <input type="number" id="holdings-initial-fund" value="100000" min="1000" class="input-dark">
+                        <button class="btn btn-sm btn-success" id="btn-set-holdings-fund">设置</button>
+                    </div>
+                </div>
+
+                <!-- 分仓列表容器 -->
+                <div class="holdings-list" id="holdings-divisions-container">
+                    <!-- 分仓项会动态添加到这里 -->
+                </div>
+
+                <!-- 添加新分仓按钮 -->
                 <div class="panel-footer">
-                    <button class="btn btn-primary" id="btn-add-sell-factor">
-                        <i class="fas fa-plus"></i> 添加卖出因子组合
+                    <button class="btn btn-primary" id="btn-add-division">
+                        <i class="fas fa-plus"></i> 添加分仓
                     </button>
                 </div>
             </aside>
 
             <main class="main-content">
-                <div class="threshold-section">
-                    <div class="section-title">📊 权重阈值设置</div>
-                    <div class="threshold-slider-group">
-                        <div class="threshold-label-row">
-                            <span class="threshold-label">权重值</span>
-                            <span class="threshold-value-display" id="holdings-threshold-value-display">0.3</span>
+                <!-- 选项卡：总仓 / 分仓详情 -->
+                <div class="holdings-view-tabs">
+                    <button class="holdings-tab-btn active" data-view="total-view">📊 总仓收益</button>
+                    <button class="holdings-tab-btn" data-view="division-view">💰 分仓详情</button>
+                </div>
+
+                <!-- 总仓视图 -->
+                <div id="holdings-total-view" class="holdings-view-pane active">
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="label">累计收益</div>
+                            <div class="value highlight" id="holdings-total-profit">0.00%</div>
                         </div>
-                        <input type="range" id="holdings-weight-threshold-slider" 
-                            class="threshold-slider" 
-                            min="-1" max="1" step="0.01" value="0.3">
-                        <div class="threshold-info">
-                            <small>拖动滑条设置权重阈值范围（-1-1）</small>
+                        <div class="summary-card">
+                            <div class="label">总仓权益</div>
+                            <div class="value" id="holdings-total-equity">¥0.00</div>
                         </div>
+                        <div class="summary-card">
+                            <div class="label">最大回撤</div>
+                            <div class="value down" id="holdings-total-max-drawdown">0.00%</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">胜率</div>
+                            <div class="value" id="holdings-total-win-rate">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- 收益曲线图 -->
+                    <div class="chart-container">
+                        <div id="holdings-total-chart" style="width: 100%; height: 400px;"></div>
+                    </div>
+
+                    <!-- 总仓购买记录 -->
+                    <div class="table-area">
+                        <div class="section-title">📃 全部交易流水</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th><th>分仓</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdings-total-log-table"></tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="holdings-top">
-                    <div class="section-title">💼 当前持仓明细</div>
-                    <button class="btn btn-danger" id="api-diagnose-holdings">🩺 卖出策略诊断</button>
-                </div>
-                
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>代码</th><th>名称</th><th>买入价</th><th>买入日期</th>
-                            <th>当前价</th><th>涨幅</th><th>盈利额</th><th>状态</th>
-                        </tr>
-                    </thead>
-                    <tbody id="holdings-table"></tbody>
-                </table>
+                <!-- 分仓详情视图 -->
+                <div id="holdings-division-view" class="holdings-view-pane">
+                    <!-- 分仓选择器 -->
+                    <div class="division-selector">
+                        <label>选择分仓：</label>
+                        <select id="holdings-division-selector" class="input-dark"></select>
+                    </div>
 
-                <div class="diagnosis-panel">
-                    <div class="section-title">📈 策略执行结果预演</div>
-                    <div id="diagnosis-output" class="diagnosis-content">
-                        等待诊断执行...
+                    <!-- 分仓配置面板 -->
+                    <div id="holdings-division-settings" class="division-settings-panel">
+                        <!-- 这里会动态加载分仓的配置 -->
+                    </div>
+
+                    <!-- 分仓收益曲线 -->
+                    <div class="chart-container">
+                        <div id="holdings-division-chart" style="width: 100%; height: 400px;"></div>
+                    </div>
+
+                    <!-- 分仓购买记录 -->
+                    <div class="table-area">
+                        <div class="section-title">📃 分仓交易流水</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdings-division-log-table"></tbody>
+                        </table>
                     </div>
                 </div>
             </main>

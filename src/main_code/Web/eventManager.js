@@ -147,7 +147,7 @@ export const EventManager = {
             industryBtn.addEventListener('click', () => {
                 if (manager) {
                     //setFetchButtonsLoading(true);
-                    manager.preheatData();
+                    manager.industryUpData();
                 }
             });
         }
@@ -228,6 +228,51 @@ export const EventManager = {
                 if (container) container.innerHTML = '';
             });
         }
+
+        // -------- 分仓管理事件 --------
+        const addDivisionBtn = document.getElementById('btn-add-division');
+        if (addDivisionBtn) {
+            addDivisionBtn.addEventListener('click', () => {
+                if (manager) {
+                    const divisionName = prompt('请输入分仓名称：', `分仓${divisionsData.length + 1}`);
+                    if (divisionName) {
+                        manager.holdings.addDivision(divisionName);
+                    }
+                }
+            });
+        }
+
+        const setHoldingsFundBtn = document.getElementById('btn-set-holdings-fund');
+        if (setHoldingsFundBtn) {
+            setHoldingsFundBtn.addEventListener('click', () => {
+                const fundValue = UIManagerUtils.getHoldingsInitialFund();
+                if (!isNaN(fundValue) && fundValue > 0) {
+                    App.log(`初始本金已设置为: ¥${fundValue.toLocaleString()}`, "success");
+                } else {
+                    App.log("请输入有效的初始本金金额", "error");
+                }
+            });
+        }
+
+        const exportAllBtn = document.getElementById('holdings-export-all-config');
+        if (exportAllBtn) {
+            exportAllBtn.addEventListener('click', () => {
+                if (manager && manager.holdings) {
+                    manager.holdings.exportAllHoldingsConfig();
+                }
+            });
+        }
+
+        const importAllBtn = document.getElementById('holdings-import-all-config');
+        if (importAllBtn) {
+            importAllBtn.addEventListener('click', () => {
+                if (manager && manager.holdings) {
+                    manager.holdings.importAllHoldingsConfig();
+                }
+            });
+        }
+
+
     },
 
     /**
@@ -273,5 +318,23 @@ export const EventManager = {
         this.bindBacktestEvents();
         ChartManager.initCharts();
         App.log("系统引擎启动成功，等待指令...", "system");
-    }
+    },
+    bindHoldingsTabEvents() {
+        const tabs = document.querySelectorAll('.holdings-tab-btn');
+        const panes = document.querySelectorAll('.holdings-view-pane');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const viewName = tab.dataset.view;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`holdings-${viewName}`).classList.add('active');
+                
+                App.log(`切换到${viewName === 'total-view' ? '总仓' : '分仓详情'}视图`, "system");
+            });
+        });
+    },
 };

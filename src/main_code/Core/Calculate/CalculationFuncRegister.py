@@ -275,118 +275,118 @@ def RegisterCalculateFunc(calculationHandler):
 
         ## 当日价格与40日压力位比值（浮点型）
         #ratio_close_upper_40: float  #当日收盘价与40日上压力位的比
-        "ratio_close_upper_20": (lambda cls: cls.close / cls.up_pressure_40),
+        "ratio_close_upper_40": (lambda cls: cls.close / cls.up_pressure_40),
         #ratio_close_lower_40: float  #当日收盘价与40日下压力位的比
-        "ratio_close_lower_20": (lambda cls: cls.close / cls.down_pressure_40),
+        "ratio_close_lower_40": (lambda cls: cls.close / cls.down_pressure_40),
 
         ## 当日价格与60日压力位比值（浮点型）
         #ratio_close_upper_60: float  #当日收盘价与60日上压力位的比
-        "ratio_close_upper_20": (lambda cls: cls.close / cls.up_pressure_60),
+        "ratio_close_upper_60": (lambda cls: cls.close / cls.up_pressure_60),
         #ratio_close_lower_60: float  #当日收盘价与60日下压力位的比
-        "ratio_close_lower_20": (lambda cls: cls.close / cls.down_pressure_60),
+        "ratio_close_lower_60": (lambda cls: cls.close / cls.down_pressure_60),
 
         ## 当日价格与120日压力位比值（浮点型）
         #ratio_close_upper_120: float #当日收盘价与120日上压力位的比
-        "ratio_close_upper_20": (lambda cls: cls.close / cls.up_pressure_120),
+        "ratio_close_upper_120": (lambda cls: cls.close / cls.up_pressure_120),
         #ratio_close_lower_120: float #当日收盘价与120日下压力位的比
-        "ratio_close_lower_20": (lambda cls: cls.close / cls.down_pressure_120),
+        "ratio_close_lower_120": (lambda cls: cls.close / cls.down_pressure_120),
 
         ## 当日价格与240日压力位比值（浮点型）
         #ratio_close_upper_240: float #当日收盘价与240日上压力位的比
-        "ratio_close_upper_20": (lambda cls: cls.close / cls.up_pressure_240),
+        "ratio_close_upper_240": (lambda cls: cls.close / cls.up_pressure_240),
         #ratio_close_lower_240: float #当日收盘价与240日下压力位的比
-        "ratio_close_lower_20": (lambda cls: cls.close / cls.down_pressure_240),
+        "ratio_close_lower_240": (lambda cls: cls.close / cls.down_pressure_240),
 
 
         ## 2日平均价格与20日压力位比值（浮点型）
         #ratio_close_upper_2_20: float #2日平均收盘价与20日上压力位的比
-        "ratio_close_upper_2_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=20),
+        "ratio_close_upper_2_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=20, handler = calculationHandler),
         #ratio_close_lower_2_20: float #2日平均收盘价与20日下压力位的比
-        "ratio_close_lower_2_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=20),
+        "ratio_close_lower_2_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=20, handler = calculationHandler),
 
         ## 2日平均价格与40日压力位比值（浮点型）
         #ratio_close_upper_2_40: float #2日平均收盘价与40日上压力位的比
-        "ratio_close_upper_2_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=40),
+        "ratio_close_upper_2_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=40, handler = calculationHandler),
         #ratio_close_lower_2_40: float #2日平均收盘价与40日下压力位的比
-        "ratio_close_lower_2_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=40),
+        "ratio_close_lower_2_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=40, handler = calculationHandler),
 
         ## 2日平均价格与60日压力位比值（浮点型）
         #ratio_close_upper_2_60: float #2日平均收盘价与60日上压力位的比
-        "ratio_close_upper_2_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=60),
+        "ratio_close_upper_2_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=60, handler = calculationHandler),
         #ratio_close_lower_2_60: float #2日平均收盘价与60日下压力位的比
-        "ratio_close_lower_2_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=60),
+        "ratio_close_lower_2_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=60, handler = calculationHandler),
 
         ## 2日平均价格与120日压力位比值（浮点型）
         #ratio_close_upper_2_120: float #2日平均收盘价与120日上压力位的比
-        "ratio_close_upper_2_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=120),
+        "ratio_close_upper_2_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=120, handler = calculationHandler),
         #ratio_close_lower_2_120: float #2日平均收盘价与120日下压力位的比
-        "ratio_close_lower_2_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=120),
+        "ratio_close_lower_2_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=120, handler = calculationHandler),
 
         ## 2日平均价格与240日压力位比值（浮点型）
         #ratio_close_upper_2_240: float #2日平均收盘价与240日上压力位的比
-        "ratio_close_upper_2_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=240),
+        "ratio_close_upper_2_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=2, BreakWindowCount=240, handler = calculationHandler),
         #ratio_close_lower_2_240: float #2日平均收盘价与240日下压力位的比
-        "ratio_close_lower_2_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=240),
+        "ratio_close_lower_2_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=2, BreakWindowCount=240, handler = calculationHandler),
 
         ## 3日平均价格与20日压力位比值（浮点型）
         #ratio_close_upper_3_20: float #3日平均收盘价与20日上压力位的比
-        "ratio_close_upper_3_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=20),
+        "ratio_close_upper_3_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=20, handler = calculationHandler),
         #ratio_close_lower_3_20: float #3日平均收盘价与20日下压力位的比
-        "ratio_close_lower_3_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=20),
+        "ratio_close_lower_3_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=20, handler = calculationHandler),
 
         ## 3日平均价格与40日压力位比值（浮点型）
         #ratio_close_upper_3_40: float #3日平均收盘价与40日上压力位的比
-        "ratio_close_upper_3_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=40),
+        "ratio_close_upper_3_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=40, handler = calculationHandler),
         #ratio_close_lower_3_40: float #3日平均收盘价与40日下压力位的比
-        "ratio_close_lower_3_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=40),
+        "ratio_close_lower_3_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=40, handler = calculationHandler),
 
         ## 3日平均价格与60日压力位比值（浮点型）
         #ratio_close_upper_3_60: float #3日平均收盘价与60日上压力位的比
-        "ratio_close_upper_3_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=60),
+        "ratio_close_upper_3_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=60, handler = calculationHandler),
         #ratio_close_lower_3_60: float #3日平均收盘价与60日下压力位的比
-        "ratio_close_lower_3_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=60),
+        "ratio_close_lower_3_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=60, handler = calculationHandler),
 
         ## 3日平均价格与120日压力位比值（浮点型）
         #ratio_close_upper_3_120: float #3日平均收盘价与120日上压力位的比
-        "ratio_close_upper_3_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=120),
+        "ratio_close_upper_3_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=120, handler = calculationHandler),
         #ratio_close_lower_3_120: float #3日平均收盘价与120日下压力位的比
-        "ratio_close_lower_3_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=120),
+        "ratio_close_lower_3_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=120, handler = calculationHandler),
 
         ## 3日平均价格与240日压力位比值（浮点型）
         #ratio_close_upper_3_240: float #3日平均收盘价与240日上压力位的比
-        "ratio_close_upper_3_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=240),
+        "ratio_close_upper_3_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=3, BreakWindowCount=240, handler = calculationHandler),
         #ratio_close_lower_3_240: float #3日平均收盘价与240日下压力位的比
-        "ratio_close_lower_3_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=240),
+        "ratio_close_lower_3_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=3, BreakWindowCount=240, handler = calculationHandler),
 
         ## 5日平均价格与20日压力位比值（浮点型）
         #ratio_close_upper_5_20: float #5日平均收盘价与20日上压力位的比
-        "ratio_close_upper_5_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=20),
+        "ratio_close_upper_5_20": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=20, handler = calculationHandler),
         #ratio_close_lower_5_20: float #5日平均收盘价与20日下压力位的比
-        "ratio_close_lower_5_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=20),
+        "ratio_close_lower_5_20": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=20, handler = calculationHandler),
 
         ## 5日平均价格与40日压力位比值（浮点型）
         #ratio_close_upper_5_40: float #5日平均收盘价与40日上压力位的比
-        "ratio_close_upper_5_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=40),
+        "ratio_close_upper_5_40": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=40, handler = calculationHandler),
         #ratio_close_lower_5_40: float #5日平均收盘价与40日下压力位的比
-        "ratio_close_lower_5_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=40),
+        "ratio_close_lower_5_40": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=40, handler = calculationHandler),
 
         ## 5日平均价格与60日压力位比值（浮点型）
         #ratio_close_upper_5_60: float #5日平均收盘价与60日上压力位的比
-        "ratio_close_upper_5_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=60),
+        "ratio_close_upper_5_60": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=60, handler = calculationHandler),
         #ratio_close_lower_5_60: float #5日平均收盘价与60日下压力位的比
-        "ratio_close_lower_5_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=60),
+        "ratio_close_lower_5_60": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=60, handler = calculationHandler),
 
         ## 5日平均价格与120日压力位比值（浮点型）
         #ratio_close_upper_5_120: float #5日平均收盘价与120日上压力位的比
-        "ratio_close_upper_5_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=120),
+        "ratio_close_upper_5_120": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=120, handler = calculationHandler),
         #ratio_close_lower_5_120: float #5日平均收盘价与120日下压力位的比
-        "ratio_close_lower_5_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=120),
+        "ratio_close_lower_5_120": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=120, handler = calculationHandler),
 
         ## 5日平均价格与240日压力位比值（浮点型）
         #ratio_close_upper_5_240: float #5日平均收盘价与240日上压力位的比
-        "ratio_close_upper_5_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=240),
+        "ratio_close_upper_5_240": partial(CalculationUtil.GetRatioDayAvg_Up_PressureWindow, Length=5, BreakWindowCount=240, handler = calculationHandler),
         #ratio_close_lower_5_240: float #5日平均收盘价与240日下压力位的比
-        "ratio_close_lower_5_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=240),
+        "ratio_close_lower_5_240": partial(CalculationUtil.GetRatioDayAvg_Down_PressureWindow, Length=5, BreakWindowCount=240, handler = calculationHandler),
 
         # -------------------------- 振幅相关 --------------------------
         "amplitude_3": partial(CalculationUtil.GetAmplitude_Avg, num =3),

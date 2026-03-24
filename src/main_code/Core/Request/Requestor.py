@@ -291,7 +291,7 @@ class RequestorClass:
         self.main.SetIsInHandle(True)
 
         self.isInRequester = True
-        
+        self.main.calculationDataHandle.isPreheating = False
         if type == 1:
             await self.OnMsgRequestStockListData()
         if type == 2:

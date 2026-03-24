@@ -169,8 +169,8 @@ def GetIsBreakDownPressure(NowData:"CalculationDataStruct.StructBaseClass", Brea
         return 0
 
     close = NowData.close
-    
     ratio = (close - pressure) / pressure
+    #print(f"日期是：{NowData.trade_date}， 收盘价是：{close}， 下压力位是：{pressure}，下压力位窗口是：{BreakWindowCount}， 跌幅是：{ratio}")
     if ratio < -0.01:
         return 1
     return 0
@@ -180,7 +180,7 @@ def GetIsBreakUpPressure_Length(NowData:"CalculationDataStruct.StructBaseClass",
     breakCount= 0
     for single in NowData.dataList_240:
         isBreak = GetIsBreakUpPressure(single, BreakWindowCount)
-        if isBreak:
+        if isBreak == 1:
             breakCount += 1
             if breakCount >= Length:
                 return 1
@@ -196,7 +196,8 @@ def GetIsBreakDownPressure_Length(NowData:"CalculationDataStruct.StructBaseClass
     breakCount= 0
     for single in NowData.dataList_240:
         isBreak = GetIsBreakDownPressure(single, BreakWindowCount)
-        if isBreak:
+        #print(f"是否连续{Length}日突破{BreakWindowCount}下压力位，当日是：{single.trade_date}, 是否突破：{isBreak}")
+        if isBreak == 1:
             breakCount += 1
             if breakCount >= Length:
                 return 1
@@ -207,7 +208,7 @@ def GetIsBreakDownPressure_Length(NowData:"CalculationDataStruct.StructBaseClass
     return 0
 
 #获取X日均价与X日压力位的比值
-def GetRatioDayAvg_Up_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+def GetRatioDayAvg_Up_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
     count= 0
     total = 0
     for single in NowData.dataList_240:
@@ -217,11 +218,11 @@ def GetRatioDayAvg_Up_PressureWindow(NowData:"CalculationDataStruct.StructBaseCl
         count += 1
 
     total = total / count
-    pressure = GetUpPressure(NowData, BreakWindowCount)
+    pressure = GetUpPressure(NowData, BreakWindowCount, handler)
     return total / pressure
 
 #获取X日均价与X日压力位的比值
-def GetRatioDayAvg_Down_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount):
+def GetRatioDayAvg_Down_PressureWindow(NowData:"CalculationDataStruct.StructBaseClass", Length, BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
     count= 0
     total = 0
     for single in NowData.dataList_240:
@@ -231,7 +232,7 @@ def GetRatioDayAvg_Down_PressureWindow(NowData:"CalculationDataStruct.StructBase
         count += 1
 
     total = total / count
-    pressure = GetDownPressure(NowData, BreakWindowCount)
+    pressure = GetDownPressure(NowData, BreakWindowCount, handler)
     return total / pressure
 
 
@@ -247,7 +248,7 @@ def GetGrowScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"Calcu
 def GetIsInIndustryUp(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     now = datetime.now()
     month = now.month
-    industry_self = handler.totalComponyIns.GetIndustryStrByCode(NowData)
+    industry_self = handler.totalComponyIns.GetIndustryStrByCode(NowData.code)
     industryList = handler.main.recordDataCls.industry_Increase_Dic.get(month)
     if industryList == None:
         return 0
@@ -1501,10 +1502,10 @@ def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
     for single in dataList_240:
         if count == StartDayCount:
             startVal = single.close
-            print(f"正在算涨跌幅，开始日期是：{single.trade_date}, 涨跌幅开始值是：{startVal}， {StartDayCount}  {ToDayCount}")
+            #print(f"正在算涨跌幅，开始日期是：{single.trade_date}, 涨跌幅开始值是：{startVal}， {StartDayCount}  {ToDayCount}")
         if count == ToDayCount or count == len(dataList_240) - 1:
             endVal = single.close
-            print(f"正在算涨跌幅，结束日期是：{single.trade_date}, 涨跌幅结束值是：{endVal}， {StartDayCount}  {ToDayCount}")
+            #print(f"正在算涨跌幅，结束日期是：{single.trade_date}, 涨跌幅结束值是：{endVal}， {StartDayCount}  {ToDayCount}")
             break
         count = count + 1
     return (startVal - endVal)*100 / endVal
