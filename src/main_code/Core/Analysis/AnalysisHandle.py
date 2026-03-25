@@ -30,7 +30,6 @@ class BaseClass :
         print(f"开始进行条件: {conditionJson}")
         evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
         evaluator.SetMain(self.main)
-        return
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
@@ -78,10 +77,10 @@ class BaseClass :
                 if cls.isST == 1:
                     continue
             if self.isOutKC == True:
-                if const.GetIsKC():
+                if const.GetIsKC(val):
                     continue
             if self.isOutCY == True:
-                if const.GetIsCy():
+                if const.GetIsCy(val):
                     continue
             score = evaluator.evaluate_stock(val, request.configs)
             

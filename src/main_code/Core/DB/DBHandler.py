@@ -620,7 +620,21 @@ class DBHandlerClass:
         
         return temp_dict
 
-
+    def GetAllValueData(self):
+        sql = f'SELECT * FROM {const_proj.DBValueTableName}'
+        self.dbCursor.execute(sql)
+        allRow = self.dbCursor.fetchall()
+        columns = [desc[0] for desc in self.dbCursor.description]
+        List = []
+        for row in allRow:
+            row_dict = {col: row[i] for i, col in enumerate(columns)}
+            
+            rowDic = dict(row)
+            List.append(row_dict)
+            #sameList.add(ts_code)
+        return List
+    
+    
     def LoadAllValueDataToDict(self):
         # 获取数据库列名
         code_column = self.valueDbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Code)
