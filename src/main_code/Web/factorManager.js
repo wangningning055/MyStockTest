@@ -225,7 +225,7 @@ export const FactorManager = {
     /**
      * 显示因子选择模态框
      */
-    async showFactorModal(side, targetCardId = null) {
+    async showFactorModal(side, targetCardId = null, isEditor = false) {
         const modal = document.getElementById('factor-modal');
         const categoriesContainer = document.getElementById('factor-categories-container');
 
@@ -288,8 +288,16 @@ export const FactorManager = {
                             self.addConditionToCard(targetCardId, item.name, factorId);
                         } else {
                             // 创建新卡片
-                            const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
-                            self.renderFactorCard(item.name, containerId, side, factorId);
+                            if(isEditor == false)
+                            {
+                                const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
+                                self.renderFactorCard(item.name, containerId, side, factorId);
+                            }
+                            else
+                            {
+                                const containerId = "editor-factor-container"
+                                self.renderFactorCard(item.name, containerId, side, factorId);
+                            }
                         }
                         modal.classList.remove('active');
                     };

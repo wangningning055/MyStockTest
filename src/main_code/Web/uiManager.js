@@ -17,6 +17,26 @@ export function setUIManager(_manager) {
 
 export const UIManagerUtils = {
     // ============ 基础 Getters ============
+
+    // 在 UIManagerUtils 中添加
+    getHoldingsFilterOptions() {
+        return {
+            excludeST: document.getElementById('holdings-filter-exclude-st')?.checked ?? true,
+            excludeKC: document.getElementById('holdings-filter-exclude-kc')?.checked ?? true,
+            excludeCY: document.getElementById('holdings-filter-exclude-cy')?.checked ?? true
+        };
+    },
+
+    setHoldingsFilterOptions(options) {
+        const stCheckbox = document.getElementById('holdings-filter-exclude-st');
+        const kcCheckbox = document.getElementById('holdings-filter-exclude-kc');
+        const cyCheckbox = document.getElementById('holdings-filter-exclude-cy');
+        
+        if (stCheckbox) stCheckbox.checked = options.excludeST ?? true;
+        if (kcCheckbox) kcCheckbox.checked = options.excludeKC ?? true;
+        if (cyCheckbox) cyCheckbox.checked = options.excludeCY ?? true;
+    },
+
     
     getTushareToken() { 
         return document.getElementById('tushareToken').value; 
@@ -164,22 +184,22 @@ export const UIManagerUtils = {
 
     
     setWeightThreshold(value) {
+        value = Number(value)
         const elem = document.getElementById('weight-threshold-slider');
         const display = document.getElementById('threshold-value-display');
         if (elem) {
-            elem.value = Math.max(0, Math.min(1, value));
+            elem.value = Math.max(-1, Math.min(1, value));
             if (display) display.textContent = elem.value;
         }
+    },
+
+    getWeightThreshold() {
+        const elem = document.getElementById('weight-threshold-slider');
+        const display = document.getElementById('threshold-value-display');
+        return display.textContent
     },
     
-    setHoldingsWeightThreshold(value) {
-        const elem = document.getElementById('holdings-weight-threshold-slider');
-        const display = document.getElementById('holdings-threshold-value-display');
-        if (elem) {
-            elem.value = Math.max(0, Math.min(1, value));
-            if (display) display.textContent = elem.value;
-        }
-    },
+
     
     setSelectionDescription(text) { 
         const elem = document.getElementById('stock-description');

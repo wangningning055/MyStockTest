@@ -64,6 +64,7 @@ export const ConfigManager = {
      */
     exportConfig(side) {
         try {
+            const val = Number(manager.ui.getWeightThreshold())
             const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
             const factors = this.getFactorData(containerId);
             
@@ -74,6 +75,7 @@ export const ConfigManager = {
             
             // 创建完整的配置对象
             const config = {
+                threshold: val,
                 configs: factors,
                 timestamp: new Date().toISOString(),
                 version: "1.0",
@@ -131,7 +133,7 @@ export const ConfigManager = {
                         throw new Error('数据格式无效：应该是数组或包含configs字段的对象');
                     }
                     
-                    this.applyConfigToContainer(configsArray, side);
+                    this.applyConfigToContainer(configsArray, side, data.threshold);
                     App.log(`${side === 'buy' ? '买入' : '卖出'}策略已导入 (${configsArray.length}个因子)`, "success");
                     console.log('导入的配置:', configsArray);
                 } catch (error) {
@@ -147,10 +149,12 @@ export const ConfigManager = {
     /**
      * 应用配置到容器（重建UI）
      */
-    applyConfigToContainer(configData, side) {
+    applyConfigToContainer(configData, side, threshold = 0.3) {
         try {
             const containerId = side === 'buy' ? 'buy-factor-container' : 'sell-factor-container';
             UIManagerUtils.clearFactorCards(containerId);
+
+            manager.ui.setWeightThreshold(threshold)
             
             if (!Array.isArray(configData)) {
                 throw new Error('配置数据必须是数组');
@@ -355,5 +359,34 @@ export const ConfigManager = {
             console.error('删除配置失败:', error);
             return false;
         }
+    },
+
+
+    // 在 ConfigManager 中新增以下方法
+
+    // 为特定分仓导出配置
+    exportDivisionConfig(divisionId, side) {
+        // 获取分仓的买入或卖出配置
+    },
+
+    // 为特定分仓导入配置
+    importDivisionConfig(divisionId, side) {
+        // 导入分仓的买入或卖出配置
+    },
+
+    // 获取分仓的买入数据
+    getDivisionFactorData(divisionId) {
+        // 从分仓内获取因子数据
+    },
+
+    // 获取分仓的卖出数据
+    getDivisionSellFactorData(divisionId) {
+        // 从分仓内获取卖出因子数据
+    },
+
+    // 应用配置到分仓
+    applyConfigToDivision(divisionId, configData, side) {
+        // 将导入的配置应用到分仓的容器中
     }
+
 };

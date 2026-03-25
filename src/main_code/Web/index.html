@@ -6,6 +6,7 @@
     <title>哇哈哈</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/chart-fix.css">
+    <link rel="stylesheet" href="static/factorEditor.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -154,20 +155,6 @@
                             </label>
                         </div>
 
-                        <div class="tooltip-wrapper">
-                            <div class="custom-tooltip">价值股教授大家阿拉山口大家爱上了绿色科技大楼阿<br>萨大厦里的卡死了卢卡斯记得啦时刻记得阿拉山口大家案例拉</div>
-                            <div class="filter-item">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="filter-exclude-value" checked> 只考虑价值股
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="filter-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="filter-exclude-grow" checked> 只考虑成长股
-                            </label>
-                        </div>
                     </div>
 
                     <div class="threshold-section">
@@ -245,6 +232,31 @@
             </aside>
 
             <main class="main-content">
+
+            <!-- ↓ 新增：股票筛选面板 ↓ -->
+                <div class="filter-and-threshold-panel">
+                    <div class="filter-section">
+                        <div class="section-title">🔍 股票筛选</div>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="holdings-filter-exclude-st" checked> 剔除ST股
+                            </label>
+                        </div>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="holdings-filter-exclude-kc" checked> 剔除科创板
+                            </label>
+                        </div>
+                        <div class="filter-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="holdings-filter-exclude-cy" checked> 剔除创业板
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- ↑ 新增完毕 ↑ -->
+
+
                 <!-- 选项卡：总仓 / 分仓详情 -->
                 <div class="holdings-view-tabs">
                     <button class="holdings-tab-btn active" data-view="total-view">📊 总仓收益</button>
@@ -590,6 +602,9 @@
         AppManager.init();
         window.AppManager = AppManager;
     });
+    import { FactorEditor } from "./static/factorEditor.js";
+    window.FactorEditor = FactorEditor;  // 暴露到全局
+
 
 </script>
 </body>

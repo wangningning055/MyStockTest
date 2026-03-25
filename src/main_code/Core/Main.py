@@ -13,6 +13,7 @@ from src.main_code.Core.DB import DBHandler
 from src.main_code.Core.Calculate import CalculationDataHandle
 from src.main_code.Core.Analysis import AnalysisHandle
 from src.main_code.Core.Record import RecordHandler
+from src.main_code.Core.BackTest import BackTestHandler
 import src.main_code.Core.Const as const_proj
 from src.main_code.Core.Test import Test
 from fastapi.responses import FileResponse
@@ -51,6 +52,7 @@ class processor:
         self.requestor = self.InitRequest()
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.analysisHandle = self.InitAnalysisHandle()
+        self.backTestHandle = self.InitBackTestHandle()
         ws.mainProcessor = self
         self.todayStockDate = self.calculationDataHandle.GetToday()
         self.isInit = True
@@ -138,6 +140,10 @@ class processor:
         print("记录模块初始化完毕")
         return instance
 
+    def InitBackTestHandle(self):
+        instance = BackTestHandler.BaseClass()
+        instance.Init(self)
+        return instance
     
     def ExecuteTest(self):
         task = asyncio.get_running_loop().create_task(Test.TestCalculate(self.calculationDataHandle))

@@ -4,6 +4,7 @@ from src.main_code.Core.Const import FactorsJsonPath
 from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+import src.main_code.Core.Const as const
 import time
 import psutil
 import os
@@ -26,16 +27,19 @@ class BaseClass :
 
     #个股条件因子计算和筛选
     def RunGetStockListByCondition(self, conditionJson):
-        print(f"开始进行条件选股: {conditionJson}")
+        print(f"开始进行条件: {conditionJson}")
         evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
         evaluator.SetMain(self.main)
-
+        return
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
 
         try:
             # Pydantic自动验证并转换
+            print("")
+            print("")
+            print("")
             request = SelectionRequest(**conditionJson)
             print(request)
             self.isOutST = request.isExcludeST
@@ -43,14 +47,17 @@ class BaseClass :
             self.isOutKC = request.isExcludeKC
             self.isOnlyValue = request.isExclude_Value
             self.isOnlyGrow = request.isExclude_Grow
+            self.threshold = request.threshold
             print(f"✅ 数据验证成功:ST:{self.isOutST}    cy:{self.isOutCY}   ke:  {self.isOutKC}  value:{self.isOnlyValue}    grow:  {self.isOnlyGrow}")
             print(f"   配置数: {len(request.configs)}")
             print(f"   第一个因子: {request.configs[0].factor_group_name}")
             print(f"   权重: {request.configs[0].weight}")
             print(f"   条件数: {len(request.configs[0].logic_tree)}")
-            
+            print(f"   权重阈值: {request.threshold}")
         except Exception as e:
             print(f"❌ 数据验证失败: {e}")
+
+        
         listCode = []
         count = 1
         t0 = time.perf_counter()
@@ -67,9 +74,15 @@ class BaseClass :
             if len(cls.dataList_240) < 10:
                 print(f"股票{cls.componyInfo.Name}：{val} 新上市交易日不足十天，跳过")
                 continue
-
-            #这里还要判断window条件的toData是否dataList_240满足，不满足也跳过
-
+            if self.isOutST == True:
+                if cls.isST == 1:
+                    continue
+            if self.isOutKC == True:
+                if const.GetIsKC():
+                    continue
+            if self.isOutCY == True:
+                if const.GetIsCy():
+                    continue
             score = evaluator.evaluate_stock(val, request.configs)
             
             # 获取内存使用信息（以字节为单位）
@@ -83,7 +96,7 @@ class BaseClass :
             count += 1
             #if count > 100:
             #    break
-            if score > 0:
+            if score > self.threshold * 100:
                 listCode.append(val)
 
         for code in listCode:
@@ -95,17 +108,79 @@ class BaseClass :
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
         print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
-        pass
 
-    #行业轮动分析
-    def RunGetIndustryListByYearMonth(self, industry_code, factor_name):
-        pass
 
-    #价值股和成长股筛选
-    def RunGetValue_Grow_StockList(self, stock_code, factor_name):
-        pass
-    pass
 
-    #条件1： 3日放量增长条件 == 1 或（当日成交量涨幅 > 10% 且 当日均价与5日均价比 > 1.05） ， 权重：0.4 
+    #用于回测的个股条件因子计算和筛选
+    def RunGetStockListByConditionForBackTest(self,tradeData, calculationHandle, codeList, threshold, isOutKC, isOutCY, isOutST,  configsJson):
+        evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
+        evaluator.SetMain(self.main)
 
-    #条件2： 市盈率行业排名 < 15% 且（5日是否震荡上行 == 1 或 5日涨跌幅 > 5） ， 权重：0.6 
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
+
+        try:
+            request = SelectionRequest(**configsJson)
+            print(request)
+            print(f"✅ 数据验证成功:ST:{isOutST}    cy:{isOutCY}   ke:  {isOutKC}  threshold:{threshold}")
+            print(f"   配置数: {len(request.configs)}")
+            print(f"   第一个因子: {request.configs[0].factor_group_name}")
+            print(f"   权重: {request.configs[0].weight}")
+            print(f"   条件数: {len(request.configs[0].logic_tree)}")
+            print(f"   权重阈值: {request.threshold}")
+        except Exception as e:
+            print(f"❌ 数据验证失败: {e}")
+
+        
+        listCode = []
+        count = 1
+        t0 = time.perf_counter()
+        for val in codeList:
+            #如果状态不是成交状态就跳过
+            todayStr = tradeData
+            cls = calculationHandle.GetBaseDataClass(val, todayStr ,False)
+            if cls == None:
+                continue
+
+            if cls.trade_state != 1:
+                print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")
+                continue
+            if len(cls.dataList_240) < 10:
+                print(f"股票{cls.componyInfo.Name}：{val} 新上市交易日不足十天，跳过")
+                continue
+            if isOutST == True:
+                if cls.isST == 1:
+                    continue
+            if isOutKC == True:
+                if const.GetIsKC():
+                    continue
+            if isOutCY == True:
+                if const.GetIsCy():
+                    continue
+            score = evaluator.evaluate_stock(val, request.configs)
+            
+            # 获取内存使用信息（以字节为单位）
+            mem_info = process.memory_info()
+            
+            # 转换为MB（1MB = 1024 * 1024 字节）
+            rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+            vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
+
+            print(f"✅ 个股评分（-100， 100）: {score}, 第{count}个，总共：{len(codeList)}个, code:{val}      {cls.componyInfo.Name}, 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            count += 1
+            #if count > 100:
+            #    break
+            if score > self.threshold * 100:
+                listCode.append(val)
+
+        for code in listCode:
+            componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(code)
+            print(f"{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
+
+            
+        t1 = time.perf_counter()
+        totalCostTime = (t1 - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
+

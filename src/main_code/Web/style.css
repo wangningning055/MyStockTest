@@ -157,6 +157,13 @@ body {
     box-shadow: 0 4px 15px rgba(47, 7, 140, 0.3);
     margin-top: 10px;
     margin-bottom: 50px;
+
+    line-height: 1.4;         /* 文字行高正常 */
+    height: auto !important;  /* 高度自动，不被截断 */
+    overflow: visible !important; /* 不隐藏内容 */
+    white-space: nowrap;      /* 文字不换行（防止折行） */
+    display: inline-block;    /* 确保按钮能自适应内容 */
+
 }
 
 #api-run-selection:hover {
@@ -2421,17 +2428,6 @@ input::placeholder {
         transform: translateY(0);
     }
 }
-
-/* 总仓视图 */
-#holdings-total-view {
-    /* 继承 .view-container 的样式 */
-}
-
-/* 分仓详情视图 */
-#holdings-division-view {
-    /* 继承 .view-container 的样式 */
-}
-
 /* ============ 分仓选择器 ============ */
 
 .division-selector {
@@ -2749,3 +2745,5 @@ input::placeholder {
 .holdings-list::-webkit-scrollbar-thumb:hover {
     background: rgba(79, 172, 254, 0.6);
 }
+
+

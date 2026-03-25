@@ -17,7 +17,6 @@ import { ChartManager, setChartManager } from './chartManager.js';
 import { EventManager, setEventManager } from './eventManager.js';
 import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
 
-
 // ============ 配置和状态 ============
 export const CONFIG = {
     factorsUrl: "/static/factors.json",
@@ -44,8 +43,8 @@ export function SetManager(_manager) {
     setConfigManager(_manager);
     setChartManager(_manager);
     setEventManager(_manager);
+
     setHoldingsManager(_manager);
-    HoldingsManager.init()
 }
 
 // ============ 合并 UIManager（为了向后兼容） ============
@@ -153,6 +152,7 @@ export const App = {
             manager.requestUpdateData(data);
         }
     },
+
 
     // -------- 日志相关 --------
     log(msg, type = 'info') {

@@ -12,6 +12,7 @@
 import * as SocketModule from "./socket.js";
 import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
+import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
 
 
 const Message_Action = "/action";
@@ -74,6 +75,8 @@ class AppManager {
         let startY = 0;
         let startHeight = 0;
 
+        this.holdings = null;
+
     }
 
     /**
@@ -86,12 +89,18 @@ class AppManager {
         this.initWebSocket();
         SocketModule.SetManager(this)
         AppModule.SetManager(this)
+        if (typeof HoldingsManager !== 'undefined') {
+            this.holdings = HoldingsManager.init();
+            this.app.log("✅ HoldingsManager 初始化完成");
+        }
+
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
         
         // 步骤3: 自动绑定事件（如果app.js中已配置）
         this.bindAllEvents();
-        
+
+
         // 步骤4: 尝试连接
         this.connect();
         this.app.log("✅ AppManager 初始化完成");
@@ -395,7 +404,7 @@ class AppManager {
     requestSelectStocks() {
         // 收集完整的配置数据
         const buyConfigs = this.app.getFactorData('buy-factor-container');
-        
+        const threshold = this.ui.getWeightThreshold()
         if (!buyConfigs || buyConfigs.length === 0) {
             this.app.log("❌ 请先添加选股条件", "error");
             return false;
@@ -413,7 +422,8 @@ class AppManager {
             isExclude_Grow : isExclude_Grow,
             configs: buyConfigs,
             timestamp: new Date().toISOString(),
-            version: "1.0"
+            version: "1.0",
+            threshold : threshold
         };
         
         // 数据验证

@@ -85,7 +85,6 @@ class FactorConfig(BaseModel):
     #        }
     #    }
 
-
 class SelectionRequest(BaseModel):
     """选股请求"""
     isExcludeST : bool
@@ -93,7 +92,7 @@ class SelectionRequest(BaseModel):
     isExcludeKC : bool
     isExclude_Value : bool
     isExclude_Grow : bool
-
+    threshold : float
     configs: List[FactorConfig]
     timestamp: Optional[str] = None
     version: str = "1.0"

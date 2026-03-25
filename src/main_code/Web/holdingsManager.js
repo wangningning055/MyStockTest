@@ -14,7 +14,7 @@ import { UIManagerUtils } from './uiManager.js';
 import { FactorManager } from './factorManager.js';
 import { ConditionManager } from './conditionManager.js';
 import { ConfigManager } from './configManager.js';
-
+import { FactorEditor } from './factorEditor.js';
 let manager = null;
 let divisionsData = [];
 let selectedDivisionId = null;
@@ -33,7 +33,28 @@ export const HoldingsManager = {
         this.bindDivisionEvents();
         this.bindDivisionSelector();
         App.log('分仓管理系统已初始化', 'system');
+        return this
     },
+
+    getDivisionsData() {
+        return divisionsData;
+    },
+
+    /**
+     * 获取分仓数量
+     */
+    getDivisionsCount() {
+        return divisionsData.length;
+    },
+
+    /**
+     * 设置分仓数据
+     */
+    setDivisionsData(data) {
+        divisionsData = Array.isArray(data) ? data : [];
+        this.saveDivisionsToStorage();
+    },
+
 
     // ============ 数据存储与加载 ============
 
@@ -204,11 +225,12 @@ export const HoldingsManager = {
         }
 
         const configTree = side === 'buy' ? division.buyConfigTree : division.sellConfigTree;
-        
+        const threshold = side === 'buy' ? division.thresholdBuy : division.thresholdSell;
         const config = {
+            threshold:threshold,
             divisionName: division.name,
             side: side,
-            configTree: configTree,
+            configs: configTree,
             timestamp: new Date().toISOString(),
             version: "1.0"
         };
@@ -248,13 +270,16 @@ export const HoldingsManager = {
             reader.onload = (event) => {
                 try {
                     const data = JSON.parse(event.target.result);
-                    
+                    console.log(event.target.result)
                     if (side === 'buy') {
-                        division.buyConfigTree = data.configTree || [];
+                        division.thresholdBuy = data.threshold
+                        division.buyConfigTree = data.configs || [];
                     } else {
-                        division.sellConfigTree = data.configTree || [];
+                        division.thresholdSell = data.threshold
+                        division.sellConfigTree = data.configs || [];
                     }
-                    
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!已经导入了编辑器的数据")
+                    console.log(division.buyConfigTree)
                     this.saveDivisionsToStorage();
                     this.loadDivisionDetailView(divisionId);
                     App.log(`分仓 "${division.name}" 的 ${side === 'buy' ? '买入' : '卖出'}配置已导入`, 'success');
@@ -267,6 +292,7 @@ export const HoldingsManager = {
         });
         input.click();
     },
+   
 
     /**
      * 编辑分仓的买入/卖出条件
@@ -294,43 +320,106 @@ export const HoldingsManager = {
         container.innerHTML = '';
 
         // 从配置树重建 UI
-        const configTree = side === 'buy' ? division.buyConfigTree : division.sellConfigTree;
-        if (configTree.length > 0) {
-            ConditionManager.buildUIFromTree(configTree, container);
+        const configArray = side === 'buy' ? division.buyConfigTree : division.sellConfigTree;
+
+
+        // 重建因子卡片 DOM
+        if (configArray && Array.isArray(configArray) && configArray.length > 0) {
+            const firstItem = configArray[0];
+            
+            // 如果是新格式（包含 factor_group_name）
+            if (firstItem.factor_group_name) {
+                configArray.forEach(factorData => {
+                    const cardId = `card-${Date.now()}-${Math.random()}`;
+                    const card = document.createElement('div');
+                    card.className = 'factor-card';
+                    card.id = cardId;
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="card-title">${factorData.factor_group_name}</span>
+                            <div class="card-weight-group">
+                                <label>权重:</label>
+                                <input type="number" class="card-weight-input" value="${factorData.weight || 10}" step="0.1">
+                            </div>
+                            <button class="btn-remove-card" data-action="remove-card" type="button">✕</button>
+                        </div>
+                        <div class="conditions-list"></div>
+                        <div class="card-footer">
+                            <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}" type="button">
+                                <i class="fas fa-plus"></i> 添加条件
+                            </button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                    
+                    // 渲染条件
+                    const conditionsList = card.querySelector('.conditions-list');
+                    if (factorData.logic_tree && factorData.logic_tree.length > 0) {
+                        ConditionManager.buildUIFromTree(factorData.logic_tree, conditionsList, cardId);
+                    }
+                    
+                    const removeBtn = card.querySelector('.btn-remove-card');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', () => {
+                            card.remove();
+                            console.log('因子卡片已删除', 'info');
+                        });
+                    }
+
+                    // 绑定事件...
+                });
+            }
         }
-
-        // 打开因子选择器
-        App.showFactorModal(side, null, container);
+        this.modal = FactorEditor.openEditor(side, containerId, this, divisionId, configArray);
     },
-
     /**
-     * 保存分仓的因子配置（从UI收集）
+     * 保存从编辑器返回的配置
      */
-    saveDivisionFactorConfig(divisionId, side) {
+    saveDivisionConfigFromEditor(divisionId, side, threshold = 0) {
         const division = this.getDivision(divisionId);
         if (!division) return;
 
+        // 获取容器中的数据
         const containerId = `division-${divisionId}-${side}-container`;
         const container = document.getElementById(containerId);
+        
+        if (!container) return;
 
-        if (!container) {
-            App.log('配置容器未找到', 'error');
-            return;
-        }
+        // 获取所有因子卡片数据
+        const cards = container.querySelectorAll('.factor-card');
+        const configArray = [];
+        
+        cards.forEach(card => {
+            const titleElement = card.querySelector('.card-title');
+            const weightInput = card.querySelector('.card-weight-input');
+            const conditionsList = card.querySelector('.conditions-list');
+            
+            if (!titleElement || !weightInput || !conditionsList) return;
 
-        // 收集条件树
-        const configTree = ConditionManager.collectConditionsTree(container);
-
+            const weight = parseFloat(weightInput.value) || 0;
+            const logic_tree = ConditionManager.collectConditionsTree(conditionsList);
+            
+            configArray.push({
+                factor_group_name: titleElement.textContent || 'Unknown',
+                weight: weight,
+                logic_tree: logic_tree
+            });
+        });
+        
+        // 保存配置
         if (side === 'buy') {
-            division.buyConfigTree = configTree;
+            division.buyConfigTree = configArray;
+            division.thresholdBuy = threshold
         } else {
-            division.sellConfigTree = configTree;
+            division.sellConfigTree = configArray;
+            division.thresholdSell = threshold
         }
-
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!已经保存了编辑器的数据")
+        console.log(division.buyConfigTree)
         this.saveDivisionsToStorage();
-        App.log(`分仓 "${division.name}" 的 ${side === 'buy' ? '买入' : '卖出'}配置已保存`, 'success');
     },
-
     // ============ UI 渲染与事件绑定 ============
 
     /**

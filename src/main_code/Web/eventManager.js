@@ -233,8 +233,11 @@ export const EventManager = {
         const addDivisionBtn = document.getElementById('btn-add-division');
         if (addDivisionBtn) {
             addDivisionBtn.addEventListener('click', () => {
-                if (manager) {
-                    const divisionName = prompt('请输入分仓名称：', `分仓${divisionsData.length + 1}`);
+                if (manager && manager.holdings) {
+                    console.log("???????????????????????????")
+                    console.log(manager.holdings)
+                    console.log(manager.holdings.getDivisionsCount())
+                    const divisionName = prompt('请输入分仓名称：', `分仓${ manager.holdings.getDivisionsCount() + 1}`);
                     if (divisionName) {
                         manager.holdings.addDivision(divisionName);
                     }
@@ -309,6 +312,36 @@ export const EventManager = {
         }
     },
 
+    bindHoldingsTabEvents() {
+        const tabs = document.querySelectorAll('.holdings-tab-btn');
+        const panes = document.querySelectorAll('.holdings-view-pane');
+        
+        if (tabs.length === 0 || panes.length === 0) {
+            console.warn('⚠️ 找不到持仓标签页或视图面板元素');
+            return;
+        }
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const viewName = tab.dataset.view;
+                
+                // 移除所有活跃状态
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+                
+                // 添加新的活跃状态
+                tab.classList.add('active');
+                const paneId = `holdings-${viewName}`;
+                const pane = document.getElementById(paneId);
+                if (pane) {
+                    pane.classList.add('active');
+                    App.log(`✅ 已切换到${viewName === 'total-view' ? '总仓收益' : '分仓详情'}视图`, "system");
+                }
+            });
+        });
+    },
+
     /**
      * 初始化所有事件
      */
@@ -316,6 +349,7 @@ export const EventManager = {
         this.bindTabs();
         this.bindGlobalEvents();
         this.bindBacktestEvents();
+        this.bindHoldingsTabEvents();
         ChartManager.initCharts();
         App.log("系统引擎启动成功，等待指令...", "system");
     },

@@ -58,6 +58,16 @@ NoneValue = -999999     #指标计算的无效值
 dateListLength = 280     #缓存的日期长度
 
 
+def GetIsCy(stockCode):
+    if stockCode.startswith("300") or stockCode.startswith("301"):
+        return True
+    return False
+
+def GetIsKC(stockCode):
+    if stockCode.startswith("688"):
+        return True
+    return False
+
 #获取涨跌幅幅度主板 10， 创业板科创板 20
 def GetStopRatio(stockCode):
     if stockCode.startswith("300") or stockCode.startswith("688") or stockCode.startswith("301"):
@@ -65,18 +75,11 @@ def GetStopRatio(stockCode):
     else:
         return 9.99
 
-    #个股压力位注册1
-    #个股价值注册1
-    #个股行业趋势注册1
-    #窗口股压力位注册1
-
-    #把上面的输出一下
-
-    #st， 科创，创业，等的剔除加上
-    ##验证st， 科创，创业，等的剔除
 
 
-    ##给选股页签加上数据预热按钮，预热时可以停止预热
+
+
+    #价值和成长分筛选预测
     ##返回结果给前端，并让前端显示K线
 
 
