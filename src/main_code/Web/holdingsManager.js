@@ -709,7 +709,6 @@ export const HoldingsManager = {
         const config = {
             divisions: divisionsData.map(div => ({
                 ...div,
-                // 可以添加更多字段
             })),
             initialFund: UIManagerUtils.getHoldingsInitialFund(),
             timestamp: new Date().toISOString(),
@@ -773,14 +772,34 @@ export const HoldingsManager = {
         input.click();
     },
 
+    getAllHoldingsConfigJson() {
+        const config = {
+            divisions: divisionsData.map(div => ({
+                ...div,
+            })),
+            initialFund: UIManagerUtils.getHoldingsInitialFund(),
+            timestamp: new Date().toISOString(),
+            version: "1.0",
+            description: "完整的持仓回测配置，包含所有分仓参数和条件"
+        };
+        const jsonString = JSON.stringify(config, null, 2);
+        return jsonString
+    },
+
+
     /**
      * 获取整个持仓配置（用于后端回测）
      */
     getAllHoldingsConfig() {
-        return {
-            divisions: divisionsData,
+        const config = {
+            divisions: divisionsData.map(div => ({
+                ...div,
+            })),
             initialFund: UIManagerUtils.getHoldingsInitialFund(),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            version: "1.0",
+            description: "完整的持仓回测配置，包含所有分仓参数和条件"
         };
+        return config
     }
 };

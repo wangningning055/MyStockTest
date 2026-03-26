@@ -1,14 +1,3 @@
-/**
- * AppManager - 应用统一管理器（修改版）
- * 更新：改进的请求方法，支持树形条件结构
- * 
- * 关键改进：
- * 1. requestSelectStocks() - 发送完整的因子配置
- * 2. requestBacktest() - 分别发送buy_configs和sell_configs
- * 3. requestDiagnose() - 支持卖出条件评估
- * 4. 数据验证和错误处理
- */
-
 import * as SocketModule from "./socket.js";
 import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
@@ -454,77 +443,27 @@ class AppManager {
      * }
      */
     requestBacktest() {
-        const buyConfigs = this.app.getFactorData('buy-factor-container');
-        const sellConfigs = this.app.getFactorData('sell-factor-container');
         
-        if (!buyConfigs || buyConfigs.length === 0) {
-            this.app.log("❌ 请先添加买入条件", "error");
-            return false;
-        }
-        
-        const dateRange = this.ui.getBacktestDateRange();
+        const val = this.ui.getHoldingsFilterOptions()
+        const configJson = this.holdings.getAllHoldingsConfigJson()
+        const configData = this.holdings.getAllHoldingsConfig()
+        console.log(configJson)
         const payload = {
-            buy_configs: buyConfigs,
-            sell_configs: sellConfigs,
-            initial_fund: this.ui.getInitialFund(),
-            start_date: dateRange.startDate,
-            end_date: dateRange.endDate,
-            is_ideal: this.ui.getBacktestIsIdeal(),
+            isExcludeST : val.excludeST,
+            isExcludeKC : val.excludeKC,
+            isExcludeCY : val.excludeCY,
+            config : configData,
             timestamp: new Date().toISOString(),
             version: "1.0"
         };
         
-        this.app.log(`📤 发送回测请求，买入条件: ${buyConfigs.length}，卖出条件: ${sellConfigs.length}`, "system");
+
+        this.app.log(`📤 发送回测请求, "system"`);
         console.log('回测请求数据:', JSON.stringify(payload, null, 2));
         
-        return this.socket.sendMessage('cs_back_test', payload);
-    }
 
-    /**
-     * 发送出仓判断请求到后端
-     * 
-     * 发送格式：
-     * {
-     *   holdings: [
-     *     {
-     *       code: string,
-     *       name: string,
-     *       quantity: number,
-     *       buy_price: number,
-     *       ...
-     *     }
-     *   ],
-     *   sell_configs: [...],
-     *   timestamp: string,
-     *   version: string
-     * }
-     */
-    requestDiagnose() {
-        const sellConfigs = this.app.getFactorData('sell-factor-container');
-        const holdings = this.state.holdings;
-        
-        if (!holdings || holdings.length === 0) {
-            this.app.log("❌ 请先添加持仓信息", "error");
-            return false;
-        }
-        
-        if (!sellConfigs || sellConfigs.length === 0) {
-            this.app.log("⚠️ 警告：未配置卖出条件，将使用默认策略", "warning");
-        }
-        
-        const payload = {
-            holdings: holdings,
-            sell_configs: sellConfigs,
-            timestamp: new Date().toISOString(),
-            version: "1.0"
-        };
-        
-        this.app.log(`📤 发送出仓判断请求，持仓数: ${holdings.length}`, "system");
-        console.log('出仓判断请求数据:', JSON.stringify(payload, null, 2));
-        
-        return this.socket.sendMessage('cs_diagnose', payload);
+        return this.socket.sendMessage(SocketModule.MessageType.CS_BACK_TEST, payload);
     }
-
     /**
      * 查询股票信息
      */

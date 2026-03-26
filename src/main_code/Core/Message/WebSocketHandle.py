@@ -164,6 +164,9 @@ def HandleMsg(msg):
 
 
     elif(msgType == MessageType.CS_BACK_TEST):
+        print(f"执行回测, 收到的回测消息：{data}")
+        
+        task = asyncio.get_running_loop().create_task(mainProcessor.backTestHandle.CreateStockByJson(data))
         pass
 
 

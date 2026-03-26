@@ -20,7 +20,9 @@ class BaseClass :
     def __init__(self):
         self.isNeedStop = False
         pass
-    def Init(self, main):
+    
+    
+    def Init(self, main, todayStr = "000000"):
         self.main :Main.processor = main
         self.task = None
         self.totalStockList = []
@@ -43,11 +45,15 @@ class BaseClass :
         self.InitIndustry()
         CalculationFuncRegister.RegisterCalculateFunc(self)
         self.isPreheating = False
+        if todayStr == "000000":
+            self.todayStr = self.GetToday()
+        else:
+            self.todayStr = todayStr
 
-    async def DataPreheating(self, isNeedLog = True):
+    async def DataPreheating(self, isNeedLog = True, isJumpReadDb = False):
         self.main.SetIsInHandle(True)
         await asyncio.sleep(0)
-        today = self.GetToday()
+        today = self.todayStr
         if today == None:
             print("没有拉取数据记录，无法进行数据预热")
             self.main.BoardCast("没有拉取数据记录，无法进行数据预热")
@@ -59,6 +65,7 @@ class BaseClass :
             self.main.BoardCast("开始数据预热")
         self.totalDateList = self.InitDateList(today, Const.dateListLength)
         print(self.totalDateList)
+        await asyncio.sleep(0)
 
         
         pid = os.getpid()
@@ -73,16 +80,26 @@ class BaseClass :
         if isNeedLog:
             print(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
             self.main.BoardCast(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+        await asyncio.sleep(0)
         if self.isInStop:
             return
-        self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+        if isJumpReadDb == False:
+            self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
+        
         if self.isInStop:
             return
+
+        t_db = time.perf_counter()
+        totalCostTime = (t_db - t0)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
 
         if isNeedLog:
-            print(f"开始数据库读取完毕 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-            self.main.BoardCast(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            print(f"数据库读取完毕 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间{totalCostTimeStr1}")
+            self.main.BoardCast(f"开始读取数据库 物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间{totalCostTimeStr1}")
+
+        await asyncio.sleep(0)
+
 
 
         if isNeedLog:
@@ -95,16 +112,19 @@ class BaseClass :
         if isNeedLog:
             print(f"    复权数据整理完毕")
 
+        await asyncio.sleep(0)
 
         #这里整理价值数据
         if isNeedLog:
             print("     开始整理价值数据：")
+        await asyncio.sleep(0)
         self.InitValueData()
         if isNeedLog:
             print(f"    价值数据整理完毕")
 
         if self.isInStop:
             return
+        await asyncio.sleep(0)
 
         mem_info = process.memory_info()
         rss_memory = mem_info.rss / (1024 * 1024)  # 实际使用的物理内存（常驻集大小）
@@ -117,6 +137,7 @@ class BaseClass :
         #print(f"整个数据获取完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 花费时间：{totalCostTimeStr1}")
         #print(f"整个数据获取完毕 ")
 
+        await asyncio.sleep(0)
 
 
         if isNeedLog:
@@ -124,6 +145,7 @@ class BaseClass :
             self.main.BoardCast(f"开计算数据 数据日期长度{Const.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
         t0 = time.perf_counter()
 
+        await asyncio.sleep(0)
 
 
         self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList)
@@ -137,12 +159,86 @@ class BaseClass :
 
         if isNeedLog:
             print(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
-            self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+            self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 数据预热花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
 
         self.main.SetIsInHandle(False)
 
         self.isPreheating = True
 
+
+    #向前移动1天
+    async def MoveDateToNextDay(self):
+        if self.isPreheating == False:
+            print("请先预热数据")
+            return ""
+        #获取下一天的日期
+        nextDayStr = self.GetNextDay()
+        oldDayStr = self.todayStr
+        if nextDayStr == "":
+            print("这是最后一天了，没有下一天了")
+            return ""
+        #更新handler日期
+        self.todayStr = nextDayStr
+        
+        oldDataList = self.totalDateList
+
+        #获取新的日期列表
+        newDataList = self.InitDateList(nextDayStr, Const.dateListLength)
+
+
+        #筛选出需要删除的日期
+        diff_list = [item for item in oldDataList if item not in newDataList]
+
+        #删除对应的缓存
+        for day in diff_list:
+            keys_to_delete_base = [
+                key for key in self.totalBaseDailyData
+                if key[1] == day
+            ]
+
+            for key in keys_to_delete_base:
+                del self.totalBaseDailyData[key]
+
+            keys_to_delete_window = [
+                key for key in self.totalBaseWindowData
+                if key[1] == day
+            ]
+            for key in keys_to_delete_window:
+                del self.totalBaseWindowData[key]
+
+
+            keys_to_delete_industry = [
+                key for key in self.CalculateIndustryBaseClassDic
+                if key[1] == day
+            ]
+            for key in keys_to_delete_industry:
+                del self.CalculateIndustryBaseClassDic[key]
+
+            keys_to_delete_industry_window = [
+                key for key in self.CalculateIndustryWindowClassDic
+                if key[1] == day
+            ]
+            for key in keys_to_delete_industry_window:
+                del self.CalculateIndustryWindowClassDic[key]
+
+
+
+            keys_to_delete_industry_db = [
+                key for key in self.totalDbList
+                if key[1] == day
+            ]
+            for key in keys_to_delete_industry_db:
+                del self.totalDbList[key]
+
+        #刷新totalDbList
+        for code in self.totalStockList:
+            catchKey = (code, nextDayStr)
+            res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, nextDayStr)
+            self.totalDbList[catchKey] = res
+
+        #重新预热
+        await self.DataPreheating(True,True)
+        return nextDayStr
 
     def InitIndustry(self):
         df = self.main.dbHandler.GetAllBasicData()
@@ -729,6 +825,25 @@ class BaseClass :
                 if res is not None:
                     return days_ago_str
                 
+    #获取下一天
+    def GetNextDay(self):
+        nowStr = self.todayStr
+        date_format = "%Y%m%d"
+        curDate = datetime.strptime(nowStr, date_format)
+        count = 1
+        while count < 20:
+            days_next = curDate + timedelta(days=count)
+            days_next_str = days_next.strftime(date_format)
+            random_items = random.sample(self.totalStockList, k=200)
+            for code in random_items:
+                res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, days_next_str)
+                if res is not None:
+                    return days_next_str
+            count +=1
+        return ""
+
+
+
 
     #初始化日期列表
     def InitDateList(self, today, length):
@@ -801,7 +916,7 @@ class BaseClass :
     #10/31（三季报）
     #初始化价值数据
     def InitValueData(self):
-        todayStr = self.GetToday()
+        todayStr = self.todayStr
         if todayStr == None:
             print("没有拉取数据记录，无法进行数据预热")
             self.main.BoardCast("没有拉取数据记录，无法进行价值分析")
@@ -919,6 +1034,9 @@ class BaseClass :
         self.totalBaseWindowData.clear()
         self.CalculateIndustryBaseClassDic.clear()
         self.CalculateIndustryWindowClassDic.clear()
+    
+    def DelDicByDate(dateStr):
+        pass
 
 
 

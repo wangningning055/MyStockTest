@@ -34,11 +34,9 @@ export const MessageType = Object.freeze({
     CS_INDUSTRY_UP_DATA: "cs_industry_up_data",          //客户端请求分析行业上涨
 
 
-
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据
     CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选
     CS_BACK_TEST: "cs_back_test",                  // 客户端请求执行回测
-    CS_DIAGNOSE: "cs_diagnose",                    // 客户端请求出仓判断
 });
 
 

@@ -198,25 +198,8 @@ export const EventManager = {
         if (runBacktestBtn) {
             runBacktestBtn.addEventListener('click', () => {
 
-                if (!validateDateRanges('buy-factor-container') || !validateDateRanges('sell-factor-container')) {
-                    App.log('买入或卖出因子中存在日期错误，无法执行', 'error');
-                    return;
-                }
-                
-
                 if (manager) {
-                    State.buyFactors = App.getFactorData('buy-factor-container');
-                    State.sellFactors = App.getFactorData('sell-factor-container');
                     manager.requestBacktest();
-                }
-            });
-        }
-        
-        const diagnoseBtn = document.getElementById('api-diagnose-holdings');
-        if (diagnoseBtn) {
-            diagnoseBtn.addEventListener('click', () => {
-                if (manager) {
-                    manager.requestDiagnose();
                 }
             });
         }
@@ -234,9 +217,6 @@ export const EventManager = {
         if (addDivisionBtn) {
             addDivisionBtn.addEventListener('click', () => {
                 if (manager && manager.holdings) {
-                    console.log("???????????????????????????")
-                    console.log(manager.holdings)
-                    console.log(manager.holdings.getDivisionsCount())
                     const divisionName = prompt('请输入分仓名称：', `分仓${ manager.holdings.getDivisionsCount() + 1}`);
                     if (divisionName) {
                         manager.holdings.addDivision(divisionName);

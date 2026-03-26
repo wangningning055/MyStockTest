@@ -141,12 +141,6 @@ export const App = {
         }
     },
 
-    runDiagnosis() {
-        if (manager) {
-            manager.requestDiagnose();
-        }
-    },
-
     callBackend(endpoint, method, data = null) {
         if (manager) {
             manager.requestUpdateData(data);

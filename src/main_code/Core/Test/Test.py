@@ -8,6 +8,7 @@ import psutil
 import os
 import bisect
 import random
+import asyncio
 def Stop():
       CalculationSpecial.isNeed_CalculateIndustryInfoTotal_Stop = True
 async def TestCalculate(handler : CalculationDataHandle.BaseClass):
@@ -32,10 +33,10 @@ async def TestCalculate(handler : CalculationDataHandle.BaseClass):
         #if baseCls is not None:
         #    handler.CalculateBaseClass(baseCls)
 
-        #窗口数据
-        windowCls =  handler.GetWindowDataClass("603259.SH","20260323", 0, 20)
-        if windowCls is not None:
-              handler.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 20)
+        ##窗口数据
+        #windowCls =  handler.GetWindowDataClass("603259.SH","20260323", 0, 20)
+        #if windowCls is not None:
+        #      handler.CalculateBaseWindowClass(windowCls, windowCls.code, 0, 20)
 
         #高低压力位
         #def tempLog(code, start, to):
@@ -88,6 +89,26 @@ async def TestCalculate(handler : CalculationDataHandle.BaseClass):
         #print(f"#######行业总数量位：{len(indList)}")
         #for ind in indList:
         #    print(f"####行业：|{ind}|")
+
+        #handler.MoveDateToNextDay()
+        backTestHandle = CalculationDataHandle.BaseClass()
+        backTestHandle.Init(handler.main, "20210104")
+        await backTestHandle.DataPreheating()
+
+        t_nex1 = time.perf_counter()
+
+
+        await backTestHandle.MoveDateToNextDay()
+        await backTestHandle.MoveDateToNextDay()
+        await backTestHandle.MoveDateToNextDay()
+        await backTestHandle.MoveDateToNextDay()
+
+        
+        t_nex2 = time.perf_counter()
+
+        totalCostTime = (t_nex2 - t_nex1)
+        totalCostTimeStr1 = handler.main.requestor.format_seconds(totalCostTime)
+        print(f"处理完毕, 移动到下一天花费的时间是：{totalCostTimeStr1}")
 
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)

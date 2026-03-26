@@ -61,7 +61,7 @@ class processor:
 
 
         #self.Temp_ImportValue()
-        self.Temp_ExportValue()
+        #self.Temp_ExportValue()
 
     def Temp_ExportValue(self):
         listValue = self.dbHandler.GetAllValueData()

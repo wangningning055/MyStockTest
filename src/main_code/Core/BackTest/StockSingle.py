@@ -1,3 +1,4 @@
+import src.main_code.Core.BackTest.BackTestMsgDataStruct as BackTestMsgDataStruct
 class BaseClass:
     id : int
     stockCode : str             #票子代码

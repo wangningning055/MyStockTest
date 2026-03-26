@@ -46,24 +46,8 @@ export const UIManagerUtils = {
         return parseFloat(document.getElementById('initialFundInput').value) || 100000; 
     },
     
-    getBacktestDateRange() {
-        return {
-            startDate: document.getElementById('bt-start-date').value,
-            endDate: document.getElementById('bt-end-date').value
-        };
-    },
+
     
-    getBacktestIsIdeal() { 
-        return document.getElementById('bt-is-ideal').checked; 
-    },
-    
-    getBacktestBuySource() { 
-        return document.getElementById('backtest-buy-source').value; 
-    },
-    
-    getBacktestSellSource() { 
-        return document.getElementById('backtest-sell-source').value; 
-    },
     
     getWeightThreshold() {
         const elem = document.getElementById('weight-threshold-slider');

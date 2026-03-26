@@ -10,6 +10,7 @@ import os
 # 假设models已经定义
 from src.main_code.Core.Select.Models import TreeNode, ConditionNode, GroupNode, FactorConfig
 from src.main_code.Core import Main
+from src.main_code.Core.Calculate import CalculationDataHandle
 import traceback  # 导入traceback模块
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,10 @@ class ConditionEvaluator:
     """
     def SetMain(self, main):
         self.main : Main.processor = main
+
+    def SetCalculationHandle(self, handle):
+        self.calculationHandle : CalculationDataHandle.BaseClass = handle
+
     def __init__(self, stockCode: str, factors_metadata: Dict[str, Any]):
         """
         初始化条件评估器
@@ -218,26 +223,26 @@ class ConditionEvaluator:
             #print(f"条件id是：{id}， 日期是：{todayStr}")
             if id >= 0 and id < 200000:
                 #print("计算当日条件")
-                data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr)
+                data = self.calculationHandle.GetBaseDataClass(self.stock_code, todayStr)
 
 
             #区间单股数据
             if id >= 200000 and id < 300000:
                 #print(f"计算区间数据：{condition.dateFrom}  {condition.dateTo}")
-                today_data = self.main.calculationDataHandle.GetBaseDataClass(self.stock_code, todayStr)
+                today_data = self.calculationHandle.GetBaseDataClass(self.stock_code, todayStr)
                 if len(today_data.dataList_240) <= (condition.dateFrom + 20):
                     return False, None
-                data = self.main.calculationDataHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+                data = self.calculationHandle.GetWindowDataClass(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
 
 
             #当日行业
             if id >= 300000 and id < 400000:
-                data = self.main.calculationDataHandle.GetIndustryBaseData(self.stock_code, todayStr)
+                data = self.calculationHandle.GetIndustryBaseData(self.stock_code, todayStr)
 
                 
             #区间行业
             if id >= 400000 and id < 500000:
-                data = self.main.calculationDataHandle.GetIndustryWindowData(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
+                data = self.calculationHandle.GetIndustryWindowData(self.stock_code, todayStr, condition.dateFrom, condition.dateTo)
 
 
             value = getattr(data, field_name, None)
@@ -373,7 +378,12 @@ class FactorEvaluator:
         self.factors_metadata = factors_metadata
     def SetMain(self, main):
         self.main : Main.processor = main
-    
+
+
+    def SetCalculationHandle(self, handle):
+        self.calculationHandle : CalculationDataHandle.BaseClass = handle
+
+
     def evaluate_stock(self, stockCode: str, configs: List[FactorConfig]) -> float:
         """
         评估单只股票，返回综合评分
@@ -403,6 +413,7 @@ class FactorEvaluator:
         
         evaluator = ConditionEvaluator(stockCode, self.factors_metadata)
         evaluator.SetMain(self.main)
+        evaluator.SetCalculationHandle(self.calculationHandle)
         # 计算总权重
         #total_weight = sum(cfg.weight for cfg in configs)
 
