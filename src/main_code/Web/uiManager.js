@@ -166,12 +166,12 @@ export const UIManagerUtils = {
         }
     },
 
-    setMemoryUsage(usedMB, totalMB) {
+    setMemoryUsage(usedGB, totalGB) {
         const usedEl = document.getElementById('memory-used');
         const totalEl = document.getElementById('memory-total');
         const fillEl  = document.getElementById('memory-bar-fill-mini');
-        if (usedEl)  usedEl.textContent  = `${usedMB}MB`;
-        if (totalEl) totalEl.textContent = `${totalMB}MB`;
+        if (usedEl)  usedEl.textContent  = `${usedGB}GB`;
+        if (totalEl) totalEl.textContent = `${totalGB}GB`;
         if (fillEl)  fillEl.style.width  = `${Math.min(100, (usedMB/totalMB)*100).toFixed(0)}%`;
     },
 

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import traceback
 import time
+import psutil
 import datetime
 import threading
 from fastapi import FastAPI
@@ -83,11 +84,26 @@ class processor:
         if self.isInHandle == isIn:
             return
         self.isInHandle = isIn
+
+        mem = psutil.virtual_memory()
+        total_memory = mem.total
+        available_memory = mem.available /(1024*1024*1024)
+        pid = os.getpid()
+        # 获取当前进程对象
+        process = psutil.Process(pid)
+        mem_info = process.memory_info()
+        rss_memory = mem_info.rss / (1024 * 1024 * 1024)  # 实际使用的物理内存（常驻集大小）
+        #当前已使用：
+        rss_memory = round(rss_memory, 1)
+        available_memory = round(available_memory, 1)
+        
         if isIn == True:
-            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, 1)
+            res = (1, rss_memory, available_memory)
+            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, res)
         if isIn == False:
             self.requestor.StopRequest()
-            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, 0)
+            res = (0, rss_memory, available_memory)
+            self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, res)
 
 
 

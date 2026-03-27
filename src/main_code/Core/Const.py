@@ -77,9 +77,8 @@ def GetStopRatio(stockCode):
 
 
 
-    #内存和进度加上
-
-
+    #进度加上
+    #setBusyProgress
 
 
 

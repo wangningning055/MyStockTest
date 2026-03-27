@@ -208,8 +208,13 @@ class AppManager {
         });
 
         this.registerHandler(SocketModule.MessageType.SC_IN_BUSY, (data) =>{
+            console.log(data.msg)
+            const busyState = data.msg[0]
+            const use = data.msg[1]
+            const total = data.msg[2]
+            this.ui.setMemoryUsage(use, total)
             //this.app.log(`📊 后端忙碌状态:${data.msg}`);
-            if(data.msg == 1)
+            if(busyState == 1)
             {
                 setFetchButtonsLoading(true)
             }
