@@ -119,6 +119,7 @@ class BaseClass :
             print("     开始整理价值数据：")
         await asyncio.sleep(0)
         self.InitValueData()
+
         if isNeedLog:
             print(f"    价值数据整理完毕")
 
@@ -307,7 +308,8 @@ class BaseClass :
             else:
                 return None
         else:
-            #print(f"股票{stockCode},  {date}数据不存在")
+            #if stockCode == "000001.SZ":
+            #    print(f"股票{stockCode},  {date}数据不存在， {len(self.totalBaseDailyData)}")
             return None
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
@@ -885,8 +887,7 @@ class BaseClass :
                         baseClass.Init(self, code, date, db)
                         #if date == today and baseClass.trade_state == 0:
                         #if code == "000001.SZ":
-                        #    count += 1
-                            #print(f"a啊啊啊啊啊啊啊啊啊啊啊啊啊载入的时间是 ：{date}, 数量：{count}")
+                        #    print(f"a啊啊啊啊啊啊啊啊啊啊啊啊啊 code是：{code}， 载入的时间是 ：{date}")
                         self.totalBaseDailyData[(code, date)] = baseClass
 
     #获取最近的复权数据

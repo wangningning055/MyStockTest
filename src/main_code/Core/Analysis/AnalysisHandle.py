@@ -125,6 +125,7 @@ class BaseClass :
         listCode = []
         count = 1
         t0 = time.perf_counter()
+        print(f" 回测是开始日期是：{calculationHandle.todayStr}")
         for val in codeList:
             #如果状态不是成交状态就跳过
             todayStr = calculationHandle.todayStr

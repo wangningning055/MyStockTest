@@ -219,7 +219,7 @@ class ConditionEvaluator:
             # 2. 获取字段值
             data = None
             #当日单股数据
-            todayStr = self.main.todayStockDate
+            todayStr = self.calculationHandle.todayStr
             #print(f"条件id是：{id}， 日期是：{todayStr}")
             if id >= 0 and id < 200000:
                 #print("计算当日条件")
@@ -246,7 +246,7 @@ class ConditionEvaluator:
 
 
             value = getattr(data, field_name, None)
-            print(f"计算的参数是  {field_name}：{value}")
+            #print(f"计算的参数是 {data}   {field_name}：{value}")
             if value is None:
                 # 字段不存在，返回False（不满足条件）
                 # 注意：这里可以根据需求改为警告而不是错误
