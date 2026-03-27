@@ -64,7 +64,8 @@ class BaseClass :
             print("开始数据预热")
             self.main.BoardCast("开始数据预热")
         self.totalDateList = self.InitDateList(today, Const.dateListLength)
-        print(self.totalDateList)
+        if isNeedLog:
+            print(self.totalDateList)
         await asyncio.sleep(0)
 
         
@@ -238,7 +239,7 @@ class BaseClass :
             self.totalDbList[catchKey] = res
 
         #重新预热
-        await self.DataPreheating(True,True)
+        await self.DataPreheating(False,True)
         return nextDayStr
 
     def InitIndustry(self):

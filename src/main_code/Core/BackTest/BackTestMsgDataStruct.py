@@ -30,6 +30,8 @@ class Msg_Base(BaseModel):
     isExcludeST : bool
     isExcludeCY : bool
     isExcludeKC : bool
+    start_date: str
+    end_date:   str
     config: Msg_TotalStock
     timestamp: Optional[str] = None
     version: str = "1.0"

@@ -31,12 +31,25 @@ function setFetchButtonsLoading(isLoading) {
                 btn.textContent = '处理中...';
                 btn.disabled = true;
                 btn.classList.add('loading');
+                document.getElementById('global-busy-bar').style.display = 'block';
+                document.getElementById('busy-bar-fill').style.width = '0%';
+                document.getElementById('busy-bar-percent').textContent = '0%';
+                const busyBar = document.getElementById('global-busy-bar');
+                busyBar.style.display = 'block';
+                // 把整个 app-layout 往下推，避免被遮住
+                document.querySelector('.app-layout').style.paddingTop = busyBar.offsetHeight + 'px';
+
+
             } else {
                 // 恢复原始文本
                 const originalText = fetchButtonTexts.get(btnId) || btn.textContent;
                 btn.textContent = originalText;
                 btn.disabled = false;
                 btn.classList.remove('loading');
+                document.getElementById('global-busy-bar').style.display = 'none';
+                document.getElementById('global-busy-bar').style.display = 'none';
+                document.querySelector('.app-layout').style.paddingTop = '0';
+
             }
         }
     });
@@ -246,6 +259,7 @@ class AppManager {
             this.ui.setLastAdjustUpdateTime(timeStrAdjust)
             this.ui.setLastValueUpdateTime(timeStrValue)
             this.ui.setLastIndustryUpdateTime(timeStrIndustry)
+            this.ui.setBacktestEndDateMax(daily); // 用日线更新日期作为回测最晚日期
         });
 
 
@@ -317,6 +331,14 @@ class AppManager {
         }
     }
 
+    setBusyProgress(percent, text = '处理中...') {
+        const fill = document.getElementById('busy-bar-fill');
+        const pct  = document.getElementById('busy-bar-percent');
+        const txt  = document.getElementById('busy-bar-text');
+        if (fill) fill.style.width = `${percent}%`;
+        if (pct)  pct.textContent = `${percent}%`;
+        if (txt)  txt.textContent = text;
+    }
 
     /**
      * ==================== 快捷请求方法 ====================
@@ -452,6 +474,8 @@ class AppManager {
             isExcludeST : val.excludeST,
             isExcludeKC : val.excludeKC,
             isExcludeCY : val.excludeCY,
+            start_date: this.ui.getBacktestStartDate(),
+            end_date:   this.ui.getBacktestEndDate(),
             config : configData,
             timestamp: new Date().toISOString(),
             version: "1.0"

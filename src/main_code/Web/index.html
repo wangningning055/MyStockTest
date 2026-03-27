@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,16 @@
 <body>
 
 <div class="app-layout">
+    <div id="global-busy-bar" class="global-busy-bar" style="display:none;">
+        <div class="busy-bar-track">
+            <div class="busy-bar-fill" id="busy-bar-fill"></div>
+        </div>
+        <div class="busy-bar-label">
+            <span class="busy-spinner"></span>
+            <span id="busy-bar-text">处理中...</span>
+            <span id="busy-bar-percent">0%</span>
+        </div>
+    </div>
     <!-- 顶部栏：仅保留标题、Token、更新按钮、连接状态、时间（移除页签） -->
     <header class="top-bar">
         <div class="brand">🚀 哇哈哈 Pro</div>
@@ -38,6 +49,14 @@
                 <span class="status-text">未连接</span>
             </div>
         </div>
+
+        <div class="memory-display" id="memory-display">
+            🧠 内存：<span id="memory-used">--</span> / <span id="memory-total">--</span>
+            <!--<span id="memory-bar-mini" class="memory-bar-mini">
+                <span id="memory-bar-fill-mini"></span>
+            </span>-->
+        </div>
+
 
     </header>
     <div class="data-dropdown-panel" id="data-dropdown-panel" style="display:none;">
@@ -233,7 +252,6 @@
 
             <main class="main-content">
 
-            <!-- ↓ 新增：股票筛选面板 ↓ -->
                 <div class="filter-and-threshold-panel">
                     <div class="filter-section">
                         <div class="section-title">🔍 股票筛选</div>
@@ -254,7 +272,20 @@
                         </div>
                     </div>
                 </div>
-                <!-- ↑ 新增完毕 ↑ -->
+
+                <div class="backtest-date-range">
+                    <div class="form-item">
+                        <label>回测开始日期</label>
+                        <input type="date" id="backtest-start-date" class="input-dark"
+                            min="2021-01-04" value="2021-01-04">
+                    </div>
+                    <div class="form-item">
+                        <label>回测结束日期</label>
+                        <input type="date" id="backtest-end-date" class="input-dark"
+                            min="2021-01-04" value="">
+                    </div>
+                </div>
+
                 <button class="btn btn-primary btn-sm" id="api-run-backtest">哈哈22222</button>
 
 
@@ -595,6 +626,8 @@
         const isCollapsed = panel.classList.toggle('log-panel-collapsed');
         this.textContent = isCollapsed ? '▼ 控制台日志 (Console)' : '▲ 控制台日志 (Console)';
     });
+
+    
 </script>
 <script type="module">
     import AppManager from "./static/AppManager.js";

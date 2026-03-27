@@ -600,32 +600,42 @@ export const HoldingsManager = {
             // 参数更新
             if (e.target.classList.contains('division-weight-input')) {
                 const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
-                const settings = { weight: parseFloat(e.target.value) };
-                this.updateDivisionSettings(divisionId, settings);
+                let val = parseFloat(e.target.value);
+                if (isNaN(val) || val < 0) { val = 0; e.target.value = 0; App.log('仓位占比不能为负数，已重置为 0', 'error'); }
+                if (val > 1) { val = 1; e.target.value = 1; App.log('仓位占比不能超过 1，已重置为 1', 'error'); }
+                this.updateDivisionSettings(divisionId, { weight: val });
             }
-
+ 
             if (e.target.classList.contains('division-hold-time-min')) {
                 const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
-                const settings = { holdingTimeMin: parseInt(e.target.value) };
-                this.updateDivisionSettings(divisionId, settings);
+                let val = Math.round(parseFloat(e.target.value));
+                if (isNaN(val) || val < 0) { val = 0; App.log('最短持仓天数不能为负数，已重置为 0', 'error'); }
+                e.target.value = val;
+                this.updateDivisionSettings(divisionId, { holdingTimeMin: val });
             }
-
+ 
             if (e.target.classList.contains('division-hold-time-max')) {
                 const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
-                const settings = { holdingTimeMax: parseInt(e.target.value) };
-                this.updateDivisionSettings(divisionId, settings);
+                let val = Math.round(parseFloat(e.target.value));
+                if (isNaN(val) || val < 0) { val = 0; App.log('最长持仓天数不能为负数，已重置为 0', 'error'); }
+                e.target.value = val;
+                this.updateDivisionSettings(divisionId, { holdingTimeMax: val });
             }
-
+ 
             if (e.target.classList.contains('division-stop-loss')) {
                 const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
-                const settings = { stopLossPercent: parseFloat(e.target.value) };
-                this.updateDivisionSettings(divisionId, settings);
+                let val = parseFloat(e.target.value);
+                if (isNaN(val)) { val = 0; }
+                if (val > 0) { val = -val; App.log('止损位必须为负数或 0，已自动转为负值', 'error'); }
+                e.target.value = val;
+                this.updateDivisionSettings(divisionId, { stopLossPercent: val });
             }
-
+ 
             if (e.target.classList.contains('division-take-profit')) {
                 const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
-                const settings = { takeProfitPercent: parseFloat(e.target.value) };
-                this.updateDivisionSettings(divisionId, settings);
+                let val = parseFloat(e.target.value);
+                if (isNaN(val) || val < 0) { val = 0; e.target.value = 0; App.log('止盈位不能为负数，已重置为 0', 'error'); }
+                this.updateDivisionSettings(divisionId, { takeProfitPercent: val });
             }
         });
     },

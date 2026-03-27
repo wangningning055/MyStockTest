@@ -17,8 +17,8 @@ class BaseClass:
         self.isOutKC = False
         self.isOutCY = False
         self.Stock = None
-        self.startDate = "20210104"
-        self.stopDate = "20260318"
+        self.startDate = "20220104"
+        self.stopDate = "20220204"
         self.isInit = False
     def Init(self, main):
         self.main : Main.processor = main
@@ -35,11 +35,15 @@ class BaseClass:
             self.isOutST = msgCls.isExcludeST
             self.totalStock = StockTotal.BaseClass(self)
             self.isInit =  self.totalStock.Init(msgCls.config)
+            self.startDate = msgCls.start_date
+            self.stopDate = msgCls.end_date
             if self.isInit == False:
                 print("回测仓位初始化失败")
                 self.main.BoardCast("回测仓位初始化失败")
             print("仓位初始化完毕")
-            await self.StartBackTest()
+
+
+            #await self.StartBackTest()
         except Exception as e:
             print(f"❌ 回测数据验证失败: {e}")
             self.main.BoardCast(f"❌ 回测数据验证失败: {e}")
@@ -57,6 +61,7 @@ class BaseClass:
         backTestCalculationHandle.Init(self.main, self.startDate)
         await backTestCalculationHandle.DataPreheating()
 
+        #初始化数据
         nextDayStr = self.startDate
         date_format = "%Y%m%d"
         nextDayStd = datetime.strptime(nextDayStr, date_format)
@@ -65,37 +70,27 @@ class BaseClass:
         stopDayStd = datetime.strptime(stopStr, date_format)
 
 
-        #日期数据是20210104
-        #20210104这里执行筛选操作，得出一个买列表，一个卖列表
-        await self.ExecuteSelect()
 
-        #移动到下一天
-        #nextDayStr = await backTestCalculationHandle.MoveDateToNextDay()
-        #if(nextDayStr == ""):
-        #    return
+        while nextDayStd < stopDayStd:
 
-        #日期数据20210105
-        #20210105这天基于上面的列表执行买卖操作
+            #20210104这里执行筛选操作，得出一个买列表，一个卖列表
+            await self.ExecuteSelect()
 
-        nextDayStd = datetime.strptime(nextDayStr, date_format)
+            #移动到下一天
+            nextDayStr = await backTestCalculationHandle.MoveDateToNextDay()
+            if(nextDayStr == ""):
+                return
+
+            #20210105这天，基于上一天的数据执行买卖
+            await self.ExecuteBuySell()
+
+            nextDayStd = datetime.strptime(nextDayStr, date_format)
 
 
-        #while nextDayStd < stopDayStd:
 
-
-        #    #日期数据是20210104
-        #    #20210104这里执行筛选操作，得出一个买列表，一个卖列表
-
-        #    nextDayStr = backTestHandle.MoveDateToNextDay()
-        #    if(nextDayStr == ""):
-        #        break
-            
-        #    #日期数据20210105
-        #    #20210105这天基于上面的列表执行买卖操作
-
-        #    nextDayStd = datetime.strptime(nextDayStr, date_format)
-
+        #结束
         self.main.SetIsInHandle(False)
+        print("回测结束")
 
 
 
@@ -105,6 +100,6 @@ class BaseClass:
 
 
     async def ExecuteBuySell(self):
-        self.totalStock.ExecuteBuySell()
+        await self.totalStock.ExecuteBuySell()
 
 

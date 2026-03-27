@@ -228,7 +228,7 @@
         { "id": 1022, "name_field": "is_touch_up_stop", "name": "是否触及涨停", "type": "int", "description": "是否触及涨停" },
         { "id": 1023, "name_field": "is_touch_down_stop", "name": "是否触及跌停", "type": "int", "description": "是否触及跌停" },
 
-        { "id": 1022, "name_field": "is_one_ban", "name": "是否十字星", "type": "int", "description": "是否十字星" },
+        { "id": 1022, "name_field": "is_one_ban", "name": "是否一字板", "type": "int", "description": "是否一字板" },
 
         { "id": 1023, "name_field": "is_long_shadow_up", "name": "是否长上影线", "type": "int", "description": "是否长上影线" },
         { "id": 1024, "name_field": "is_long_shadow_down", "name": "是否长下影线", "type": "int", "description": "是否长下影线" },

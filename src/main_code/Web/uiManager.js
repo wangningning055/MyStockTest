@@ -166,6 +166,16 @@ export const UIManagerUtils = {
         }
     },
 
+    setMemoryUsage(usedMB, totalMB) {
+        const usedEl = document.getElementById('memory-used');
+        const totalEl = document.getElementById('memory-total');
+        const fillEl  = document.getElementById('memory-bar-fill-mini');
+        if (usedEl)  usedEl.textContent  = `${usedMB}MB`;
+        if (totalEl) totalEl.textContent = `${totalMB}MB`;
+        if (fillEl)  fillEl.style.width  = `${Math.min(100, (usedMB/totalMB)*100).toFixed(0)}%`;
+    },
+
+    
     
     setWeightThreshold(value) {
         value = Number(value)
@@ -346,6 +356,24 @@ export const UIManagerUtils = {
         document.getElementById('res-win-rate').textContent = winRate;
         document.getElementById('res-max-drawdown').textContent = maxDrawdown;
     },
+
+    getBacktestStartDate() {
+        const el = document.getElementById('backtest-start-date');
+        return el ? el.value.replace(/-/g, '') : '20210104'; // 返回 YYYYMMDD
+    },
+    getBacktestEndDate() {
+        const el = document.getElementById('backtest-end-date');
+        return el ? el.value.replace(/-/g, '') : '';
+    },
+    setBacktestEndDateMax(dateStr) {
+        // dateStr 格式 YYYYMMDD，如 "20250101"
+        const el = document.getElementById('backtest-end-date');
+        if (!el) return;
+        const formatted = `${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`;
+        el.max = formatted;
+        if (!el.value) el.value = formatted; // 默认填入最新日期
+    },
+
     
     // ============ 诊断输出 ============
     

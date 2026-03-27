@@ -123,9 +123,9 @@ class BaseClass :
         process = psutil.Process(pid)
 
         listCode = []
+        res = {}
         count = 1
         t0 = time.perf_counter()
-        print(f" 回测是开始日期是：{calculationHandle.todayStr}")
         for val in codeList:
             #如果状态不是成交状态就跳过
             todayStr = calculationHandle.todayStr
@@ -163,15 +163,17 @@ class BaseClass :
             #    break
             if score > threshold * 100:
                 listCode.append(val)
+                res[score] = val
 
-        print("=======================================选股结果==============================================")
+        #print("=======================================选股结果==============================================")
         for code in listCode:
             componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(code)
-            print(f"{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
+            #print(f"{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
 
             
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-        print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
+        #print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
 
+        return res

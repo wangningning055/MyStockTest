@@ -30,7 +30,7 @@ class MessageType(str, Enum):
 
 ##发送消息
 async def SendMessage(msg_type, content):
-    print(f"发送消息：{msg_type}，： {content}")
+    #print(f"发送消息：{msg_type}，： {content}")
     data = json.dumps({"type": msg_type, "msg": content})
 
 

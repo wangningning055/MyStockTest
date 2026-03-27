@@ -25,10 +25,16 @@ class BaseClass:
         self.changeRatio = 0
 
         for single in config.divisions:
-            if(len(single.buyConfigTree) <= 0 or len(single.sellConfigTree) <= 0):
-                print(f"分仓{single.name}的买入或卖出策略为空，跳过")
-                self.handler.main.BoardCast(f"分仓{single.name}的买入或卖出策略为空，跳过")
+            if(len(single.buyConfigTree) <= 0):
+                print(f"分仓{single.name}的买入策略为空，跳过")
+                self.handler.main.BoardCast(f"分仓{single.name}的买入策略为空，跳过")
                 continue
+            
+            if(len(single.sellConfigTree) <= 0  and(single.holdingTimeMax == 0 and single.stopLossPercent == 0 and single.takeProfitPercent == 0)):
+                print(f"分仓{single.name}的卖出策略为空，跳过")
+                self.handler.main.BoardCast(f"分仓{single.name}的卖出策略为空，跳过")
+                continue
+
 
             self.total_part_share -= single.weight
 
@@ -63,5 +69,19 @@ class BaseClass:
 
 
     async def ExecuteBuySell(self):
+        #先更新持仓
+        self.UpdateStock()
         for key, part in self.partList.items():
-            part.ExecuteBuySell()
+            await part.ExecuteBuySell()
+
+    #更新
+    def UpdateStock(self):
+        for key, part in self.partList.items():
+            part.Update()
+        cur = 0
+        for key, part in self.partList.items():
+            cur += part.totalValue
+
+        self.curValue = cur
+        self.changeRatio = ((self.curValue - self.startValue) / self.startValue) * 100
+        print(f"----更新总仓：日期：{self.handler.backTestCalculationHandle.todayStr}， 开仓价：{self.startValue}， 当前价：{self.curValue}， 涨跌幅：{self.changeRatio}")

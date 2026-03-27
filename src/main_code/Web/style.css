@@ -39,6 +39,10 @@
     box-sizing: border-box;
 }
 
+
+
+
+
 body {
     background: radial-gradient(circle at top, #121726, #07090f);
     color: var(--text-main);
@@ -2780,3 +2784,110 @@ input::placeholder {
 }
 
 
+.memory-display {
+    font-size: 0.75rem; color: #a0aec0;
+    display: flex; align-items: center; gap: 6px;
+}
+.memory-bar-mini {
+    display: inline-block; width: 60px; height: 6px;
+    background: #1e1e3a; border-radius: 3px; overflow: hidden;
+}
+.memory-bar-mini span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+    transition: width 0.5s;
+}
+
+
+/* ============ 全局忙碌进度条 ============ */
+.global-busy-bar {
+    /* 不用 sticky，改用 fixed，彻底绕开 overflow:hidden 的限制 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0a0a1a 0%, #12082a 50%, #0a0a1a 100%);
+    padding: 8px 20px 10px;
+    border-bottom: 1px solid rgba(123, 47, 247, 0.6);
+    box-shadow: 0 2px 24px rgba(123, 47, 247, 0.4), 0 0 60px rgba(0, 212, 255, 0.1);
+}
+
+.busy-bar-track {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.busy-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    position: relative;
+    /* 用 background-color + 伪元素做流光，不依赖 background-position 动画 */
+    background: linear-gradient(90deg, #7b2ff7, #00d4ff, #ff00aa, #7b2ff7);
+    background-size: 300% 100%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: busy-shimmer 2s linear infinite;
+}
+
+@keyframes busy-shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* 轨道底部的辉光线 */
+.busy-bar-track::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+    animation: busy-scan 2s ease-in-out infinite;
+}
+
+@keyframes busy-scan {
+    0%   { transform: translateX(-100%); opacity: 0; }
+    50%  { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+.busy-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 0.76rem;
+    color: #a78bfa;
+    letter-spacing: 0.3px;
+}
+
+.busy-spinner {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 2px solid rgba(123, 47, 247, 0.4);
+    border-top-color: #00d4ff;
+    animation: busy-spin 0.7s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes busy-spin {
+    to { transform: rotate(360deg); }
+}
+
+#busy-bar-text {
+    flex: 1;
+    color: #c4b5fd;
+}
+
+#busy-bar-percent {
+    color: #00d4ff;
+    font-weight: 600;
+    font-family: 'Monaco', monospace;
+    min-width: 36px;
+    text-align: right;
+}
