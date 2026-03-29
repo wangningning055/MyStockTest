@@ -19,6 +19,8 @@ class Msg_PartStock(BaseModel):
     sellConfigTree: List[Models.FactorConfig]
     thresholdBuy : float
     thresholdSell : float
+    drawdownStartPercent : float
+    maxDrawdownPercent : float
 
 
 class Msg_TotalStock(BaseModel):

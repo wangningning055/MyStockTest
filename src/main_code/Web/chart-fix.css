@@ -182,3 +182,111 @@
     gap: 0;
 }
 
+#selectionPortfolioChart,
+#holdings-total-chart,
+#holdings-division-chart {
+    width: 100% !important;
+    height: 400px !important;
+    min-height: 400px !important;
+    max-height: 450px !important;
+    margin: 12px 0;
+    position: relative;
+    display: block;
+}
+
+
+/*选股接口返回格式示例*/
+/*
+{
+    "code": 0,
+    "msg": "success",
+    "data": {
+        "stocks": [
+            {
+                "code": "000001",
+                "name": "平安银行",
+                "price": 15.5,
+                "score": 85.3,
+                "industry": "银行"
+            },
+            {
+                "code": "000002",
+                "name": "万科A",
+                "price": 12.8,
+                "score": 78.5,
+                "industry": "房地产"
+            }
+        ],
+        "portfolioData": {
+            "dates": ["2024-01-01", "2024-01-02", "2024-01-03"],
+            "equity": [100000, 102000, 103500],
+            "profitRate": [0, 2.0, 3.5]
+        }
+    }
+}*/
+
+/*调用示例*/
+/*response.data.portfolioData && ChartManager.drawSelectionPortfolioChart(response.data.portfolioData);*/
+
+
+
+/*回测接口返回格式示例*/
+
+/*
+{
+    "code": 0,
+    "msg": "success",
+    "data": {
+        "totalBacktest": {
+            "dates": ["2024-01-01", "2024-01-02", "2024-01-03"],
+            "equity": [100000, 102000, 103500],
+            "profitRate": [0, 2.0, 3.5],
+            "drawdown": [0, -0.5, 0],
+            "cumulativeMaxDrawdown": [0, -0.5, -0.5],
+            "trades": 25,
+            "summary": {
+                "totalProfit": "3.5%",
+                "maxDrawdown": "-5.2%",
+                "winRate": "65%"
+            }
+        },
+        "divisionBacktests": {
+            "div-123-abc": {
+                "divisionName": "分仓1",
+                "dates": ["2024-01-01", "2024-01-02", "2024-01-03"],
+                "equity": [50000, 51000, 52000],
+                "profitRate": [0, 2.0, 4.0],
+                "drawdown": [0, -0.3, 0],
+                "cumulativeMaxDrawdown": [0, -0.3, -0.3],
+                "trades": 12
+            },
+            "div-456-def": {
+                "divisionName": "分仓2",
+                "dates": ["2024-01-01", "2024-01-02", "2024-01-03"],
+                "equity": [50000, 51000, 51500],
+                "profitRate": [0, 2.0, 3.0],
+                "drawdown": [0, -0.7, 0],
+                "cumulativeMaxDrawdown": [0, -0.7, -0.7],
+                "trades": 13
+            }
+        }
+    }
+}*/
+
+
+/*调用示例（在接收到回测结果时）：
+javascript// 在 AppManager.js 或相关文件中
+const backTestResult = response.data;
+
+// 绘制总仓图表
+if (backTestResult.totalBacktest) {
+    ChartManager.drawBacktestTotalChart(backTestResult.totalBacktest);
+}
+
+// 绘制分仓图表（当用户选择分仓时）
+// 可以在 HoldingsManager.bindDivisionSelector() 中调用
+const selectedDivisionId = e.target.value;
+const divisionData = backTestResult.divisionBacktests[selectedDivisionId];
+if (divisionData) {
+    ChartManager.drawBacktestDivisionChart(divisionData);
+}*/

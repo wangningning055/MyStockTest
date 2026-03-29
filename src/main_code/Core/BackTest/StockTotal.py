@@ -84,4 +84,12 @@ class BaseClass:
 
         self.curValue = cur
         self.changeRatio = ((self.curValue - self.startValue) / self.startValue) * 100
+
+
+    def Log(self):
+        for key, part in self.partList.items():
+            part.Log()
         print(f"----更新总仓：日期：{self.handler.backTestCalculationHandle.todayStr}， 开仓价：{self.startValue}， 当前价：{self.curValue}， 涨跌幅：{self.changeRatio}")
+        print("--------------------------------------------------------------------------------------------------------------------------------------------------")
+    
+        

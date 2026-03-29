@@ -16,6 +16,8 @@ import os
 import bisect
 import random
 import asyncio
+import gc
+import sys
 class BaseClass :
     def __init__(self):
         self.isNeedStop = False
@@ -63,7 +65,11 @@ class BaseClass :
         if isNeedLog:
             print("开始数据预热")
             self.main.BoardCast("开始数据预热")
-        self.totalDateList = self.InitDateList(today, Const.dateListLength)
+            
+        ##################################################################
+        if isJumpReadDb == False:
+            self.totalDateList = self.InitDateList(today, Const.dateListLength)
+            
         if isNeedLog:
             print(self.totalDateList)
         await asyncio.sleep(0)
@@ -84,9 +90,15 @@ class BaseClass :
         await asyncio.sleep(0)
         if self.isInStop:
             return
+        
+
+        ##################################################################
         if isJumpReadDb == False:
             self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
 
+        if isJumpReadDb == False:
+            self.totalValueDbDic = self.main.dbHandler.LoadAllValueDataToDict()
+        
         
         if self.isInStop:
             return
@@ -105,7 +117,10 @@ class BaseClass :
 
         if isNeedLog:
             print("      开始整理复权数据：")
-        self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
+
+        ##################################################################
+        if isJumpReadDb == False:
+            self.totalAdjustData = self.main.dbHandler.LoadAllAdjustDataToDict()
 
         if self.isInStop:
             return
@@ -119,6 +134,10 @@ class BaseClass :
         if isNeedLog:
             print("     开始整理价值数据：")
         await asyncio.sleep(0)
+
+
+
+        ##################################################################
         self.InitValueData()
 
         if isNeedLog:
@@ -150,8 +169,20 @@ class BaseClass :
         await asyncio.sleep(0)
 
 
-        self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList)
+        ##################################################################
 
+
+        isLog = isJumpReadDb == False
+        await self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList, isLog)
+        #print("")
+        #dateList = []
+        #for key ,val in self.totalBaseDailyData.items():
+        #    #print(f"{key[0]},    {key[1]}")
+        #    if key[0] == "000001.SZ":
+        #        dateList.append(key[1])
+
+        #print(f"长度是 {len(self.totalBaseDailyData)},  日期列表是是：{dateList}")
+        #print("")
 
 
         t1 = time.perf_counter()
@@ -183,52 +214,80 @@ class BaseClass :
         self.todayStr = nextDayStr
         
         oldDataList = self.totalDateList
-
+        #print(f"正在移动到下一天：{nextDayStr}")
         #获取新的日期列表
         newDataList = self.InitDateList(nextDayStr, Const.dateListLength)
-
+        #print(f"初始化了日期列表")
+        self.totalDateList = newDataList
 
         #筛选出需要删除的日期
-        diff_list = [item for item in oldDataList if item not in newDataList]
+        diff_list =  [item for item in oldDataList if item not in newDataList]
+        #print(f"筛选出删除日期列表")
+        #print(f"============================老 {len(oldDataList)}========================={self.todayStr}")
+        #print(oldDataList)
 
+        #print(f"============================新={len(newDataList)}========================{self.todayStr}")
+        #print(newDataList)
+
+        #print(f"============================拆包={len(diff_list)}========================{self.todayStr}")
+        #print(diff_list)
+
+
+        delCount = 0
+        addCount = 0
         #删除对应的缓存
+
         for day in diff_list:
+
+
+            #基本日线数据删除
+            #第一种删除方法
             keys_to_delete_base = [
                 key for key in self.totalBaseDailyData
                 if key[1] == day
             ]
 
             for key in keys_to_delete_base:
+                #delCount += 1
+                self.totalBaseDailyData[key].Clear()
                 del self.totalBaseDailyData[key]
 
+
+            #窗口数据删除
             keys_to_delete_window = [
                 key for key in self.totalBaseWindowData
                 if key[1] == day
             ]
             for key in keys_to_delete_window:
+                self.totalBaseWindowData[key].Clear()
                 del self.totalBaseWindowData[key]
 
 
+            #行业数据删除
             keys_to_delete_industry = [
                 key for key in self.CalculateIndustryBaseClassDic
                 if key[1] == day
             ]
             for key in keys_to_delete_industry:
+                self.CalculateIndustryBaseClassDic[key].Clear()
                 del self.CalculateIndustryBaseClassDic[key]
 
+            #行业窗口数据删除
             keys_to_delete_industry_window = [
                 key for key in self.CalculateIndustryWindowClassDic
                 if key[1] == day
             ]
             for key in keys_to_delete_industry_window:
+                self.CalculateIndustryWindowClassDic[key].Clear()
                 del self.CalculateIndustryWindowClassDic[key]
 
 
-
+            #数据库数据删除
             keys_to_delete_industry_db = [
                 key for key in self.totalDbList
                 if key[1] == day
             ]
+
             for key in keys_to_delete_industry_db:
                 del self.totalDbList[key]
 
@@ -236,10 +295,17 @@ class BaseClass :
         for code in self.totalStockList:
             catchKey = (code, nextDayStr)
             res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, nextDayStr)
-            self.totalDbList[catchKey] = res
+            if res != None:
+                addCount += 1
+                self.totalDbList[catchKey] = res
 
+        #self.totalBaseDailyData.clear()
+        #self.totalBaseDailyData = {}
         #重新预热
+        #print(f"删除完毕，开始预热")
         await self.DataPreheating(False,True)
+        #print(f"预热完毕")
+        gc.collect()
         return nextDayStr
 
     def InitIndustry(self):
@@ -787,6 +853,7 @@ class BaseClass :
         if isinstance(cls, CalculationDataStruct.StructBaseClass):
             targetCode = cls.code
 
+
         for day in self.totalDateList:
             cls_day = self.GetBaseDataClass(targetCode, day)
             if cls_day is None or cls_day.trade_state == 0:
@@ -869,11 +936,14 @@ class BaseClass :
     
 
     #构建整个基础类列表
-    def InitAllBaseDataClsList(self, totalDateList, totalDbList):
+    async def InitAllBaseDataClsList(self, totalDateList, totalDbList, isLog = False):
         count = 0
         for date in totalDateList:
             if self.isInStop:
                 break
+            count = count + 1
+            if isLog:
+                print("正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}")
             for code in self.totalStockList:
                 if self.isInStop:
                     break
@@ -889,6 +959,7 @@ class BaseClass :
                         #if date == today and baseClass.trade_state == 0:
                         #if code == "000001.SZ":
                         #    print(f"a啊啊啊啊啊啊啊啊啊啊啊啊啊 code是：{code}， 载入的时间是 ：{date}")
+
                         self.totalBaseDailyData[(code, date)] = baseClass
 
     #获取最近的复权数据
@@ -927,7 +998,6 @@ class BaseClass :
         todayDate = datetime.strptime(todayStr, "%Y%m%d")
         year = todayDate.year
         month = todayDate.month
-        dbDic = self.main.dbHandler.LoadAllValueDataToDict()
         #print(f"获取价值数据字符串是{todayStr},  年份是：{year}，    月份是{month}")
         allCodeList = self.totalStockList
         dbStruct =  ValueDBStruct.DBStructClass()
@@ -973,7 +1043,7 @@ class BaseClass :
 
             catchKey = (code, q_target_year, q_target_q)
             #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{target_year}，    目标季度是{target_q}")
-            val = dbDic.get(catchKey)
+            val = self.totalValueDbDic.get(catchKey)
             if val is not None: 
                 roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
                 yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100
@@ -1002,7 +1072,7 @@ class BaseClass :
 
             #print(f"获取价值年度数据字符串是{todayStr},  目标年份是：{y_target_year}，    目标季度是{y_target_q}")
             catchKey = (code, y_target_year, y_target_q)
-            val = dbDic.get(catchKey)
+            val = self.totalValueDbDic.get(catchKey)
             if val is not None: 
                 roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
                 yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100

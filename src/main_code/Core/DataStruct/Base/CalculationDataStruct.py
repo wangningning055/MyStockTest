@@ -136,6 +136,31 @@ class StructBaseClass :
 
         self.totalCacheLength = 60
 
+    def Clear(self):
+        """
+        彻底清空当前对象的所有属性，释放内存
+        调用后对象仅保留基础标记，所有数据字段全部删除
+        """
+        # 1. 清空所有动态计算的字段集合
+        self._computed_fields.clear()
+        
+        # 2. 清空所有实例属性（核心：释放所有大数据、列表、对象引用）
+        attrs = list(self.__dict__.keys())  # 先转列表避免遍历中修改报错
+        for attr in attrs:
+            # 保留基础初始化标记，不删除，避免后续访问报错
+            if attr in ['isCalculate', 'isCalculateRank', 'isInit', '_computed_fields', 'calculateCount']:
+                setattr(self, attr, False if attr != 'calculateCount' else 0)
+            else:
+                # 其他所有属性全部删除 = 释放内存
+                try:
+                    delattr(self, attr)
+                except AttributeError:
+                    pass
+
+        # 3. 强制标记未初始化
+        self.isInit = False
+
+
     def __getattr__(self, field_name):
         #print(f"!!!!!!{field_name}")
         if self.isInit == False:
@@ -650,6 +675,32 @@ class StructBaseWindowClass :
         #if self.code == "688152.SH":
         #    print(f"麒麟信安的设置：{self.startCount}，  {self.toCount}")
 
+
+    def Clear(self):
+        """
+        彻底清空当前对象的所有属性，释放内存
+        调用后对象仅保留基础标记，所有数据字段全部删除
+        """
+        # 1. 清空所有动态计算的字段集合
+        self._computed_fields.clear()
+        
+        # 2. 清空所有实例属性（核心：释放所有大数据、列表、对象引用）
+        attrs = list(self.__dict__.keys())  # 先转列表避免遍历中修改报错
+        for attr in attrs:
+            # 保留基础初始化标记，不删除，避免后续访问报错
+            if attr in ['isCalculate', 'isCalculateRank', 'isInit', '_computed_fields', 'calculateCount']:
+                setattr(self, attr, False if attr != 'calculateCount' else 0)
+            else:
+                # 其他所有属性全部删除 = 释放内存
+                try:
+                    delattr(self, attr)
+                except AttributeError:
+                    pass
+
+        # 3. 强制标记未初始化
+        self.isInit = False
+
+
     def __getattr__(self, field_name):
         if self.isInit == False:
             return None
@@ -854,6 +905,32 @@ class StructIndustryClass():
         self.isInit = True
         self.calculateCount = 0
         self.name = industryInfoCls.industryName
+
+    def Clear(self):
+        """
+        彻底清空当前对象的所有属性，释放内存
+        调用后对象仅保留基础标记，所有数据字段全部删除
+        """
+        # 1. 清空所有动态计算的字段集合
+        self._computed_fields.clear()
+        
+        # 2. 清空所有实例属性（核心：释放所有大数据、列表、对象引用）
+        attrs = list(self.__dict__.keys())  # 先转列表避免遍历中修改报错
+        for attr in attrs:
+            # 保留基础初始化标记，不删除，避免后续访问报错
+            if attr in ['isCalculate', 'isCalculateRank', 'isInit', '_computed_fields', 'calculateCount']:
+                setattr(self, attr, False if attr != 'calculateCount' else 0)
+            else:
+                # 其他所有属性全部删除 = 释放内存
+                try:
+                    delattr(self, attr)
+                except AttributeError:
+                    pass
+
+        # 3. 强制标记未初始化
+        self.isInit = False
+
+
     def __getattr__(self, field_name):
         # 未初始化直接返回None
         if self.isInit == False:
@@ -945,6 +1022,33 @@ class StructIndustryWindowClass():
         self.calculateCount = 0
         self.name = industryInfoCls.industryName
         self.stockNum = len(industryInfoCls.stockList)
+
+
+    def Clear(self):
+        """
+        彻底清空当前对象的所有属性，释放内存
+        调用后对象仅保留基础标记，所有数据字段全部删除
+        """
+        # 1. 清空所有动态计算的字段集合
+        self._computed_fields.clear()
+        
+        # 2. 清空所有实例属性（核心：释放所有大数据、列表、对象引用）
+        attrs = list(self.__dict__.keys())  # 先转列表避免遍历中修改报错
+        for attr in attrs:
+            # 保留基础初始化标记，不删除，避免后续访问报错
+            if attr in ['isCalculate', 'isCalculateRank', 'isInit', '_computed_fields', 'calculateCount']:
+                setattr(self, attr, False if attr != 'calculateCount' else 0)
+            else:
+                # 其他所有属性全部删除 = 释放内存
+                try:
+                    delattr(self, attr)
+                except AttributeError:
+                    pass
+
+        # 3. 强制标记未初始化
+        self.isInit = False
+
+
     def __getattr__(self, field_name):
         if self.isInit == False:
             return None

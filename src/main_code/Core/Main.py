@@ -23,6 +23,7 @@ import asyncio
 from src.main_code.Core.DataStruct.Base import RecordDataStruct
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
+import tracemalloc
 class processor:
     lastDayStr = const_proj.first_Data
     tuShareToken = 0000000
@@ -87,14 +88,22 @@ class processor:
 
         mem = psutil.virtual_memory()
         total_memory = mem.total
-        available_memory = mem.available /(1024*1024*1024)
+        tracemalloc.start()
+
+
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
         mem_info = process.memory_info()
-        rss_memory = mem_info.rss / (1024 * 1024 * 1024)  # 实际使用的物理内存（常驻集大小）
-        #当前已使用：
+        current, peak = tracemalloc.get_traced_memory()
+        #rss_memory = mem_info.rss / (1024 * 1024)
+        rss_memory = current / (1024 * 1024)
+        available_memory = mem.available /(1024*1024*1024)
+
+
+        #当前已使用内存
         rss_memory = round(rss_memory, 1)
+        #当前可使用内存：
         available_memory = round(available_memory, 1)
         
         if isIn == True:

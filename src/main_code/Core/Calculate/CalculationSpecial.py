@@ -597,7 +597,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     dataList_asc = list(reversed(raw_list[:use_count]))  # 转为时间升序
 
     if len(dataList_asc) < 15:
-        print("上压力位计算：数据不足，直接返回平均均价上涨平均涨跌幅")
+        #print("上压力位计算：数据不足，直接返回平均均价上涨平均涨跌幅")
         return windowData.avg_high + windowData.avg_high * abs(windowData.change_Ratio_Total) / 100
 
     avg_turn_window         = windowData.avg_turn
@@ -616,7 +616,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     )
     if is_low_volatility:
         resistance_price = avg_price_window + avg_price_window * avg_change_total_window / 100
-        print(f"上压力位：低波动票，当日价={nowData.close}，阻力价={resistance_price}")
+        #print(f"上压力位：低波动票，当日价={nowData.close}，阻力价={resistance_price}")
         return resistance_price
 
     # ----------------------------------------------------------------

@@ -92,12 +92,20 @@ export const ChartManager = {
     },
 
     /**
-     * 绘制持仓收益图表
+     * 绘制选股页签的收益曲线图
+     * @param {Array} portfolioData - 收益数据数组
+     * [{date: "2024-01-01", equity: 100000, profitRate: 0}, ...]
      */
-    drawPortfolioChart(portfolioData) {
-        if (!ChartInstances.portfolioChart) {
-            App.log('持仓图表未初始化', 'error');
+    drawSelectionPortfolioChart(portfolioData) {
+        const container = document.getElementById('selectionPortfolioChart');
+        if (!container) {
+            App.log('选股收益图表容器未找到', 'error');
             return;
+        }
+
+        let chart = echarts.getInstanceByDom(container);
+        if (!chart) {
+            chart = echarts.init(container, 'dark');
         }
 
         const dates = portfolioData.map(item => item.date);
@@ -106,25 +114,332 @@ export const ChartManager = {
 
         const option = {
             backgroundColor: 'transparent',
-            title: { text: '收益曲线', left: 'center', textStyle: { color: '#fff', fontSize: 16 } },
-            tooltip: { trigger: 'axis' },
-            legend: { data: ['账户权益', '收益率'], textStyle: { color: '#999' }, top: '40px' },
-            xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#555' } }, axisLabel: { fontSize: 10, color: '#999' } },
+            title: { 
+                text: '收益曲线', 
+                left: 'center', 
+                textStyle: { color: '#fff', fontSize: 16 } 
+            },
+            tooltip: { 
+                trigger: 'axis',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: '#4facfe'
+            },
+            legend: { 
+                data: ['账户权益', '收益率'], 
+                textStyle: { color: '#999' }, 
+                top: '40px' 
+            },
+            grid: { left: '5%', right: '5%', top: '80px', bottom: '15%', containLabel: true },
+            xAxis: { 
+                type: 'category', 
+                data: dates,
+                axisLine: { lineStyle: { color: '#555' } }, 
+                axisLabel: { fontSize: 10, color: '#999', interval: 'auto' }
+            },
             yAxis: [
-                { type: 'value', position: 'left', axisLine: { lineStyle: { color: '#4facfe' } }, axisLabel: { fontSize: 10, color: '#999' } },
-                { type: 'value', position: 'right', axisLine: { lineStyle: { color: '#00f2fe' } }, axisLabel: { fontSize: 10, color: '#999' } }
+                { 
+                    type: 'value', 
+                    position: 'left',
+                    name: '权益(¥)',
+                    nameTextStyle: { color: '#4facfe' },
+                    axisLine: { lineStyle: { color: '#4facfe' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                },
+                { 
+                    type: 'value', 
+                    position: 'right',
+                    name: '收益率(%)',
+                    nameTextStyle: { color: '#00f2fe' },
+                    axisLine: { lineStyle: { color: '#00f2fe' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                }
             ],
             series: [
-                { name: '账户权益', type: 'line', yAxisIndex: 0, data: equityData, smooth: true, lineStyle: { color: '#4facfe', width: 2.5 }, itemStyle: { color: '#4facfe', borderColor: '#fff', borderWidth: 2 }, symbolSize: 6 },
-                { name: '收益率', type: 'line', yAxisIndex: 1, data: profitRateData, smooth: true, lineStyle: { color: '#00f2fe', width: 2.5 }, itemStyle: { color: '#00f2fe', borderColor: '#fff', borderWidth: 2 }, symbolSize: 6 }
+                {
+                    name: '账户权益',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: equityData,
+                    smooth: true,
+                    lineStyle: { color: '#4facfe', width: 2.5 },
+                    areaStyle: { color: 'rgba(79, 172, 254, 0.1)' },
+                    itemStyle: { color: '#4facfe', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 6
+                },
+                {
+                    name: '收益率',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: profitRateData,
+                    smooth: true,
+                    lineStyle: { color: '#00f2fe', width: 2.5 },
+                    itemStyle: { color: '#00f2fe', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 6
+                }
             ],
             dataZoom: [
-                { type: 'slider', show: true, start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), end: 100 },
-                { type: 'inside', start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), end: 100 }
+                { 
+                    type: 'slider', 
+                    show: true, 
+                    start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), 
+                    end: 100,
+                    textStyle: { color: '#999' }
+                },
+                { 
+                    type: 'inside', 
+                    start: Math.max(0, 100 - Math.min(50, portfolioData.length * 2)), 
+                    end: 100 
+                }
             ]
         };
 
-        ChartInstances.portfolioChart.setOption(option);
-        App.log(`收益曲线图已绘制，共 ${portfolioData.length} 个交易日`, "success");
+        chart.setOption(option);
+        App.log(`选股收益曲线已绘制，共 ${portfolioData.length} 个交易日`, "success");
+    },
+
+    /**
+     * 绘制回测页签总仓的收益曲线（包含回撤）
+     * @param {Object} backtestData - 回测数据对象
+     * {
+     *   dates: [...],
+     *   equity: [...],
+     *   profitRate: [...],
+     *   drawdown: [...],
+     *   cumulativeMaxDrawdown: [...],
+     *   trades: 25
+     * }
+     */
+    drawBacktestTotalChart(backtestData) {
+        const container = document.getElementById('holdings-total-chart');
+        if (!container) {
+            App.log('总仓图表容器未找到', 'error');
+            return;
+        }
+
+        let chart = echarts.getInstanceByDom(container);
+        if (!chart) {
+            chart = echarts.init(container, 'dark');
+        }
+
+        const option = {
+            backgroundColor: 'transparent',
+            title: { 
+                text: `总仓回测结果 (共${backtestData.trades}笔交易)`, 
+                left: 'center', 
+                textStyle: { color: '#fff', fontSize: 16 } 
+            },
+            tooltip: { 
+                trigger: 'axis',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: '#4facfe'
+            },
+            legend: { 
+                data: ['账户权益', '收益率', '最大回撤'], 
+                textStyle: { color: '#999' }, 
+                top: '40px' 
+            },
+            grid: { left: '5%', right: '5%', top: '80px', bottom: '15%', containLabel: true },
+            xAxis: { 
+                type: 'category', 
+                data: backtestData.dates,
+                axisLine: { lineStyle: { color: '#555' } }, 
+                axisLabel: { fontSize: 10, color: '#999', interval: 'auto' }
+            },
+            yAxis: [
+                { 
+                    type: 'value', 
+                    position: 'left',
+                    name: '权益(¥)',
+                    nameTextStyle: { color: '#4facfe' },
+                    axisLine: { lineStyle: { color: '#4facfe' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                },
+                { 
+                    type: 'value', 
+                    position: 'right',
+                    name: '收益率/回撤(%)',
+                    nameTextStyle: { color: '#00f2fe' },
+                    axisLine: { lineStyle: { color: '#00f2fe' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                }
+            ],
+            series: [
+                {
+                    name: '账户权益',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: backtestData.equity,
+                    smooth: true,
+                    lineStyle: { color: '#4facfe', width: 2.5 },
+                    areaStyle: { color: 'rgba(79, 172, 254, 0.1)' },
+                    itemStyle: { color: '#4facfe', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 5
+                },
+                {
+                    name: '收益率',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: backtestData.profitRate,
+                    smooth: true,
+                    lineStyle: { color: '#00f2fe', width: 2.5 },
+                    itemStyle: { color: '#00f2fe', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 5
+                },
+                {
+                    name: '最大回撤',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: backtestData.cumulativeMaxDrawdown,
+                    smooth: true,
+                    lineStyle: { color: '#ff5252', width: 2, type: 'dashed' },
+                    itemStyle: { color: '#ff5252' },
+                    symbolSize: 4
+                }
+            ],
+            dataZoom: [
+                { 
+                    type: 'slider', 
+                    show: true, 
+                    start: Math.max(0, 100 - Math.min(50, backtestData.dates.length * 2)), 
+                    end: 100,
+                    textStyle: { color: '#999' }
+                },
+                { 
+                    type: 'inside', 
+                    start: Math.max(0, 100 - Math.min(50, backtestData.dates.length * 2)), 
+                    end: 100 
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        App.log(`总仓回测图表已绘制，共 ${backtestData.dates.length} 个交易日`, "success");
+    },
+
+    /**
+     * 绘制回测页签分仓的收益曲线
+     * @param {Object} divisionData - 分仓回测数据
+     * {
+     *   divisionName: "分仓1",
+     *   dates: [...],
+     *   equity: [...],
+     *   profitRate: [...],
+     *   drawdown: [...],
+     *   cumulativeMaxDrawdown: [...],
+     *   trades: 10
+     * }
+     */
+    drawBacktestDivisionChart(divisionData) {
+        const container = document.getElementById('holdings-division-chart');
+        if (!container) {
+            App.log('分仓图表容器未找到', 'error');
+            return;
+        }
+
+        let chart = echarts.getInstanceByDom(container);
+        if (!chart) {
+            chart = echarts.init(container, 'dark');
+        }
+
+        const option = {
+            backgroundColor: 'transparent',
+            title: { 
+                text: `${divisionData.divisionName} - 回测结果 (共${divisionData.trades}笔交易)`, 
+                left: 'center', 
+                textStyle: { color: '#fff', fontSize: 16 } 
+            },
+            tooltip: { 
+                trigger: 'axis',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: '#4facfe'
+            },
+            legend: { 
+                data: ['分仓权益', '收益率', '最大回撤'], 
+                textStyle: { color: '#999' }, 
+                top: '40px' 
+            },
+            grid: { left: '5%', right: '5%', top: '80px', bottom: '15%', containLabel: true },
+            xAxis: { 
+                type: 'category', 
+                data: divisionData.dates,
+                axisLine: { lineStyle: { color: '#555' } }, 
+                axisLabel: { fontSize: 10, color: '#999', interval: 'auto' }
+            },
+            yAxis: [
+                { 
+                    type: 'value', 
+                    position: 'left',
+                    name: '权益(¥)',
+                    nameTextStyle: { color: '#00f2fe' },
+                    axisLine: { lineStyle: { color: '#00f2fe' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                },
+                { 
+                    type: 'value', 
+                    position: 'right',
+                    name: '收益率/回撤(%)',
+                    nameTextStyle: { color: '#ffb74d' },
+                    axisLine: { lineStyle: { color: '#ffb74d' } }, 
+                    axisLabel: { fontSize: 10, color: '#999' },
+                    splitLine: { lineStyle: { color: '#333' } }
+                }
+            ],
+            series: [
+                {
+                    name: '分仓权益',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: divisionData.equity,
+                    smooth: true,
+                    lineStyle: { color: '#00f2fe', width: 2.5 },
+                    areaStyle: { color: 'rgba(0, 242, 254, 0.1)' },
+                    itemStyle: { color: '#00f2fe', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 5
+                },
+                {
+                    name: '收益率',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: divisionData.profitRate,
+                    smooth: true,
+                    lineStyle: { color: '#ffb74d', width: 2.5 },
+                    itemStyle: { color: '#ffb74d', borderColor: '#fff', borderWidth: 2 },
+                    symbolSize: 5
+                },
+                {
+                    name: '最大回撤',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: divisionData.cumulativeMaxDrawdown,
+                    smooth: true,
+                    lineStyle: { color: '#ff5252', width: 2, type: 'dashed' },
+                    itemStyle: { color: '#ff5252' },
+                    symbolSize: 4
+                }
+            ],
+            dataZoom: [
+                { 
+                    type: 'slider', 
+                    show: true, 
+                    start: Math.max(0, 100 - Math.min(50, divisionData.dates.length * 2)), 
+                    end: 100,
+                    textStyle: { color: '#999' }
+                },
+                { 
+                    type: 'inside', 
+                    start: Math.max(0, 100 - Math.min(50, divisionData.dates.length * 2)), 
+                    end: 100 
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        App.log(`分仓回测图表已绘制，共 ${divisionData.dates.length} 个交易日`, "success");
     }
+    
 };

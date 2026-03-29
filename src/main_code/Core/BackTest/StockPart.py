@@ -45,6 +45,13 @@ class BaseClass:
     stockList : List[StockSingle.BaseClass]         #持仓列表
 
     stockList_history : List[StockSingle.BaseClass]         #历史持仓列表
+
+    backStart : float           #最大回撤开始位
+    backEnd : float           #最大回撤位
+
+
+
+
     
     def __init__(self, single : BackTestMsgDataStruct.Msg_PartStock, totalStock : "StockTotal.BaseClass"):
         self.totalStock = totalStock
@@ -60,6 +67,9 @@ class BaseClass:
         self.buyThreshold = single.thresholdBuy
         self.sellThreshold = single.thresholdSell
 
+        self.backStart = single.drawdownStartPercent
+        self.backEnd = single.maxDrawdownPercent
+
         self.buyCodeList = {}
         self.sellCodeList = {}
 
@@ -72,6 +82,8 @@ class BaseClass:
         self.totalValue = self.startValue
         self.maxCount = 2
         self.curChangeRatio = 0
+
+
         #print("=====================================================")
         #print(f"名字：{self.name}")
         #print(f"占比：{self.share}")
@@ -111,11 +123,10 @@ class BaseClass:
         sellSelectCodeList = []
         for stockSingle in self.stockList:
             state = stockSingle.GetState()
-            if(state == 2 or state == 3):
+            if(state == 2 or state == 3 or state == 4):
                 sellCodeList.append(stockSingle.stockCode)
             if(state == 1):
                 sellSelectCodeList.append(stockSingle.stockCode)
-
 
         buyCodeDic_selectRes = main.analysisHandle.RunGetStockListByConditionForBackTest(backTestCalculationHandle, buySelectCodeList, self.buyThreshold, isOutKC, isOutCY, isOutST, self.buyCondition)
 
@@ -128,10 +139,7 @@ class BaseClass:
         #买入因子结果排序
         sorted_items = sorted(buyCodeDic_selectRes.items(), key=lambda x: x[0], reverse=True)[:2]
 
-        #first_key, first_val = sorted_items[0]  # 最大的 key 和 对应的值
-        #second_key, second_val = sorted_items[1] # 第二大的 key 和 对应的值
-        #buyCodeList.append(first_val)
-        #buyCodeList.append(second_val)
+
 
         for buy_key, buy_val in sorted_items:
             buyCodeList.append(buy_val)
@@ -170,6 +178,7 @@ class BaseClass:
         todayStr = backTestCalculationHandle.todayStr
         stockCode = singleStock.stockCode
         cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        state = singleStock.GetState()
 
         operate.date = todayStr
         operate.partStock = self
@@ -184,6 +193,11 @@ class BaseClass:
             operate.isSuccess = False
             operate.failReason = "跌停一字板，无法卖出"
             return
+        if state == 0:
+            operate.isSuccess = False
+            operate.failReason = "未达到最短持仓天数，无法卖出"
+            return
+        
 
         operate.isSuccess = True
         state = singleStock.GetState()
@@ -193,6 +207,8 @@ class BaseClass:
             operate.successReason = "达成止损位或止盈位"
         if state == 3:
             operate.successReason = "达成最大持仓天数"
+        if state == 4:
+            operate.successReason = "达到最大回撤"
 
         end_price = cls.close_ori
         singleStock.isEnd = True
@@ -215,6 +231,8 @@ class BaseClass:
 
 
         operate.sell_price_start = singleStock.start_price
+        operate.buy_date = singleStock.startDate
+        operate.sell_date = todayStr
         operate.sell_price_end = singleStock.end_price
         operate.buy_volume = singleStock.volume
 
@@ -224,7 +242,7 @@ class BaseClass:
         sellVal = singleStock.end_price * singleStock.volume
 
         self.curValue += sellVal
-        operate.Log()
+        #operate.Log()
 
 
     def Buy(self, stockCode):
@@ -291,6 +309,7 @@ class BaseClass:
 
 
         operate.buy_price = start_price
+        operate.buy_date = todayStr
         operate.buy_volume = handNum * 100
 
         self.stockList.append(singleStock)
@@ -298,7 +317,7 @@ class BaseClass:
         buyVal = handNum * 100 * start_price
 
         self.curValue -= buyVal
-        operate.Log()
+        #operate.Log()
 
 
     def Update(self):
@@ -310,14 +329,22 @@ class BaseClass:
         for singleStock in self.stockList:
             nowValue += singleStock.GetValue()
         self.totalValue = nowValue
+
+
+
         self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
 
 
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
 
+
+
+
+        
+
+
         todayStr = backTestCalculationHandle.todayStr
-        print(f"----更新分仓：仓名{self.name}， 日期：{todayStr}， 开仓价：{self.startValue}， 当前价：{self.totalValue}， 涨跌幅：{self.curChangeRatio}")
 
 
 
@@ -330,3 +357,6 @@ class BaseClass:
     def LogOpera(self):
         for opera in self.operate_recorder_List:
             opera.Log()
+
+    def Log(self):
+        print(f"----更新分仓：日期：{self.totalStock.handler.backTestCalculationHandle.todayStr}， 分仓名：{self.name}， 开仓价：{self.startValue}， 当前价：{self.curValue}， 涨跌幅：{self.curChangeRatio}")

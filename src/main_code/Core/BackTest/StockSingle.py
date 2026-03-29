@@ -18,6 +18,8 @@ class BaseClass:
     isEnd : bool                #是否清仓
     volume : int                #持有股数
     curChangeRatio : float               #涨跌
+    curValue : float              #当前仓位总价值
+    maxHistoryValue : float          #历史上达到的最高价
 
     #开仓价
     start_price : float
@@ -48,13 +50,21 @@ class BaseClass:
     end_adjPrice_low : float
 
 
+    isInBack : bool            #是否处在回测判断时间
+
 
     def __init__(self):
         self.curChangeRatio = 0
+        self.isInBack = False
+        self.maxHistoryValue = 0
+        self.curValue = 0
+        self.holdDay = 0
+        self.startDate = ""
+        self.endDate = ""
         pass
 
 
-    #0 不可卖出，  1处于卖出判断区间，  2达到止损或止盈， 3 超过最大持仓天数
+    #0 不可卖出，  1处于卖出判断区间，  2达到止损或止盈， 3 超过最大持仓天数， 4达到最大回撤
     def GetState(self):
         #第一步：达到止损或者止盈，需要立即卖出  2
         if self.stockPart.stopLose != 0:
@@ -72,9 +82,15 @@ class BaseClass:
                 return 3
 
         #第三部：没有到最短持仓天数，不可卖出    0
+
         if self.stockPart.minContainDay > 0:
             if self.holdDay <= self.stockPart.minContainDay:
                 return 0
+            
+        #第四步：达到最大回撤
+        if self.isInBack:
+            if self.GetBack() <= self.stockPart.backEnd:
+                return 4
 
         #最后： 未达止损止盈，达到最短天但没到最长天， 在卖出判断区间：     1
         return 1
@@ -87,9 +103,24 @@ class BaseClass:
         todayStr = backTestCalculationHandle.todayStr
         stockCode = self.stockCode
         cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
-        nowPrice = cls.close_ori
+        if cls != None:
+            if cls.trade_state != 0:
+                nowPrice = cls.close_ori
 
-        self.curChangeRatio = ((nowPrice - self.start_price) / self.start_price) * 100
+
+                if nowPrice * self.volume > self.maxHistoryValue:
+                    self.maxHistoryValue = nowPrice * self.volume
+
+
+                self.curChangeRatio = ((nowPrice - self.start_price) / self.start_price) * 100
+                self.curValue = nowPrice * self.volume
+
+
+                if self.isInBack == False and self.stockPart.backEnd != 0:
+                    if self.curChangeRatio >= partStock.backStart:
+                        self.isInBack = True
+
+
         self.holdDay += 1
 
     #获取当前仓位总价值
@@ -101,6 +132,14 @@ class BaseClass:
         todayStr = backTestCalculationHandle.todayStr
         stockCode = self.stockCode
         cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        if cls == None:
+            return self.curValue
         nowPrice = cls.close_ori
         return nowPrice * self.volume
+    
+
+    #获取回撤
+    def GetBack(self):
+        ratio = ((self.GetValue() - self.maxHistoryValue) / self.maxHistoryValue) * 100
+        return ratio
 

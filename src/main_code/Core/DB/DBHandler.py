@@ -651,7 +651,6 @@ class DBHandlerClass:
         for row in rows:
             row_dict = dict(row)
             
-            self.LoadAllValueDataToDict
             code = row_dict[code_column]
 
             exchange, num = code.split(".")

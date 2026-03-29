@@ -46,8 +46,20 @@ export const EventManager = {
                 document.getElementById(target).classList.add('active');
                 App.log(`切换至视图: ${tab.innerText}`, "system");
                 setTimeout(() => {
-                    if (ChartInstances.klineChart) ChartInstances.klineChart.resize();
-                    if (ChartInstances.portfolioChart) ChartInstances.portfolioChart.resize();
+                    // 自适应所有图表
+                    const charts = [
+                        'klineChart',
+                        'selectionPortfolioChart',
+                        'holdings-total-chart',
+                        'holdings-division-chart'
+                    ];
+                    charts.forEach(chartId => {
+                        const container = document.getElementById(chartId);
+                        if (container) {
+                            const chart = echarts.getInstanceByDom(container);
+                            if (chart) chart.resize();
+                        }
+                    });
                 }, 100);
             });
         });
@@ -332,6 +344,26 @@ export const EventManager = {
         this.bindHoldingsTabEvents();
         ChartManager.initCharts();
         App.log("系统引擎启动成功，等待指令...", "system");
+
+
+        // ✅ 新增：初始化其他图表容器
+        const selectionPortfolioContainer = document.getElementById('selectionPortfolioChart');
+        if (selectionPortfolioContainer && !echarts.getInstanceByDom(selectionPortfolioContainer)) {
+            echarts.init(selectionPortfolioContainer, 'dark');
+        }
+        
+        const holdingsTotalContainer = document.getElementById('holdings-total-chart');
+        if (holdingsTotalContainer && !echarts.getInstanceByDom(holdingsTotalContainer)) {
+            echarts.init(holdingsTotalContainer, 'dark');
+        }
+        
+        const holdingsDivisionContainer = document.getElementById('holdings-division-chart');
+        if (holdingsDivisionContainer && !echarts.getInstanceByDom(holdingsDivisionContainer)) {
+            echarts.init(holdingsDivisionContainer, 'dark');
+        }
+        
+        App.log("系统引擎启动成功，等待指令...", "system");
+
     },
     bindHoldingsTabEvents() {
         const tabs = document.querySelectorAll('.holdings-tab-btn');

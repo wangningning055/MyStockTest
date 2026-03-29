@@ -106,6 +106,10 @@ export const HoldingsManager = {
             takeProfitPercent: 0,   // 止盈位，0表示不启用
             buyConfigTree: [],      // 买入条件树
             sellConfigTree: [],     // 卖出条件树
+
+            drawdownStartPercent: 0,      // 回撤开始位（%）
+            maxDrawdownPercent: -10,       // 最大回撤（%）
+
             createdAt: new Date().toISOString()
         };
     },
@@ -492,6 +496,24 @@ export const HoldingsManager = {
                     <input type="number" class="division-take-profit" value="${division.takeProfitPercent}" 
                         step="0.1" id="division-take-profit-${division.id}">
                 </div>
+
+
+                <div class="form-item">
+                    <label>回撤开始位 (%)</label>
+                    <input type="number" class="division-drawdown-start" 
+                        value="${division.drawdownStartPercent}" 
+                        step="0.1" min="0" max="100">
+                    <small style="color: #8b95aa;">0-100之间，表示从何时开始计算回撤</small>
+                </div>
+
+                <div class="form-item">
+                    <label>最大回撤 (%)</label>
+                    <input type="number" class="division-max-drawdown" 
+                        value="${division.maxDrawdownPercent}" 
+                        step="0.1" max="0">
+                    <small style="color: #8b95aa;">负数，如-10表示最多亏损10%则停止</small>
+                </div>
+
                 
                 <!-- 买入配置 -->
                 <div class="form-item division-config-group">
@@ -637,6 +659,31 @@ export const HoldingsManager = {
                 if (isNaN(val) || val < 0) { val = 0; e.target.value = 0; App.log('止盈位不能为负数，已重置为 0', 'error'); }
                 this.updateDivisionSettings(divisionId, { takeProfitPercent: val });
             }
+
+
+            if (e.target.classList.contains('division-drawdown-start')) {
+                const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
+                let val = parseFloat(e.target.value);
+                if (isNaN(val) || val < 0) { 
+                    val = 0; 
+                    e.target.value = 0; 
+                    App.log('回撤开始位不能为负数，已重置为 0', 'error'); 
+                }
+                this.updateDivisionSettings(divisionId, { drawdownStartPercent: val });
+            }
+
+            if (e.target.classList.contains('division-max-drawdown')) {
+                const divisionId = e.target.closest('.holdings-division-item').dataset.divisionId;
+                let val = parseFloat(e.target.value);
+                if (isNaN(val)) { val = 0; }
+                if (val > 0) { 
+                    val = -Math.abs(val);  // 强制转为负数
+                    e.target.value = val;
+                    App.log('最大回撤必须为负数或 0，已自动转为负值', 'warning'); 
+                }
+                this.updateDivisionSettings(divisionId, { maxDrawdownPercent: val });
+            }
+
         });
     },
 
