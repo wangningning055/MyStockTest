@@ -141,6 +141,8 @@ class StructBaseClass :
         彻底清空当前对象的所有属性，释放内存
         调用后对象仅保留基础标记，所有数据字段全部删除
         """
+        self.dataList_240.clear()
+        self.dataList_240 = None
         # 1. 清空所有动态计算的字段集合
         self._computed_fields.clear()
         

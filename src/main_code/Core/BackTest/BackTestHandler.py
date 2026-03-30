@@ -62,6 +62,10 @@ class BaseClass:
         self.main.SetIsInHandle(True)
         backTestCalculationHandle = CalculationDataHandle.BaseClass()
         self.backTestCalculationHandle = backTestCalculationHandle
+        backTestCalculationHandle.isOutST = self.isOutST
+        backTestCalculationHandle.isOutCY = self.isOutCY
+        backTestCalculationHandle.isOutKC = self.isOutKC
+        
         backTestCalculationHandle.Init(self.main, self.startDate)
         await backTestCalculationHandle.DataPreheating()
 
@@ -110,12 +114,12 @@ class BaseClass:
             
             ##20210105这天，基于上一天的数据执行买卖
             t_buy = time.perf_counter()
-            print(f"*********************开始执行买卖*******************")
+            #print(f"*********************开始执行买卖*******************")
             await self.ExecuteBuySell()
             t_end = time.perf_counter()
             totalCostTime = (t_end - t_buy)
             totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            print(f"*********************买卖完毕，花费时间：{totalCostTimeStr1}*******************")
+            #print(f"*********************买卖完毕，花费时间：{totalCostTimeStr1}*******************")
             
             t_end = time.perf_counter()
             totalCostTime = (t_end - t0)

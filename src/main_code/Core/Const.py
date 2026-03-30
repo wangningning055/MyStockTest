@@ -55,7 +55,7 @@ volume_boundary = 2
 
 NoneValue = -999999     #指标计算的无效值
 
-dateListLength = 180     #缓存的日期长度
+dateListLength = 250     #缓存的日期长度
 
 
 def GetIsCy(stockCode):
@@ -65,6 +65,11 @@ def GetIsCy(stockCode):
 
 def GetIsKC(stockCode):
     if stockCode.startswith("688"):
+        return True
+    return False
+
+def GetIsBJ(stockCode):
+    if stockCode.startswith("920"):
         return True
     return False
 

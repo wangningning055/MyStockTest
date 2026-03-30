@@ -18,8 +18,17 @@ import random
 import asyncio
 import gc
 import sys
+from pympler import asizeof
+
 class BaseClass :
+    isOutCY : bool
+    isOutKC : bool
+    isOutST : bool
+
     def __init__(self):
+        self.isOutCY = False
+        self.isOutKC = False
+        self.isOutST = False
         self.isNeedStop = False
         pass
     
@@ -31,7 +40,7 @@ class BaseClass :
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
 
         #临时存储
-        self.totalBaseDailyData : Dict[(str, str), CalculationDataStruct.StructBaseClass] = {}
+        self.totalBaseDailyData : Dict[str, Dict[str, CalculationDataStruct.StructBaseClass]] = {}
         self.totalBaseWindowData : Dict[str, CalculationDataStruct.StructBaseWindowClass]  = {}
         self.totalAdjustData = {}
         self.CalculateIndustryBaseClassDic = {}
@@ -95,6 +104,8 @@ class BaseClass :
         ##################################################################
         if isJumpReadDb == False:
             self.totalDbList = self.main.dbHandler.GetDailyRowByCodeListAndDateList(self.totalStockList, self.totalDateList)
+
+            
 
         if isJumpReadDb == False:
             self.totalValueDbDic = self.main.dbHandler.LoadAllValueDataToDict()
@@ -204,52 +215,55 @@ class BaseClass :
         if self.isPreheating == False:
             print("请先预热数据")
             return ""
+
+        t0 = time.perf_counter()
+
+        #t_end = time.perf_counter()
+        #totalCostTime = (t_end - t_select)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        
+        
+        #-------------------------------------------
         #获取下一天的日期
         nextDayStr = self.GetNextDay()
         oldDayStr = self.todayStr
+
+        
         if nextDayStr == "":
             print("这是最后一天了，没有下一天了")
             return ""
-        #更新handler日期
         self.todayStr = nextDayStr
         
         oldDataList = self.totalDateList
-        #print(f"正在移动到下一天：{nextDayStr}")
-        #获取新的日期列表
+
+
+        #-------------------------------------------
+        #初始化新的日期列表
         newDataList = self.InitDateList(nextDayStr, Const.dateListLength)
-        #print(f"初始化了日期列表")
         self.totalDateList = newDataList
-
-        #筛选出需要删除的日期
         diff_list =  [item for item in oldDataList if item not in newDataList]
-        #print(f"筛选出删除日期列表")
-        #print(f"============================老 {len(oldDataList)}========================={self.todayStr}")
-        #print(oldDataList)
-
-        #print(f"============================新={len(newDataList)}========================{self.todayStr}")
-        #print(newDataList)
-
-        #print(f"============================拆包={len(diff_list)}========================{self.todayStr}")
-        #print(diff_list)
 
 
         delCount = 0
         addCount = 0
-        #删除对应的缓存
 
+        #-------------------------------------------
+        #执行删除
         for day in diff_list:
-
 
             #基本日线数据删除
             #第一种删除方法
             keys_to_delete_base = [
                 key for key in self.totalBaseDailyData
-                if key[1] == day
+                if key == day
             ]
 
             for key in keys_to_delete_base:
                 #delCount += 1
-                self.totalBaseDailyData[key].Clear()
+                for key2, val2 in self.totalBaseDailyData[key].items():
+                    val2.Clear()
+                    
+                self.totalBaseDailyData[key].clear()
                 del self.totalBaseDailyData[key]
 
 
@@ -288,10 +302,15 @@ class BaseClass :
                 if key[1] == day
             ]
 
-            for key in keys_to_delete_industry_db:
-                del self.totalDbList[key]
 
-        #刷新totalDbList
+            for key in keys_to_delete_industry_db:
+                delCount += 1
+                del self.totalDbList[key]
+                
+
+        #-------------------------------------------
+        #重读数据库
+        print("     开始重读数据库")
         for code in self.totalStockList:
             catchKey = (code, nextDayStr)
             res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, nextDayStr)
@@ -299,14 +318,39 @@ class BaseClass :
                 addCount += 1
                 self.totalDbList[catchKey] = res
 
-        #self.totalBaseDailyData.clear()
-        #self.totalBaseDailyData = {}
+        #all_codes = set()
+        #all_days = set()
+        #for  (code, day_str) in self.totalDbList.keys():
+        #    all_codes.add(code)
+        #    all_days.add(day_str)
+
+        ## 最后转成列表（如果你需要列表）
+        #all_codes = list(all_codes)
+        #all_days = list(all_days)
+
+        #print(f"     执行数据库结束，删除的数量是：{delCount}，增加的数量是：{addCount} 数据库长度：{len(self.totalDbList)} 股长度：{len(all_codes)}，日期长度：{len(all_days)}    基本日线长度：{len(self.totalBaseDailyData)}")
+
+
+        t4 = time.perf_counter()
+
+        #-------------------------------------------
         #重新预热
-        #print(f"删除完毕，开始预热")
-        await self.DataPreheating(False,True)
-        #print(f"预热完毕")
-        gc.collect()
+        print("     开始重新预热")
+        #selfSize = asizeof.asizeof(self)
+        await self.DataPreheating(True,True)
+        t5 = time.perf_counter()
+        totalCostTime = (t5 - t4)
+        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+
+        print(f"     重新预热结束 花费时间：{totalCostTimeStr1}")
+
+        print(f"      移动到下一天结束，日期长度是：{len(self.totalDateList)}")
+
+        #gc.collect()
         return nextDayStr
+
+
+
 
     def InitIndustry(self):
         df = self.main.dbHandler.GetAllBasicData()
@@ -367,13 +411,14 @@ class BaseClass :
             self.main.BoardCast("没有预热数据，请先预热数据")
             return
         #print(f"开始计算, code:{stockCode}, 名字：{componenyInfo.Name}, 行业：{componenyInfo.Industry} 日期：{date}， 计算：{isCalculate} ")
-        if (stockCode, date) in self.totalBaseDailyData:
-            baseClass = self.totalBaseDailyData[(stockCode, date)]
-            #print(f"直接返回：{stockCode}  {date}")
-            if baseClass.trade_state == 1:
-                return baseClass
-            else:
-                return None
+        dateItem = self.totalBaseDailyData.get(date)
+        if dateItem is None:
+            return None
+        cls = dateItem.get(stockCode)
+        if cls is None:
+            return None
+        if cls.trade_state == 1:
+            return cls
         else:
             #if stockCode == "000001.SZ":
             #    print(f"股票{stockCode},  {date}数据不存在， {len(self.totalBaseDailyData)}")
@@ -942,25 +987,42 @@ class BaseClass :
             if self.isInStop:
                 break
             count = count + 1
+            dateItem = self.totalBaseDailyData.get(date)
+            if dateItem is None:
+                dateItem = {}
+                self.totalBaseDailyData[date] = dateItem
             if isLog:
                 print("正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}")
             for code in self.totalStockList:
                 if self.isInStop:
                     break
                 db = totalDbList.get((code, date))
+
                 if db is None:
                     continue
                 else:
-                    if (code, date) in self.totalBaseDailyData:
+                    if (code) in dateItem:
                         continue
                     else:
+                        isKC = Const.GetIsKC(code)
+                        isCY = Const.GetIsCy(code)
+                        isBJ = Const.GetIsBJ(code)
+                        if isBJ :
+                            continue
+                        if isKC and self.isOutKC:
+                            continue
+                        if isCY and self.isOutCY:
+                            continue
+
                         baseClass = CalculationDataStruct.StructBaseClass()
                         baseClass.Init(self, code, date, db)
-                        #if date == today and baseClass.trade_state == 0:
-                        #if code == "000001.SZ":
-                        #    print(f"a啊啊啊啊啊啊啊啊啊啊啊啊啊 code是：{code}， 载入的时间是 ：{date}")
 
-                        self.totalBaseDailyData[(code, date)] = baseClass
+
+                        isST = baseClass.isST == 1
+                        if isST and self.isOutST:
+                            continue
+      
+                        dateItem[code] = baseClass
 
     #获取最近的复权数据
     def GetLatestAdjustDataByCodeAndDate(self, code, target_date):

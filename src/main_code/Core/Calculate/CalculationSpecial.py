@@ -81,7 +81,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     PARAM_NEAR_AVG_MIN_DAYS         = 5
 
     # 【趋势推算】相邻低点涨跌幅上下限（防止外推过度）
-    PARAM_TREND_RATIO_CAP           = 0.03
+    PARAM_TREND_RATIO_CAP           = 0.02
 
     # 【成交量密集度】计算低点附近成交量密集度时，取该点起向后 N 日
     PARAM_VOL_DENSE_WINDOW          = 5
@@ -575,7 +575,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     PARAM_TIME_WEIGHT_MAX           = 3.0
 
     # 【趋势推算】相邻高点涨跌幅上限（防止外推过度）
-    PARAM_TREND_RATIO_CAP           = 0.03
+    PARAM_TREND_RATIO_CAP           = 0.02
 
     # 【震荡市退化】权重计算中正负交替次数超过此值，退化为简单均值
     PARAM_OSCILLATION_FLIP_MAX      = 2

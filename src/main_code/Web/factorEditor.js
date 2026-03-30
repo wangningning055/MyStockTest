@@ -231,13 +231,13 @@ export const FactorEditor = {
         // 关闭按钮
         const closeBtn = modal.querySelector('.editor-close-btn');
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeEditor(modal));
+            closeBtn.addEventListener('click', () => this.saveAndClose(modal));
         }
         
         // 取消按钮
         const cancelBtn = modal.querySelector('#editor-btn-cancel');
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => this.closeEditor(modal));
+            cancelBtn.addEventListener('click', () => this.saveAndClose(modal));
         }
         
         // 保存按钮
@@ -273,7 +273,7 @@ export const FactorEditor = {
         // 点击背景关闭
         const overlay = modal.querySelector('.factor-editor-overlay');
         if (overlay) {
-            overlay.addEventListener('click', () => this.closeEditor(modal));
+            overlay.addEventListener('click', () => this.saveAndClose(modal));
         }
     },
 
@@ -307,11 +307,11 @@ export const FactorEditor = {
         //    return;
         //}
         
-        // 清空目标容器
-        targetContainer.innerHTML = '';
+
         
         // 复制编辑器中的因子卡片到目标容器
         const cards = editorContainer.querySelectorAll('.factor-card');
+
         
         cards.forEach(card => {
             const clone = card.cloneNode(true);
@@ -334,29 +334,44 @@ export const FactorEditor = {
                 });
             }
         });
-        
         App.log(`${currentEditingSide === 'buy' ? '买入' : '卖出'}因子已保存`, 'success');
-        this.closeEditor(modal);
-    },
 
-    /**
-     * 关闭编辑器
-     */
-    closeEditor(modal) {
+
+        const display = document.getElementById('editor-threshold-display');
+        const threshold = display.textContent
+
+        this.holdings.saveDivisionConfigFromEditor(this.divisionId, this.side, threshold, cards)
+        currentEditingContainerId = null;
+        currentEditingSide = null;
+        // 清空目标容器
+        targetContainer.innerHTML = '';
+
         if (modal) {
             modal.classList.remove('active');
             setTimeout(() => {
                 modal.remove();
             }, 300);
         }
-
-        const display = document.getElementById('editor-threshold-display');
-        const threshold = display.textContent
-
-        this.holdings.saveDivisionConfigFromEditor(this.divisionId, this.side, threshold)
-        currentEditingContainerId = null;
-        currentEditingSide = null;
     },
+
+    /**
+     * 关闭编辑器
+     */
+    //closeEditor(modal) {
+    //    if (modal) {
+    //        modal.classList.remove('active');
+    //        setTimeout(() => {
+    //            modal.remove();
+    //        }, 300);
+    //    }
+
+    //    const display = document.getElementById('editor-threshold-display');
+    //    const threshold = display.textContent
+
+    //    //this.holdings.saveDivisionConfigFromEditor(this.divisionId, this.side, threshold)
+    //    currentEditingContainerId = null;
+    //    currentEditingSide = null;
+    //},
 
     /**
      * 获取编辑器中的因子数据

@@ -307,7 +307,7 @@ export const HoldingsManager = {
             App.log('分仓不存在', 'error');
             return;
         }
-
+        
         // 获取或创建分仓的因子容器
         let containerId = `division-${divisionId}-${side}-container`;
         let container = document.getElementById(containerId);
@@ -320,68 +320,67 @@ export const HoldingsManager = {
             document.body.appendChild(container);
         }
 
-        // 清空容器
-        container.innerHTML = '';
+        //// 清空容器
+        //container.innerHTML = '';
 
-        // 从配置树重建 UI
+        //// 从配置树重建 UI
         const configArray = side === 'buy' ? division.buyConfigTree : division.sellConfigTree;
 
 
-        // 重建因子卡片 DOM
-        if (configArray && Array.isArray(configArray) && configArray.length > 0) {
-            const firstItem = configArray[0];
+        //// 重建因子卡片 DOM
+        //if (configArray && Array.isArray(configArray) && configArray.length > 0) {
+        //    const firstItem = configArray[0];
             
-            // 如果是新格式（包含 factor_group_name）
-            if (firstItem.factor_group_name) {
-                configArray.forEach(factorData => {
-                    const cardId = `card-${Date.now()}-${Math.random()}`;
-                    const card = document.createElement('div');
-                    card.className = 'factor-card';
-                    card.id = cardId;
+        //    // 如果是新格式（包含 factor_group_name）
+        //    if (firstItem.factor_group_name) {
+        //        configArray.forEach(factorData => {
+        //            const cardId = `card-${Date.now()}-${Math.random()}`;
+        //            const card = document.createElement('div');
+        //            card.className = 'factor-card';
+        //            card.id = cardId;
                     
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <span class="card-title">${factorData.factor_group_name}</span>
-                            <div class="card-weight-group">
-                                <label>权重:</label>
-                                <input type="number" class="card-weight-input" value="${factorData.weight || 10}" step="0.1">
-                            </div>
-                            <button class="btn-remove-card" data-action="remove-card" type="button">✕</button>
-                        </div>
-                        <div class="conditions-list"></div>
-                        <div class="card-footer">
-                            <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}" type="button">
-                                <i class="fas fa-plus"></i> 添加条件
-                            </button>
-                        </div>
-                    `;
+        //            card.innerHTML = `
+        //                <div class="card-header">
+        //                    <span class="card-title">${factorData.factor_group_name}</span>
+        //                    <div class="card-weight-group">
+        //                        <label>权重:</label>
+        //                        <input type="number" class="card-weight-input" value="${factorData.weight || 10}" step="0.1">
+        //                    </div>
+        //                    <button class="btn-remove-card" data-action="remove-card" type="button">✕</button>
+        //                </div>
+        //                <div class="conditions-list"></div>
+        //                <div class="card-footer">
+        //                    <button class="btn-add-cond" data-action="add-condition" data-side="${side}" data-card-id="${cardId}" type="button">
+        //                        <i class="fas fa-plus"></i> 添加条件
+        //                    </button>
+        //                </div>
+        //            `;
                     
-                    container.appendChild(card);
+        //            //container.appendChild(card);
                     
-                    // 渲染条件
-                    const conditionsList = card.querySelector('.conditions-list');
-                    if (factorData.logic_tree && factorData.logic_tree.length > 0) {
-                        ConditionManager.buildUIFromTree(factorData.logic_tree, conditionsList, cardId);
-                    }
+        //            // 渲染条件
+        //            const conditionsList = card.querySelector('.conditions-list');
+        //            if (factorData.logic_tree && factorData.logic_tree.length > 0) {
+        //                ConditionManager.buildUIFromTree(factorData.logic_tree, conditionsList, cardId);
+        //            }
                     
-                    const removeBtn = card.querySelector('.btn-remove-card');
-                    if (removeBtn) {
-                        removeBtn.addEventListener('click', () => {
-                            card.remove();
-                            console.log('因子卡片已删除', 'info');
-                        });
-                    }
-
-                    // 绑定事件...
-                });
-            }
-        }
+        //            const removeBtn = card.querySelector('.btn-remove-card');
+        //            if (removeBtn) {
+        //                removeBtn.addEventListener('click', () => {
+        //                    card.remove();
+        //                    console.log('因子卡片已删除', 'info');
+        //                });
+        //            }
+        //            // 绑定事件...
+        //        });
+        //    }
+        //}
         this.modal = FactorEditor.openEditor(side, containerId, this, divisionId, configArray);
     },
     /**
      * 保存从编辑器返回的配置
      */
-    saveDivisionConfigFromEditor(divisionId, side, threshold = 0) {
+    saveDivisionConfigFromEditor(divisionId, side, threshold = 0, cardsIn = null) {
         const division = this.getDivision(divisionId);
         if (!division) return;
 
@@ -392,7 +391,12 @@ export const HoldingsManager = {
         if (!container) return;
 
         // 获取所有因子卡片数据
-        const cards = container.querySelectorAll('.factor-card');
+        
+        const cards = cardsIn
+        if(cards == null)
+        {
+            cards = container.querySelectorAll('.factor-card');
+        }
         const configArray = [];
         
         cards.forEach(card => {
@@ -420,8 +424,6 @@ export const HoldingsManager = {
             division.sellConfigTree = configArray;
             division.thresholdSell = threshold
         }
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!已经保存了编辑器的数据")
-        console.log(division.buyConfigTree)
         this.saveDivisionsToStorage();
     },
     // ============ UI 渲染与事件绑定 ============

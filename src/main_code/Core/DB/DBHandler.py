@@ -474,7 +474,7 @@ class DBHandlerClass:
         return None
     
     
-    def GetDailyRowByCodeAndDate(self, code, date):
+    def GetDailyRowByCodeAndDate(self, code, date,isExKC = False, isExCY = False, isExBJ = False, isExST = False):
         """
         按股票代码和交易日期查询Daily表中的一行数据（双主键查询）
         

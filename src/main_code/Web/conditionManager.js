@@ -24,7 +24,18 @@ export const ConditionManager = {
      */
     bindConditionRowEvents(row, parentList, cardId) {
         const isFirst = this.isFirstCondition(row, parentList);
-        
+
+        // 监听操作符下拉框（> < = ≥ ≤）
+        row.querySelector('.cond-op').addEventListener('change', e => {
+            manager.ui.setConditionOperator(row, e.target.value)
+        });
+
+        //// 监听条件值输入框
+        //group.querySelector('.cond-val').addEventListener('input', e => {
+        //node.value = e.target.value;
+        //});
+
+
         // 删除条件按钮
         if (!isFirst) {
             const delBtn = row.querySelector('.btn-del-cond');
@@ -165,6 +176,9 @@ export const ConditionManager = {
                 App.log('分组及其内部条件已删除', 'info');
             });
         }
+
+
+
         return group;
     },
 
@@ -302,6 +316,7 @@ export const ConditionManager = {
                 `;
                 
                 containerElement.appendChild(row);
+
                 this.bindConditionRowEvents(row, containerElement, cardId);
             } 
             else if (node.type === 'group') {
