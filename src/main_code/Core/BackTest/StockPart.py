@@ -242,7 +242,7 @@ class BaseClass:
         sellVal = singleStock.end_price * singleStock.volume
 
         self.curValue += sellVal
-        #operate.Log()
+        operate.Log()
 
 
     def Buy(self, stockCode):
@@ -317,7 +317,7 @@ class BaseClass:
         buyVal = handNum * 100 * start_price
 
         self.curValue -= buyVal
-        #operate.Log()
+        operate.Log()
 
 
     def Update(self):
@@ -338,10 +338,6 @@ class BaseClass:
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
 
-
-
-
-        
 
 
         todayStr = backTestCalculationHandle.todayStr

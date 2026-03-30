@@ -18,7 +18,6 @@ import random
 import asyncio
 import gc
 import sys
-from pympler import asizeof
 
 class BaseClass :
     isOutCY : bool
@@ -184,7 +183,8 @@ class BaseClass :
 
 
         isLog = isJumpReadDb == False
-        await self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList, isLog)
+        if isJumpReadDb == False:
+            await self.InitAllBaseDataClsList(self.totalDateList, self.totalDbList, isLog)
         #print("")
         #dateList = []
         #for key ,val in self.totalBaseDailyData.items():
@@ -216,7 +216,7 @@ class BaseClass :
             print("请先预热数据")
             return ""
 
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
 
         #t_end = time.perf_counter()
         #totalCostTime = (t_end - t_select)
@@ -310,13 +310,45 @@ class BaseClass :
 
         #-------------------------------------------
         #重读数据库
-        print("     开始重读数据库")
+        #print("     开始重读数据库")
+        #t4 = time.perf_counter()
+
         for code in self.totalStockList:
             catchKey = (code, nextDayStr)
             res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, nextDayStr)
             if res != None:
                 addCount += 1
                 self.totalDbList[catchKey] = res
+
+                dateItem = self.totalBaseDailyData.get(nextDayStr)
+                if dateItem is None:
+                    dateItem = {}
+                    self.totalBaseDailyData[nextDayStr] = dateItem
+
+                if (code) in dateItem:
+                    continue
+                else:
+                    isKC = Const.GetIsKC(code)
+                    isCY = Const.GetIsCy(code)
+                    isBJ = Const.GetIsBJ(code)
+                    if isBJ :
+                        continue
+                    if isKC and self.isOutKC:
+                        continue
+                    if isCY and self.isOutCY:
+                        continue
+
+                    baseClass = CalculationDataStruct.StructBaseClass()
+                    baseClass.Init(self, code, nextDayStr, res)
+
+
+                    isST = baseClass.isST == 1
+                    if isST and self.isOutST:
+                        continue
+    
+                    dateItem[code] = baseClass
+
+
 
         #all_codes = set()
         #all_days = set()
@@ -331,20 +363,16 @@ class BaseClass :
         #print(f"     执行数据库结束，删除的数量是：{delCount}，增加的数量是：{addCount} 数据库长度：{len(self.totalDbList)} 股长度：{len(all_codes)}，日期长度：{len(all_days)}    基本日线长度：{len(self.totalBaseDailyData)}")
 
 
-        t4 = time.perf_counter()
 
         #-------------------------------------------
         #重新预热
-        print("     开始重新预热")
         #selfSize = asizeof.asizeof(self)
-        await self.DataPreheating(True,True)
-        t5 = time.perf_counter()
-        totalCostTime = (t5 - t4)
-        totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
+        await self.DataPreheating(False,True)
+        #t5 = time.perf_counter()
+        #totalCostTime = (t5 - t4)
+        #totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
 
-        print(f"     重新预热结束 花费时间：{totalCostTimeStr1}")
-
-        print(f"      移动到下一天结束，日期长度是：{len(self.totalDateList)}")
+        #print(f"     重新读取数据库和预热结束 花费时间：{totalCostTimeStr1}")
 
         #gc.collect()
         return nextDayStr
