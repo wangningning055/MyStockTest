@@ -42,6 +42,7 @@ class BaseClass:
             if self.isInit == False:
                 print("回测仓位初始化失败")
                 self.main.BoardCast("回测仓位初始化失败")
+                return
             print("仓位初始化完毕")
 
 
@@ -71,62 +72,46 @@ class BaseClass:
 
         #初始化数据
         nextDayStr = self.startDate
+        starDayStr = self.startDate
         date_format = "%Y%m%d"
         nextDayStd = datetime.strptime(nextDayStr, date_format)
+        starDayStd = datetime.strptime(starDayStr, date_format)
 
         stopStr = self.stopDate
         stopDayStd = datetime.strptime(stopStr, date_format)
 
+        tempStop = 0
+
+        totalDay = (stopDayStd - starDayStd).days
 
 
+        #鉴于源数据源的滞后性，先依据昨天的数据执行买卖，再更新新一天的数据
         while nextDayStd < stopDayStd:
-
-            t0 = time.perf_counter()
-            
-            #20210104这里执行筛选操作，得出一个买列表，一个卖列表
-
-            t_select = time.perf_counter()
-            #print(f"*********************开始执行筛选*******************")
-            await self.ExecuteSelect()
-            t_end = time.perf_counter()
-            totalCostTime = (t_end - t_select)
-            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            #print(f"*********************筛选完毕，花费时间：{totalCostTimeStr1}*******************")
-
-
+            passDayCount = (nextDayStd - starDayStd).days
+            print(f"------------------------开始新的一轮，这天是：{nextDayStr}， 结束天是：{stopStr}--过去了{passDayCount}天----总共是{totalDay}天------------------------------")
+            self.main.SetIsInHandle(True)
+            self.main.SendProgress(passDayCount / totalDay if totalDay > 0 else 1)
             await asyncio.sleep(0)
-            self.main.SetIsInHandle(False)
-            ##移动到下一天
-            t_move = time.perf_counter()
-            #print(f"*********************开始移动到下一天*******************")
+
+            #执行卖
+            await self.ExecuteSell()
+            await asyncio.sleep(0)
+
+
+            #执行买
+            await self.ExecuteBuy()
+            await asyncio.sleep(0)
+
+
+            #更新今天的数据
+            await self.UpdateStock()
+            await asyncio.sleep(0)
+
+
+            #移动到下一天
             nextDayStr = await backTestCalculationHandle.MoveDateToNextDay()
             if(nextDayStr == ""):
                 return
-            t_end = time.perf_counter()
-            totalCostTime = (t_end - t_move)
-            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            #print(f"*********************移动完毕，花费时间：{totalCostTimeStr1}*******************")
-
-
-            await asyncio.sleep(0)
-            self.main.SetIsInHandle(True)
-
-            
-            ##20210105这天，基于上一天的数据执行买卖
-            t_buy = time.perf_counter()
-            #print(f"*********************开始执行买卖*******************")
-            await self.ExecuteBuySell()
-            t_end = time.perf_counter()
-            totalCostTime = (t_end - t_buy)
-            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            #print(f"*********************买卖完毕，花费时间：{totalCostTimeStr1}*******************")
-            
-            t_end = time.perf_counter()
-            totalCostTime = (t_end - t0)
-            totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
-            #print(f"@@@@@@@@@@@@@@@@@@@@@@@@@@操作结束 这天是  {nextDayStr}, 结束天 {stopDayStd}, 花费的时间是：{totalCostTimeStr1}")
-            print("--------------------------------------------------------------------------------------------------------------------------------------------------")
-
             nextDayStd = datetime.strptime(nextDayStr, date_format)
 
 
@@ -136,12 +121,13 @@ class BaseClass:
 
 
 
-    async def ExecuteSelect(self):
-        await self.totalStock.ExecuteSelect()
+    async def ExecuteBuy(self):
+        await self.totalStock.ExecuteBuy()
+        
+    async def ExecuteSell(self):
+        await self.totalStock.ExecuteSell()
 
-
-
-    async def ExecuteBuySell(self):
-        await self.totalStock.ExecuteBuySell()
+    async def UpdateStock(self):
+        self.totalStock.UpdateStock()
 
 

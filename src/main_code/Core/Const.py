@@ -55,7 +55,12 @@ volume_boundary = 2
 
 NoneValue = -999999     #指标计算的无效值
 
-dateListLength = 250     #缓存的日期长度
+progress_interval_preheat = 1     #预热阶段的进度间隔
+progress_interval_pull = 20     #拉取数据阶段的进度间隔
+progress_interval_backTesting = 1     #回测阶段的进度间隔
+
+
+dateListLength = 20     #缓存的日期长度
 
 
 def GetIsCy(stockCode):
@@ -81,10 +86,24 @@ def GetStopRatio(stockCode):
         return 9.99
 
 
+    #上下压力位计算优化
 
     #进度加上
     #setBusyProgress
 
+    #成长价值股列表加上
+
+    #行业趋势列表加上
+
+    #选股列表
+
+    #回测列表
+
+    #选股图表
+
+    #回测图表
+
+    
 
 
 

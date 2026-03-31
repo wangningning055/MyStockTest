@@ -15,6 +15,7 @@ class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     Test = "test"#测试
     SC_IN_BUSY = "sc_in_busy"               # #服务器返回是否忙碌
+    SC_IN_PROGRESS = "sc_in_progress"       # #服务器返回进度
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据

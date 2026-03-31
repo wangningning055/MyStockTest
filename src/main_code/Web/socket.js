@@ -24,6 +24,7 @@ let manager = null;
 export const MessageType = Object.freeze({
     LOG : "log",
     TEST: "test",                  //#客户端请求预热数据
+    SC_IN_PROGRESS : "sc_in_progress",       //# #服务器返回进度
     LAST_UPDATE_DATA: "last_update_data_time",      // 请求接受上次更新日期
     SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
 
@@ -97,22 +98,7 @@ export function SocketInit() {
 
 function HandleMessage(data){
     manager.handleMessage(data.type, data)
-    //if(data.type = MessageType.CS_UPDATE_DATA)
-    //{
-    //    manager.app.log(data.msg)
-    //}
-    //else if(data.type == MessageType.CS_SELECT_STOCKS){}
-    //else if(data.type == MessageType.CS_BACK_TEST){}
-    //else if(data.type == MessageType.CS_DIAGNOSE){}
-    //else if(data.type == MessageType.LAST_UPDATE_DATA)
-    //{
-    //    manager.app.log(data.msg)
-    //}
-        
-    //else if(data.type == MessageType.LOG)
-    //{
-    //    manager.app.log(data.msg)
-    //}
+
 }
 
 

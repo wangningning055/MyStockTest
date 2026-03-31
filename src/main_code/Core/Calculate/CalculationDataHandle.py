@@ -1011,6 +1011,7 @@ class BaseClass :
     #构建整个基础类列表
     async def InitAllBaseDataClsList(self, totalDateList, totalDbList, isLog = False):
         count = 0
+        progressInterval = 0
         for date in totalDateList:
             if self.isInStop:
                 break
@@ -1021,6 +1022,13 @@ class BaseClass :
                 self.totalBaseDailyData[date] = dateItem
             if isLog:
                 print("正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}")
+                
+                progressInterval = progressInterval + 1
+                if progressInterval >= Const.progress_interval_preheat:
+                    self.main.SendProgress(count / len(totalDateList))
+                    progressInterval = 0
+                    await asyncio.sleep(0)
+
             for code in self.totalStockList:
                 if self.isInStop:
                     break
@@ -1049,7 +1057,7 @@ class BaseClass :
                         isST = baseClass.isST == 1
                         if isST and self.isOutST:
                             continue
-      
+                        
                         dateItem[code] = baseClass
 
     #获取最近的复权数据

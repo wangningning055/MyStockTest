@@ -98,9 +98,15 @@ class RequestorClass:
 
         sameList = set()
         logCount = 0
+        progressInterval = 0
         for code in codeList:
             if self.isInStop:
                 break
+            progressInterval = progressInterval + 1
+            if progressInterval >= const_proj.progress_interval_pull:
+                self.main.SendProgress(logCount / len(codeList))
+                progressInterval = 0
+                await asyncio.sleep(0)
 
             logCount = logCount + 1
             ##测试边界
@@ -158,8 +164,13 @@ class RequestorClass:
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
 
         count = 0
+        progressInterval = 0
         for code in codeList:
-
+            progressInterval = progressInterval + 1
+            if progressInterval >= const_proj.progress_interval_pull:
+                self.main.SendProgress(count / len(codeList))
+                progressInterval = 0
+                await asyncio.sleep(0)
             if self.isInStop:
                 break
             count = count + 1
@@ -210,7 +221,15 @@ class RequestorClass:
             quarter = quarter
             clsList = []
             count = 0
+            progressInterval = 0
             for code in codeList:
+
+                progressInterval = progressInterval + 1
+                if progressInterval >= const_proj.progress_interval_pull:
+                    self.main.SendProgress(count / len(codeList))
+                    progressInterval = 0
+                    await asyncio.sleep(0)
+
                 ##测试边界
                 #if count > 10:
                 #    break

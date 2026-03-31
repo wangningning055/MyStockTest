@@ -82,8 +82,8 @@ class processor:
 
 
     def SetIsInHandle(self, isIn):
-        if self.isInHandle == isIn:
-            return
+        #if self.isInHandle == isIn:
+        #    return
         self.isInHandle = isIn
 
         mem = psutil.virtual_memory()
@@ -114,7 +114,10 @@ class processor:
             res = (0, rss_memory, available_memory)
             self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_BUSY, res)
 
-
+    def SendProgress(self, progress):
+        if self.isInHandle == False:
+            return
+        self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_PROGRESS, progress)
 
     def planeFunc(self):
         self.RequestData()

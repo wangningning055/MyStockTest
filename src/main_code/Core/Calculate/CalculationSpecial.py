@@ -3,6 +3,7 @@
 from typing import List, Optional, Callable, Dict, Any, Union,Tuple  
 import psutil
 import os
+import math
 import time
 import datetime
 import asyncio
@@ -78,7 +79,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
     PARAM_EXTREME_AMP_FACTOR        = 2
 
     # 【near_avg 修正】最近低点距今至少 N 日才做均价修正（太近修正意义不大）
-    PARAM_NEAR_AVG_MIN_DAYS         = 5
+    PARAM_NEAR_AVG_MIN_DAYS         = 6
 
     # 【趋势推算】相邻低点涨跌幅上下限（防止外推过度）
     PARAM_TREND_RATIO_CAP           = 0.02
@@ -355,7 +356,15 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         avg_fix_add += 1
         if single.trade_date == low_points[len(low_points) - 1].trade_date:
             if avg_fix_add >= PARAM_NEAR_AVG_MIN_DAYS:
-                near_avg = single.avg + (nowData.avg - single.avg) / 2
+                #near_avg = single.avg + (nowData.avg - single.avg) / 2
+
+                atr = calc_atr(nowData.trade_date, 14)
+                # 趋势方向判断
+                if nowData.close > single.avg:
+                    near_avg = single.avg + atr * 0.5
+                else:
+                    near_avg = single.avg - atr * 0.5
+
             else:
                 near_avg = 0
             break
@@ -378,15 +387,28 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         time_rank:    该低点在时间升序中的排名（0=最早，total_points-1=最新）
         total_points: 低点总数
         """
-        time_w = time_rank / total_points
 
-        # 成交量密集度权重
-        vol_near  = calc_vol_dense(lp.trade_date, PARAM_VOL_DENSE_WINDOW)
+        decay = 0.7
+        time_w = math.exp(-decay * (total_points - time_rank - 1))
+
+        # 超过密集阈值才加权，上限防止异常放量单点主导
+        vol_near = calc_vol_dense(lp.trade_date, PARAM_VOL_DENSE_WINDOW)
         vol_ratio = vol_near / avg_vol_window if avg_vol_window > 0 else 1.0
-        # 超过密集阈值才加权，上限防止异常放量单点主导整体结果
         vol_w     = min(max(vol_ratio, 1.0), PARAM_VOL_WEIGHT_MAX) if vol_ratio >= PARAM_VOL_DENSE_FACTOR else 1.0
+        vol_w = math.log(vol_ratio + 1)
 
-        combined  = time_w * vol_w
+        combined = time_w * vol_w
+
+
+        #time_w = time_rank / total_points
+
+        ## 成交量密集度权重
+        #vol_near  = calc_vol_dense(lp.trade_date, PARAM_VOL_DENSE_WINDOW)
+        #vol_ratio = vol_near / avg_vol_window if avg_vol_window > 0 else 1.0
+        ## 超过密集阈值才加权，上限防止异常放量单点主导整体结果
+        #vol_w     = min(max(vol_ratio, 1.0), PARAM_VOL_WEIGHT_MAX) if vol_ratio >= PARAM_VOL_DENSE_FACTOR else 1.0
+
+        #combined  = time_w * vol_w
         #print(f"  权重计算：{lp.trade_date}  时间权重={time_w:.2f}  量密集度={vol_ratio:.2f}  量权重={vol_w:.2f}  综合={combined:.2f}")
         return combined
 
@@ -421,7 +443,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
         targetLow = recent_low
         if near_avg != 0:
             targetLow = recent_low + recent_low * change_ratio_2
-            targetLow = targetLow + (near_avg - targetLow) / 2
+            targetLow = (targetLow + near_avg) / 2
         else:
             targetLow = recent_low
         support_price = targetLow
@@ -442,13 +464,19 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
 
         def find_cluster(prices, threshold=0.03):
             """寻找 prices 中 ≥2 个价格彼此差距 ≤ threshold 的簇，返回簇均值；无则返回 None"""
+            clusters = []
             for base in prices:
                 if base == 0:
                     continue
                 cluster = [p for p in prices if abs(p - base) / base <= threshold]
                 if len(cluster) >= 2:
-                    return cluster[-1]
-            return None
+                    clusters.append(cluster)
+
+            if not clusters:
+                return None
+            
+            best_cluster = max(clusters, key=len)
+            return sum(best_cluster) / len(best_cluster)
 
         cluster_price = find_cluster(recent_3, threshold=0.03)
         low_points.reverse()
@@ -468,8 +496,16 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             totalChangeRatio    = 0
             weight_target_total = total_lp - 1
             addCount            = 0
-            recent              = low_points[total_lp - 1]
+            #recent              = low_points[total_lp - 1]
             totalWeight         = 0
+
+            avgLow = 0
+            avgLow_Add = 0
+            for low in low_points:
+                avgLow_Add += 1
+                avgLow += low.avg
+
+            avgLow = avgLow / avgLow_Add
 
             for rank, single in enumerate(low_points):
                 if last_low == 0:
@@ -492,7 +528,7 @@ def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", Start
             if finalChangeRatio < -PARAM_TREND_RATIO_CAP:
                 finalChangeRatio = -PARAM_TREND_RATIO_CAP
 
-            targetLow = recent.close + recent.close * finalChangeRatio
+            targetLow = avgLow + avgLow * finalChangeRatio
             if near_avg != 0:
                 targetLow = targetLow + (near_avg - targetLow) / 2
 
@@ -562,7 +598,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     PARAM_EXTREME_AMP_FACTOR        = 2
 
     # 【near_avg 修正】最近高点距今至少 N 日才做均价修正（太近修正意义不大）
-    PARAM_NEAR_AVG_MIN_DAYS         = 5
+    PARAM_NEAR_AVG_MIN_DAYS         = 6
 
     # 【成交量密集度】计算高点附近成交量密集度时，前后各取 N 日
     PARAM_VOL_DENSE_WINDOW          = 5
@@ -847,7 +883,15 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
         avg_fix_add += 1
         if single.trade_date == high_points[len(high_points) - 1].trade_date:
             if avg_fix_add >= PARAM_NEAR_AVG_MIN_DAYS:
-                near_avg = single.avg + (nowData.avg - single.avg) / 2
+                #near_avg = single.avg + (nowData.avg - single.avg) / 2
+
+                atr = calc_atr(nowData.trade_date, 14)
+                # 趋势方向判断
+                if nowData.close > single.avg:
+                    near_avg = single.avg + atr * 0.5
+                else:
+                    near_avg = single.avg - atr * 0.5
+
             else:
                 near_avg = 0
             break
@@ -866,16 +910,14 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
         time_rank:    该高点在时间升序中的排名（0=最早，total_points-1=最新）
         total_points: 高点总数
         """
-        time_w = time_rank / total_points
+        decay = 0.7
+        time_w = math.exp(-decay * (total_points - time_rank - 1))
 
-        # 成交量密集度权重
-        vol_near  = calc_vol_dense(hp.trade_date, PARAM_VOL_DENSE_WINDOW)
-        if avg_vol_window > 0:
-            vol_ratio = vol_near / avg_vol_window
-        else:
-            vol_ratio = 1.0
         # 超过密集阈值才加权，上限防止异常放量单点主导
-        vol_w = min(max(vol_ratio, 1.0), PARAM_VOL_WEIGHT_MAX) if vol_ratio >= PARAM_VOL_DENSE_FACTOR else 1.0
+        vol_near = calc_vol_dense(hp.trade_date, PARAM_VOL_DENSE_WINDOW)
+        vol_ratio = vol_near / avg_vol_window if avg_vol_window > 0 else 1.0
+        vol_w     = min(max(vol_ratio, 1.0), PARAM_VOL_WEIGHT_MAX) if vol_ratio >= PARAM_VOL_DENSE_FACTOR else 1.0
+        vol_w = math.log(vol_ratio + 1)
 
         combined = time_w * vol_w
         #print(f"  权重计算：{hp.trade_date}  时间权重={time_w:.2f}  量密集度={vol_ratio:.2f}  量权重={vol_w:.2f}  综合={combined:.2f}")
@@ -909,7 +951,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
         base_price  = (pre_high * w0 + recent_high * w1) / (w0 + w1)
         target_high = base_price + recent_high * change_r
         if near_avg != 0:
-            target_high = target_high + (near_avg - target_high) / 2
+            target_high = (target_high + near_avg ) / 2
 
         #print(f"上压力位：2个高点，阻力价={target_high}")
         return target_high
@@ -922,13 +964,19 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
 
     def find_cluster(prices, threshold=0.03):
         """寻找 prices 中 ≥2 个价格彼此差距 ≤ threshold 的簇，返回簇均值；无则返回 None"""
+        clusters = []
         for base in prices:
             if base == 0:
                 continue
             cluster = [p for p in prices if p != 0 and abs(p - base) / base <= threshold]
             if len(cluster) >= 2:
-                return cluster[-1]
-        return None
+                clusters.append(cluster)
+
+        if not clusters:
+            return None
+        
+        best_cluster = max(clusters, key=len)
+        return sum(best_cluster) / len(best_cluster)
 
     cluster_price = find_cluster(recent_3_prices, threshold=0.03)
     if cluster_price is not None:
@@ -947,8 +995,17 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     totalChangeRatio    = 0
     weight_target_total = total_hp - 1
     addCount            = 0
-    recent              = high_points[total_hp - 1]
+    #recent              = high_points[total_hp - 1]
     totalWeight         = 0
+
+    avgHigh = 0
+    avgHigh_Add = 0
+    for high in high_points:
+        avgHigh_Add += 1
+        avgHigh += high.avg
+
+    avgHigh = avgHigh / avgHigh_Add
+
 
     for rank, single in enumerate(high_points):
         if last_low == 0:
@@ -971,7 +1028,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
     if finalChangeRatio < -PARAM_TREND_RATIO_CAP:
         finalChangeRatio = -PARAM_TREND_RATIO_CAP
 
-    targetLow = recent.close + recent.close * finalChangeRatio
+    targetLow = avgHigh + avgHigh * finalChangeRatio
     if near_avg != 0:
         targetLow = targetLow + (near_avg - targetLow) / 2
 

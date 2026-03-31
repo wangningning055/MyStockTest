@@ -12,6 +12,7 @@ import asyncio
 def Stop():
       CalculationSpecial.isNeed_CalculateIndustryInfoTotal_Stop = True
 async def TestCalculate(handler : CalculationDataHandle.BaseClass):
+        main = handler.main
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
@@ -91,24 +92,22 @@ async def TestCalculate(handler : CalculationDataHandle.BaseClass):
         #    print(f"####行业：|{ind}|")
 
         #handler.MoveDateToNextDay()
-        backTestHandle = CalculationDataHandle.BaseClass()
-        backTestHandle.Init(handler.main, "20210104")
-        await backTestHandle.DataPreheating()
+        #backTestHandle = CalculationDataHandle.BaseClass()
+        #backTestHandle.Init(handler.main, "20210104")
+        #await backTestHandle.DataPreheating()
 
-        t_nex1 = time.perf_counter()
+        main.SetIsInHandle(True)
+        count = 0
+        totalCount = 10
+        while count < totalCount:
+            progress = (count + 1) / totalCount
+            main.SendProgress(progress)
+            await asyncio.sleep(1)
+            count += 1
 
 
-        await backTestHandle.MoveDateToNextDay()
-        await backTestHandle.MoveDateToNextDay()
-        await backTestHandle.MoveDateToNextDay()
-        await backTestHandle.MoveDateToNextDay()
 
-        
-        t_nex2 = time.perf_counter()
-
-        totalCostTime = (t_nex2 - t_nex1)
-        totalCostTimeStr1 = handler.main.requestor.format_seconds(totalCostTime)
-        print(f"处理完毕, 移动到下一天花费的时间是：{totalCostTimeStr1}")
+        main.SetIsInHandle(False)
 
         t1 = time.perf_counter()
         totalCostTime = (t1 - t0)

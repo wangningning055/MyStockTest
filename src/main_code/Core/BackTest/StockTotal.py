@@ -63,16 +63,13 @@ class BaseClass:
     
 
 
-    async def ExecuteSelect(self):
+    async def ExecuteBuy(self):
         for key, part in self.partList.items():
-            await part.ExecuteSelect()
+            await part.ExecuteBuy()
 
-
-    async def ExecuteBuySell(self):
-        #先更新持仓
-        self.UpdateStock()
+    async def ExecuteSell(self):
         for key, part in self.partList.items():
-            await part.ExecuteBuySell()
+            await part.ExecuteSell()
 
     #更新
     def UpdateStock(self):

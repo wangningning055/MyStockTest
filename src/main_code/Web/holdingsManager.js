@@ -110,6 +110,9 @@ export const HoldingsManager = {
             drawdownStartPercent: 0,      // 回撤开始位（%）
             maxDrawdownPercent: -10,       // 最大回撤（%）
 
+            thresholdBuy :0,
+            thresholdSell :0,
+
             createdAt: new Date().toISOString()
         };
     },
@@ -282,7 +285,6 @@ export const HoldingsManager = {
                         division.thresholdSell = data.threshold
                         division.sellConfigTree = data.configs || [];
                     }
-                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!已经导入了编辑器的数据")
                     console.log(division.buyConfigTree)
                     this.saveDivisionsToStorage();
                     this.loadDivisionDetailView(divisionId);

@@ -104,8 +104,56 @@ class BaseClass:
 
 
 
+    async def ExecuteBuySelect(self):
+        main = self.totalStock.handler.main
+        backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
+        backTestHandle = self.totalStock.handler
+        isOutKC = backTestHandle.isOutKC
+        isOutCY = backTestHandle.isOutCY
+        isOutST = backTestHandle.isOutST
 
-    async def ExecuteSelect(self):
+        buyCodeList = []
+
+        buyCodeDic_selectRes = {}
+
+        #移出已经持仓的股票和已经在卖出列表里的股票
+        buySelectCodeList = self.totalStock.handler.backTestCalculationHandle.totalStockList.copy()
+        for singleStock in self.stockList:
+            if singleStock.stockCode in buySelectCodeList:
+                buySelectCodeList.remove(singleStock.stockCode)
+        
+        for stockCode in self.sellCodeList:
+            if stockCode in buySelectCodeList:
+                buySelectCodeList.remove(stockCode)
+
+
+        buyCodeDic_selectRes = main.analysisHandle.RunGetStockListByConditionForBackTest(backTestCalculationHandle, buySelectCodeList, self.buyThreshold, isOutKC, isOutCY, isOutST, self.buyCondition)
+
+
+        #买入因子结果排序
+        sorted_items = sorted(buyCodeDic_selectRes.items(), key=lambda x: x[0], reverse=True)[:2]
+
+        for buy_key, buy_val in sorted_items:
+            buyCodeList.append(buy_val)
+
+        self.buyCodeList = buyCodeList
+
+
+    async def ExecuteBuy(self):
+        if len(self.stockList) >= self.maxCount:
+                return
+        await self.ExecuteBuySelect()
+        #再执行买入
+        for buyCode in self.buyCodeList:
+            if len(self.stockList) >= self.maxCount:
+                return
+            success = self.Buy(buyCode)
+            if success == True:
+                break
+
+
+
+    async def ExecuteSellSelect(self):
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
         backTestHandle = self.totalStock.handler
@@ -114,12 +162,9 @@ class BaseClass:
         isOutST = backTestHandle.isOutST
 
         sellCodeList = []
-        buyCodeList = []
 
-        buyCodeDic_selectRes = {}
         sellCodeDic_selectRes = {}
 
-        buySelectCodeList = self.totalStock.handler.backTestCalculationHandle.totalStockList
         sellSelectCodeList = []
         for stockSingle in self.stockList:
             state = stockSingle.GetState()
@@ -128,44 +173,24 @@ class BaseClass:
             if(state == 1):
                 sellSelectCodeList.append(stockSingle.stockCode)
 
-        buyCodeDic_selectRes = main.analysisHandle.RunGetStockListByConditionForBackTest(backTestCalculationHandle, buySelectCodeList, self.buyThreshold, isOutKC, isOutCY, isOutST, self.buyCondition)
-
-
 
         if len(sellSelectCodeList) > 0:
             sellCodeDic_selectRes = main.analysisHandle.RunGetStockListByConditionForBackTest(backTestCalculationHandle, sellSelectCodeList, self.sellThreshold, isOutKC, isOutCY, isOutST, self.sellCondition)
         
-
-        #买入因子结果排序
-        sorted_items = sorted(buyCodeDic_selectRes.items(), key=lambda x: x[0], reverse=True)[:2]
-
-
-
-        for buy_key, buy_val in sorted_items:
-            buyCodeList.append(buy_val)
-
-
         #卖出需要全加进去
         for sell_key, sell_val in sellCodeDic_selectRes.items():
             sellCodeList.append(sell_val)
 
-        self.buyCodeList = buyCodeList
         self.sellCodeList = sellCodeList
 
 
-    async def ExecuteBuySell(self):
-        #先执行卖出
+    async def ExecuteSell(self):
+        await self.ExecuteSellSelect()
+
         for sellCode in self.sellCodeList:
             for singleStock in self.stockList:
                 if sellCode == singleStock.stockCode:
                     self.Sell(singleStock)
-
-
-        #再执行买入
-        for buyCode in self.buyCodeList:
-            if len(self.stockList) >= self.maxCount:
-                return
-            self.Buy(buyCode)
 
 
     def Sell(self, singleStock:StockSingle.BaseClass):
@@ -246,9 +271,6 @@ class BaseClass:
 
 
     def Buy(self, stockCode):
-        if len(self.stockList) >= self.maxCount:
-            return
-        
         operate = Operate.BaseClass()
         self.operate_recorder_List.append(operate)
 
@@ -267,12 +289,12 @@ class BaseClass:
         if cls.trade_state == 0:
             operate.isSuccess = False
             operate.failReason = "停牌无法买入"
-            return
+            return False
         
         if cls.is_up_stop and cls.is_one_ban:
             operate.isSuccess = False
             operate.failReason = "涨停一字板，无法买入"
-            return
+            return False
 
         #最低买入一手的价格
         oneHandMoney = cls.close_ori * 100
@@ -280,7 +302,7 @@ class BaseClass:
         if curVal < oneHandMoney:
             operate.isSuccess = False
             operate.failReason = f"当前分仓剩余钱数不足以购买一手目标：分仓剩余：{curVal}， 目标一手价格：{oneHandMoney}"
-            return
+            return False
         
         handNum = curVal // oneHandMoney
         operate.isSuccess = True
@@ -318,6 +340,7 @@ class BaseClass:
 
         self.curValue -= buyVal
         operate.Log()
+        return True
 
 
     def Update(self):
@@ -344,7 +367,7 @@ class BaseClass:
 
 
 
-
+    #获取当前可使用的分仓价
     def GetBuyVal(self):
         ratio = 1 / (self.maxCount - len(self.stockList))
         return self.curValue * ratio

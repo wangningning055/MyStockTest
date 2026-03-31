@@ -196,13 +196,13 @@ class AppManager {
             window.bindAppEvents(this);
         }
     }
-
-
-
     /**
      * 注册默认的消息处理器
      */
     registerDefaultHandlers() {
+
+        let lastBusyState = null
+
         this.registerHandler(SocketModule.MessageType.LOG, (data) =>{
             this.app.log(`📊 后端log:${data.msg}`);
         });
@@ -214,6 +214,12 @@ class AppManager {
             const total = data.msg[2]
             this.ui.setMemoryUsage(use, total)
             //this.app.log(`📊 后端忙碌状态:${data.msg}`);
+            if (busyState === lastBusyState) {
+                return;
+            }
+
+            // 状态变化了，更新缓存
+            lastBusyState = busyState;
             if(busyState == 1)
             {
                 setFetchButtonsLoading(true)
@@ -223,6 +229,17 @@ class AppManager {
                 setFetchButtonsLoading(false)
                 
             }
+        });
+
+        this.registerHandler(SocketModule.MessageType.SC_IN_PROGRESS, (data) => {
+            const percent = (data.msg * 100).toFixed(1)
+            const text = "处理中"
+            const fill = document.getElementById('busy-bar-fill');
+            const pct  = document.getElementById('busy-bar-percent');
+            const txt  = document.getElementById('busy-bar-text');
+            if (fill) fill.style.width = `${percent}%`;
+            if (pct)  pct.textContent = `${percent}%`;
+            if (txt)  txt.textContent = text;
         });
         
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_DATA, (data) =>{
@@ -336,14 +353,7 @@ class AppManager {
         }
     }
 
-    setBusyProgress(percent, text = '处理中...') {
-        const fill = document.getElementById('busy-bar-fill');
-        const pct  = document.getElementById('busy-bar-percent');
-        const txt  = document.getElementById('busy-bar-text');
-        if (fill) fill.style.width = `${percent}%`;
-        if (pct)  pct.textContent = `${percent}%`;
-        if (txt)  txt.textContent = text;
-    }
+
 
     /**
      * ==================== 快捷请求方法 ====================
