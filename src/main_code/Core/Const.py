@@ -86,10 +86,6 @@ def GetStopRatio(stockCode):
         return 9.99
 
 
-    #上下压力位计算优化
-
-    #进度加上
-    #setBusyProgress
 
     #成长价值股列表加上
 
@@ -103,7 +99,7 @@ def GetStopRatio(stockCode):
 
     #回测图表
 
-    
+    #一个月或者三个月之类的爆发性增长的股票筛选，寻找爆发前的特色
 
 
 

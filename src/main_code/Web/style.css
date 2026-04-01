@@ -58,10 +58,7 @@ body {
     display: flex;
     flex-direction: column;
 }
-.main-content {
-    flex: 1;
-    overflow: auto; /* 防止内容溢出 */
-}
+
 .log-panel {
     flex-shrink: 0;   /* 防止被压缩 */
 }
@@ -796,11 +793,21 @@ input::placeholder {
    ============================================================ */
 .main-content {
     flex: 1;
+    overflow: auto; /* 防止内容溢出 */
+}
+
+.main-content {
+    flex: 1;
     padding: 20px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+
+    overflow: hidden;
 }
 
 .chart-area,
@@ -2890,4 +2897,33 @@ input::placeholder {
     font-family: 'Monaco', monospace;
     min-width: 36px;
     text-align: right;
+}
+
+#api-run-backtest.btn-stop-backtest {
+    background: linear-gradient(135deg, #cc0000, #c03434) !important;
+    color: white !important;
+    border-color: #aa0000 !important;
+    box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4) !important;
+}
+ 
+#api-run-backtest.btn-stop-backtest:hover {
+    background: linear-gradient(135deg, #bb0000, #a12525) !important;
+    box-shadow: 0 6px 20px rgba(204, 0, 0, 0.6) !important;
+}
+ 
+#api-run-backtest.btn-stop-backtest:active {
+    background: linear-gradient(135deg, #990000, #a32c2c) !important;
+}
+
+.view-container-valuegrowth {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: none;
+    flex: 1;
+    animation: viewFadeIn 0.35s ease-out;
+
+}
+.view-container-valuegrowth.active {
+    display: flex;
 }

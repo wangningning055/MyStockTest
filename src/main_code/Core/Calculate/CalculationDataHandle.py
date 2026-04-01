@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
+from src.main_code.Core.DataStruct.WebResult import WebResultDataStruct
 from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
@@ -18,6 +19,7 @@ import random
 import asyncio
 import gc
 import sys
+import json
 
 class BaseClass :
     isOutCY : bool
@@ -57,6 +59,12 @@ class BaseClass :
         self.isPreheating = False
         if todayStr == "000000":
             self.todayStr = self.GetToday()
+            self.main.recordDataCls.industry_list = []
+            for key, industryCls in self.totalComponyIns.industryList.items():
+                if key is not None:
+                    self.main.recordDataCls.industry_list.append(key)
+            self.main.recordHandler.WriteRecordData()
+
         else:
             self.todayStr = todayStr
 
@@ -208,6 +216,9 @@ class BaseClass :
         self.main.SetIsInHandle(False)
 
         self.isPreheating = True
+        if isJumpReadDb == False:
+            growValueList = self.GetValueGrowStockListForWeb()
+            self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.LAST_UPDATE_GROW_VALUE, growValueList)
 
 
     #向前移动1天
@@ -915,6 +926,100 @@ class BaseClass :
     def AnalyzeIndustry(self):
         asyncio.get_running_loop().create_task(CalculationSpecial.CalculateIndustryInfoTotal(self.main))
 
+    def GetValueGrowStockList(self):
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+        valueList:List[CalculationDataStruct.StructBaseClass] = []
+        growList:List[CalculationDataStruct.StructBaseClass] = []
+        for stockCode in self.totalStockList:
+            cls = self.GetBaseDataClass(stockCode, self.todayStr)
+            if cls is not None and cls.trade_state == 1:
+                if cls.ValueScore > 0:
+                    valueList.append(cls)
+                if cls.GrowScore > 0:
+                    growList.append(cls)
+        return valueList, growList
+
+
+    def GetValueGrowStockListForWeb(self):
+        valueList:List[CalculationDataStruct.StructBaseClass]
+        growList:List[CalculationDataStruct.StructBaseClass]
+        valueList, growList= self.GetValueGrowStockList()
+        count = 0
+        resultList = []
+        if valueList is not None and growList is not None:
+            for cls in valueList:
+                data = WebResultDataStruct.GrowValueStockListDataStruct()
+                data.code = cls.code
+                data.name = cls.componyInfo.Name
+                data.industry = cls.industry
+                data.type = "value"   #'value' 或 'growth'
+                data.score = cls.ValueScore
+
+                # 涨跌幅
+                data.change_3d = cls.change_Ratio_single_3
+                data.change_5d = cls.change_Ratio_single_5
+                data.change_20d = cls.change_Ratio_single_20
+                data.change_120d = cls.change_Ratio_single_120
+                data.change_240d = cls.change_Ratio_single_240
+
+                # 市值
+                data.value = cls.total_value / 100000000  # 转换为亿
+
+                # 财务估值指标
+                data.Roe = cls.componyInfo.Roe  # ROE
+                data.earn = cls.componyInfo.Earn   # 市盈率
+                data.clean = cls.componyInfo.Clean  # 市净率
+                data.sale = cls.componyInfo.Sale   # 市销率
+                data.cash = cls.componyInfo.Cash   # 市现率
+
+                # 增长与负债
+                data.YOYNi = cls.componyInfo.YOYNi          # 净利润同比增长率
+                data.LiabilityTo = cls.componyInfo.LiabilityTo    # 资产负债率
+                data.YOYEquity = cls.componyInfo.YOYEquity      # 净资产同比增长率
+                data.YOYLiability = cls.componyInfo.YOYLiability   # 负债同比增长率
+                resultList.append(data)
+
+            for cls in growList:
+                data = WebResultDataStruct.GrowValueStockListDataStruct()
+                data.code = cls.code
+                data.name = cls.componyInfo.Name
+                data.industry = cls.industry
+                data.type = "growth"   #'value' 或 'growth'
+                data.score = cls.GrowScore 
+
+                # 涨跌幅
+                data.change_3d = cls.change_Ratio_single_3
+                data.change_5d = cls.change_Ratio_single_5
+                data.change_20d = cls.change_Ratio_single_20
+                data.change_120d = cls.change_Ratio_single_120
+                data.change_240d = cls.change_Ratio_single_240
+
+                # 市值
+                data.value = cls.total_value/ 100000000
+
+                # 财务估值指标
+                data.Roe = cls.componyInfo.Roe  # ROE
+                data.earn = cls.earn   # 市盈率
+                data.clean = cls.clean  # 市净率
+                data.sale = cls.sale   # 市销率
+                data.cash = cls.cash   # 市现率
+
+                # 增长与负债
+                data.YOYNi = cls.componyInfo.YOYNi          # 净利润同比增长率
+                data.LiabilityTo = cls.componyInfo.LiabilityTo    # 资产负债率
+                data.YOYEquity = cls.componyInfo.YOYEquity      # 净资产同比增长率
+                data.YOYLiability = cls.componyInfo.YOYLiability   # 负债同比增长率
+                resultList.append(data)
+
+        json_str = json.dumps(
+            [item.model_dump() for item in resultList],
+            ensure_ascii=False
+        )
+        return json_str
+
     #获取前X天的交易数据
     def GetLastDateDataByNum(self, cls, dayNum):
         clsList = []
@@ -1022,7 +1127,7 @@ class BaseClass :
                 self.totalBaseDailyData[date] = dateItem
             if isLog:
                 print("正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}")
-                
+
                 progressInterval = progressInterval + 1
                 if progressInterval >= Const.progress_interval_preheat:
                     self.main.SendProgress(count / len(totalDateList))
@@ -1140,7 +1245,7 @@ class BaseClass :
 
 
             catchKey = (code, q_target_year, q_target_q)
-            #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{target_year}，    目标季度是{target_q}")
+            #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{q_target_year}，    目标季度是{q_target_q}")
             val = self.totalValueDbDic.get(catchKey)
             if val is not None: 
                 roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100

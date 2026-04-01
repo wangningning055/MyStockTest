@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/chart-fix.css">
     <link rel="stylesheet" href="static/factorEditor.css">
+    <link rel="stylesheet" href="static/valueGrowthStyles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -485,40 +486,84 @@
             </main>
         </div>
 
-        <div id="view-value-growth" class="view-container">
+        <div id="view-value-growth" class="view-container-valuegrowth">
             <main class="main-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div class="info-card" style="padding: 15px; border-radius: 8px;">
-                        <div style="font-size: 0.9rem; color: var(--text-dim);">💎 价值股数量</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #ff1493;">--</div>
+                <!-- ===== 统计卡片 ===== -->
+                <div class="vg-stats-grid">
+                    <div class="vg-stat-card">
+                        <div class="vg-stat-label">💎 价值股数量</div>
+                        <div class="vg-stat-value" data-count="value">--</div>
                     </div>
-                    <div class="info-card" style="padding: 15px; border-radius: 8px;">
-                        <div style="font-size: 0.9rem; color: var(--text-dim);">🚀 成长股数量</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #ff69b4;">--</div>
+                    <div class="vg-stat-card">
+                        <div class="vg-stat-label">🚀 成长股数量</div>
+                        <div class="vg-stat-value" data-count="growth">--</div>
                     </div>
                 </div>
-                <div class="result-area">
-                    <div class="table-header">
-                        <span>价值股 & 成长股列表</span>
+
+                <!-- ===== 工具栏（分页签 + 筛选） ===== -->
+                <div class="vg-toolbar">
+                    <!-- 分页签 -->
+                    <div class="vg-tabs">
+                        <button class="vg-type-tab active" data-type="value">
+                            💎 价值股
+                        </button>
+                        <button class="vg-type-tab" data-type="growth">
+                            🚀 成长股
+                        </button>
                     </div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>代码</th>
-                                <th>名称</th>
-                                <th>行业</th>
-                                <th>类型</th>
-                                <th>5日涨跌幅</th>
-                                <th>20日涨跌幅</th>
-                                <th>120日涨跌幅</th>
-                                <th>240日涨跌幅</th>
-                            </tr>
-                        </thead>
-                        <tbody id="value-growth-table"></tbody>
-                    </table>
+
+                    <!-- 行业筛选 -->
+                    <div class="vg-filter-group">
+                        <label for="vg-industry-filter">🏢 行业筛选：</label>
+                        <select id="vg-industry-filter" class="vg-select">
+                            <option value="all">📍 全部行业</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ===== 数据表格 ===== -->
+                <div class="vg-result-area">
+                    <div class="vg-table-header">
+                        <span>价值股 & 成长股列表(数据预热后显示)</span>
+                        <span class="vg-record-count" id="vg-record-count">共 -- 条记录</span>
+                    </div>
+                        <div class="vg-table-container">
+                            <table class="vg-data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="vg-sortable" data-sort="code">代码 ▼</th>
+                                        <th class="vg-sortable" data-sort="name">名称 ▼</th>
+                                        <th class="vg-sortable" data-sort="industry">行业 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="score">得分 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="value">流通市值 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="Roe">净资产收益ROE ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="earn">市盈 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="clean">市净 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="sale">市销 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="cash">市现 ▼</th>
+                                        
+                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYNi">净利润同比增长 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="LiabilityTo">资产负债 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYEquity">净资产同比增长 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYLiability">负债同比增长 ▼</th>
+
+                                        
+                                        <th class="vg-sortable vg-sortable-number" data-sort="change_3d">3日涨跌幅 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="change_5d">5日涨跌幅 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="change_20d">20日涨跌幅 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="change_120d">120日涨跌幅 ▼</th>
+                                        <th class="vg-sortable vg-sortable-number" data-sort="change_240d">240日涨跌幅 ▼</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="value-growth-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
+
+
     </div>
 
 

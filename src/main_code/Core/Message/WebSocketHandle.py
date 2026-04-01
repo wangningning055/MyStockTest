@@ -18,20 +18,33 @@ class MessageType(str, Enum):
     SC_IN_PROGRESS = "sc_in_progress"       # #服务器返回进度
     LAST_UPDATE_DATA = "last_update_data_time"#服务器发送上次更新日期
 
+    LAST_UPDATE_INDUSTRY = "last_update_data_industry"#服务器发送行业更新
+    LAST_UPDATE_GROW_VALUE = "last_update_grow_value"#服务器发送价值成长股列表
+
+
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
     CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
     CS_INDUSTRY_UP_DATA = "cs_industry_up_data"               #客户端请求分析行业上涨
 
-
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
     CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
+    CS_BACK_TEST_STOP = "cs_back_test_stop"                   #客户端请求停止回测
+
+
+
+
+
+
+
+
+
     CS_DIAGNOSE = "cs_diagnose"                     #客户端请求出仓判断
 
 
 ##发送消息
 async def SendMessage(msg_type, content):
-    #print(f"发送消息：{msg_type}，： {content}")
+    print(f"发送消息：{msg_type}")
     data = json.dumps({"type": msg_type, "msg": content})
 
 
@@ -42,9 +55,10 @@ async def SendMessage(msg_type, content):
             await ws.send_text(data)
         except RuntimeError:
             # ws 已关闭
+            print(f"发送失败1：{msg_type}")
             dead_ws.append(ws)
         except Exception as e:
-            print("WebSocket send error:", e)
+            print(f"发送失败2：{msg_type}")
             dead_ws.append(ws)
 
     # 统一清理
@@ -97,6 +111,7 @@ def register_ws(app: FastAPI):
         await ws.accept()
         print("客户端已连接")
         SendLastUpdateTime()
+        SendLastUpdateIndustry()
         try:
             while True:
                 data = await ws.receive_text()
@@ -110,7 +125,11 @@ def register_ws(app: FastAPI):
 def SendLastUpdateTime():
     asyncio.get_running_loop().create_task(safe_send(MessageType.LAST_UPDATE_DATA, mainProcessor.recordHandler.GetRecentRequestDateJsonStr()))
 
+def SendLastUpdateIndustry():
 
+    #jsonStr = json.dumps(mainProcessor.recordDataCls.industry_list, ensure_ascii=False, indent=2)
+    #asyncio.get_running_loop().create_task(safe_send(MessageType.LAST_UPDATE_INDUSTRY,jsonStr))
+    asyncio.get_running_loop().create_task(safe_send(MessageType.LAST_UPDATE_INDUSTRY,mainProcessor.recordDataCls.industry_list))
 
 def HandleMsg(msg):
     if(mainProcessor == None):
@@ -130,6 +149,13 @@ def HandleMsg(msg):
         mainProcessor.requestor.StopRequest()
         mainProcessor.StopTest()
         return
+    
+    elif(msgType == MessageType.CS_BACK_TEST_STOP):
+        print("停止回测")
+        mainProcessor.backTestHandle.StopBackTest()
+
+
+
     if(mainProcessor.isInHandle == True):
         mainProcessor.BoardCast("正在处理，等待处理完成")
         print("正在处理，等待处理完成")
@@ -154,7 +180,8 @@ def HandleMsg(msg):
     elif(msgType == MessageType.CS_PREHEAT_DATA):
         print("进行数据预热")
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
-        #self.task.add_done_callback()
+
+
 
     elif(msgType == MessageType.CS_INDUSTRY_UP_DATA):
         print("进行行业分析")
@@ -166,9 +193,11 @@ def HandleMsg(msg):
 
     elif(msgType == MessageType.CS_BACK_TEST):
         print(f"执行回测, 收到的回测消息：{data}")
-        
         task = asyncio.get_running_loop().create_task(mainProcessor.backTestHandle.CreateStockByJson(data))
-        pass
+
+
+
+
 
 
 

@@ -2,7 +2,7 @@ import * as SocketModule from "./socket.js";
 import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
 import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
-
+import { ValueGrowthManager } from './valueGrowthManager.js';
 
 const Message_Action = "/action";
 
@@ -95,6 +95,8 @@ class AppManager {
             this.holdings = HoldingsManager.init();
             this.app.log("✅ HoldingsManager 初始化完成");
         }
+        ValueGrowthManager.init();
+
 
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
@@ -223,11 +225,25 @@ class AppManager {
             if(busyState == 1)
             {
                 setFetchButtonsLoading(true)
+
+                const backtestBtn = document.getElementById('api-run-backtest');
+                if (backtestBtn) {
+                    backtestBtn.textContent = '停止回测';  // 改为停止
+                    backtestBtn.dataset.isBacktesting = 'true';  // 标记状态
+                    backtestBtn.classList.add('btn-stop-backtest');
+
+                }
+
             }
             else
             {
                 setFetchButtonsLoading(false)
-                
+                const backtestBtn = document.getElementById('api-run-backtest');
+                if (backtestBtn) {
+                    backtestBtn.textContent = '运行回测';  // 改回原文本
+                    backtestBtn.dataset.isBacktesting = 'false';
+                    backtestBtn.classList.remove('btn-stop-backtest');
+                }
             }
         });
 
@@ -284,15 +300,33 @@ class AppManager {
             this.ui.setBacktestEndDateMax(daily); // 用日线更新日期作为回测最晚日期
         });
 
+        this.registerHandler(SocketModule.MessageType.LAST_UPDATE_INDUSTRY, (data) =>{
+            console.log("收到行业更新")
+            console.log(data.msg)
+            ValueGrowthManager.setIndustries(data.msg || []);
+        });
 
         // 处理数据更新消息
-        this.registerHandler('sc_update_data', (data) => {
+        this.registerHandler(SocketModule.MessageType.SC_UPDATE_DATA, (data) => {
             this.app.log("📊 收到数据更新:", data);
             this.app.log("数据已更新", "success");
             if (data.lastUpdateTime) {
                 this.ui.setLastUpdateTime(data.lastUpdateTime);
             }
         });
+
+
+        this.registerHandler('sc_value_growth_stocks', (data) => {
+            ValueGrowthManager.setStocks(data.data || []);
+            this.app.log(`✅ 已加载 ${data.data.length} 只股票`, "success");
+        });
+        this.registerHandler(SocketModule.MessageType.LAST_UPDATE_GROW_VALUE, (data) =>{
+            console.log("收到行业成长价值列表")
+            console.log(data.msg)
+            const res = JSON.parse(data.msg);
+            ValueGrowthManager.setStocks(res || []);
+        });
+
 
         // 处理选股结果
         this.registerHandler('sc_select_stocks_result', (data) => {
@@ -315,12 +349,6 @@ class AppManager {
             this.app.log("回测完成", "success");
         });
 
-        // 处理出仓判断结果
-        this.registerHandler('sc_diagnose_result', (data) => {
-            this.app.log("🎯 收到出仓判断结果:", data);
-            this.ui.setDiagnoseResults(data);
-            this.app.log("出仓判断完成", "success");
-        });
 
         // 处理错误消息
         this.registerHandler('error', (data) => {
@@ -503,6 +531,15 @@ class AppManager {
 
         return this.socket.sendMessage(SocketModule.MessageType.CS_BACK_TEST, payload);
     }
+    //发送停止回测
+    requestStopBacktest() {
+        this.app.log(`📤 发送停止回测请求, "system"`);
+        return this.socket.sendMessage(SocketModule.MessageType.CS_BACK_TEST_STOP, {
+            timestamp: new Date().toISOString(),    });
+    }
+
+
+    
     /**
      * 查询股票信息
      */

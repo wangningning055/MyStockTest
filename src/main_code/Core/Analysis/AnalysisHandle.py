@@ -112,6 +112,7 @@ class BaseClass :
         print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
 
 
+
     def InitEvaluator(self, calculationHandle : CalculationDataHandle.BaseClass):
         evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
         evaluator.SetMain(self.main)

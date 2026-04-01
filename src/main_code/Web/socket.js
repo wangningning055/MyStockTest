@@ -16,7 +16,7 @@
 let ws = null;
 export let isConnecting = false;
 let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 5;
+const MAX_RECONNECT_ATTEMPTS = 50;
 const RECONNECT_DELAY = 3000; // 3秒
 const MESSAGE_QUEUE = []; // 离线消息队列
 let manager = null;
@@ -27,6 +27,8 @@ export const MessageType = Object.freeze({
     SC_IN_PROGRESS : "sc_in_progress",       //# #服务器返回进度
     LAST_UPDATE_DATA: "last_update_data_time",      // 请求接受上次更新日期
     SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
+    LAST_UPDATE_INDUSTRY : "last_update_data_industry", //#服务器发送行业更新
+    LAST_UPDATE_GROW_VALUE : "last_update_grow_value", //#服务器发送价值成长股列表
 
 
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
@@ -38,6 +40,7 @@ export const MessageType = Object.freeze({
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据
     CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选
     CS_BACK_TEST: "cs_back_test",                  // 客户端请求执行回测
+    CS_BACK_TEST_STOP: "cs_back_test_stop"         //#客户端请求停止回测
 });
 
 

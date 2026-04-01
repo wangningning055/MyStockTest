@@ -49,13 +49,13 @@ class processor:
 
 
         self.websocketHandler = ws
+        ws.mainProcessor = self
 
         self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
         self.requestor = self.InitRequest()
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.analysisHandle = self.InitAnalysisHandle()
         self.backTestHandle = self.InitBackTestHandle()
-        ws.mainProcessor = self
         self.todayStockDate = self.calculationDataHandle.GetToday()
         self.isInit = True
         self.isInHandle = False

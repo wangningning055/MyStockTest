@@ -14,6 +14,10 @@ class BaseClass:
     isOutCY : bool
     isOutKC : bool
     isInit :bool
+
+    isNeedStop : bool
+    isInBackTest : bool
+
     def __init__(self):
         self.isOutCY = False
         self.isOutKC = False
@@ -45,7 +49,7 @@ class BaseClass:
                 return
             print("仓位初始化完毕")
 
-
+            self.isNeedStop = False
             await self.StartBackTest()
         except Exception as e:
             print(f"❌ 回测数据验证失败: {e}")
@@ -56,6 +60,7 @@ class BaseClass:
 
 
     async def StartBackTest(self):
+        self.isInBackTest = True
         self.main.calculationDataHandle.ClearDic()
         self.main.calculationDataHandle.isPreheating = False
         print("开始执行回测")
@@ -87,6 +92,11 @@ class BaseClass:
 
         #鉴于源数据源的滞后性，先依据昨天的数据执行买卖，再更新新一天的数据
         while nextDayStd < stopDayStd:
+            if self.isNeedStop == True:
+                print("回测被停止")
+                self.main.BoardCast("回测被停止")
+                self.isNeedStop = False
+                break
             passDayCount = (nextDayStd - starDayStd).days
             print(f"------------------------开始新的一轮，这天是：{nextDayStr}， 结束天是：{stopStr}--过去了{passDayCount}天----总共是{totalDay}天------------------------------")
             self.main.SetIsInHandle(True)
@@ -116,10 +126,17 @@ class BaseClass:
 
 
         #结束
+        self.isInBackTest = False
         self.main.SetIsInHandle(False)
         print("回测结束")
 
+        #这里需要整理结果数据，然后传给前端
 
+
+    def StopBackTest(self):
+        if self.isInBackTest == True:
+            self.isNeedStop = True
+            print("回测停止")
 
     async def ExecuteBuy(self):
         await self.totalStock.ExecuteBuy()

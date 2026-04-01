@@ -518,14 +518,7 @@ export const UIManagerUtils = {
             </div>`
         ).join('');
     },
-    
-    setDiagnoseResults(data) {
-        // 诊断结果显示（持仓页面）
-        const container = document.getElementById('diagnosis-output');
-        if (container) {
-            container.innerHTML = data.diagnosis || '待诊断';
-        }
-    },
+
     
     setBacktestChartArea(result) {
         // 占位符，实际由 ChartManager 处理

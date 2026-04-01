@@ -324,6 +324,7 @@ class RequestorClass:
             await self.OnMsgRequestAllData()
 
         self.isInRequester = False
+        self.main.Init()
         self.main.SetIsInHandle(False)
         self.main.websocketHandler.SendLastUpdateTime()
 

@@ -1065,7 +1065,7 @@ def CalculateValueScore(nowData:"CalculationDataStruct.StructBaseClass", handler
     liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
     yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
     yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
-    value = nowData.total_value                     #总市值
+    value = nowData.total_value / 100000000                     #总市值
     #print("=" * 50)
     #print(f"【估值指标】{nowData.code}")
     #print(f"市盈率（PE）：{earn}")
@@ -1317,7 +1317,7 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
     liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
     yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
     yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
-    value = nowData.total_value                     #总市值
+    value = nowData.total_value / 100000000                     #总市值
 
 
 
@@ -1330,7 +1330,7 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
     veto_roe_min             = 8    # 年度且季度ROE < 此值(%): 一票否决
     veto_liability_max       = 75   # 年度且季度资产负债率 > 此值(%): 一票否决
     veto_equity_year_min     = 0    # 年度净资产增长率 < 此值(%): 一票否决
-    total_value_min = 50            # 小盘股，一票否决
+    total_value_min = 10            # 小盘股，一票否决
 
     # ==================== 打分边界 ====================
     # 市盈率（满6 半3 零0）：(0, b1] 满 | (b1, b2] 半 | >b2 或 ≤0 零

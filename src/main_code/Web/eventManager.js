@@ -42,7 +42,9 @@ export const EventManager = {
                 const target = tab.dataset.target;
                 document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.view-container, .view-container-valuegrowth').forEach(v => v.classList.remove('active'));
+
+                //document.querySelector('.view-container-valuegrowth').classList.add('active');
                 document.getElementById(target).classList.add('active');
                 App.log(`切换至视图: ${tab.innerText}`, "system");
                 setTimeout(() => {
@@ -209,9 +211,15 @@ export const EventManager = {
         const runBacktestBtn = document.getElementById('api-run-backtest');
         if (runBacktestBtn) {
             runBacktestBtn.addEventListener('click', () => {
-
+                
+                const isBacktesting = runBacktestBtn.dataset.isBacktesting === 'true';
                 if (manager) {
-                    manager.requestBacktest();
+
+                    if (isBacktesting) {
+                        manager.requestStopBacktest();
+                    } else {
+                        manager.requestBacktest();
+                    }
                 }
             });
         }

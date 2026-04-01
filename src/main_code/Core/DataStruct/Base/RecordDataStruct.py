@@ -14,6 +14,8 @@ class TotalRecordDataCls:
 
     industry_analyze_last_data:str                                     #行业轮动分析上次分析完的日期
 
+    industry_list:str                                               #行业列表
+
     #daily_list_pull_record:List[Dict[str, str]]                   #日线数据  股票列表，顺带最近的成功写入的日期  [000001.SZ, 20260304]
     #adjust_list_pull_record:List[Dict[str, str]]                   #复权数据  股票列，表顺带最近的成功写入的日期
     #value_list_pull_record:List[Dict[str, str]]                   #价值数据  股票列表，顺带最近的成功写入的日期
