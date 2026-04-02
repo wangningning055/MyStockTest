@@ -43,10 +43,10 @@ class StructBaseClass :
         adjust = adjustTable[tempAdjustCls.GetNameByEnum(AdjustDBStruct.ColumnEnum.For_Adjust)]
         
         cur_date = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Date)]
-        open_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)] * adjust
-        close_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)] * adjust
-        high_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)] * adjust
-        low_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)] * adjust
+        open_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Open_Price)]
+        close_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Close_Price)]
+        high_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.High_Price)]
+        low_price = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Low_Price)]
         turn = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Exchange_Hand)]
         change_Ratio = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Change_Ratio)]
         amount = dbData[tempDailyCls.GetNameByEnum(DailyDBStruct.ColumnEnum.Amount)]
@@ -62,7 +62,7 @@ class StructBaseClass :
             average_price = 0
             amplitude = 0
         else:
-            average_price = (amount_price / amount) * adjust
+            average_price = (amount_price / amount) if amount != 0 else 0
             amplitude = ((high_price - low_price) / last_close_price) * 100
             #print(f"成交价：{amount_price}   成交量：{amount}，振幅：{amplitude}, 均价{average_price}， 日期：{date}，上市状态：{is_Trading}")
 
@@ -74,6 +74,13 @@ class StructBaseClass :
         self.last_close = last_close_price
         self.high = high_price * adjust
         self.low = low_price * adjust
+
+
+        if self.code == "300502.SZ" and (cur_date == "20250324" or date == "20250324"):
+            print(f"计算一年前的新医生：{close_price}，  {adjust} ,  {self.close} ,  {cur_date}  {date}")
+
+
+
 
         self.open_ori = open_price
         self.close_ori = close_price

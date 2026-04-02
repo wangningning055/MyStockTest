@@ -53,11 +53,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* 可视化容器 */
-.industry-rotation-visualization {
-    display: grid;
-    gap: 2rem;
-}
+
 
 /* 热力图区域 */
 .rotation-chart-section {
@@ -81,10 +77,15 @@
 
 #industry-heatmap-container {
     width: 100%;
-    height: auto;
     min-height: 500px;
-    max-height: 800px;      /* 限制最大高度 */
+    /*height: auto;
+    /*max-height: 800px;      /* 限制最大高度 */
     overflow-y: auto;       /* 允许垂直滚动 */
+
+    /* 👇 核心：填满从当前位置到屏幕底部的所有空间 */
+    height: 100%;
+    max-height: calc(100vh - 600px); /* 180px 是你顶部已占用高度 */
+
 }
 
 /* 表格区域 */
@@ -93,6 +94,13 @@
     border: 1px solid #333;
     border-radius: 8px;
     padding: 1.5rem;
+
+    /* 👇 核心：填满从当前位置到屏幕底部的所有空间 */
+    height: 100%;
+    max-height: calc(100vh - 400px); /* 180px 是你顶部已占用高度 */
+    
+    overflow: auto;
+    box-sizing: border-box;
 }
 
 .rotation-table-section h3 {
@@ -133,7 +141,8 @@
 .rotation-table-container {
     overflow-x: auto;
     overflow-y: auto;
-    max-height: 600px;      /* 限制高度，允许滚动 */
+    /*max-height: 600px;      /* 限制高度，允许滚动 */
+    max-height: 100%;      /* 限制高度，允许滚动 */
 }
 
 .rotation-data-table {
@@ -315,4 +324,49 @@
     min-width: 120px;
     font-weight: 600;
     color: #ffc107;
+}
+
+/* 子标签页导航 */
+.rotation-tabs-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0;
+}
+
+.rotation-tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #888;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rotation-tab-btn:hover {
+    color: #bbb;
+}
+
+.rotation-tab-btn.active {
+    color: #00d4ff;
+    border-bottom-color: #00d4ff;
+}
+
+/* 标签页内容 */
+.rotation-view-pane {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.rotation-view-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

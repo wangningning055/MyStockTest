@@ -58,6 +58,14 @@ body {
     display: flex;
     flex-direction: column;
 }
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+
 
 .log-panel {
     flex-shrink: 0;   /* 防止被压缩 */
@@ -873,10 +881,11 @@ input::placeholder {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    resize: vertical;      /* ✅ 允许垂直拖拽 */
-    min-height: 1px;     /* ✅ 最小高度 */
-    max-height: 400px;     /* ✅ 最大高度 */
+    resize: vertical;
+    min-height: 40px;        /* 最小高度：折叠时刚好显示header */
+    max-height: 500px;       /* 最大高度：完全展开时 */
     user-select: none;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
@@ -907,14 +916,19 @@ input::placeholder {
     padding: 4px 0;
     line-height: 1.4;
 }
+
+
 /* 折叠状态：覆盖 resize 和高度 */
 .log-panel-collapsed {
-    height: 41px !important;  /* 刚好是 log-header 的高度：10+10 padding + 行高 */
-    min-height: 41px !important;
-    max-height: 41px !important;
-    resize: none !important;  /* 折叠时禁止拖拽 */
-    overflow: hidden !important;
+    height: 40px !important;
+    resize: none !important;
 }
+
+
+.log-panel-collapsed .log-body {
+    display: none;
+}
+
 
 #log-panel-toggle {
     cursor: pointer;
@@ -2926,4 +2940,21 @@ input::placeholder {
 }
 .view-container-valuegrowth.active {
     display: flex;
+}
+
+/* ✅ 展开状态（默认） */
+.data-dropdown-panel {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.3, 0, 0.3, 1);  /* 平滑过渡 */
+    visibility: visible;
+}
+
+/* ✅ 隐藏状态 */
+.data-dropdown-panel.collapsed {
+    max-height: 0;           /* 高度收缩 */
+    opacity: 0;              /* 淡出 */
+    transform: translateY(-10px);  /* 向上移动 */
+    visibility: hidden;      /* 完全隐藏 */
 }

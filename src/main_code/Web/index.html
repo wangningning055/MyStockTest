@@ -61,7 +61,7 @@
 
 
     </header>
-    <div class="data-dropdown-panel" id="data-dropdown-panel" style="display:none;">
+    <div class="data-dropdown-panel collapsed" id="data-dropdown-panel">
         <div class="data-panel-inner">
             <!-- Token 设置 -->
             <div class="data-action-group">
@@ -484,83 +484,97 @@
                     </div>
                 </div>
 
+                <div class="rotation-tabs-nav">
+                    <button class="rotation-tab-btn active" data-view="table">
+                        📊 表格视图
+                    </button>
+                    <button class="rotation-tab-btn" data-view="heatmap">
+                        📈 热力图视图
+                    </button>
+                </div>
+
                 <!-- 可视化容器 -->
                 <div class="industry-rotation-visualization">
                     <!-- 月份热力图 -->
-                    <div class="rotation-chart-section">
-                        <h3>📅 行业轮动热力图</h3>
-                        <p class="chart-desc">x轴为月份(1-12)，y轴为行业，颜色深度表示上涨次数</p>
-                        <div id="industry-heatmap-container" style="width:100%; height:500px; background:#1a1a1a;"></div>
+                     <div class="rotation-view-pane" id="rotation-heatmap-view">
+                        <div class="rotation-chart-section">
+                            <h3>📅 行业轮动热力图</h3>
+                            <p class="chart-desc">x轴为月份(1-12)，y轴为行业，颜色深度表示上涨次数</p>
+                            <div id="industry-heatmap-container" style="width:100%; height:500px; background:#1a1a1a;"></div>
+                        </div>
                     </div>
 
+
                     <!-- 数据表格 -->
-                    <div class="rotation-table-section">
-                        <h3>📊 行业轮动详细数据</h3>
-                        
-                        <!-- 筛选条件 -->
-                        <div class="rotation-filter-bar">
-                            <div class="filter-item">
-                            <label>选择月份:</label>
-                            <select id="rotation-month-filter" class="select-dark">
-                                <option value="">全部月份</option>
-                                <option value="1">1月</option>
-                                <option value="2">2月</option>
-                                <option value="3">3月</option>
-                                <option value="4">4月</option>
-                                <option value="5">5月</option>
-                                <option value="6">6月</option>
-                                <option value="7">7月</option>
-                                <option value="8">8月</option>
-                                <option value="9">9月</option>
-                                <option value="10">10月</option>
-                                <option value="11">11月</option>
-                                <option value="12">12月</option>
-                            </select>
+                     <div class="rotation-view-pane active" id="rotation-table-view">
+                        <div class="rotation-table-section">
+                            <h3>📊 行业轮动详细数据</h3>
+                            
+                            <!-- 筛选条件 -->
+                            <div class="rotation-filter-bar">
+                                <div class="filter-item">
+                                <label>选择月份:</label>
+                                <select id="rotation-month-filter" class="select-dark">
+                                    <option value="">全部月份</option>
+                                    <option value="1">1月</option>
+                                    <option value="2">2月</option>
+                                    <option value="3">3月</option>
+                                    <option value="4">4月</option>
+                                    <option value="5">5月</option>
+                                    <option value="6">6月</option>
+                                    <option value="7">7月</option>
+                                    <option value="8">8月</option>
+                                    <option value="9">9月</option>
+                                    <option value="10">10月</option>
+                                    <option value="11">11月</option>
+                                    <option value="12">12月</option>
+                                </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>最少上涨次数:</label>
+                                    <input type="number" id="rotation-min-count" value="3" min="1" max="5" class="input-dark">
+                                </div>
                             </div>
-                            <div class="filter-item">
-                                <label>最少上涨次数:</label>
-                                <input type="number" id="rotation-min-count" value="3" min="1" max="5" class="input-dark">
+                            <!-- 统计信息 -->
+                            <div class="rotation-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">分析的行业数:</span>
+                                    <span class="stat-value" id="stat-industry-count">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">符合筛选条件:</span>
+                                    <span class="stat-value" id="stat-qualified-count">0</span>  <!-- 改了名字 -->
+                                </div>
                             </div>
-                        </div>
-                        <!-- 统计信息 -->
-                        <div class="rotation-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">分析的行业数:</span>
-                                <span class="stat-value" id="stat-industry-count">0</span>
+                            <!-- 表格 -->
+                            <div class="rotation-table-container">
+                                <table class="rotation-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-industry">行业名称</th>
+                                            <th class="col-month-1">1月</th>
+                                            <th class="col-month-2">2月</th>
+                                            <th class="col-month-3">3月</th>
+                                            <th class="col-month-4">4月</th>
+                                            <th class="col-month-5">5月</th>
+                                            <th class="col-month-6">6月</th>
+                                            <th class="col-month-7">7月</th>
+                                            <th class="col-month-8">8月</th>
+                                            <th class="col-month-9">9月</th>
+                                            <th class="col-month-10">10月</th>
+                                            <th class="col-month-11">11月</th>
+                                            <th class="col-month-12">12月</th>
+                                            <th class="col-avg-change sortable" data-sort="avgChange">平均当月涨跌幅 ▼</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rotation-table-body">
+                                        <!-- 动态生成 -->
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-label">符合筛选条件:</span>
-                                <span class="stat-value" id="stat-qualified-count">0</span>  <!-- 改了名字 -->
-                            </div>
-                        </div>
-                        <!-- 表格 -->
-                        <div class="rotation-table-container">
-                            <table class="rotation-data-table">
-                                <thead>
-                                    <tr>
-                                        <th class="col-industry">行业名称</th>
-                                        <th class="col-month-1">1月</th>
-                                        <th class="col-month-2">2月</th>
-                                        <th class="col-month-3">3月</th>
-                                        <th class="col-month-4">4月</th>
-                                        <th class="col-month-5">5月</th>
-                                        <th class="col-month-6">6月</th>
-                                        <th class="col-month-7">7月</th>
-                                        <th class="col-month-8">8月</th>
-                                        <th class="col-month-9">9月</th>
-                                        <th class="col-month-10">10月</th>
-                                        <th class="col-month-11">11月</th>
-                                        <th class="col-month-12">12月</th>
-                                        <th class="col-avg-change sortable" data-sort="avgChange">平均当月涨跌幅 ▼</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rotation-table-body">
-                                    <!-- 动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
 
 
+                        </div>
                     </div>
                 </div>
             </main>
@@ -657,7 +671,7 @@
     </div>
 
 
-    <footer class="log-panel" id="log-panel">
+    <div class="log-panel" id="log-panel">
         <div class="log-header">
             <span id="log-panel-toggle">▲ 控制台日志 (Console)</span>
             <button class="btn-clear" id="btn-clear-log">清空日志</button>
@@ -665,7 +679,7 @@
         <div class="log-body" id="global-log-container">
             <div class="log-item system">[系统] 界面初始化完成...</div>
         </div>
-    </footer>
+    </div>
 
 </div>
 
@@ -757,9 +771,8 @@
     document.getElementById('data-panel-toggle').addEventListener('click', function() {
         const panel = document.getElementById('data-dropdown-panel');
         const arrow = document.getElementById('data-panel-arrow');
-        const isOpen = panel.style.display !== 'none';
-        panel.style.display = isOpen ? 'none' : 'flex';
-        arrow.textContent = isOpen ? '▼' : '▲';
+        const isCollapsed = panel.classList.toggle('collapsed');  // 切换 class
+        arrow.textContent = isCollapsed ? '▼' : '▲';
     });
 
     // log面板上拉/下拉

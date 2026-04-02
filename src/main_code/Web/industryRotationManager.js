@@ -6,7 +6,40 @@
 export const IndustryRotationManager = {
     // 存储分析结果
     analysisData: null,
-    
+        /**
+     * 初始化子标签页切换
+     */
+    initTabSwitching() {
+        const tabBtns = document.querySelectorAll('.rotation-tab-btn');
+        const viewPanes = document.querySelectorAll('.rotation-view-pane');
+        console.log("点击点击初始化舒适和")
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const viewName = btn.dataset.view;
+                console.log("点击点击")
+                console.log(viewName)
+                // 移除活跃状态
+                tabBtns.forEach(b => b.classList.remove('active'));
+                viewPanes.forEach(p => p.classList.remove('active'));
+                
+                // 添加活跃状态
+                btn.classList.add('active');
+                document.getElementById(`rotation-${viewName}-view`).classList.add('active');
+                
+                // 切换到热力图时刷新
+                if (viewName === 'heatmap') {
+                    setTimeout(() => {
+                        const container = document.getElementById('industry-heatmap-container');
+                        if (container) {
+                            const chart = echarts.getInstanceByDom(container);
+                            if (chart) chart.resize();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    },
     /**
      * 初始化事件绑定
      */
@@ -27,6 +60,7 @@ export const IndustryRotationManager = {
         if (minCountInput) {
             minCountInput.addEventListener('change', () => this.refreshTable());
         }
+        this.initTabSwitching();
         return this
     },
     
@@ -46,6 +80,16 @@ export const IndustryRotationManager = {
      */
     handleAnalysisResult(data) {
         this.analysisData = data;
+
+        // 先检查是否有数据容器
+        const heatmapContainer = document.getElementById('industry-heatmap-container');
+        const tableView = document.getElementById('rotation-table-view');
+        
+        if (!heatmapContainer || !tableView) {
+            console.error('❌ 容器不存在');
+            return;
+        }
+
         this.renderHeatmap();
         this.renderTable();
         this.updateStats();
@@ -134,7 +178,7 @@ export const IndustryRotationManager = {
                 orient: 'vertical',
                 right: '10px',
                 inRange: {
-                    color: ['#161616', '#424242', '#646464', '#969696', '#b8b8b8', '#d4d4d4']
+                    color: ['#255480', '#0079c2', '#c94c30', '#f47d21', '#f9bf3b', '#ffeb3b']
                 }
             },
             series: [{
