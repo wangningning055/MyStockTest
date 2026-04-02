@@ -25,7 +25,6 @@ class MessageType(str, Enum):
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
     CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
-    CS_INDUSTRY_UP_DATA = "cs_industry_up_data"               #客户端请求分析行业上涨
 
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
     CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
@@ -182,12 +181,11 @@ def HandleMsg(msg):
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
 
 
-
+    #需要修改成行业轮动分析
     elif(msgType == MessageType.CS_INDUSTRY_UP_DATA):
         print("进行行业分析")
         mainProcessor.calculationDataHandle.AnalyzeIndustry()
         
-
 
 
 

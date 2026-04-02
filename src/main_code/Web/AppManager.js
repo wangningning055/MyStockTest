@@ -3,9 +3,9 @@ import { UIManager, State, CONFIG, App} from "./app.js";
 import * as AppModule from "./app.js";
 import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
 import { ValueGrowthManager } from './valueGrowthManager.js';
+import { IndustryRotationManager } from './industryRotationManager.js';
 
 const Message_Action = "/action";
-
 
 // 存储拉取按钮的原始文本
 const fetchButtonTexts = new Map();
@@ -97,7 +97,11 @@ class AppManager {
         }
         ValueGrowthManager.init();
 
-
+        if (typeof IndustryRotationManager !== 'undefined') {
+            this.industryRotationManager = IndustryRotationManager.init();
+            console.log("✅ 行业轮动管理器已初始化")
+            this.app.log("✅ 行业轮动管理器已初始化", "system");
+        }
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
         
@@ -302,7 +306,7 @@ class AppManager {
 
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_INDUSTRY, (data) =>{
             console.log("收到行业更新")
-            console.log(data.msg)
+            //console.log(data.msg)
             ValueGrowthManager.setIndustries(data.msg || []);
         });
 
@@ -315,11 +319,7 @@ class AppManager {
             }
         });
 
-
-        this.registerHandler('sc_value_growth_stocks', (data) => {
-            ValueGrowthManager.setStocks(data.data || []);
-            this.app.log(`✅ 已加载 ${data.data.length} 只股票`, "success");
-        });
+        //处理成长价值股列表
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_GROW_VALUE, (data) =>{
             console.log("收到行业成长价值列表")
             console.log(data.msg)
@@ -327,6 +327,13 @@ class AppManager {
             ValueGrowthManager.setStocks(res || []);
         });
 
+
+        // 处理行业轮动分析结果
+        this.registerHandler(SocketModule.MessageType.SC_INDUSTRY_ROTATION, (data) => {
+            if (data.status === 'success' && data.data) {
+                IndustryRotationManager.handleAnalysisResult(data.data);
+            }
+        });
 
         // 处理选股结果
         this.registerHandler('sc_select_stocks_result', (data) => {
@@ -425,12 +432,16 @@ class AppManager {
             timestamp: new Date().toISOString(),
         });
     }
-    industryUpData() {
-        this.app.log("📤发送行业上涨请求...", "system");
-        return this.socket.sendMessage(SocketModule.MessageType.CS_INDUSTRY_UP_DATA, {
-            timestamp: new Date().toISOString(),
-        });
+
+
+    requestIndustryRotationAnalysis() {
+        this.app.log("📤 发送行业轮动分析请求...", "system");
+        //return this.socket.sendMessage(
+        //    SocketModule.MessageType.CS_INDUSTRY_ROTATION, 
+        //    {timestamp: new Date().toISOString()}
+        //);
     }
+
 
 
     testData() {
@@ -537,6 +548,21 @@ class AppManager {
         return this.socket.sendMessage(SocketModule.MessageType.CS_BACK_TEST_STOP, {
             timestamp: new Date().toISOString(),    });
     }
+
+        /**
+     * 请求行业轮动分析
+     */
+    requestIndustryRotationAnalysis() {
+        this.app.log("📤 发送行业轮动分析请求...", "system");
+        const rotationStatus = document.getElementById('rotation-status');
+        if (rotationStatus) rotationStatus.style.display = 'flex';
+        
+        return this.socket.sendMessage(SocketModule.MessageType.CS_INDUSTRY_ROTATION, {
+            timestamp: new Date().toISOString(),
+        });
+    }
+
+
 
 
     

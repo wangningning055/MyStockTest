@@ -34,7 +34,10 @@ export const MessageType = Object.freeze({
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据
     CS_STOP_UPDATE_DATA: "cs_stop_update_data",              // 客户端请求停止拉取数据
     CS_PREHEAT_DATA: "cs_preheat_data",                  //#客户端请求预热数据
-    CS_INDUSTRY_UP_DATA: "cs_industry_up_data",          //客户端请求分析行业上涨
+
+    CS_INDUSTRY_ROTATION : "cs_industry_rotation",  // 客户端请求行业轮动分析
+    SC_INDUSTRY_ROTATION : "sc_industry_rotation",  // 服务器返回行业轮动分析结果
+
 
 
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据

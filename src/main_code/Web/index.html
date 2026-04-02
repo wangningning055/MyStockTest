@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="static/chart-fix.css">
     <link rel="stylesheet" href="static/factorEditor.css">
     <link rel="stylesheet" href="static/valueGrowthStyles.css">
+    <link rel="stylesheet" href="static/industryRotation.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -96,11 +97,6 @@
                 <button class="btn btn-success" id="api-update-data">🔄 一键拉取</button>
             </div>
 
-            <div class="data-action-group">
-                <div class="data-group-title">💎 行业趋势记录</div>
-                <div class="data-group-meta">上次更新：<span id="last-update-industry">--</span></div>
-            <button class="btn btn-success" id="api-update-industry">🔄 记录</button>
-            </div>
 
             <div class="data-action-group">
                 <div class="data-group-title">停止拉取</div>
@@ -469,22 +465,114 @@
 
         <div id="view-industry-rotation" class="view-container">
             <main class="main-content">
-                <div class="result-area">
-                    <div class="table-header">
-                        <span>行业轮动数据</span>
+                <!-- 标题与说明 -->
+                <div class="industry-rotation-header">
+                    <h2>🔄 行业轮动分析 (过去5年)</h2>
+                    <p class="section-subtitle">
+                        统计各行业在每个月份过去5年内上涨的情况
+                        <span class="info-icon" title="数据基于历史日线数据，统计每月的行业涨跌次数">ℹ️</span>
+                    </p>
+                    <!-- 控制面板 -->
+                    <div class="industry-rotation-controls">
+                        <button class="btn btn-primary" id="btn-analyze-industry-rotation">
+                            📊 开始分析
+                        </button>
+                        <div class="rotation-status" id="rotation-status" style="display:none;">
+                            <span class="spinner"></span>
+                            <span>分析中...</span>
+                        </div>
                     </div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>月份</th>
-                                <th>过去五年此月份超三次处在上涨行情的行业</th>
-                            </tr>
-                        </thead>
-                        <tbody id="industry-rotation-table"></tbody>
-                    </table>
+                </div>
+
+                <!-- 可视化容器 -->
+                <div class="industry-rotation-visualization">
+                    <!-- 月份热力图 -->
+                    <div class="rotation-chart-section">
+                        <h3>📅 行业轮动热力图</h3>
+                        <p class="chart-desc">x轴为月份(1-12)，y轴为行业，颜色深度表示上涨次数</p>
+                        <div id="industry-heatmap-container" style="width:100%; height:500px; background:#1a1a1a;"></div>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <div class="rotation-table-section">
+                        <h3>📊 行业轮动详细数据</h3>
+                        
+                        <!-- 筛选条件 -->
+                        <div class="rotation-filter-bar">
+                            <div class="filter-item">
+                            <label>选择月份:</label>
+                            <select id="rotation-month-filter" class="select-dark">
+                                <option value="">全部月份</option>
+                                <option value="1">1月</option>
+                                <option value="2">2月</option>
+                                <option value="3">3月</option>
+                                <option value="4">4月</option>
+                                <option value="5">5月</option>
+                                <option value="6">6月</option>
+                                <option value="7">7月</option>
+                                <option value="8">8月</option>
+                                <option value="9">9月</option>
+                                <option value="10">10月</option>
+                                <option value="11">11月</option>
+                                <option value="12">12月</option>
+                            </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>最少上涨次数:</label>
+                                <input type="number" id="rotation-min-count" value="3" min="1" max="5" class="input-dark">
+                            </div>
+                        </div>
+                        <!-- 统计信息 -->
+                        <div class="rotation-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">分析的行业数:</span>
+                                <span class="stat-value" id="stat-industry-count">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">符合筛选条件:</span>
+                                <span class="stat-value" id="stat-qualified-count">0</span>  <!-- 改了名字 -->
+                            </div>
+                        </div>
+                        <!-- 表格 -->
+                        <div class="rotation-table-container">
+                            <table class="rotation-data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-industry">行业名称</th>
+                                        <th class="col-month-1">1月</th>
+                                        <th class="col-month-2">2月</th>
+                                        <th class="col-month-3">3月</th>
+                                        <th class="col-month-4">4月</th>
+                                        <th class="col-month-5">5月</th>
+                                        <th class="col-month-6">6月</th>
+                                        <th class="col-month-7">7月</th>
+                                        <th class="col-month-8">8月</th>
+                                        <th class="col-month-9">9月</th>
+                                        <th class="col-month-10">10月</th>
+                                        <th class="col-month-11">11月</th>
+                                        <th class="col-month-12">12月</th>
+                                        <th class="col-avg-change sortable" data-sort="avgChange">平均当月涨跌幅 ▼</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rotation-table-body">
+                                    <!-- 动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                    </div>
                 </div>
             </main>
         </div>
+
+
+
+
+
+
+
+
 
         <div id="view-value-growth" class="view-container-valuegrowth">
             <main class="main-content">
@@ -527,39 +615,41 @@
                         <span>价值股 & 成长股列表(数据预热后显示)</span>
                         <span class="vg-record-count" id="vg-record-count">共 -- 条记录</span>
                     </div>
-                        <div class="vg-table-container">
-                            <table class="vg-data-table">
-                                <thead>
-                                    <tr>
-                                        <th class="vg-sortable" data-sort="code">代码 ▼</th>
-                                        <th class="vg-sortable" data-sort="name">名称 ▼</th>
-                                        <th class="vg-sortable" data-sort="industry">行业 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="score">得分 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="value">流通市值 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="Roe">净资产收益ROE ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="earn">市盈 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="clean">市净 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="sale">市销 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="cash">市现 ▼</th>
-                                        
-                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYNi">净利润同比增长 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="LiabilityTo">资产负债 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYEquity">净资产同比增长 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="YOYLiability">负债同比增长 ▼</th>
 
-                                        
-                                        <th class="vg-sortable vg-sortable-number" data-sort="change_3d">3日涨跌幅 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="change_5d">5日涨跌幅 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="change_20d">20日涨跌幅 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="change_120d">120日涨跌幅 ▼</th>
-                                        <th class="vg-sortable vg-sortable-number" data-sort="change_240d">240日涨跌幅 ▼</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="value-growth-table"></tbody>
-                            </table>
-                        </div>
+                    <div class="vg-table-container">
+                        <table class="vg-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="vg-sortable" data-sort="code">代码 ▼</th>
+                                    <th class="vg-sortable" data-sort="name">名称 ▼</th>
+                                    <th class="vg-sortable" data-sort="industry">行业 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="score">得分 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="value">流通市值 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="Roe">净资产收益ROE ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="earn">市盈 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="clean">市净 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="sale">市销 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="cash">市现 ▼</th>
+                                    
+                                    <th class="vg-sortable vg-sortable-number" data-sort="YOYNi">净利润同比增长 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="LiabilityTo">资产负债 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="YOYEquity">净资产同比增长 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="YOYLiability">负债同比增长 ▼</th>
+
+                                    
+                                    <th class="vg-sortable vg-sortable-number" data-sort="change_3d">3日涨跌幅 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="change_5d">5日涨跌幅 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="change_20d">20日涨跌幅 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="change_120d">120日涨跌幅 ▼</th>
+                                    <th class="vg-sortable vg-sortable-number" data-sort="change_240d">240日涨跌幅 ▼</th>
+                                </tr>
+                            </thead>
+                            <tbody id="value-growth-table"></tbody>
+                        </table>
                     </div>
+
                 </div>
+
             </main>
         </div>
 
@@ -683,7 +773,7 @@
 </script>
 <script type="module">
     import AppManager from "./static/AppManager.js";
-    
+
     document.addEventListener('DOMContentLoaded', () => {
         AppManager.init();
         window.AppManager = AppManager;

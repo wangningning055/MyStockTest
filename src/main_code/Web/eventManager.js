@@ -156,15 +156,6 @@ export const EventManager = {
                 }
             });
         }
-        const industryBtn = document.getElementById('api-update-industry');
-        if (industryBtn) {
-            industryBtn.addEventListener('click', () => {
-                if (manager) {
-                    //setFetchButtonsLoading(true);
-                    manager.industryUpData();
-                }
-            });
-        }
 
         const preheatBtn = document.getElementById('api-preheat');
         if (preheatBtn) {
@@ -369,6 +360,7 @@ export const EventManager = {
         if (holdingsDivisionContainer && !echarts.getInstanceByDom(holdingsDivisionContainer)) {
             echarts.init(holdingsDivisionContainer, 'dark');
         }
+
         
         App.log("系统引擎启动成功，等待指令...", "system");
 
