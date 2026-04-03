@@ -35,9 +35,11 @@ export const MessageType = Object.freeze({
     CS_STOP_UPDATE_DATA: "cs_stop_update_data",              // 客户端请求停止拉取数据
     CS_PREHEAT_DATA: "cs_preheat_data",                  //#客户端请求预热数据
 
+    //未实现
     CS_INDUSTRY_ROTATION : "cs_industry_rotation",  // 客户端请求行业轮动分析
     SC_INDUSTRY_ROTATION : "sc_industry_rotation",  // 服务器返回行业轮动分析结果
-
+    CS_QUERY_STOCKS: 'CS_QUERY_STOCKS',             // 客户端请求股票查询
+    SC_QUERY_STOCKS_RESPONSE: 'SC_QUERY_STOCKS_RESPONSE',// 服务器返回股票查询结果
 
 
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据

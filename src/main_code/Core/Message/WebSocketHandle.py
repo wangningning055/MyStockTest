@@ -26,6 +26,15 @@ class MessageType(str, Enum):
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
     CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
 
+    #未实现
+    CS_INDUSTRY_ROTATION = "cs_industry_rotation",  # 客户端请求行业轮动分析
+    SC_INDUSTRY_ROTATION = "sc_industry_rotation",  # 服务器返回行业轮动分析结果
+    CS_QUERY_STOCKS = 'CS_QUERY_STOCKS',             # 客户端请求股票查询
+    SC_QUERY_STOCKS_RESPONSE = 'SC_QUERY_STOCKS_RESPONSE',# 服务器返回股票查询结果
+
+
+
+
     CS_SELECT_STOCKS = "cs_select_stocks"           #客户端请求执行股票筛选
     CS_BACK_TEST = "cs_back_test"                   #客户端请求执行回测
     CS_BACK_TEST_STOP = "cs_back_test_stop"                   #客户端请求停止回测
@@ -207,3 +216,55 @@ def HandleMsg(msg):
     elif(msgType == MessageType.LAST_UPDATE_DATA):
         print("请求最近的更新日期")
         SendLastUpdateTime()
+
+
+
+
+
+#后端处理查询请求
+    #    def handle_cs_query_stocks(self, data):
+    #'''处理股票查询请求'''
+    #query_type = data.get('query_type')   # 'code' | 'letter' | 'keyword'
+    #query_value = data.get('query_value')
+    
+    #if query_type == 'code':
+    #    # 代码查询：查询单支股票
+    #    stocks = db.query_stock_by_code(query_value)
+    #elif query_type == 'letter':
+    #    # 字母查询：根据多个字母查询
+    #    # 如：SDZX = 首都在线
+    #    stocks = db.query_stock_by_letters(query_value)
+    #elif query_type == 'keyword':
+    #    # 关键字查询：在公司介绍和业务范围中搜索
+    #    stocks = db.query_stock_by_keyword(query_value)
+    
+    ## 构建响应
+    #response = {
+    #    'query_type': query_type,
+    #    'query_value': query_value,
+    #    'stocks': [
+    #        {
+    #            'code': stock.code,
+    #            'name': stock.name,
+    #            'market_cap': float(stock.market_cap),
+    #            'change_3d': float(stock.change_3d),
+    #            'change_5d': float(stock.change_5d),
+    #            'change_10d': float(stock.change_10d),
+    #            'change_20d': float(stock.change_20d),
+    #            'change_40d': float(stock.change_40d),
+    #            'change_60d': float(stock.change_60d),
+    #            'change_120d': float(stock.change_120d),
+    #            'change_240d': float(stock.change_240d),
+    #            'company_type': stock.company_type,
+    #            'company_name': stock.company_name,
+    #            'main_products': stock.main_products,
+    #            'business_scope': stock.business_scope,
+    #            'company_description': stock.company_description
+    #        }
+    #        for stock in stocks
+    #    ],
+    #    'timestamp': datetime.now().isoformat()
+    #}
+    
+    ## 发送响应
+    #self.send_message(MessageType.SC_QUERY_STOCKS_RESPONSE, response)

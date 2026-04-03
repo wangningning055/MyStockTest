@@ -4,6 +4,7 @@ import * as AppModule from "./app.js";
 import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
 import { ValueGrowthManager } from './valueGrowthManager.js';
 import { IndustryRotationManager } from './industryRotationManager.js';
+import { StockQueryManager } from './stockQueryManager.js';
 
 const Message_Action = "/action";
 
@@ -102,6 +103,8 @@ class AppManager {
             console.log("✅ 行业轮动管理器已初始化")
             this.app.log("✅ 行业轮动管理器已初始化", "system");
         }
+        this.stockQueryManager = StockQueryManager.init();
+        
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
         
@@ -334,6 +337,20 @@ class AppManager {
                 IndustryRotationManager.handleAnalysisResult(data.data);
             }
         });
+
+        //收到股票查询结果
+        this.registerHandler(
+            SocketModule.MessageType.SC_QUERY_STOCKS_RESPONSE, 
+            (data) => {
+                if (window.App && window.App.StockQueryManager) {
+                    window.App.StockQueryManager.handleQueryResponse(data.msg);
+                }
+            }
+        );
+
+
+
+
 
         // 处理选股结果
         this.registerHandler('sc_select_stocks_result', (data) => {
@@ -569,27 +586,23 @@ class AppManager {
     /**
      * 查询股票信息
      */
-    queryStockInfo(code) {
-        return this.socket.sendMessage('cs_query_stock', {
-            code: code,
-            type: 'query',
+    requestQueryStockInfo(queryType, queryValue) {
+        const payload = {
+            query_type: queryType,    // 'code' | 'letter' | 'keyword'
+            query_value: queryValue,   // 实际的查询值
             timestamp: new Date().toISOString()
-        });
+        };
+        console.log("查询股票信息啊啊啊啊")
+        console.log(queryType)
+        console.log(queryValue)
+        return this.socket.sendMessage(
+            SocketModule.MessageType.CS_QUERY_STOCKS,
+            payload
+        );
+
     }
 
-    /**
-     * 快速搜索股票
-     */
-    quickSearchStocks(keyword) {
-        if (!keyword || keyword.trim().length === 0) {
-            return;
-        }
-        return this.socket.sendMessage('cs_quick_search', {
-            keyword: keyword.trim(),
-            limit: 10,
-            timestamp: new Date().toISOString()
-        });
-    }
+
 
     /**
      * ==================== 状态管理 ====================

@@ -16,6 +16,7 @@ import { ConfigManager, setConfigManager } from './configManager.js';
 import { ChartManager, setChartManager } from './chartManager.js';
 import { EventManager, setEventManager } from './eventManager.js';
 import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
+import { StockQueryManager, setStockQueryManager } from './stockQueryManager.js';
 
 // ============ 配置和状态 ============
 export const CONFIG = {
@@ -45,6 +46,8 @@ export function SetManager(_manager) {
     setEventManager(_manager);
 
     setHoldingsManager(_manager);
+
+    setStockQueryManager(_manager);
 }
 
 // ============ 合并 UIManager（为了向后兼容） ============
@@ -59,10 +62,15 @@ export const App = {
     init() {
         console.log("初始化！！！！")
         EventManager.init();
+
+        
         this.bindFactorEvents()
         this.log("系统引擎启动成功，等待指令...", "system");
+        
     },
-
+    initStockQuery() {
+        return StockQueryManager.init();
+    },
     // -------- 事件管理相关 --------
     bindTabs() { 
         return EventManager.bindTabs(); 

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="static/factorEditor.css">
     <link rel="stylesheet" href="static/valueGrowthStyles.css">
     <link rel="stylesheet" href="static/industryRotation.css">
+    <link rel="stylesheet" href="static/stockQuery.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -213,7 +214,6 @@
         </div>
 
 
-
         <div id="view-holdings" class="view-container">
             <!-- 侧边栏改为分仓管理 -->
             <aside class="sidebar">
@@ -373,95 +373,127 @@
             </main>
         </div>
 
+
+
+
+        <!-- 股票查询页签 -->
         <div id="view-stock-query" class="view-container">
-            <aside class="sidebar">
-                <div class="panel-header">🔍 股票查询</div>
+            <div class="sq-wrapper">
                 
-                <div class="config-form" style="padding: 14px;">
-                    <div class="form-item">
-                        <label>股票代码或名称</label>
-                        <input type="text" id="query-stock-input" 
-                            class="input-dark" 
-                            placeholder="输入股票代码（如000001）或名称">
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" 
-                                id="btn-query-stock">
-                            🔍 查询
-                        </button>
-                    </div>
-
-                </div>
-            </aside>
-
-            <main class="main-content">
-                <div id="stock-query-result" class="stock-query-panel">
-                    <div class="section-title">📋 股票信息详情</div>
-                    <div class="stock-info-container">
-                        <div class="stock-header-info">
-                            <div class="stock-name-code">
-                                <h2 id="query-stock-name">-</h2>
-                                <span id="query-stock-code" class="stock-code-tag">-</span>
-                            </div>
-                            <div class="stock-price-info">
-                                <div class="price-item">
-                                    <span class="label">当前价格</span>
-                                    <span id="query-stock-price" class="value highlight">-</span>
-                                </div>
-                                <div class="price-item">
-                                    <span class="label">涨跌幅</span>
-                                    <span id="query-stock-change" class="value">-</span>
-                                </div>
+                <!-- ===== 查询面板（顶部固定） ===== -->
+                <div class="sq-search-panel">
+                    <div class="sq-search-title">🔍 股票查询</div>
+                    
+                    <div class="sq-search-row">
+                        <!-- 代码查询 -->
+                        <div class="sq-search-group">
+                            <label>📌 代码查询</label>
+                            <div class="sq-search-input-group">
+                                <input id="sq-code-input" type="text" placeholder="输入代码 (如: 600000)" 
+                                    maxlength="6" class="sq-input">
+                                <button id="sq-code-search" class="sq-btn-search">🔎</button>
                             </div>
                         </div>
 
-                        <div class="stock-details-grid">
-                            <div class="info-card">
-                                <span class="label">行业</span>
-                                <span id="query-stock-industry" class="value">-</span>
-                            </div>
-                            <div class="info-card">
-                                <span class="label">市盈率(PE)</span>
-                                <span id="query-stock-pe" class="value">-</span>
-                            </div>
-                            <div class="info-card">
-                                <span class="label">市净率(PB)</span>
-                                <span id="query-stock-pb" class="value">-</span>
-                            </div>
-                            <div class="info-card">
-                                <span class="label">总市值</span>
-                                <span id="query-stock-market-cap" class="value">-</span>
-                            </div>
-                            <div class="info-card">
-                                <span class="label">流通市值</span>
-                                <span id="query-stock-circulate-cap" class="value">-</span>
-                            </div>
-                            <div class="info-card">
-                                <span class="label">52周高</span>
-                                <span id="query-stock-52high" class="value">-</span>
+                        <!-- 字母查询 -->
+                        <div class="sq-search-group">
+                            <label>🔤 字母查询</label>
+                            <div class="sq-search-input-group">
+                                <input id="sq-letter-input" type="text" placeholder="输入字母 (如: SDZX)" 
+                                    maxlength="20" class="sq-input">
+                                <button id="sq-letter-search" class="sq-btn-search">🔎</button>
                             </div>
                         </div>
 
-                        <div class="company-section">
-                            <div class="section-title">公司简介</div>
-                            <textarea id="query-company-intro" class="description-textarea" 
-                                    placeholder="公司简介信息..." readonly></textarea>
-                        </div>
-
-                        <div class="products-section">
-                            <div class="section-title">主要产品/业务</div>
-                            <div id="query-products-list" class="products-list">
-                                <div class="empty-state">暂无产品信息</div>
+                        <!-- 关键字查询 -->
+                        <div class="sq-search-group">
+                            <label>🔑 关键字查询</label>
+                            <div class="sq-search-input-group">
+                                <input id="sq-keyword-input" type="text" placeholder="输入关键字" 
+                                    maxlength="50" class="sq-input">
+                                <button id="sq-keyword-search" class="sq-btn-search">🔎</button>
                             </div>
-                        </div>
-
-                        <div class="business-section">
-                            <div class="section-title">业务分析</div>
-                            <textarea id="query-business-analysis" class="description-textarea" 
-                                    placeholder="业务分析信息..." readonly></textarea>
                         </div>
                     </div>
                 </div>
-            </main>
+
+                <!-- ===== 列表视图 ===== -->
+                <div id="sq-list-view" class="sq-view active">
+                    <div class="sq-list-header">
+                        <span class="sq-results-info">
+                            🎯 查询结果：<span id="sq-results-count">0</span> 条
+                        </span>
+                        <div class="sq-sort-buttons">
+                            <button class="sq-sort-btn" data-sort-field="market_cap" title="按流通市值排序">
+                                💰 市值
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_3d" title="按3日涨幅排序">
+                                📊 3日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_5d" title="按5日涨幅排序">
+                                📊 5日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_10d" title="按10日涨幅排序">
+                                📊 10日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_20d" title="按20日涨幅排序">
+                                📈 20日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_40d" title="按40日涨幅排序">
+                                📊 40日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_60d" title="按60日涨幅排序">
+                                📊 60日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_120d" title="按120日涨幅排序">
+                                📉 120日
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="change_240d" title="按240日涨幅排序">
+                                📊 240日
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="sq-table-container">
+                        <table class="sq-table">
+                            <thead>
+                                <tr>
+                                    <th>代码</th>
+                                    <th>名称</th>
+                                    <th>流通市值</th>
+                                    <th>3日%</th>
+                                    <th>5日%</th>
+                                    <th>10日%</th>
+                                    <th>20日%</th>
+                                    <th>40日%</th>
+                                    <th>60日%</th>
+                                    <th>120日%</th>
+                                    <th>240日%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sq-list-tbody">
+                                <tr>
+                                    <td colspan="10" class="sq-empty">输入查询条件开始搜索</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== 详情视图 ===== -->
+                <div id="sq-detail-view" class="sq-view">
+                    <div id="sq-detail-content" class="sq-detail-content">
+                        <!-- 动态渲染内容 -->
+                    </div>
+                </div>
+
+            </div>
         </div>
+
+
+
+
 
         <div id="view-industry-rotation" class="view-container">
             <main class="main-content">
@@ -579,13 +611,6 @@
                 </div>
             </main>
         </div>
-
-
-
-
-
-
-
 
 
         <div id="view-value-growth" class="view-container-valuegrowth">
