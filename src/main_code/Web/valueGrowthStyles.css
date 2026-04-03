@@ -341,3 +341,17 @@
         background: rgba(79, 172, 254, 0.6);
     }
 }
+/* ===== 可点击行样式 ===== */
+.vg-clickable-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vg-clickable-row:hover {
+    background: rgba(79, 172, 254, 0.12) !important;
+    box-shadow: inset 3px 0 0 #4facfe;
+}
+
+.vg-clickable-row:active {
+    background: rgba(79, 172, 254, 0.18) !important;
+}

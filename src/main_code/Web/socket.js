@@ -40,7 +40,9 @@ export const MessageType = Object.freeze({
     SC_INDUSTRY_ROTATION : "sc_industry_rotation",  // 服务器返回行业轮动分析结果
     CS_QUERY_STOCKS: 'CS_QUERY_STOCKS',             // 客户端请求股票查询
     SC_QUERY_STOCKS_RESPONSE: 'SC_QUERY_STOCKS_RESPONSE',// 服务器返回股票查询结果
-
+    CS_REQUEST_KLINE: 'cs_request_kline',      // 请求K线数据
+    SC_KLINE_CHUNK: 'sc_kline_chunk',           // 流式K线数据块
+    SC_KLINE_DATA: 'sc_kline_data',             // 一次性K线数据
 
     SC_UPDATE_DATA: "sc_update_data",              // 客户端请求拉取数据
     CS_SELECT_STOCKS: "cs_select_stocks",          // 客户端请求执行股票筛选

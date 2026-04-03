@@ -493,3 +493,36 @@
         padding: 5px 10px;
     }
 }
+
+/* ===== 详情头部按钮组 ===== */
+.sq-detail-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* K线图按钮 */
+.sq-detail-kline {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(0, 242, 254, 0.15));
+    border: 1px solid rgba(79, 172, 254, 0.4);
+    color: var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.sq-detail-kline:hover {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.25), rgba(0, 242, 254, 0.25));
+    border-color: rgba(79, 172, 254, 0.6);
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.3);
+    transform: translateY(-1px);
+}
+
+.sq-detail-kline:active {
+    transform: translateY(0);
+}

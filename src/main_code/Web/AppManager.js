@@ -5,6 +5,8 @@ import { HoldingsManager, setHoldingsManager } from './holdingsManager.js';
 import { ValueGrowthManager } from './valueGrowthManager.js';
 import { IndustryRotationManager } from './industryRotationManager.js';
 import { StockQueryManager } from './stockQueryManager.js';
+import { SelectionResultManager, setSelectionResultManager } from './selectionResultManager.js';
+
 
 const Message_Action = "/action";
 
@@ -97,7 +99,8 @@ class AppManager {
             this.app.log("✅ HoldingsManager 初始化完成");
         }
         ValueGrowthManager.init();
-
+        ValueGrowthManager.setManager(this);
+        
         if (typeof IndustryRotationManager !== 'undefined') {
             this.industryRotationManager = IndustryRotationManager.init();
             console.log("✅ 行业轮动管理器已初始化")
@@ -105,6 +108,10 @@ class AppManager {
         }
         this.stockQueryManager = StockQueryManager.init();
         
+        // ✅ 新增：初始化选股结果管理器
+        this.selectionResultManager = SelectionResultManager.init();
+        setSelectionResultManager(this);
+
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
         
@@ -339,8 +346,7 @@ class AppManager {
         });
 
         //收到股票查询结果
-        this.registerHandler(
-            SocketModule.MessageType.SC_QUERY_STOCKS_RESPONSE, 
+        this.registerHandler(SocketModule.MessageType.SC_QUERY_STOCKS_RESPONSE,
             (data) => {
                 if (window.App && window.App.StockQueryManager) {
                     window.App.StockQueryManager.handleQueryResponse(data.msg);
@@ -351,14 +357,31 @@ class AppManager {
 
 
 
-
-        // 处理选股结果
+        // ✅ 替换原来的选股结果处理器
         this.registerHandler('sc_select_stocks_result', (data) => {
-            this.app.log("📈 收到选股结果:", data);
-            this.ui.updateIndustryAnalysisTable(data.industryAnalysis);
-            this.ui.updateSelectionTable(data.stocks);
-            this.app.log(`选股完成，共找到 ${data.stocks?.length || 0} 只股票`, "success");
+            this.app.log("📈 收到选股结果", "success");
+            
+            // 传递给 SelectionResultManager
+            if (this.selectionResultManager) {
+                this.selectionResultManager.setResultData(data.stocks || data.msg || []);
+            }
         });
+
+        // ✅ 新增：K线数据流式块处理
+        this.registerHandler('sc_kline_chunk', (data) => {
+            if (this.selectionResultManager) {
+                this.selectionResultManager.receiveKlineChunk(data.msg || data);
+            }
+        });
+
+        // ✅ 新增：K线数据一次性返回
+        this.registerHandler('sc_kline_data', (data) => {
+            if (this.selectionResultManager) {
+                this.selectionResultManager.receiveKlineData(data.msg || data);
+            }
+        });
+
+
 
         // 处理回测结果
         this.registerHandler('sc_back_test_result', (data) => {
@@ -491,6 +514,12 @@ class AppManager {
             this.app.log("❌ 请先添加选股条件", "error");
             return false;
         }
+
+        // ✅ 显示加载状态
+        if (this.selectionResultManager) {
+            this.selectionResultManager.showLoading();
+        }
+
         const isExcludeST = this.ui.getFilterExcludeST()
         const isExcludeKC = this.ui.getFilterExcludeKC()
         const isExcludeCY = this.ui.getFilterExcludeCY()
@@ -579,9 +608,6 @@ class AppManager {
         });
     }
 
-
-
-
     
     /**
      * 查询股票信息
@@ -592,9 +618,6 @@ class AppManager {
             query_value: queryValue,   // 实际的查询值
             timestamp: new Date().toISOString()
         };
-        console.log("查询股票信息啊啊啊啊")
-        console.log(queryType)
-        console.log(queryValue)
         return this.socket.sendMessage(
             SocketModule.MessageType.CS_QUERY_STOCKS,
             payload
@@ -602,7 +625,17 @@ class AppManager {
 
     }
 
-
+    /**
+     * 请求单只股票的K线数据
+     */
+    requestStockKline(stockCode, days = 240) {
+        this.app.log(`📤 请求K线数据: ${stockCode}`, "system");
+        return this.socket.sendMessage('cs_request_kline', {
+            code: stockCode,
+            days: days,
+            timestamp: new Date().toISOString()
+        });
+    }
 
     /**
      * ==================== 状态管理 ====================

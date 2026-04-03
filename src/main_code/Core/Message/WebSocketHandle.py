@@ -268,3 +268,135 @@ def HandleMsg(msg):
     
     ## 发送响应
     #self.send_message(MessageType.SC_QUERY_STOCKS_RESPONSE, response)
+
+
+
+
+
+
+
+
+
+    #选股数据结构
+
+    """
+============================================================
+前后端数据结构契约文档
+============================================================
+
+1. 选股结果 (sc_select_stocks_result)
+============================================================
+"""
+
+## 前端发送：
+#CS_SELECT_STOCKS = {
+#    "type": "cs_select_stocks",
+#    "msg": {
+#        "isExcludeST": True,
+#        "isExcludeKC": True,
+#        "isExcludeCY": True,
+#        "isExclude_Value": False,
+#        "isExclude_Grow": False,
+#        "configs": [
+#            # ... 因子配置树 ...
+#        ],
+#        "threshold": 0.3,
+#        "timestamp": "2025-01-15T10:00:00",
+#        "version": "1.0"
+#    }
+#}
+
+## 后端返回：
+#SC_SELECT_STOCKS_RESULT = {
+#    "type": "sc_select_stocks_result",
+#    "msg": {
+#        "stocks": [
+#            {
+#                "code": "600000",            # str: 6位股票代码
+#                "name": "浦发银行",           # str: 股票名称
+#                "score": 85.30,              # float: 筛选综合得分
+#                "industry": "银行",           # str: 所属行业
+#                "market_cap": 150000000000,  # float: 流通市值(元)
+#                "change_3d": 2.15,           # float: 3日涨跌幅(%)
+#                "change_5d": 3.40,           # float: 5日涨跌幅(%)
+#                "change_10d": -1.20,         # float: 10日涨跌幅(%)
+#                "change_20d": 5.60,          # float: 20日涨跌幅(%)
+#                "change_40d": 8.30,          # float: 40日涨跌幅(%)
+#                "change_60d": 12.50,         # float: 60日涨跌幅(%)
+#                "change_120d": -3.80,        # float: 120日涨跌幅(%)
+#                "change_240d": 15.20,        # float: 240日涨跌幅(%)
+#                "params": {                  # dict: 详细参数(可选,可在请求K线时返回)
+#                    "groups": [
+#                        {
+#                            "name": "分组名称",  # str: 参数分组名
+#                            "items": [
+#                                {
+#                                    "label": "参数名",      # str: 参数显示名
+#                                    "value": 12.34,         # any: 参数值
+#                                    "type": "number"        # str: text|number|percent|currency|market_cap
+#                                }
+#                            ]
+#                        }
+#                    ]
+#                }
+#            }
+#        ],
+#        "total": 120,                        # int: 总数量
+#        "timestamp": "2025-01-15T10:30:00"   # str: 时间戳
+#    }
+#}
+
+#"""
+#2. K线数据请求 (cs_request_kline)
+#============================================================
+#"""
+
+## 前端发送：
+#CS_REQUEST_KLINE = {
+#    "type": "cs_request_kline",
+#    "msg": {
+#        "code": "600000",                    # str: 股票代码
+#        "days": 240,                         # int: 请求天数
+#        "timestamp": "2025-01-15T10:31:00"
+#    }
+#}
+
+## 后端返回（流式，多次发送）：
+#SC_KLINE_CHUNK = {
+#    "type": "sc_kline_chunk",
+#    "msg": {
+#        "code": "600000",                    # str: 股票代码
+#        "chunk": [                           # list: 本次发送的K线数据块
+#            {
+#                "date": "2024-06-15",        # str: 日期 YYYY-MM-DD
+#                "open": 8.56,                # float: 开盘价
+#                "close": 8.72,               # float: 收盘价
+#                "high": 8.85,                # float: 最高价
+#                "low": 8.45,                 # float: 最低价
+#                "volume": 123456             # float: 成交量
+#            }
+#        ],
+#        "progress": 0.5,                     # float: 进度 0~1
+#        "is_last": False,                    # bool: 是否最后一块
+#        "total": 240                         # int: 总K线数
+#    }
+#}
+
+## 后端返回（一次性，单次发送）：
+#SC_KLINE_DATA = {
+#    "type": "sc_kline_data",
+#    "msg": {
+#        "code": "600000",
+#        "kline": [
+#            {
+#                "date": "2024-06-15",
+#                "open": 8.56,
+#                "close": 8.72,
+#                "high": 8.85,
+#                "low": 8.45,
+#                "volume": 123456
+#            }
+#            # ... 所有K线数据
+#        ]
+#    }
+#}

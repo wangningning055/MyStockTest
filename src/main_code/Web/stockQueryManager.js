@@ -371,7 +371,10 @@ export const StockQueryManager = {
                     <div class="sq-detail-code">${stock.code}</div>
                     <div class="sq-detail-name">${stock.name}</div>
                 </div>
-                <button class="sq-detail-back" id="sq-detail-back">← 返回</button>
+                <div class="sq-detail-header-actions">
+                    <button class="sq-detail-kline" id="sq-detail-kline-btn">📈 K线图</button>
+                    <button class="sq-detail-back" id="sq-detail-back">← 返回</button>
+                </div>
             </div>
 
             <div class="sq-detail-body">
@@ -439,6 +442,13 @@ export const StockQueryManager = {
         if (backBtn) {
             backBtn.addEventListener('click', () => this.showListView());
         }
+        
+        // 绑定K线图按钮
+        const klineBtn = detailContainer.querySelector('#sq-detail-kline-btn');
+        if (klineBtn) {
+            klineBtn.addEventListener('click', () => this.openKlineModal(stock));
+        }
+
     },
 
     renderChangeGrid(stock) {
@@ -465,7 +475,98 @@ export const StockQueryManager = {
                 </div>
             `;
         }).join('');
+    },
+
+    // ============ K线图弹窗（复用 SelectionResultManager） ============
+
+    /**
+     * 打开K线图弹窗
+     * 复用 stock-detail-modal 弹窗和 SelectionResultManager 的K线渲染逻辑
+     */
+    openKlineModal(stock) {
+        // 获取 SelectionResultManager 实例
+        const srm = manager?.selectionResultManager;
+        if (!srm) {
+            App.log("❌ K线图模块未初始化", "error");
+            return;
+        }
+
+        // 构造一个兼容 SelectionResultManager 的 stock 对象
+        const stockForModal = {
+            code: stock.code || '',
+            name: stock.name || '',
+            industry: stock.company_type || stock.industry || '',
+            score: 0,
+            market_cap: stock.market_cap || 0,
+            // 传递参数数据（将股票查询详情转为参数分组格式）
+            params: this.buildParamsFromQueryStock(stock)
+        };
+
+        // 调用 SelectionResultManager 的弹窗打开方法
+        srm.openDetailModal(stockForModal);
+
+        App.log(`📈 打开K线图: ${stock.code} ${stock.name}`, "system");
+    },
+
+    /**
+     * 将股票查询数据转换为参数分组格式
+     * 供 SelectionResultManager 的参数面板渲染
+     */
+    buildParamsFromQueryStock(stock) {
+        const groups = [];
+
+        // 基本信息组
+        groups.push({
+            name: "📊 基本信息",
+            items: [
+                { label: "股票代码", value: stock.code || '-', type: "text" },
+                { label: "股票名称", value: stock.name || '-', type: "text" },
+                { label: "公司性质", value: stock.company_type || '-', type: "text" },
+                { label: "流通市值", value: stock.market_cap || 0, type: "market_cap" },
+            ]
+        });
+
+        // 涨跌幅组
+        const changeItems = [
+            { label: "3日涨跌幅", value: stock.change_3d || 0, type: "percent" },
+            { label: "5日涨跌幅", value: stock.change_5d || 0, type: "percent" },
+            { label: "10日涨跌幅", value: stock.change_10d || 0, type: "percent" },
+            { label: "20日涨跌幅", value: stock.change_20d || 0, type: "percent" },
+            { label: "40日涨跌幅", value: stock.change_40d || 0, type: "percent" },
+            { label: "60日涨跌幅", value: stock.change_60d || 0, type: "percent" },
+            { label: "120日涨跌幅", value: stock.change_120d || 0, type: "percent" },
+            { label: "240日涨跌幅", value: stock.change_240d || 0, type: "percent" },
+        ];
+        groups.push({ name: "📈 涨跌幅统计", items: changeItems });
+
+        // 公司信息组
+        const companyItems = [];
+        if (stock.company_name) {
+            companyItems.push({ label: "公司全称", value: stock.company_name, type: "text" });
+        }
+        if (stock.main_products) {
+            companyItems.push({ label: "主要产品", value: stock.main_products, type: "text" });
+        }
+        if (stock.business_scope) {
+            companyItems.push({ label: "业务范围", value: stock.business_scope, type: "text" });
+        }
+        if (stock.company_description) {
+            companyItems.push({ label: "公司介绍", value: stock.company_description, type: "text" });
+        }
+        if (companyItems.length > 0) {
+            groups.push({ name: "🏢 公司信息", items: companyItems });
+        }
+
+        // 如果stock中有额外的params字段，也合并进来
+        if (stock.params && stock.params.groups) {
+            groups.push(...stock.params.groups);
+        }
+
+        return { groups };
     }
+
+
+
 };
 
 export default StockQueryManager;

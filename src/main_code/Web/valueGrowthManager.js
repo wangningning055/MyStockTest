@@ -7,7 +7,7 @@
  * - 按行业筛选
  * - 动态表格渲染
  */
-
+let manager = null;
 let valueGrowthData = {
     stocks: [],           // 所有股票数据
     industries: [],       // 行业列表
@@ -16,6 +16,12 @@ let valueGrowthData = {
     sortBy: 'code',       // 默认按代码排序
     sortOrder: 'asc'      // 排序顺序: 'asc' 或 'desc'
 };
+
+// ============ 设置 AppManager 引用 ============
+export function setAppManager(_manager) {
+    manager = _manager;
+}
+
 
 // ============ 初始化 ============
 export function initValueGrowthManager() {
@@ -123,6 +129,89 @@ function getFilteredData() {
     return filtered;
 }
 
+
+
+// ============ 打开K线弹窗 ============
+function openKlineModal(stock) {
+    const srm = manager?.selectionResultManager;
+    if (!srm) {
+        console.error("❌ SelectionResultManager 未初始化，无法打开K线图");
+        return;
+    }
+
+    // 构造兼容 SelectionResultManager 的对象
+    const stockForModal = {
+        code: stock.code || '',
+        name: stock.name || '',
+        industry: stock.industry || '',
+        score: stock.score || 0,
+        market_cap: stock.value || 0,
+        params: buildParamsFromVGStock(stock)
+    };
+
+    srm.openDetailModal(stockForModal);
+    console.log(`📈 打开K线图: ${stock.code} ${stock.name}`);
+}
+
+// ============ 将价值/成长股数据转为参数分组 ============
+function buildParamsFromVGStock(stock) {
+    const groups = [];
+
+    // 基本信息
+    groups.push({
+        name: "📊 基本信息",
+        items: [
+            { label: "股票代码", value: stock.code || '-', type: "text" },
+            { label: "股票名称", value: stock.name || '-', type: "text" },
+            { label: "行业", value: stock.industry || '-', type: "text" },
+            { label: "类型", value: stock.type === 'value' ? '价值股' : '成长股', type: "text" },
+            { label: "综合得分", value: stock.score || 0, type: "number" },
+            { label: "流通市值", value: stock.value || 0, type: "market_cap" },
+        ]
+    });
+
+    // 估值指标
+    groups.push({
+        name: "💰 估值指标",
+        items: [
+            { label: "净资产收益率(ROE)", value: stock.Roe || 0, type: "percent" },
+            { label: "市盈率", value: stock.earn || 0, type: "number" },
+            { label: "市净率", value: stock.clean || 0, type: "number" },
+            { label: "市销率", value: stock.sale || 0, type: "number" },
+            { label: "市现率", value: stock.cash || 0, type: "number" },
+        ]
+    });
+
+    // 财务增长
+    groups.push({
+        name: "📈 财务增长",
+        items: [
+            { label: "净利润同比增长", value: stock.YOYNi || 0, type: "percent" },
+            { label: "资产负债率", value: stock.LiabilityTo || 0, type: "percent" },
+            { label: "净资产同比增长", value: stock.YOYEquity || 0, type: "percent" },
+            { label: "负债同比增长", value: stock.YOYLiability || 0, type: "percent" },
+        ]
+    });
+
+    // 涨跌幅统计
+    groups.push({
+        name: "📉 涨跌幅统计",
+        items: [
+            { label: "3日涨跌幅", value: stock.change_3d || 0, type: "percent" },
+            { label: "5日涨跌幅", value: stock.change_5d || 0, type: "percent" },
+            { label: "20日涨跌幅", value: stock.change_20d || 0, type: "percent" },
+            { label: "120日涨跌幅", value: stock.change_120d || 0, type: "percent" },
+            { label: "240日涨跌幅", value: stock.change_240d || 0, type: "percent" },
+        ]
+    });
+
+    return { groups };
+}
+
+
+
+
+
 // ============ 渲染表格 ============
 function renderValueGrowthTable() {
     const tbody = document.getElementById('value-growth-table');
@@ -158,7 +247,7 @@ function renderValueGrowthTable() {
             <td>${stock.YOYEquity.toFixed(2)}%</td>
 
             <td>${stock.YOYLiability.toFixed(2)}%</td>
-            
+
 
             <td class="${stock.change_3d >= 0 ? 'positive' : 'negative'}">
                 ${stock.change_3d >= 0 ? '+' : ''}${stock.change_3d.toFixed(2)}%
@@ -178,6 +267,12 @@ function renderValueGrowthTable() {
                 ${stock.change_240d >= 0 ? '+' : ''}${stock.change_240d.toFixed(2)}%
             </td>
         `;
+
+        // 点击行 → 打开K线弹窗
+        row.addEventListener('click', () => {
+            openKlineModal(stock);
+        });
+
         tbody.appendChild(row);
     });
     // 重新计算表格容器的滚动宽度（确保横向滚动生效）
@@ -246,5 +341,6 @@ export const ValueGrowthManager = {
     init: initValueGrowthManager,
     setIndustries,
     setStocks: setValueGrowthStocks,
-    getState: getValueGrowthState
+    getState: getValueGrowthState,
+    setManager: setAppManager
 };
