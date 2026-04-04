@@ -1,0 +1,542 @@
+/* ============================================================ */
+/* 回测结果页 - 完整样式 */
+/* ============================================================ */
+
+/* ===== 回测结果入口按钮 ===== */
+.btn-view-backtest-result {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: pulse-glow 2s infinite;
+}
+
+.btn-view-backtest-result:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(79, 172, 254, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(79, 172, 254, 0.6); }
+}
+
+/* ===== 回测子视图切换 ===== */
+.backtest-sub-view {
+    display: none;
+    width: 100%;
+}
+
+.backtest-sub-view.active {
+    display: block;
+}
+
+/* ===== 回测结果 Wrapper ===== */
+.bt-result-wrapper {
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ===== 顶部工具栏 ===== */
+.bt-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(20, 25, 35, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.bt-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bt-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bt-back-btn {
+    background: rgba(79, 172, 254, 0.15);
+    color: #4facfe;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.bt-back-btn:hover {
+    background: rgba(79, 172, 254, 0.25);
+}
+
+/* 仓位选择器 */
+.bt-division-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bt-division-selector label {
+    color: #8b95aa;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.bt-division-select {
+    background: rgba(11, 14, 20, 0.9);
+    color: #e6eaf2;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: 140px;
+    cursor: pointer;
+}
+
+.bt-division-select:focus {
+    outline: none;
+    border-color: #4facfe;
+}
+
+/* ===== 统计指标网格 ===== */
+.bt-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.bt-stat-card {
+    background: rgba(20, 25, 35, 0.8);
+    border: 1px solid rgba(79, 172, 254, 0.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.bt-stat-card:hover {
+    border-color: rgba(79, 172, 254, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bt-stat-label {
+    font-size: 12px;
+    color: #8b95aa;
+    margin-bottom: 6px;
+}
+
+.bt-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e6eaf2;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.bt-stat-value.positive {
+    color: #ff4757;
+}
+
+.bt-stat-value.negative {
+    color: #2ed573;
+}
+
+.bt-stat-value.neutral {
+    color: #4facfe;
+}
+
+/* ===== 收益率图表区域 ===== */
+.bt-chart-section {
+    background: rgba(20, 25, 35, 0.8);
+    border: 1px solid rgba(79, 172, 254, 0.15);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.bt-chart-title {
+    font-size: 15px;
+    color: #e6eaf2;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bt-chart-container {
+    width: 100%;
+    height: 450px;
+    position: relative;
+}
+
+/* ===== 成交列表区域 ===== */
+.bt-trades-section {
+    background: rgba(20, 25, 35, 0.8);
+    border: 1px solid rgba(79, 172, 254, 0.15);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.bt-trades-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bt-trades-title {
+    font-size: 15px;
+    color: #e6eaf2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bt-trades-count {
+    font-size: 12px;
+    color: #8b95aa;
+    background: rgba(79, 172, 254, 0.1);
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+.bt-trades-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bt-trades-search {
+    background: rgba(11, 14, 20, 0.9);
+    color: #e6eaf2;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    width: 160px;
+}
+
+.bt-trades-search:focus {
+    outline: none;
+    border-color: #4facfe;
+}
+
+/* 成交表格 */
+.bt-trades-table-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 6px;
+    border: 1px solid rgba(79, 172, 254, 0.1);
+}
+
+.bt-trades-table-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.bt-trades-table-container::-webkit-scrollbar-track {
+    background: rgba(11, 14, 20, 0.5);
+}
+
+.bt-trades-table-container::-webkit-scrollbar-thumb {
+    background: rgba(79, 172, 254, 0.3);
+    border-radius: 3px;
+}
+
+.bt-trades-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.bt-trades-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.bt-trades-table thead th {
+    background: rgba(30, 37, 50, 0.95);
+    color: #8b95aa;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(79, 172, 254, 0.2);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color 0.2s;
+}
+
+.bt-trades-table thead th:hover {
+    color: #4facfe;
+}
+
+.bt-trades-table thead th.sort-asc::after {
+    content: ' ▲';
+    color: #4facfe;
+    font-size: 10px;
+}
+
+.bt-trades-table thead th.sort-desc::after {
+    content: ' ▼';
+    color: #4facfe;
+    font-size: 10px;
+}
+
+.bt-trades-table tbody tr {
+    border-bottom: 1px solid rgba(79, 172, 254, 0.05);
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.bt-trades-table tbody tr:hover {
+    background: rgba(79, 172, 254, 0.08);
+}
+
+.bt-trades-table tbody td {
+    padding: 9px 8px;
+    text-align: center;
+    color: #c8cdd5;
+    white-space: nowrap;
+}
+
+.bt-trades-table .td-profit-pos {
+    color: #ff4757;
+    font-weight: 600;
+}
+
+.bt-trades-table .td-profit-neg {
+    color: #2ed573;
+    font-weight: 600;
+}
+
+.bt-trades-table .td-code {
+    color: #4facfe;
+    font-weight: 600;
+}
+
+.bt-trades-table .td-view-btn {
+    background: rgba(79, 172, 254, 0.15);
+    color: #4facfe;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s;
+}
+
+.bt-trades-table .td-view-btn:hover {
+    background: rgba(79, 172, 254, 0.3);
+}
+
+/* ===== K线详情弹窗 ===== */
+.bt-kline-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+}
+
+.bt-kline-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bt-kline-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.bt-kline-container {
+    position: relative;
+    width: 90%;
+    max-width: 1100px;
+    height: 80vh;
+    max-height: 700px;
+    background: rgba(15, 18, 25, 0.98);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.bt-kline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(79, 172, 254, 0.15);
+    background: rgba(20, 25, 35, 0.9);
+}
+
+.bt-kline-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: #e6eaf2;
+}
+
+.bt-kline-title .code {
+    color: #4facfe;
+    font-weight: 700;
+}
+
+.bt-kline-title .name {
+    color: #c8cdd5;
+}
+
+.bt-kline-trade-info {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+}
+
+.bt-kline-trade-info .info-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bt-kline-trade-info .info-label {
+    color: #8b95aa;
+}
+
+.bt-kline-trade-info .info-value {
+    color: #e6eaf2;
+    font-weight: 600;
+}
+
+.bt-kline-trade-info .info-value.profit-pos {
+    color: #ff4757;
+}
+
+.bt-kline-trade-info .info-value.profit-neg {
+    color: #2ed573;
+}
+
+.bt-kline-close {
+    background: none;
+    border: none;
+    color: #8b95aa;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.bt-kline-close:hover {
+    color: #ff4757;
+}
+
+.bt-kline-body {
+    flex: 1;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.bt-kline-chart-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== 加载状态 ===== */
+.bt-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8b95aa;
+    font-size: 13px;
+}
+
+.bt-loading .spinner-sm {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(79, 172, 254, 0.3);
+    border-top: 2px solid #4facfe;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== 空状态 ===== */
+.bt-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #8b95aa;
+}
+
+.bt-empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.bt-empty-state .empty-text {
+    font-size: 14px;
+}
+
+/* ===== 导出按钮 ===== */
+.bt-export-btn {
+    background: rgba(46, 213, 115, 0.15);
+    color: #2ed573;
+    border: 1px solid rgba(46, 213, 115, 0.3);
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.bt-export-btn:hover {
+    background: rgba(46, 213, 115, 0.25);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .bt-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bt-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .bt-kline-container {
+        width: 98%;
+        height: 90vh;
+    }
+}

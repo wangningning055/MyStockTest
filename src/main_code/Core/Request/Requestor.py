@@ -326,6 +326,7 @@ class RequestorClass:
         self.isInRequester = False
         self.main.Init()
         self.main.SetIsInHandle(False)
+        print("数据拉取完毕")
         self.main.websocketHandler.SendLastUpdateTime()
 
     #async def RequestTest(self):

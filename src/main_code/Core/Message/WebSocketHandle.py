@@ -191,9 +191,9 @@ def HandleMsg(msg):
 
 
     #需要修改成行业轮动分析
-    elif(msgType == MessageType.CS_INDUSTRY_UP_DATA):
-        print("进行行业分析")
-        mainProcessor.calculationDataHandle.AnalyzeIndustry()
+    #elif(msgType == MessageType.CS_INDUSTRY_UP_DATA):
+    #    print("进行行业分析")
+    #    mainProcessor.calculationDataHandle.AnalyzeIndustry()
         
 
 
