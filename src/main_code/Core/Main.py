@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 import pandas as pd
 import traceback
 import time
@@ -119,6 +120,9 @@ class processor:
             return
         self.websocketHandler.SendMessage_A(ws.MessageType.SC_IN_PROGRESS, progress)
 
+    def SendIndustryRotationRes(self):
+        self.websocketHandler.SendMessage_A(ws.MessageType.SC_INDUSTRY_ROTATION, self.recordDataCls.industry_Increase_Month_Dic)
+
     def planeFunc(self):
         self.RequestData()
 
@@ -209,3 +213,8 @@ class processor:
             print("任务异常:", e)
             full_trace = traceback.format_exc()
             print("任务异常:", full_trace)
+
+
+
+
+

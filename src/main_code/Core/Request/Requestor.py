@@ -324,6 +324,7 @@ class RequestorClass:
             await self.OnMsgRequestAllData()
 
         self.isInRequester = False
+        self.main.recordHandler.WriteRecordData()
         self.main.Init()
         self.main.SetIsInHandle(False)
         print("数据拉取完毕")

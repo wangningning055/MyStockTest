@@ -24,13 +24,14 @@ class BaseClass:
         classBase2 = RecordDataStruct.TotalRecordDataCls()
         classBase2.__dict__.update(data)
         self.recordCls = classBase2
+        self.main.recordDataCls = self.recordCls
         return classBase2
 
 
 
     #写入记录数据
     def WriteRecordData(self):
-        print("写入记录数据")
+        print(f"写入记录数据， 日线日期是：{self.recordCls.daily_list_last_data}")
         jsonStr = json.dumps(self.main.recordDataCls.__dict__, ensure_ascii=False, indent=4)
         self.main.fileProcessor.SaveRecordJson(jsonStr)
 

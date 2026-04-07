@@ -383,7 +383,7 @@ export const StockQueryManager = {
                     <h4 class="sq-section-title">📊 基本信息</h4>
                     <div class="sq-detail-grid-2">
                         <div class="sq-detail-item">
-                            <span class="sq-label">流通市值</span>
+                            <span class="sq-label">流通市值(亿)</span>
                             <span class="sq-value">${stock.market_cap || '-'}</span>
                         </div>
                         <div class="sq-detail-item">
@@ -460,15 +460,73 @@ export const StockQueryManager = {
             { days: 40, key: 'change_40d' },
             { days: 60, key: 'change_60d' },
             { days: 120, key: 'change_120d' },
-            { days: 240, key: 'change_240d' }
+            { days: 240, key: 'change_240d' },
+
+
+
+
+    //Roe = 3            #roe：      有
+    //YOYNi = 4            #       有
+    //LiabilityTo = 5            #             有
+    //YOYEquity = 6            #       有
+    //YOYLiability = 7            #       有
+            { days: 500, key: 'earn' },
+            { days: 501, key: 'clean' },
+            { days: 502, key: 'sale' },
+            { days: 503, key: 'cash' },
+
+            { days: 504, key: 'Roe' },
+            { days: 505, key: 'YOYNi' },
+            { days: 506, key: 'LiabilityTo' },
+            { days: 507, key: 'YOYEquity' },
+            { days: 508, key: 'YOYLiability' },
+
+
+            
         ];
 
         return changes.map(({ days, key }) => {
             const value = stock[key] || 0;
             const color = value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+            let target = ""
+            if (days > 300)
+            {
+                if(days == 500)
+                    target = "市盈率"
+
+                if(days == 501)
+                    target = "市净率"
+
+                if(days == 502)
+                    target = "市销率"
+
+                if(days == 503)
+                    target = "市现率"
+
+                if(days == 504)
+                    target = "净资产收益率"
+
+                if(days == 505)
+                    target = "净利润同比增长率"
+
+                if(days == 506)
+                    target = "资产负债率"
+
+                if(days == 507)
+                    target = "净资产同比增长率"
+
+                if(days == 508)
+                    target = "负债同比增长率"
+            }
+            else
+            {
+                target = days + "日涨跌幅"
+            }
+
+    
             return `
                 <div class="sq-detail-item">
-                    <span class="sq-label">${days}日</span>
+                    <span class="sq-label">${target}</span>
                     <span class="sq-value ${color}">
                         ${value > 0 ? '+' : ''}${value.toFixed(2)}%
                     </span>
@@ -522,7 +580,7 @@ export const StockQueryManager = {
                 { label: "股票代码", value: stock.code || '-', type: "text" },
                 { label: "股票名称", value: stock.name || '-', type: "text" },
                 { label: "公司性质", value: stock.company_type || '-', type: "text" },
-                { label: "流通市值", value: stock.market_cap || 0, type: "market_cap" },
+                { label: "流通市值(亿)", value: stock.market_cap || 0, type: "market_cap" },
             ]
         });
 

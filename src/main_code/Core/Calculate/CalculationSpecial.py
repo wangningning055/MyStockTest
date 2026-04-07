@@ -1629,7 +1629,7 @@ async def Private_CalculateIndustryInfo(main:"Main.processor", dayStr, Length, t
     vms_memory = mem_info.vms / (1024 * 1024)  # 虚拟内存大小
     #print(f"物理内存占用1：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
 
-    handler.InitAllBaseDataClsList(totalDateList, totalDbList)
+    await handler.InitAllBaseDataClsList(totalDateList, totalDbList)
     handler.isPreheating = True
     
     mem_info = process.memory_info()
@@ -1677,10 +1677,14 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
         curYear = curYear - 1
         yearList.append(curYear)
 
+    count = 0
+    totalCount = len(yearList) * 12
     for singleYear in yearList:
         month = 1
         while month <= 12:
-
+            count += 1
+            main.SendProgress(count / totalCount)
+            await asyncio.sleep(0)
             # 1. 先构造当月1号的日期对象
             current_date = datetime.date(singleYear, month, 1)
             # 2. 计算下个月1号：如果是12月，会自动进位到下一年1月
@@ -1700,7 +1704,6 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
         
 
 
-    print("行业总结完毕")
 
     main.recordDataCls.industry_Increase_Dic = {}
     recordNum = 5
@@ -1735,11 +1738,53 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
                             if not resDic[month].__contains__(catchKey[0]):
                                 resDic[month].append(catchKey[0])
             month = month + 1
-    main.recordDataCls.industry_Increase_Dic = resDic
+
+
+    #"银行": {"1": 4, "2": 3, "3": 2, "4": 5, "5": 1, "6": 0, "7": 2, "8": 3, "9": 4, "10": 5, "11": 2, "12": 3, "avgChange": 2.18},
+
+
+
+    resMonthUpDic = {}
+    for key, value in tempDic.items():
+        industry = key[0]
+        month = str(key[1])
+        count = value
+        target = resMonthUpDic.get(industry)
+        if target == None:
+            resMonthUpDic[industry] = {}
+        monthTarget = resMonthUpDic[industry].get(month)
+        if monthTarget == None:
+            resMonthUpDic[industry][month] = count
+
+    for key, value in resMonthUpDic.items():
+        industry = key
+        monthDic = value
+        monthCounter = 1
+        avgChange = 0
+        avgAdd = 0
+        while monthCounter <= 12:
+            monthCount = monthDic.get(str(monthCounter))
+            if monthCount == None:
+                monthDic[str(monthCounter)] = 0
+            
+            avgChange += monthDic[str(monthCounter)]
+            avgAdd += 1
+
+            monthCounter = monthCounter + 1
+
+        monthDic["avgChange"] = round(avgChange / avgAdd, 2)
+
+    main.recordDataCls.industry_Increase_Month_Dic = resMonthUpDic
+
+
+
+
     now = datetime.datetime.now()
     todayStr = now.strftime("%Y%m%d")
     main.recordDataCls.industry_analyze_last_data = todayStr
     main.recordHandler.WriteRecordData()
+    main.SendIndustryRotationRes()
     main.SetIsInHandle(False)
     main.websocketHandler.SendLastUpdateTime()
+    print("行业总结完毕")
 

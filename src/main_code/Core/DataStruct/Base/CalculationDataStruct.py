@@ -76,8 +76,8 @@ class StructBaseClass :
         self.low = low_price * adjust
 
 
-        if self.code == "300502.SZ" and (cur_date == "20250324" or date == "20250324"):
-            print(f"计算一年前的新医生：{close_price}，  {adjust} ,  {self.close} ,  {cur_date}  {date}")
+        #if self.code == "300502.SZ" and (cur_date == "20250324" or date == "20250324"):
+        #    print(f"计算一年前的新医生：{close_price}，  {adjust} ,  {self.close} ,  {cur_date}  {date}")
 
 
 

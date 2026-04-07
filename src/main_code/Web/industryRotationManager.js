@@ -309,7 +309,6 @@ export const IndustryRotationManager = {
             row.innerHTML = `
                 <td class="col-industry">${industry}</td>
                 ${monthCells}
-                <td class="col-avg-change">${avgMonthChange.toFixed(2)}%</td>
             `;
             
             tbody.appendChild(row);

@@ -970,10 +970,10 @@ class BaseClass :
 
                 # 财务估值指标
                 data.Roe = cls.componyInfo.Roe  # ROE
-                data.earn = cls.componyInfo.Earn   # 市盈率
-                data.clean = cls.componyInfo.Clean  # 市净率
-                data.sale = cls.componyInfo.Sale   # 市销率
-                data.cash = cls.componyInfo.Cash   # 市现率
+                data.earn = cls.earn   # 市盈率
+                data.clean = cls.clean  # 市净率
+                data.sale = cls.sale   # 市销率
+                data.cash = cls.cash   # 市现率
 
                 # 增长与负债
                 data.YOYNi = cls.componyInfo.YOYNi          # 净利润同比增长率
@@ -1079,7 +1079,7 @@ class BaseClass :
         date_format = "%Y%m%d"
         curDate = datetime.strptime(nowStr, date_format)
         count = 1
-        while count < 20:
+        while count < 50:
             days_next = curDate + timedelta(days=count)
             days_next_str = days_next.strftime(date_format)
             random_items = random.sample(self.totalStockList, k=200)

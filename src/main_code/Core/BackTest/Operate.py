@@ -1,4 +1,5 @@
 import src.main_code.Core.BackTest.StockSingle as StockSingle
+import src.main_code.Core.BackTest.BackTestMsgDataStruct as BackTestMsgDataStruct
 
 # 1. 先导入TYPE_CHECKING常量
 from typing import TYPE_CHECKING
@@ -11,10 +12,14 @@ class BaseClass:
     date : str                  #操作日期
     partStock : "StockPart.BaseClass"           #操作的分仓
     stockCode : str             #操作的股票代码
+    stockName : str             #操作的股票名称
     operate : int               #操作类型  buy = 0   sell = 1
     isSuccess : bool            #操作是否成功
     failReason : str                  #失败原因
     successReason : str                  #成功卖出原因
+
+    curPartStockValue : str     #操作时所属分仓现价
+    curTotalStockValue : str     #操作时所属总仓现价
 
     #买入
     buy_price:float             #买入操作的买入价
@@ -26,11 +31,17 @@ class BaseClass:
     sell_date:str              #卖出操作的卖出日期
     sell_price_end:float            #卖出操作的卖出价
 
+    kline_data : BackTestMsgDataStruct.KlineData
+
+
     def __init__(self):
         self.successReason = ""
         self.failReason = ""
         self.buy_date = ""
         self.sell_date = ""
+        self.curPartStockValue = -123456789
+        self.curTotalStockValue = -123456789
+
         pass
 
     def Log(self):
@@ -58,6 +69,5 @@ class BaseClass:
                 if self.operate == "sell":
                     print(f"在 {self.date} 卖出 {name} 失败，操作的分仓是：{self.partStock.name}, 失败原因是：{self.failReason}")
                     pass
-            self.partStock.totalStock.Log()
             print("")
             

@@ -202,6 +202,7 @@ function buildParamsFromVGStock(stock) {
             { label: "20日涨跌幅", value: stock.change_20d || 0, type: "percent" },
             { label: "120日涨跌幅", value: stock.change_120d || 0, type: "percent" },
             { label: "240日涨跌幅", value: stock.change_240d || 0, type: "percent" },
+
         ]
     });
 

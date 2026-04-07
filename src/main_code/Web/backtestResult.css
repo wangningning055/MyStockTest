@@ -540,3 +540,20 @@
         height: 90vh;
     }
 }
+
+#backtest-config-view.active {
+  display: flex !important;
+  width: 100%;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+#backtest-config-view .sidebar {
+  width: 360px;
+  flex-shrink: 0;
+}
+
+#backtest-config-view .main-content {
+  flex: 1;
+  min-width: 0;
+}

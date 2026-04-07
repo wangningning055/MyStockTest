@@ -373,7 +373,7 @@
 }
 
 .sq-section-title {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--accent);
     margin-bottom: 12px;
@@ -402,7 +402,7 @@
 }
 
 .sq-label {
-    font-size: 11px;
+    font-size: 20px;
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -410,18 +410,18 @@
 }
 
 .sq-value {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--accent);
     font-family: 'Courier New', monospace;
 }
 
 .sq-value.positive {
-    color: var(--success);
+    color: rgb(199, 3, 3);
 }
 
 .sq-value.negative {
-    color: var(--danger);
+    color: rgb(0, 158, 47);
 }
 
 .sq-value.neutral {
@@ -430,7 +430,7 @@
 
 .sq-detail-text {
     line-height: 1.8;
-    font-size: 13px;
+    font-size: 20px;
     color: var(--text-main);
     word-break: break-word;
     white-space: pre-wrap;

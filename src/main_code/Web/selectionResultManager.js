@@ -454,9 +454,13 @@ export const SelectionResultManager = {
         }
 
         const dates = klineData.map(d => d.date);
-        const ohlc = klineData.map(d => [d.open, d.close, d.low, d.high]);
+        //const ohlc = klineData.map(d => [d.open, d.close, d.low, d.high]);
+        const ohlc = klineData.map(d => ({
+            value: [d.open, d.close, d.low, d.high,d.volume],
+            ...d   // 👈 保留所有字段
+        }));
         const volumes = klineData.map(d => d.volume || 0);
-
+        const turn = klineData.map(d => d.turn || 0);
         // 计算MA
         const ma5 = this.calcMA(klineData.map(d => d.close), 5);
         const ma10 = this.calcMA(klineData.map(d => d.close), 10);
@@ -466,16 +470,45 @@ export const SelectionResultManager = {
         const option = {
             backgroundColor: 'transparent',
             title: { show: false },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'cross' },
-                backgroundColor: 'rgba(0,0,0,0.85)',
-                borderColor: '#4facfe',
-                textStyle: { fontSize: 12 }
+                tooltip: {
+                    xAxisIndex: 0,
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' },
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    borderColor: '#4facfe',
+                    textStyle: { fontSize: 12 },
+                    formatter: (params) => {
+                        const isMain = params.some(p => p.seriesType === 'candlestick');
+                        const data = params[0].data;
+                        const color = data.change_Ratio >= 0 ? '#ec0000' : '#00da3c';
+                        console.log("》》》》》》》》》》》》》》》》")
+                        console.log(data)
+
+                        if (!isMain) {
+                            return `
+                            成交量（万手）：${data.value}<br/>
+                        `;
+                        }
+
+
+
+                        return `
+                            日期：${data.date}<br/>
+                            涨跌：<span style="color:${color}">
+                                ${(data.change_Ratio ?? 0).toFixed(2)}%
+                            </span><br/>
+                            换手：${data.turn}%<br/>
+                            开：${data.open}<br/>
+                            收：${data.close}<br/>
+                            高：${data.high}<br/>
+                            低：${data.low}<br/>
+
+                        `;
+                },
             },
             legend: {
                 data: ['K线', 'MA5', 'MA10', 'MA20', 'MA60'],
-                textStyle: { color: '#999', fontSize: 11 },
+                textStyle: { color: '#e2e2e2', fontSize: 11 },
                 top: 5,
                 right: 10
             },
@@ -497,7 +530,7 @@ export const SelectionResultManager = {
                     data: dates,
                     gridIndex: 1,
                     axisLine: { lineStyle: { color: '#444' } },
-                    axisLabel: { fontSize: 10, color: '#888', interval: 'auto' },
+                    axisLabel: { fontSize: 10, color: '#c0bfbf', interval: 'auto' },
                     splitLine: { show: false }
                 }
             ],
@@ -506,7 +539,7 @@ export const SelectionResultManager = {
                     type: 'value',
                     gridIndex: 0,
                     axisLine: { lineStyle: { color: '#444' } },
-                    axisLabel: { fontSize: 10, color: '#888' },
+                    axisLabel: { fontSize: 10, color: '#c7c7c7' },
                     splitLine: { lineStyle: { color: '#222' } },
                     scale: true
                 },
@@ -517,6 +550,8 @@ export const SelectionResultManager = {
                     axisLabel: { show: false },
                     splitLine: { show: false }
                 }
+
+
             ],
             dataZoom: [
                 {
@@ -532,7 +567,7 @@ export const SelectionResultManager = {
                     end: 100,
                     top: '95%',
                     height: 15,
-                    textStyle: { color: '#999' }
+                    textStyle: { color: '#cfcfcf' }
                 }
             ],
             series: [
@@ -554,7 +589,7 @@ export const SelectionResultManager = {
                 this.maLine('MA20', ma20, '#f093fb'),
                 this.maLine('MA60', ma60, '#2ed573'),
                 {
-                    name: '成交量',
+                    name: '成交量（万手）',
                     type: 'bar',
                     data: volumes.map((v, i) => ({
                         value: v,
@@ -567,6 +602,7 @@ export const SelectionResultManager = {
                     xAxisIndex: 1,
                     yAxisIndex: 1
                 }
+
             ]
         };
 

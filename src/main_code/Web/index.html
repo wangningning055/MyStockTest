@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="static/industryRotation.css">
     <link rel="stylesheet" href="static/stockQuery.css">
     <link rel="stylesheet" href="static/selectionResult.css">
+    <link rel="stylesheet" href="static/backtestResult.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -134,189 +135,190 @@
     <div class="workspace">
 
 
-        <!-- ========== 选股页签（重构） ========== -->
-<div id="view-selection" class="view-container active">
+                <!-- ========== 选股页签（重构） ========== -->
+        <div id="view-selection" class="view-container active">
 
-    <!-- ===== 子视图1：配置视图（默认） ===== -->
-    <div id="selection-config-view" class="selection-sub-view active">
-        <aside class="sidebar" style="resize: horizontal; overflow: hidden;" id="resizable-sidebar">
-            <div class="panel-header">
-                <div class="tooltip-wrapper">
-                    <span>📝 买入条件配置</span>
-                    <div class="custom-tooltip">权重支持正负随意值，会进行归一化</div>
-                </div>
-                <div class="mini-tools">
-                    <button class="icon-btn" id="api-export-buy-config">💾</button>
-                    <button class="icon-btn" id="api-import-buy-config">📥</button>
-                </div>
-            </div>
-
-            <div class="config-list" id="buy-factor-container"></div>
-            <div class="panel-footer">
-                <button class="btn btn-primary" id="btn-add-buy-factor">
-                    <i class="fas fa-plus"></i> 添加买入因子组合
-                </button>
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <div class="filter-and-threshold-panel">
-                <div class="filter-section">
-                    <div class="section-title">🔍 股票筛选(日线信息没有北交所)</div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-st" checked> 剔除ST股
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-kc" checked> 剔除科创板
-                        </label>
-                    </div>
-                    <div class="filter-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
-                        </label>
-                    </div>
-                </div>
-
-                <div class="threshold-section">
-                    <div class="section-title">📊 权重阈值设置</div>
-                    <div class="threshold-slider-group">
-                        <div class="threshold-label-row">
-                            <span class="threshold-label">权重值</span>
-                            <span class="threshold-value-display" id="threshold-value-display">0.3</span>
+            <!-- ===== 子视图1：配置视图（默认） ===== -->
+            <div id="selection-config-view" class="selection-sub-view active">
+                <aside class="sidebar" style="resize: horizontal; overflow: hidden;" id="resizable-sidebar">
+                    <div class="panel-header">
+                        <div class="tooltip-wrapper">
+                            <span>📝 买入条件配置</span>
+                            <div class="custom-tooltip">权重支持正负随意值，会进行归一化</div>
                         </div>
-                        <input type="range" id="weight-threshold-slider"
-                            class="threshold-slider"
-                            min="-1" max="1" step="0.01" value="0.3">
-                        <div class="threshold-info">
-                            <small>拖动滑条设置权重阈值范围（-1~1）</small>
+                        <div class="mini-tools">
+                            <button class="icon-btn" id="api-export-buy-config">💾</button>
+                            <button class="icon-btn" id="api-import-buy-config">📥</button>
                         </div>
                     </div>
-                </div>
+
+                    <div class="config-list" id="buy-factor-container"></div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" id="btn-add-buy-factor">
+                            <i class="fas fa-plus"></i> 添加买入因子组合
+                        </button>
+                    </div>
+                </aside>
+
+                <main class="main-content">
+                    <div class="filter-and-threshold-panel">
+                        <div class="filter-section">
+                            <div class="section-title">🔍 股票筛选(日线信息没有北交所)</div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="filter-exclude-st" checked> 剔除ST股
+                                </label>
+                            </div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="filter-exclude-kc" checked> 剔除科创板
+                                </label>
+                            </div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="filter-exclude-cy" checked> 剔除创业板
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="threshold-section">
+                            <div class="section-title">📊 权重阈值设置</div>
+                            <div class="threshold-slider-group">
+                                <div class="threshold-label-row">
+                                    <span class="threshold-label">权重值</span>
+                                    <span class="threshold-value-display" id="threshold-value-display">0.3</span>
+                                </div>
+                                <input type="range" id="weight-threshold-slider"
+                                    class="threshold-slider"
+                                    min="-1" max="1" step="0.01" value="0.3">
+                                <div class="threshold-info">
+                                    <small>拖动滑条设置权重阈值范围（-1~1）</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 执行按钮区 -->
+                    <div class="selection-action-area">
+                        <button class="btn btn-primary btn-sm" id="api-run-selection">🚀 执行筛选</button>
+                        <div id="selection-loading" class="selection-loading" style="display:none;">
+                            <span class="spinner-sm"></span>
+                            <span>正在筛选中...</span>
+                        </div>
+                        <!-- 收到结果后显示 -->
+                        <button class="btn btn-accent btn-sm" id="btn-view-selection-result"
+                            style="display:none;">
+                            📊 查看结果 (<span id="selection-result-count">0</span> 只)
+                        </button>
+                    </div>
+                </main>
             </div>
 
-            <!-- 执行按钮区 -->
-            <div class="selection-action-area">
-                <button class="btn btn-primary btn-sm" id="api-run-selection">🚀 执行筛选</button>
-                <div id="selection-loading" class="selection-loading" style="display:none;">
-                    <span class="spinner-sm"></span>
-                    <span>正在筛选中...</span>
-                </div>
-                <!-- 收到结果后显示 -->
-                <button class="btn btn-accent btn-sm" id="btn-view-selection-result"
-                    style="display:none;">
-                    📊 查看结果 (<span id="selection-result-count">0</span> 只)
-                </button>
-            </div>
-        </main>
-    </div>
+            <!-- ===== 子视图2：结果列表视图 ===== -->
+            <div id="selection-result-view" class="selection-sub-view">
+                <div class="sr-wrapper">
+                    <!-- 顶部工具栏 -->
+                    <div class="sr-toolbar">
+                        <button class="btn btn-outline btn-sm" id="btn-back-to-config">
+                            ← 返回配置
+                        </button>
+                        <div class="sr-info">
+                            🎯 筛选结果：<span id="sr-total-count">0</span> 只股票
+                        </div>
+                        <div class="sr-search">
+                            <input type="text" id="sr-filter-input" class="sr-input"
+                                placeholder="搜索代码/名称/行业...">
+                        </div>
+                    </div>
 
-    <!-- ===== 子视图2：结果列表视图 ===== -->
-    <div id="selection-result-view" class="selection-sub-view">
-        <div class="sr-wrapper">
-            <!-- 顶部工具栏 -->
-            <div class="sr-toolbar">
-                <button class="btn btn-outline btn-sm" id="btn-back-to-config">
-                    ← 返回配置
-                </button>
-                <div class="sr-info">
-                    🎯 筛选结果：<span id="sr-total-count">0</span> 只股票
-                </div>
-                <div class="sr-search">
-                    <input type="text" id="sr-filter-input" class="sr-input"
-                        placeholder="搜索代码/名称/行业...">
-                </div>
-            </div>
+                    <!-- 排序按钮组 -->
+                    <div class="sr-sort-bar">
+                        <span class="sr-sort-label">排序：</span>
+                        <button class="sr-sort-btn active" data-sort="score">得分</button>
+                        <button class="sr-sort-btn" data-sort="market_cap">流通市值(亿)</button>
+                        <button class="sr-sort-btn" data-sort="change_3d">3日</button>
+                        <button class="sr-sort-btn" data-sort="change_5d">5日</button>
+                        <button class="sr-sort-btn" data-sort="change_10d">10日</button>
+                        <button class="sr-sort-btn" data-sort="change_20d">20日</button>
+                        <button class="sr-sort-btn" data-sort="change_40d">40日</button>
+                        <button class="sr-sort-btn" data-sort="change_60d">60日</button>
+                        <button class="sr-sort-btn" data-sort="change_120d">120日</button>
+                        <button class="sr-sort-btn" data-sort="change_240d">240日</button>
+                    </div>
 
-            <!-- 排序按钮组 -->
-            <div class="sr-sort-bar">
-                <span class="sr-sort-label">排序：</span>
-                <button class="sr-sort-btn active" data-sort="score">得分</button>
-                <button class="sr-sort-btn" data-sort="market_cap">流通市值</button>
-                <button class="sr-sort-btn" data-sort="change_3d">3日</button>
-                <button class="sr-sort-btn" data-sort="change_5d">5日</button>
-                <button class="sr-sort-btn" data-sort="change_10d">10日</button>
-                <button class="sr-sort-btn" data-sort="change_20d">20日</button>
-                <button class="sr-sort-btn" data-sort="change_40d">40日</button>
-                <button class="sr-sort-btn" data-sort="change_60d">60日</button>
-                <button class="sr-sort-btn" data-sort="change_120d">120日</button>
-                <button class="sr-sort-btn" data-sort="change_240d">240日</button>
-            </div>
-
-            <!-- 结果表格（支持纵向滚动） -->
-            <div class="sr-table-scroll-container">
-                <table class="sr-table">
-                    <thead>
-                        <tr>
-                            <th class="sr-th-fixed">#</th>
-                            <th class="sr-th-fixed">代码</th>
-                            <th class="sr-th-fixed">名称</th>
-                            <th>得分</th>
-                            <th>行业</th>
-                            <th>流通市值</th>
-                            <th>3日%</th>
-                            <th>5日%</th>
-                            <th>10日%</th>
-                            <th>20日%</th>
-                            <th>40日%</th>
-                            <th>60日%</th>
-                            <th>120日%</th>
-                            <th>240日%</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sr-table-body">
-                        <tr>
-                            <td colspan="14" class="sr-empty">暂无数据</td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <!-- 结果表格（支持纵向滚动） -->
+                    <div class="sr-table-scroll-container">
+                        <table class="sr-table">
+                            <thead>
+                                <tr>
+                                    <th class="sr-th-fixed">#</th>
+                                    <th class="sr-th-fixed">代码</th>
+                                    <th class="sr-th-fixed">名称</th>
+                                    <th>得分</th>
+                                    <th>行业</th>
+                                    <th>流通市值(亿)</th>
+                                    <th>3日%</th>
+                                    <th>5日%</th>
+                                    <th>10日%</th>
+                                    <th>20日%</th>
+                                    <th>40日%</th>
+                                    <th>60日%</th>
+                                    <th>120日%</th>
+                                    <th>240日%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sr-table-body">
+                                <tr>
+                                    <td colspan="14" class="sr-empty">暂无数据</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- ========== 个股详情弹窗 ========== -->
-<div id="stock-detail-modal" class="stock-detail-modal">
-    <div class="sdm-overlay" id="sdm-overlay"></div>
-    <div class="sdm-container">
-        <!-- 头部 -->
-        <div class="sdm-header">
-            <div class="sdm-title">
-                <span class="sdm-stock-code" id="sdm-stock-code">--</span>
-                <span class="sdm-stock-name" id="sdm-stock-name">--</span>
-                <span class="sdm-stock-industry" id="sdm-stock-industry">--</span>
+        <!-- ========== 个股详情弹窗 ========== -->
+        <div id="stock-detail-modal" class="stock-detail-modal">
+            <div class="sdm-overlay" id="sdm-overlay"></div>
+            <div class="sdm-container">
+                <!-- 头部 -->
+                <div class="sdm-header">
+                    <div class="sdm-title">
+                        <span class="sdm-stock-code" id="sdm-stock-code">--</span>
+                        <span class="sdm-stock-name" id="sdm-stock-name">--</span>
+                        <span class="sdm-stock-industry" id="sdm-stock-industry">--</span>
+                    </div>
+                    <button class="sdm-close" id="sdm-close">✕</button>
+                </div>
+
+                <!-- 内容区域：左右布局 -->
+                <div class="sdm-body">
+                    <!-- 左侧：K线图 -->
+                    <div class="sdm-chart-section">
+                        <div class="sdm-chart-title">📈 240日K线走势</div>
+                        <div id="sdm-kline-chart" class="sdm-kline-chart"></div>
+                        <div id="sdm-chart-loading" class="sdm-chart-loading" style="display:none;">
+                            <span class="spinner-sm"></span>
+                            <span>K线数据加载中... <span id="sdm-chart-progress">0</span>%</span>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：详细参数 -->
+                    <div class="sdm-params-section">
+                        <div class="sdm-params-title">📋 详细参数</div>
+                        <div class="sdm-params-search">
+                            <input type="text" id="sdm-param-filter" class="sdm-input"
+                                placeholder="搜索参数名...">
+                        </div>
+                        <div class="sdm-params-scroll" id="sdm-params-container">
+                            <!-- 参数分组动态渲染 -->
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button class="sdm-close" id="sdm-close">✕</button>
         </div>
 
-        <!-- 内容区域：左右布局 -->
-        <div class="sdm-body">
-            <!-- 左侧：K线图 -->
-            <div class="sdm-chart-section">
-                <div class="sdm-chart-title">📈 240日K线走势</div>
-                <div id="sdm-kline-chart" class="sdm-kline-chart"></div>
-                <div id="sdm-chart-loading" class="sdm-chart-loading" style="display:none;">
-                    <span class="spinner-sm"></span>
-                    <span>K线数据加载中... <span id="sdm-chart-progress">0</span>%</span>
-                </div>
-            </div>
-
-            <!-- 右侧：详细参数 -->
-            <div class="sdm-params-section">
-                <div class="sdm-params-title">📋 详细参数</div>
-                <div class="sdm-params-search">
-                    <input type="text" id="sdm-param-filter" class="sdm-input"
-                        placeholder="搜索参数名...">
-                </div>
-                <div class="sdm-params-scroll" id="sdm-params-container">
-                    <!-- 参数分组动态渲染 -->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
@@ -327,168 +329,249 @@
 
 
 
-
-
-
-
-
+        <!-- ========== 回测页签（重构） ========== -->
         <div id="view-holdings" class="view-container">
-            <!-- 侧边栏改为分仓管理 -->
-            <aside class="sidebar">
-                <div class="panel-header">
-                    <span>💼 分仓管理</span>
-                    <div class="mini-tools">
-                        <button class="icon-btn" id="holdings-export-all-config">💾 导出全部</button>
-                        <button class="icon-btn" id="holdings-import-all-config">📥 导入全部</button>
-                    </div>
-                </div>
 
-                <!-- 初始本金设置 -->
-                <div class="holdings-init-fund-section">
-                    <div class="form-item">
-                        <label>初始本金 (¥)</label>
-                        <input type="number" id="holdings-initial-fund" value="100000" min="1000" class="input-dark">
-                        <button class="btn btn-sm btn-success" id="btn-set-holdings-fund">设置</button>
-                    </div>
-                </div>
-
-                <!-- 分仓列表容器 -->
-                <div class="holdings-list" id="holdings-divisions-container">
-                    <!-- 分仓项会动态添加到这里 -->
-                </div>
-
-                <!-- 添加新分仓按钮 -->
-                <div class="panel-footer">
-                    <button class="btn btn-primary" id="btn-add-division">
-                        <i class="fas fa-plus"></i> 添加分仓
-                    </button>
-                </div>
-            </aside>
-
-            <main class="main-content">
-
-                <div class="chart-wrapper">
-                    <div class="chart-area">
-                        <div class="section-title">📈 收益曲线</div>
-                        <div id="selectionPortfolioChart" class="echarts-full-container"></div>
-                    </div>
-                </div>
-
-                <div class="filter-and-threshold-panel">
-                    <div class="filter-section">
-                        <div class="section-title">🔍 股票筛选</div>
-                        <div class="filter-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="holdings-filter-exclude-st" checked> 剔除ST股
-                            </label>
-                        </div>
-                        <div class="filter-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="holdings-filter-exclude-kc" checked> 剔除科创板
-                            </label>
-                        </div>
-                        <div class="filter-item">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="holdings-filter-exclude-cy" checked> 剔除创业板
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="backtest-date-range">
-                    <div class="form-item">
-                        <label>回测开始日期</label>
-                        <input type="date" id="backtest-start-date" class="input-dark"
-                            min="2021-01-04" value="2025-01-01">
-                    </div>
-                    <div class="form-item">
-                        <label>回测结束日期</label>
-                        <input type="date" id="backtest-end-date" class="input-dark"
-                            min="2021-01-04" value="">
-                    </div>
-                </div>
-
-                <button class="btn btn-primary btn-sm" id="api-run-backtest">开始回测</button>
-
-
-                <!-- 选项卡：总仓 / 分仓详情 -->
-                <div class="holdings-view-tabs">
-                    <button class="holdings-tab-btn active" data-view="total-view">📊 总仓收益</button>
-                    <button class="holdings-tab-btn" data-view="division-view">💰 分仓详情</button>
-                </div>
-
-                <!-- 总仓视图 -->
-                <div id="holdings-total-view" class="holdings-view-pane active">
-                    <div class="summary-grid">
-                        <div class="summary-card">
-                            <div class="label">累计收益</div>
-                            <div class="value highlight" id="holdings-total-profit">0.00%</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="label">总仓权益</div>
-                            <div class="value" id="holdings-total-equity">¥0.00</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="label">最大回撤</div>
-                            <div class="value down" id="holdings-total-max-drawdown">0.00%</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="label">胜率</div>
-                            <div class="value" id="holdings-total-win-rate">0%</div>
+            <!-- ===== 子视图1：配置视图（默认） ===== -->
+            <div id="backtest-config-view" class="backtest-sub-view active">
+                <aside class="sidebar">
+                    <div class="panel-header">
+                        <span>💼 分仓管理</span>
+                        <div class="mini-tools">
+                            <button class="icon-btn" id="holdings-export-all-config">💾 导出全部</button>
+                            <button class="icon-btn" id="holdings-import-all-config">📥 导入全部</button>
                         </div>
                     </div>
 
-                    <!-- 收益曲线图 -->
-                    <div class="chart-container">
-                        <div id="holdings-total-chart" style="width: 100%; height: 400px;"></div>
+                    <!-- 初始本金设置 -->
+                    <div class="holdings-init-fund-section">
+                        <div class="form-item">
+                            <label>初始本金 (¥)</label>
+                            <input type="number" id="holdings-initial-fund" value="100000" min="1000" class="input-dark">
+                            <button class="btn btn-sm btn-success" id="btn-set-holdings-fund">设置</button>
+                        </div>
                     </div>
 
-                    <!-- 总仓购买记录 -->
-                    <div class="table-area">
-                        <div class="section-title">📃 全部交易流水</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>日期</th><th>分仓</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th>
-                                </tr>
-                            </thead>
-                            <tbody id="holdings-total-log-table"></tbody>
-                        </table>
+                    <!-- 分仓列表容器 -->
+                    <div class="holdings-list" id="holdings-divisions-container">
+                    </div>
+
+                    <!-- 添加新分仓按钮 -->
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" id="btn-add-division">
+                            <i class="fas fa-plus"></i> 添加分仓
+                        </button>
+                    </div>
+                </aside>
+
+                <div class="main-content">
+                    <div class="filter-and-threshold-panel">
+                        <div class="filter-section">
+                            <div class="section-title">🔍 股票筛选</div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="holdings-filter-exclude-st" checked> 剔除ST股
+                                </label>
+                            </div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="holdings-filter-exclude-kc" checked> 剔除科创板
+                                </label>
+                            </div>
+                            <div class="filter-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="holdings-filter-exclude-cy" checked> 剔除创业板
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="backtest-date-range">
+                        <div class="form-item">
+                            <label>回测开始日期</label>
+                            <input type="date" id="backtest-start-date" class="input-dark"
+                                min="2021-01-04" value="2025-01-01">
+                        </div>
+                        <div class="form-item">
+                            <label>回测结束日期</label>
+                            <input type="date" id="backtest-end-date" class="input-dark"
+                                min="2021-01-04" value="">
+                        </div>
+                    </div>
+
+                    <!-- 执行按钮区 -->
+                    <div class="selection-action-area">
+                        <button class="btn btn-primary btn-sm" id="api-run-backtest">🚀 开始回测</button>
+                        <div id="backtest-loading" class="bt-loading" style="display:none;">
+                            <span class="spinner-sm"></span>
+                            <span>回测运行中...</span>
+                        </div>
+                        <!-- 回测完成后显示 -->
+                        <button class="btn btn-accent btn-sm btn-view-backtest-result" id="btn-view-backtest-result"
+                            style="display:none;">
+                            📊 查看回测结果 (<span id="backtest-trade-count">0</span> 笔交易)
+                        </button>
+
+
+                        <button class="btn btn-sm bt-export-btn" id="bt-export-trades-btn" style="display:none;">
+                            📥 导出结果CSV
+                        </button>
+                        <button class="btn btn-sm bt-export-btn" id="bt-import-trades-btn"
+                            style="background:rgba(79,172,254,0.15);color:#4facfe;border-color:rgba(79,172,254,0.3);">
+                            📤 导入结果CSV
+                        </button>
+
                     </div>
                 </div>
+            </div>
 
-                <!-- 分仓详情视图 -->
-                <div id="holdings-division-view" class="holdings-view-pane">
-                    <!-- 分仓选择器 -->
-                    <div class="division-selector">
-                        <label>选择分仓：</label>
-                        <select id="holdings-division-selector" class="input-dark"></select>
+            <!-- ===== 子视图2：回测结果视图 ===== -->
+            <div id="backtest-result-view" class="backtest-sub-view">
+                <div class="bt-result-wrapper">
+                    <!-- 顶部工具栏 -->
+                    <div class="bt-toolbar">
+                        <div class="bt-toolbar-left">
+                            <button class="bt-back-btn" id="bt-back-to-config">← 返回配置</button>
+                            <div class="bt-division-selector">
+                                <label>选择仓位：</label>
+                                <select class="bt-division-select" id="bt-result-division-select">
+                                    <option value="__total__">📊 总仓</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bt-toolbar-right">
+                        </div>
+
+                  
                     </div>
 
-                    <!-- 分仓配置面板 -->
-                    <div id="holdings-division-settings" class="division-settings-panel">
-                        <!-- 这里会动态加载分仓的配置 -->
+                    <!-- 统计指标网格 -->
+                    <div class="bt-stats-grid">
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">仓位名称</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-name">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">初始仓价</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-init-fund">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">当前仓价</div>
+                            <div class="bt-stat-value" id="bt-stat-final-fund">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">总收益率</div>
+                            <div class="bt-stat-value" id="bt-stat-total-return">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">胜率</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-win-rate">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">平均年化收益率</div>
+                            <div class="bt-stat-value" id="bt-stat-annual-return">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">年化波动率</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-annual-volatility">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">平均月化收益率</div>
+                            <div class="bt-stat-value" id="bt-stat-monthly-return">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">月化波动率</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-monthly-volatility">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">最大回撤</div>
+                            <div class="bt-stat-value negative" id="bt-stat-max-drawdown">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">夏普比率</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-sharpe">--</div>
+                        </div>
+                        <div class="bt-stat-card">
+                            <div class="bt-stat-label">成交笔数</div>
+                            <div class="bt-stat-value neutral" id="bt-stat-trade-count">--</div>
+                        </div>
                     </div>
 
-                    <!-- 分仓收益曲线 -->
-                    <div class="chart-container">
-                        <div id="holdings-division-chart" style="width: 100%; height: 400px;"></div>
+                    <!-- 收益率曲线 -->
+                    <div class="bt-chart-section">
+                        <div class="bt-chart-title">📈 收益率曲线（悬停查看每日详情）</div>
+                        <div class="bt-chart-container" id="bt-equity-chart"></div>
                     </div>
 
-                    <!-- 分仓购买记录 -->
-                    <div class="table-area">
-                        <div class="section-title">📃 分仓交易流水</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>日期</th><th>股票</th><th>动作</th><th>价格</th><th>收益</th><th>当前权益</th>
-                                </tr>
-                            </thead>
-                            <tbody id="holdings-division-log-table"></tbody>
-                        </table>
+                    <!-- 成交列表 -->
+                    <div class="bt-trades-section">
+                        <div class="bt-trades-header">
+                            <div class="bt-trades-title">
+                                📃 成交记录
+                                <span class="bt-trades-count" id="bt-trades-count-display">0 笔</span>
+                            </div>
+                            <div class="bt-trades-filter">
+                                <input type="text" class="bt-trades-search" id="bt-trades-search-input"
+                                    placeholder="搜索代码/名称...">
+                            </div>
+                        </div>
+                        <div class="bt-trades-table-container">
+                            <table class="bt-trades-table" id="bt-trades-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th data-sort="buy_date">买入日期</th>
+                                        <th data-sort="sell_date">卖出日期</th>
+                                        <th data-sort="hold_days">持仓天数</th>
+                                        <th data-sort="code">股票代码</th>
+                                        <th data-sort="name">股票名称</th>
+                                        <th data-sort="buy_price">买入价</th>
+                                        <th data-sort="sell_price">卖出价</th>
+                                        <th data-sort="profit_pct">盈利(%)</th>
+                                        <th data-sort="profit_money">盈利(元)</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bt-trades-tbody">
+                                    <tr><td colspan="11" style="text-align:center;color:#8b95aa;padding:30px;">暂无成交记录</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </main>
+            </div>
+        </div>
+
+        <!-- ========== K线详情弹窗 ========== -->
+        <div id="bt-kline-modal" class="bt-kline-modal">
+            <div class="bt-kline-overlay" id="bt-kline-overlay"></div>
+            <div class="bt-kline-container">
+                <div class="bt-kline-header">
+                    <div class="bt-kline-title">
+                        <span class="code" id="bt-kline-code">--</span>
+                        <span class="name" id="bt-kline-name">--</span>
+                    </div>
+                    <div class="bt-kline-trade-info">
+                        <div class="info-item">
+                            <span class="info-label">买入：</span>
+                            <span class="info-value" id="bt-kline-buy-info">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">卖出：</span>
+                            <span class="info-value" id="bt-kline-sell-info">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">盈亏：</span>
+                            <span class="info-value" id="bt-kline-profit-info">--</span>
+                        </div>
+                    </div>
+                    <button class="bt-kline-close" id="bt-kline-close-btn">✕</button>
+                </div>
+                <div class="bt-kline-body">
+                    <div class="bt-kline-chart-container" id="bt-kline-chart-container"></div>
+                </div>
+            </div>
         </div>
 
 
@@ -498,7 +581,17 @@
 
 
 
-        
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!-- 股票查询页签 -->
@@ -552,6 +645,7 @@
                             <button class="sq-sort-btn" data-sort-field="market_cap" title="按流通市值排序">
                                 💰 市值
                             </button>
+                            
                             <button class="sq-sort-btn" data-sort-field="change_3d" title="按3日涨幅排序">
                                 📊 3日
                             </button>
@@ -577,6 +671,38 @@
                                 📊 240日
                             </button>
 
+                            <button class="sq-sort-btn" data-sort-field="earn" title="按240日涨幅排序">
+                                市盈率
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="clean" title="按240日涨幅排序">
+                                市净率
+                            </button>
+
+                            <button class="sq-sort-btn" data-sort-field="sale" title="按240日涨幅排序">
+                                市销率
+                            </button>
+
+                            <button class="sq-sort-btn" data-sort-field="cash" title="按240日涨幅排序">
+                                市现率
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="Roe" title="按240日涨幅排序">
+                                净资产收益率
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="YOYNi" title="按240日涨幅排序">
+                                净利润同比增长率
+                            </button>
+
+                            <button class="sq-sort-btn" data-sort-field="LiabilityTo" title="按240日涨幅排序">
+                                资产负债率
+                            </button>
+
+                            <button class="sq-sort-btn" data-sort-field="YOYEquity" title="按240日涨幅排序">
+                                净资产同比增长率
+                            </button>
+                            <button class="sq-sort-btn" data-sort-field="YOYLiability" title="按240日涨幅排序">
+                                负债同比增长率
+                            </button>
+
                         </div>
                     </div>
 
@@ -586,7 +712,7 @@
                                 <tr>
                                     <th>代码</th>
                                     <th>名称</th>
-                                    <th>流通市值</th>
+                                    <th>流通市值(亿)</th>
                                     <th>3日%</th>
                                     <th>5日%</th>
                                     <th>10日%</th>
@@ -721,7 +847,6 @@
                                             <th class="col-month-10">10月</th>
                                             <th class="col-month-11">11月</th>
                                             <th class="col-month-12">12月</th>
-                                            <th class="col-avg-change sortable" data-sort="avgChange">平均当月涨跌幅 ▼</th>
                                         </tr>
                                     </thead>
                                     <tbody id="rotation-table-body">
@@ -949,16 +1074,9 @@
 
 <!-- 测试用例（开发环境使用，上线可删除） -->
 <script src="static/selectionResultTest.js"></script>
- <!--* 
- * 使用方法：在浏览器控制台执行
- *   window.TestSelectionResult.runAll()
- * 
- * 或单独运行：
- *   window.TestSelectionResult.testSetResult()
- *   window.TestSelectionResult.testSort()
- *   window.TestSelectionResult.testSearch()
- *   window.TestSelectionResult.testDetailModal()
- *   window.TestSelectionResult.testKlineData()
- */-->
+<script src="static/backtestResultTest.js"></script>
+
+<!--window.TestBacktestResult.testSetResult()-->
+
 </body>
 </html>

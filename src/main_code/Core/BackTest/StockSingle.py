@@ -1,4 +1,5 @@
 import src.main_code.Core.BackTest.BackTestMsgDataStruct as BackTestMsgDataStruct
+from datetime import datetime
 
 # 1. 先导入TYPE_CHECKING常量
 from typing import TYPE_CHECKING
@@ -11,6 +12,7 @@ if TYPE_CHECKING:
 class BaseClass:
     id : int
     stockCode : str             #票子代码
+    stockName : str
     stockPart : "StockPart.BaseClass"           #所处的分仓仓位
     holdDay : int               #持仓天数
     startDate : str             #开仓日期
@@ -20,6 +22,9 @@ class BaseClass:
     curChangeRatio : float               #涨跌
     curValue : float              #当前仓位总价值
     maxHistoryValue : float          #历史上达到的最高价
+    kline_data : BackTestMsgDataStruct.KlineData    #K线图
+    kline_data_stopRecorderCount : int    #K线图结尾记录
+    isEndUpdateKLine : bool
 
     #开仓价
     start_price : float
@@ -61,7 +66,70 @@ class BaseClass:
         self.holdDay = 0
         self.startDate = ""
         self.endDate = ""
+        self.kline_data = BackTestMsgDataStruct.KlineData()
+        self.isEnd = False
+        self.kline_data_stopRecorderCount = 0
+        self.isEndUpdateKLine = False
         pass
+
+    def StartRecorderKLine(self):
+        partStock = self.stockPart
+        main = partStock.totalStock.handler.main
+        backTestCalculationHandle = partStock.totalStock.handler.backTestCalculationHandle
+        todayStr = backTestCalculationHandle.todayStr
+        cls = backTestCalculationHandle.GetBaseDataClass(self.stockCode, todayStr)
+        count = 0
+        for singleCls in cls.dataList_240:
+            if count > 20:
+                break
+            count += 1
+            dt = datetime.strptime(singleCls.trade_date, "%Y%m%d")
+            date = dt.strftime("%Y-%m-%d")
+            priceList = []
+            priceList.append(singleCls.open_ori)
+            priceList.append(singleCls.close_ori)
+            priceList.append(singleCls.low_ori)
+            priceList.append(singleCls.high_ori)
+
+            volume = singleCls.volume            #手
+
+
+            self.kline_data.dates.insert(0, date)
+            self.kline_data.ohlc.insert(0, priceList)
+            self.kline_data.volumes.insert(0, volume)
+    
+    def UpdateRecorderKLine(self):
+        if self.isEndUpdateKLine == True:
+            return
+        if self.isEnd == True and self.kline_data_stopRecorderCount > 20:
+            self.isEndUpdateKLine = True
+            self.kline_data_stopRecorderCount += 1
+            return
+        partStock = self.stockPart
+        main = partStock.totalStock.handler.main
+        backTestCalculationHandle = partStock.totalStock.handler.backTestCalculationHandle
+        todayStr = backTestCalculationHandle.todayStr
+        cls = backTestCalculationHandle.GetBaseDataClass(self.stockCode, todayStr)
+
+        dt = datetime.strptime(cls.trade_date, "%Y%m%d")
+        date = dt.strftime("%Y-%m-%d")
+        if date in self.kline_data.dates:
+            return
+        priceList = []
+        priceList.append(cls.open)
+        priceList.append(cls.close)
+        priceList.append(cls.low)
+        priceList.append(cls.high)
+
+        volume = cls.volume           #万手
+
+        self.kline_data.dates.append(date)
+        self.kline_data.ohlc.append(priceList)
+        self.kline_data.volumes.append(volume)
+
+
+
+
 
 
     #0 不可卖出，  1处于卖出判断区间，  2达到止损或止盈， 3 超过最大持仓天数， 4达到最大回撤
@@ -120,8 +188,14 @@ class BaseClass:
                     if self.curChangeRatio >= partStock.backStart:
                         self.isInBack = True
 
-
+        self.UpdateRecorderKLine()
         self.holdDay += 1
+
+    #清仓卖出
+    def End(self):
+        self.curChangeRatio = ((self.end_price - self.start_price) / self.start_price) * 100
+        self.curValue = self.end_price * self.volume
+        self.isEnd = True
 
     #获取当前仓位总价值
     def GetValue(self):

@@ -3,6 +3,7 @@ import src.main_code.Core.BackTest.Operate  as Operate
 import src.main_code.Core.BackTest.BackTestMsgDataStruct as BackTestMsgDataStruct
 from typing import List, Optional, Callable, Dict, Any, Union
 import src.main_code.Core.Select.Models as Models
+import numpy as np
 
 # 1. 先导入TYPE_CHECKING常量
 from typing import TYPE_CHECKING
@@ -42,6 +43,9 @@ class BaseClass:
     sellCodeList : Dict[float ,str] #卖出列表
 
     operate_recorder_List : List[Operate.BaseClass]      #操作记录
+    newOperate_recorder_List : List[Operate.BaseClass]      #新的操作记录
+
+    
     stockList : List[StockSingle.BaseClass]         #持仓列表
 
     stockList_history : List[StockSingle.BaseClass]         #历史持仓列表
@@ -49,6 +53,10 @@ class BaseClass:
     backStart : float           #最大回撤开始位
     backEnd : float           #最大回撤位
 
+
+    changeRatioList : List[float]                   #涨跌列表记录，用于计算波动率
+    lastUpVal : float                               #上次涨的时候的价格，用于计算最大回撤
+    maxReturn : float                               #最大回撤记录
 
 
 
@@ -74,8 +82,10 @@ class BaseClass:
         self.sellCodeList = {}
 
         self.operate_recorder_List = []
+        self.newOperate_recorder_List = []
         self.stockList = []
         self.stockList_history = []
+
 
         self.startValue = totalStock.startValue * self.share
         self.curValue = self.startValue
@@ -83,6 +93,9 @@ class BaseClass:
         self.maxCount = 2
         self.curChangeRatio = 0
 
+        self.changeRatioList = []
+        self.maxReturn = 0
+        self.lastUpVal = self.curValue
 
         #print("=====================================================")
         #print(f"名字：{self.name}")
@@ -193,9 +206,10 @@ class BaseClass:
                     self.Sell(singleStock)
 
 
-    def Sell(self, singleStock:StockSingle.BaseClass):
+    def Sell(self, singleStock:StockSingle.BaseClass, isForce = False):
         operate = Operate.BaseClass()
         self.operate_recorder_List.append(operate)
+        self.newOperate_recorder_List.append(operate)
 
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
@@ -203,22 +217,25 @@ class BaseClass:
         todayStr = backTestCalculationHandle.todayStr
         stockCode = singleStock.stockCode
         cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        componyCls = backTestCalculationHandle.totalComponyIns.GetComponyInfo(stockCode)
         state = singleStock.GetState()
 
         operate.date = todayStr
         operate.partStock = self
         operate.stockCode = stockCode
         operate.operate = "sell"
-        if cls.trade_state == 0:
+        operate.stockName = componyCls.Name
+        if cls.trade_state == 0 and isForce == False:
             operate.isSuccess = False
             operate.failReason = "停牌无法卖出"
             return
         
-        if cls.is_up_stop and cls.is_one_ban:
+        if cls.is_up_stop and cls.is_one_ban and isForce == False:
             operate.isSuccess = False
             operate.failReason = "跌停一字板，无法卖出"
             return
-        if state == 0:
+        
+        if state == 0 and isForce == False:
             operate.isSuccess = False
             operate.failReason = "未达到最短持仓天数，无法卖出"
             return
@@ -226,20 +243,22 @@ class BaseClass:
 
         operate.isSuccess = True
         state = singleStock.GetState()
-        if state == 1:
-            operate.successReason = "达成卖出条件判断"
-        if state == 2:
-            operate.successReason = "达成止损位或止盈位"
-        if state == 3:
-            operate.successReason = "达成最大持仓天数"
-        if state == 4:
-            operate.successReason = "达到最大回撤"
+        if isForce:
+            operate.successReason = "回测结束强制卖出"
+        else:
+            if state == 1:
+                operate.successReason = "达成卖出条件判断"
+            if state == 2:
+                operate.successReason = "达成止损位或止盈位"
+            if state == 3:
+                operate.successReason = "达成最大持仓天数"
+            if state == 4:
+                operate.successReason = "达到最大回撤"
 
         end_price = cls.close_ori
         singleStock.isEnd = True
         singleStock.endDate = todayStr
         singleStock.end_price = cls.close_ori
-        singleStock.isEnd = True
 
 
         singleStock.end_oriPrice_avg   = cls.avg_ori
@@ -260,19 +279,24 @@ class BaseClass:
         operate.sell_date = todayStr
         operate.sell_price_end = singleStock.end_price
         operate.buy_volume = singleStock.volume
+        operate.kline_data = singleStock.kline_data
 
+        singleStock.End()
         self.stockList_history.append(singleStock)
         self.stockList.remove(singleStock)
 
         sellVal = singleStock.end_price * singleStock.volume
 
         self.curValue += sellVal
+
+
         operate.Log()
 
 
     def Buy(self, stockCode):
         operate = Operate.BaseClass()
         self.operate_recorder_List.append(operate)
+        self.newOperate_recorder_List.append(operate)
 
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
@@ -281,10 +305,13 @@ class BaseClass:
 
         singleStock = StockSingle.BaseClass()
         cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        componyCls = backTestCalculationHandle.totalComponyIns.GetComponyInfo(stockCode)
 
         operate.date = todayStr
         operate.partStock = self
         operate.stockCode = stockCode
+        operate.stockName = componyCls.Name
+
         operate.operate = "buy"
         if cls.trade_state == 0:
             operate.isSuccess = False
@@ -309,6 +336,7 @@ class BaseClass:
 
         start_price = cls.close_ori
         singleStock.stockCode = stockCode
+        singleStock.stockName = componyCls.Name
         singleStock.start_price = cls.close_ori
         singleStock.volume = handNum * 100
         singleStock.holdDay = 0
@@ -334,16 +362,20 @@ class BaseClass:
         operate.buy_date = todayStr
         operate.buy_volume = handNum * 100
 
+        singleStock.StartRecorderKLine()
+
         self.stockList.append(singleStock)
 
         buyVal = handNum * 100 * start_price
 
         self.curValue -= buyVal
+
+
         operate.Log()
         return True
 
 
-    def Update(self):
+    def Update(self, date):
         for singleStock in self.stockList:
             singleStock.Update()
 
@@ -356,22 +388,123 @@ class BaseClass:
 
 
         self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
+        self.changeRatioList.append(self.curChangeRatio)
 
 
         main = self.totalStock.handler.main
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
 
 
+        if self.curChangeRatio > 0:
+            self.lastUpVal = self.totalValue
+        else:
+            ratio = (self.totalValue - self.lastUpVal) / self.lastUpVal
+            if abs(ratio) > abs(self.maxReturn):
+                self.maxReturn = ratio
+
 
         todayStr = backTestCalculationHandle.todayStr
+        for historyStock  in self.stockList_history:
+            historyStock.UpdateRecorderKLine()
 
 
+    #清空仓位，立即卖出，用以计算结果
+    def CleanStock(self):
+        print(f"执行彻底清仓，仓位数：{len(self.stockList)}")
+        while(len(self.stockList) > 0):
+            self.Sell(self.stockList[0], True)
+
+        self.totalValue = self.curValue
+        self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
+        self.changeRatioList.append(self.curChangeRatio)
 
     #获取当前可使用的分仓价
     def GetBuyVal(self):
         ratio = 1 / (self.maxCount - len(self.stockList))
         return self.curValue * ratio
     
+
+    #获取当前分仓胜率, 只考虑已完成的交易
+    def GetSuccessRatio(self):
+        totalCount = 0
+        successCount = 0
+        for singleStock in self.stockList_history:
+            totalCount += 1
+            if singleStock.curChangeRatio > 0:
+                successCount += 1
+        return successCount / totalCount
+    
+    #获得成交笔数
+    def GetTotalDealCount(self):
+        return len(self.stockList_history)
+        
+
+
+
+    def GetResult(self):
+        #平均日收益率
+        avgRatio = 0
+        if len(self.changeRatioList) > 0:
+            addCount = 0
+            totalRatio = 0
+            for ratio in self.changeRatioList:
+                totalRatio += ratio
+                addCount += 1
+            avgRatio = totalRatio / addCount
+        #平均日波动率
+        daily_volatility = np.std(self.changeRatioList)
+
+         #名称
+        name = self.name
+
+        #初始仓价
+        startVal = self.startValue
+
+        #当前仓价
+        curVal = self.curValue
+
+        #总收益率
+        changeRatio = self.curChangeRatio
+
+        #胜率
+        totalCount = 0
+        successCount = 0
+        for singleStock in self.stockList_history:
+            totalCount += 1
+            if singleStock.curChangeRatio > 0:
+                successCount += 1
+
+        successRatio = successCount / totalCount
+
+
+        #平均年化收益率
+        yearAvgRatio = avgRatio * 252
+      
+
+        #年化波动率
+        year_volatility = daily_volatility * np.sqrt(252)
+
+        #平均月化收益率
+        monthAvgRatio = avgRatio * 22
+
+
+        #月化波动率
+        month_volatility = daily_volatility * np.sqrt(22)
+
+        #最大回撤
+        maxReturn = self.maxReturn
+
+        #夏普比率
+        sharpe = yearAvgRatio / year_volatility if year_volatility != 0 else 0
+
+        #成交笔数
+        totalDealCount = totalCount
+
+
+
+
+
+
 
     def LogOpera(self):
         for opera in self.operate_recorder_List:

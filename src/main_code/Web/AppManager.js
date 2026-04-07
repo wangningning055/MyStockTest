@@ -6,7 +6,7 @@ import { ValueGrowthManager } from './valueGrowthManager.js';
 import { IndustryRotationManager } from './industryRotationManager.js';
 import { StockQueryManager } from './stockQueryManager.js';
 import { SelectionResultManager, setSelectionResultManager } from './selectionResultManager.js';
-
+import { BacktestResultManager, setBacktestResultManager } from './backtestResultManager.js';
 
 const Message_Action = "/action";
 
@@ -42,6 +42,10 @@ function setFetchButtonsLoading(isLoading) {
                 // 把整个 app-layout 往下推，避免被遮住
                 document.querySelector('.app-layout').style.paddingTop = busyBar.offsetHeight + 'px';
 
+                const rotationStatus = document.getElementById('btn-analyze-industry-rotation');
+                if (rotationStatus) rotationStatus.textContent = '处理中';
+
+
 
             } else {
                 // 恢复原始文本
@@ -52,6 +56,9 @@ function setFetchButtonsLoading(isLoading) {
                 document.getElementById('global-busy-bar').style.display = 'none';
                 document.getElementById('global-busy-bar').style.display = 'none';
                 document.querySelector('.app-layout').style.paddingTop = '0';
+
+                const rotationStatus = document.getElementById('btn-analyze-industry-rotation');
+                if (rotationStatus) rotationStatus.textContent = '行业分析';
 
             }
         }
@@ -111,6 +118,11 @@ class AppManager {
         // ✅ 新增：初始化选股结果管理器
         this.selectionResultManager = SelectionResultManager.init();
         setSelectionResultManager(this);
+
+        // 在 init() 方法中，已有的初始化后面添加：
+        this.backtestResultManager = BacktestResultManager.init();
+        setBacktestResultManager(this);
+
 
         // 步骤2: 注册默认消息处理器
         this.registerDefaultHandlers();
@@ -240,6 +252,8 @@ class AppManager {
             {
                 setFetchButtonsLoading(true)
 
+
+
                 const backtestBtn = document.getElementById('api-run-backtest');
                 if (backtestBtn) {
                     backtestBtn.textContent = '停止回测';  // 改为停止
@@ -331,8 +345,6 @@ class AppManager {
 
         //处理成长价值股列表
         this.registerHandler(SocketModule.MessageType.LAST_UPDATE_GROW_VALUE, (data) =>{
-            console.log("收到行业成长价值列表")
-            console.log(data.msg)
             const res = JSON.parse(data.msg);
             ValueGrowthManager.setStocks(res || []);
         });
@@ -340,32 +352,55 @@ class AppManager {
 
         // 处理行业轮动分析结果
         this.registerHandler(SocketModule.MessageType.SC_INDUSTRY_ROTATION, (data) => {
-            if (data.status === 'success' && data.data) {
-                IndustryRotationManager.handleAnalysisResult(data.data);
+            console.log(data.msg)
+            if (data.msg) {
+                IndustryRotationManager.handleAnalysisResult(data.msg);
             }
         });
 
         //收到股票查询结果
         this.registerHandler(SocketModule.MessageType.SC_QUERY_STOCKS_RESPONSE,
             (data) => {
-                if (window.App && window.App.StockQueryManager) {
-                    window.App.StockQueryManager.handleQueryResponse(data.msg);
+
+                if (this.stockQueryManager) {
+                   this.stockQueryManager.handleQueryResponse(data.msg);
                 }
             }
         );
 
-
+        // ✅ 新增：K线数据一次性返回
+        this.registerHandler(SocketModule.MessageType.SC_KLINE_DATA, (data) => {
+            if (this.selectionResultManager) {
+                this.selectionResultManager.receiveKlineData(data.msg || data);
+            }
+        });
 
 
         // ✅ 替换原来的选股结果处理器
-        this.registerHandler('sc_select_stocks_result', (data) => {
+        this.registerHandler(SocketModule.MessageType.SC_SELECT_STOCKS, (data) => {
             this.app.log("📈 收到选股结果", "success");
-            
-            // 传递给 SelectionResultManager
+            console.log("收到选股结果!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            console.log(data.msg)
             if (this.selectionResultManager) {
-                this.selectionResultManager.setResultData(data.stocks || data.msg || []);
+                this.selectionResultManager.setResultData( data.msg || []);
             }
         });
+
+
+
+        this.registerHandler(SocketModule.MessageType.SC_BACK_TEST, (data) => {
+            this.app.log("🔄 收到回测结果", "success");
+
+            const loadingEl = document.getElementById('backtest-loading');
+            if (loadingEl) loadingEl.style.display = 'none';
+            
+            // 传递给 BacktestResultManager
+            if (this.backtestResultManager) {
+                this.backtestResultManager.setResultData(data.msg);
+            }
+        });
+
+
 
         // ✅ 新增：K线数据流式块处理
         this.registerHandler('sc_kline_chunk', (data) => {
@@ -374,34 +409,13 @@ class AppManager {
             }
         });
 
-        // ✅ 新增：K线数据一次性返回
-        this.registerHandler('sc_kline_data', (data) => {
-            if (this.selectionResultManager) {
-                this.selectionResultManager.receiveKlineData(data.msg || data);
-            }
-        });
-
-
-
-        // 处理回测结果
-        this.registerHandler('sc_back_test_result', (data) => {
-            this.app.log("🔄 收到回测结果:", data);
-            this.ui.updateBacktestUI(data);
-            if (data.klineData) {
-                this.ui.drawKlineChart(data.klineData);
-            }
-            if (data.portfolioData) {
-                this.ui.drawPortfolioChart(data.portfolioData);
-            }
-            this.app.log("回测完成", "success");
-        });
-
-
         // 处理错误消息
         this.registerHandler('error', (data) => {
             console.error("❌ 后端错误:", data);
             this.app.log(`错误: ${data.message}`, "error");
         });
+
+
     }
 
     /**
@@ -490,22 +504,7 @@ class AppManager {
             timestamp: new Date().toISOString(),
         });
     }
-    /**
-     * 发送选股请求到后端
-     * 
-     * 发送格式：
-     * {
-     *   configs: [
-     *     {
-     *       factor_group_name: string,
-     *       weight: number,
-     *       logic_tree: [...]  // 树形条件结构
-     *     }
-     *   ],
-     *   timestamp: string,
-     *   version: string
-     * }
-     */
+
     requestSelectStocks() {
         // 收集完整的配置数据
         const buyConfigs = this.app.getFactorData('buy-factor-container');
@@ -580,7 +579,12 @@ class AppManager {
             timestamp: new Date().toISOString(),
             version: "1.0"
         };
-        
+
+
+        const loadingEl = document.getElementById('backtest-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+        const viewBtn = document.getElementById('btn-view-backtest-result');
+        if (viewBtn) viewBtn.style.display = 'none';
 
         this.app.log(`📤 发送回测请求, "system"`);
         console.log('回测请求数据:', JSON.stringify(payload, null, 2));
@@ -600,9 +604,7 @@ class AppManager {
      */
     requestIndustryRotationAnalysis() {
         this.app.log("📤 发送行业轮动分析请求...", "system");
-        const rotationStatus = document.getElementById('rotation-status');
-        if (rotationStatus) rotationStatus.style.display = 'flex';
-        
+ 
         return this.socket.sendMessage(SocketModule.MessageType.CS_INDUSTRY_ROTATION, {
             timestamp: new Date().toISOString(),
         });
@@ -622,7 +624,6 @@ class AppManager {
             SocketModule.MessageType.CS_QUERY_STOCKS,
             payload
         );
-
     }
 
     /**

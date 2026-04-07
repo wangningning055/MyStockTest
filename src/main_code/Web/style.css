@@ -2835,9 +2835,9 @@ input::placeholder {
 }
 
 .busy-bar-track {
-    height: 5px;
+    height: 15px;
     background: rgba(255, 255, 255, 0.07);
-    border-radius: 3px;
+    border-radius: 6px;
     overflow: hidden;
     position: relative;
 }
