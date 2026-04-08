@@ -7,7 +7,7 @@ import { IndustryRotationManager } from './industryRotationManager.js';
 import { StockQueryManager } from './stockQueryManager.js';
 import { SelectionResultManager, setSelectionResultManager } from './selectionResultManager.js';
 import { BacktestResultManager, setBacktestResultManager } from './backtestResultManager.js';
-
+import { PatternMatchManager, setPatternMatchManager } from './patternMatchManager.js';
 const Message_Action = "/action";
 
 // 存储拉取按钮的原始文本
@@ -122,6 +122,10 @@ class AppManager {
         // 在 init() 方法中，已有的初始化后面添加：
         this.backtestResultManager = BacktestResultManager.init();
         setBacktestResultManager(this);
+
+        this.patternMatchManager = PatternMatchManager.init();
+        setPatternMatchManager(this);
+
 
 
         // 步骤2: 注册默认消息处理器
@@ -379,8 +383,8 @@ class AppManager {
         // ✅ 替换原来的选股结果处理器
         this.registerHandler(SocketModule.MessageType.SC_SELECT_STOCKS, (data) => {
             this.app.log("📈 收到选股结果", "success");
-            console.log("收到选股结果!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            console.log(data.msg)
+            //console.log("收到选股结果!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            //console.log(data.msg)
             if (this.selectionResultManager) {
                 this.selectionResultManager.setResultData( data.msg || []);
             }
@@ -400,6 +404,23 @@ class AppManager {
             }
         });
 
+
+
+                // ✅ 模式匹配结果
+        this.registerHandler(SocketModule.MessageType.SC_PATTERN_MATCH, (data) => {
+            this.app.log("🔍 收到模式匹配结果", "success");
+            if (this.patternMatchManager) {
+                this.patternMatchManager.setResultData(data.msg);
+            }
+        });
+
+        // ✅ 模式匹配参数导出结果
+        this.registerHandler(SocketModule.MessageType.SC_PATTERN_EXPORT_PARAMS, (data) => {
+            this.app.log("📋 收到参数导出结果", "success");
+            if (this.patternMatchManager) {
+                this.patternMatchManager.setExportedParamsData(data.msg);
+            }
+        });
 
 
         // ✅ 新增：K线数据流式块处理

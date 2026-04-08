@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="static/stockQuery.css">
     <link rel="stylesheet" href="static/selectionResult.css">
     <link rel="stylesheet" href="static/backtestResult.css">
+    <link rel="stylesheet" href="static/patternMatch.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 </head>
@@ -129,6 +130,7 @@
         <button class="nav-tab" data-target="view-stock-query">🔍 股票经营内容查询</button>
         <button class="nav-tab" data-target="view-industry-rotation">🔄 行业轮动（按月）</button>
         <button class="nav-tab" data-target="view-value-growth">📈 价值/成长股筛选</button>
+        <button class="nav-tab" data-target="view-pattern-match">🔍 模式匹配</button>
     </nav>
 
     <!-- 工作区：原有内容完全保留 -->
@@ -318,15 +320,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
-
-
 
 
         <!-- ========== 回测页签（重构） ========== -->
@@ -577,23 +570,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <!-- 股票查询页签 -->
         <div id="view-stock-query" class="view-container">
             <div class="sq-wrapper">
@@ -741,8 +717,6 @@
 
             </div>
         </div>
-
-
 
 
 
@@ -942,6 +916,262 @@
             </main>
         </div>
 
+        <!-- ========== 模式匹配页签 ========== -->
+        <div id="view-pattern-match" class="view-container">
+
+            <!-- ===== 子视图1：配置视图（默认） ===== -->
+            <div id="pm-config-view" class="pm-sub-view active">
+                <div class="pm-config-wrapper">
+
+                    <!-- 左侧：参数配置面板 -->
+                    <div class="pm-config-panel">
+                        <div class="pm-panel-header">
+                            <h3>🔍 模式匹配配置</h3>
+                        </div>
+
+                        <!-- 时间设置 -->
+                        <div class="pm-section">
+                            <div class="pm-section-title">📅 匹配起始时间</div>
+                            <div class="pm-form-row">
+                                <label>开始日期</label>
+                                <input type="date" id="pm-start-date" class="pm-input" value="2020-01-01">
+                            </div>
+                            <div class="pm-form-row">
+                                <label>结束日期（可选，留空则到最新）</label>
+                                <input type="date" id="pm-end-date" class="pm-input" value="">
+                            </div>
+                        </div>
+
+                        <!-- 匹配参数组 -->
+                        <div class="pm-section">
+                            <div class="pm-section-title">📊 匹配条件组</div>
+                            <p class="pm-section-desc">设置天数区间和涨幅区间，互相自由组合</p>
+
+                            <div class="pm-conditions-list" id="pm-conditions-list">
+                                <!-- 动态渲染条件行 -->
+                            </div>
+
+                            <button class="btn btn-primary btn-sm" id="pm-add-condition">
+                                <i class="fas fa-plus"></i> 添加匹配条件
+                            </button>
+                        </div>
+
+                        <!-- 股票筛选 -->
+                        <div class="pm-section">
+                            <div class="pm-section-title">🏷 股票筛选</div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-st" checked> 剔除ST股</label>
+                            </div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-kc" checked> 剔除科创板</label>
+                            </div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-cy" checked> 剔除创业板</label>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮区 -->
+                        <div class="pm-action-area">
+                            <button class="btn btn-primary" id="pm-run-match">🚀 开始匹配</button>
+
+                            <div id="pm-loading" class="pm-loading" style="display:none;">
+                                <span class="spinner-sm"></span>
+                                <span>匹配中，请等待...</span>
+                            </div>
+
+                            <button class="btn btn-accent btn-sm" id="pm-view-result"
+                                style="display:none;">
+                                📊 查看匹配结果 (<span id="pm-result-count">0</span> 条)
+                            </button>
+                        </div>
+
+                        <!-- 导入导出 -->
+                        <div class="pm-section pm-io-section">
+                            <div class="pm-section-title">💾 数据导入/导出</div>
+                            <div class="pm-io-buttons">
+                                <button class="btn btn-outline btn-sm" id="pm-export-result">📥 导出结果JSON</button>
+                                <button class="btn btn-outline btn-sm" id="pm-import-result">📤 导入结果JSON</button>
+                                <input type="file" id="pm-import-file" accept=".json" style="display:none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：说明区域 -->
+                    <div class="pm-info-panel">
+                        <div class="pm-info-card">
+                            <h4>💡 使用说明</h4>
+                            <ul>
+                                <li>设置<strong>起始时间范围</strong>，服务器将在此时间范围内搜索</li>
+                                <li>添加<strong>匹配条件</strong>：天数区间 + 涨幅区间，可添加多组</li>
+                                <li>多组条件之间为 <strong>AND（同时满足）</strong>关系</li>
+                                <li>点击"开始匹配"后等待服务器返回结果</li>
+                                <li>支持将结果导出为JSON，也可从JSON导入</li>
+                            </ul>
+                        </div>
+                        <div class="pm-info-card">
+                            <h4>📖 条件示例</h4>
+                            <div class="pm-example">
+                                <p>🔹 <code>30天内涨幅 ≥ 100%</code></p>
+                                <p>→ 天数最小=1, 天数最大=30, 涨幅最小=100, 涨幅最大=留空(不限)</p>
+                            </div>
+                            <div class="pm-example">
+                                <p>🔹 <code>5~10天内涨幅在50%~80%之间</code></p>
+                                <p>→ 天数最小=5, 天数最大=10, 涨幅最小=50, 涨幅最大=80</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 子视图2：匹配结果视图 ===== -->
+            <div id="pm-result-view" class="pm-sub-view">
+                <div class="pm-result-wrapper">
+
+                    <!-- 顶部工具栏 -->
+                    <div class="pm-result-toolbar">
+                        <div class="pm-toolbar-left">
+                            <button class="btn btn-outline btn-sm" id="pm-back-to-config">← 返回配置</button>
+                            <span class="pm-result-info">
+                                🎯 匹配结果：<span id="pm-result-total">0</span> 条记录
+                            </span>
+                        </div>
+                        <div class="pm-toolbar-right">
+                            <input type="text" id="pm-result-search" class="pm-input pm-input-sm"
+                                placeholder="搜索代码/名称...">
+                        </div>
+                    </div>
+
+                    <!-- 参数导出按钮组 -->
+                    <div class="pm-export-bar">
+                        <span class="pm-export-label">📤 参数导出：</span>
+                        <button class="btn btn-sm pm-export-btn" data-export-type="mean"
+                            id="pm-export-mean">导出参数均值</button>
+                        <button class="btn btn-sm pm-export-btn" data-export-type="median"
+                            id="pm-export-median">导出参数中位数</button>
+                        <button class="btn btn-sm pm-export-btn" data-export-type="aggregate"
+                            id="pm-export-aggregate">导出参数聚合</button>
+                        <!-- 后续可在此添加更多导出按钮 -->
+
+                        <div id="pm-export-loading" class="pm-loading-inline" style="display:none;">
+                            <span class="spinner-sm"></span>
+                            <span>计算中...</span>
+                        </div>
+
+                        <button class="btn btn-accent btn-sm" id="pm-view-exported-params"
+                            style="display:none;">
+                            📋 查看导出结果
+                        </button>
+                    </div>
+
+                    <!-- 结果排序栏 -->
+                    <div class="pm-sort-bar">
+                        <span class="pm-sort-label">排序：</span>
+                        <button class="pm-sort-btn active" data-sort="match_start">匹配开始</button>
+                        <button class="pm-sort-btn" data-sort="match_end">匹配结束</button>
+                        <button class="pm-sort-btn" data-sort="code">代码</button>
+                        <button class="pm-sort-btn" data-sort="change_pct">涨幅</button>
+                        <button class="pm-sort-btn" data-sort="days">天数</button>
+                    </div>
+
+                    <!-- 结果表格 -->
+                    <div class="pm-table-container">
+                        <table class="pm-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>代码</th>
+                                    <th>名称</th>
+                                    <th>匹配开始时间</th>
+                                    <th>匹配结束时间</th>
+                                    <th>天数</th>
+                                    <th>涨幅(%)</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pm-result-tbody">
+                                <tr>
+                                    <td colspan="8" class="pm-empty">暂无匹配结果</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 模式匹配K线详情弹窗 ========== -->
+        <div id="pm-detail-modal" class="pm-detail-modal">
+            <div class="pm-detail-overlay" id="pm-detail-overlay"></div>
+            <div class="pm-detail-container">
+                <!-- 头部 -->
+                <div class="pm-detail-header">
+                    <div class="pm-detail-title">
+                        <span class="pm-detail-code" id="pm-detail-code">--</span>
+                        <span class="pm-detail-name" id="pm-detail-name">--</span>
+                        <span class="pm-detail-badge" id="pm-detail-match-info">-- ~ --</span>
+                    </div>
+                    <button class="pm-detail-close" id="pm-detail-close">✕</button>
+                </div>
+
+                <!-- 主体：左K线 + 右参数 -->
+                <div class="pm-detail-body">
+                    <!-- 左侧K线 -->
+                    <div class="pm-detail-chart-section">
+                        <div class="pm-detail-chart-title">📈 K线走势（含匹配区间标注）</div>
+                        <div id="pm-detail-kline-chart" class="pm-detail-kline-chart"></div>
+                    </div>
+
+                    <!-- 右侧参数列表 -->
+                    <div class="pm-detail-params-section">
+                        <div class="pm-detail-params-title">📋 详细参数</div>
+                        <div class="pm-detail-params-search">
+                            <input type="text" id="pm-detail-param-filter" class="pm-input pm-input-sm"
+                                placeholder="搜索参数名...">
+                        </div>
+                        <div class="pm-detail-params-scroll" id="pm-detail-params-container">
+                            <!-- 参数分组动态渲染 -->
+                            <!-- ★ 此处是参数列表的添加位置，后续可自行扩展 ★ -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 参数导出结果查看弹窗 ========== -->
+        <div id="pm-exported-params-modal" class="pm-exported-modal">
+            <div class="pm-exported-overlay" id="pm-exported-overlay"></div>
+            <div class="pm-exported-container">
+                <div class="pm-exported-header">
+                    <h3 id="pm-exported-title">📋 参数导出结果</h3>
+                    <button class="pm-detail-close" id="pm-exported-close">✕</button>
+                </div>
+                <div class="pm-exported-body">
+                    <div class="pm-exported-info">
+                        <span id="pm-exported-type-label">类型：--</span>
+                        <span id="pm-exported-count-label">条目数：--</span>
+                    </div>
+                    <div class="pm-exported-table-container">
+                        <table class="pm-exported-table">
+                            <thead>
+                                <tr>
+                                    <th>参数名</th>
+                                    <th>值</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pm-exported-tbody">
+                                <tr>
+                                    <td colspan="2" style="text-align:center;color:#555;">暂无数据</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pm-exported-footer">
+                        <button class="btn btn-outline btn-sm" id="pm-save-exported-json">💾 保存为JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 
@@ -1075,6 +1305,7 @@
 <!-- 测试用例（开发环境使用，上线可删除） -->
 <script src="static/selectionResultTest.js"></script>
 <script src="static/backtestResultTest.js"></script>
+<script src="static/patternMatchTest.js"></script>
 
 <!--window.TestBacktestResult.testSetResult()-->
 

@@ -54,7 +54,14 @@ export const MessageType = Object.freeze({
 
     CS_BACK_TEST: "cs_back_test",                  // 客户端请求执行回测
     SC_BACK_TEST: "sc_back_test",                  // 服务器请返回回测
-    CS_BACK_TEST_STOP: "cs_back_test_stop"         //#客户端请求停止回测
+    CS_BACK_TEST_STOP: "cs_back_test_stop",         //#客户端请求停止回测
+
+    //模式匹配相关，未实现
+    CS_PATTERN_MATCH: 'cs_pattern_match',
+    SC_PATTERN_MATCH: 'sc_pattern_match',
+    CS_PATTERN_EXPORT_PARAMS: 'cs_pattern_export_params',
+    SC_PATTERN_EXPORT_PARAMS: 'sc_pattern_export_params',
+
 });
 
 
