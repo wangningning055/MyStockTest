@@ -54,13 +54,14 @@ class MessageType(str, Enum):
 
 
 
+    CS_PATTERN_MATCH = "cs_pattern_match",                  #客户端请求模式匹配
+    SC_PATTERN_MATCH = "sc_pattern_match",                  #服务器返回模式匹配
+    CS_PATTERN_EXPORT_PARAMS = "cs_pattern_export_params",  #客户端请求参数分析
+    SC_PATTERN_EXPORT_PARAMS = "sc_pattern_export_params"   #服务器返回参数分析
 
 
 
 
-
-
-    CS_DIAGNOSE = "cs_diagnose"                     #客户端请求出仓判断
 
 
 ##发送消息
@@ -228,18 +229,24 @@ def HandleMsg(msg):
 
 
 
-
-
-    elif(msgType == MessageType.CS_DIAGNOSE):
-        pass
-
     elif(msgType == MessageType.CS_QUERY_STOCKS):
         mainProcessor.analysisHandle.SearchStock(data)
-        pass
     
     elif(msgType == MessageType.CS_REQUEST_KLINE):
         mainProcessor.analysisHandle.HandleKLineResponse(data)
-        pass
+
+
+    elif(msgType == MessageType.CS_PATTERN_MATCH):
+        mainProcessor.patternMatchHandle.StartMatch(data)
+    
+    elif(msgType == MessageType.SC_PATTERN_MATCH):
+        mainProcessor.patternMatchHandle.SendMatchResult()
+    
+    elif(msgType == MessageType.CS_PATTERN_EXPORT_PARAMS):
+        mainProcessor.patternMatchHandle.StartHandleResult(data)
+    
+    elif(msgType == MessageType.SC_PATTERN_EXPORT_PARAMS):
+        mainProcessor.patternMatchHandle.SendHandleResult()
 
 
 

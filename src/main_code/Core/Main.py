@@ -16,6 +16,7 @@ from src.main_code.Core.Calculate import CalculationDataHandle
 from src.main_code.Core.Analysis import AnalysisHandle
 from src.main_code.Core.Record import RecordHandler
 from src.main_code.Core.BackTest import BackTestHandler
+from src.main_code.Core.PatternMatch import PatternMatchHandle
 import src.main_code.Core.Const as const_proj
 from src.main_code.Core.Test import Test
 from fastapi.responses import FileResponse
@@ -57,6 +58,9 @@ class processor:
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.analysisHandle = self.InitAnalysisHandle()
         self.backTestHandle = self.InitBackTestHandle()
+        self.patternMatchHandle = self.InitPatternMatch()
+
+
         self.todayStockDate = self.calculationDataHandle.GetToday()
         self.isInit = True
         self.isInHandle = False
@@ -175,6 +179,11 @@ class processor:
 
     def InitBackTestHandle(self):
         instance = BackTestHandler.BaseClass()
+        instance.Init(self)
+        return instance
+    
+    def InitPatternMatch(self):
+        instance = PatternMatchHandle.BaseClass()
         instance.Init(self)
         return instance
     

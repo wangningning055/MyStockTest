@@ -12,6 +12,7 @@
  */
 
 import { App } from './app.js';
+import * as SocketModule from "./socket.js";
 
 let manager = null;
 let conditionIdCounter = 0;
@@ -189,21 +190,18 @@ export const PatternMatchManager = {
         row.className = 'pm-condition-row';
         row.id = id;
         row.innerHTML = `
-            <span class="pm-cond-label">天数：</span>
+            <span class="pm-cond-label">几天内：</span>
             <input type="number" class="pm-cond-input pm-days-min" value="${daysMin}" min="1" placeholder="最小">
-            <span class="pm-cond-separator">~</span>
-            <input type="number" class="pm-cond-input pm-days-max" value="${daysMax}" min="1" placeholder="最大">
+
             <span class="pm-cond-label" style="margin-left:12px;">涨幅(%)：</span>
             <input type="number" class="pm-cond-input pm-change-min" value="${changeMin}" step="0.1" placeholder="最小">
-            <span class="pm-cond-separator">~</span>
-            <input type="number" class="pm-cond-input pm-change-max" value="${changeMax !== null ? changeMax : ''}" step="0.1" placeholder="不限">
-            <button class="pm-cond-delete" title="删除此条件">✕</button>
+
         `;
 
         // 绑定删除
-        row.querySelector('.pm-cond-delete').addEventListener('click', () => {
-            row.remove();
-        });
+        //row.querySelector('.pm-cond-delete').addEventListener('click', () => {
+        //    row.remove();
+        //});
 
         container.appendChild(row);
     },
@@ -217,9 +215,9 @@ export const PatternMatchManager = {
         const conditions = [];
         rows.forEach(row => {
             const daysMin = parseInt(row.querySelector('.pm-days-min').value) || 1;
-            const daysMax = parseInt(row.querySelector('.pm-days-max').value) || 30;
+            const daysMax = 0;// parseInt(row.querySelector('.pm-days-max').value) || 30;
             const changeMin = parseFloat(row.querySelector('.pm-change-min').value);
-            const changeMaxStr = row.querySelector('.pm-change-max').value.trim();
+            const changeMaxStr = 0;//row.querySelector('.pm-change-max').value.trim();
             const changeMax = changeMaxStr === '' ? null : parseFloat(changeMaxStr);
 
             conditions.push({
@@ -282,7 +280,7 @@ export const PatternMatchManager = {
         console.log('模式匹配请求:', JSON.stringify(payload, null, 2));
 
         if (manager && manager.socket) {
-            manager.socket.sendMessage('cs_pattern_match', payload);
+            manager.socket.sendMessage(SocketModule.MessageType.CS_PATTERN_MATCH, payload);
         }
     },
 
@@ -579,7 +577,8 @@ export const PatternMatchManager = {
         App.log(`📤 请求参数导出: ${exportType}`, 'system');
 
         if (manager && manager.socket) {
-            manager.socket.sendMessage('cs_pattern_export_params', payload);
+            
+            manager.socket.sendMessage(SocketModule.MessageType.CS_PATTERN_EXPORT_PARAMS, payload);
         }
     },
 
