@@ -131,12 +131,6 @@ class BaseClass:
 
         #这里需要整理结果数据，然后传给前端
         res = self.totalStock.GetResult(nextDayStr)
-        #resJson = json.dumps(
-        #    asdict(res),    # 自动把 dataclass 转字典
-        #    ensure_ascii=False,  # 支持中文
-        #    indent=2       # 格式化输出（好看）
-        #)
-        #self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_BACK_TEST, resJson)
 
         self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_BACK_TEST, res)
 

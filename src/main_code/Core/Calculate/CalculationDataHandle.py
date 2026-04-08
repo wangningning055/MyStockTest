@@ -459,9 +459,21 @@ class BaseClass :
         if cls.trade_state == 1:
             return cls
         else:
-            #if stockCode == "000001.SZ":
-            #    print(f"股票{stockCode},  {date}数据不存在， {len(self.totalBaseDailyData)}")
             return None
+        
+    def GetBaseDataClass_WithTradeState(self, stockCode, date, isCalculate = False) -> CalculationDataStruct.StructBaseClass:
+        if self.isPreheating == False:
+            print("没有预热数据，请先预热数据")
+            self.main.BoardCast("没有预热数据，请先预热数据")
+            return
+        dateItem = self.totalBaseDailyData.get(date)
+        if dateItem is None:
+            return None
+        cls = dateItem.get(stockCode)
+        if cls is None:
+            return None
+        return cls
+
 
     def CalculateBaseClass(self, baseClass : CalculationDataStruct.StructBaseClass):
         print(f"当日涨跌幅是{baseClass.change_Ratio}")

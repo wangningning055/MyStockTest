@@ -71,7 +71,7 @@ class StructBaseClass :
         self.trade_date = cur_date
         self.open = open_price * adjust
         self.close = close_price * adjust
-        self.last_close = last_close_price
+        self.last_close = last_close_price * adjust
         self.high = high_price * adjust
         self.low = low_price * adjust
 

@@ -661,11 +661,11 @@ export const BacktestResultManager = {
                     const d = ohlc[idx];
                     if (!d) return dateStr;
 
-                    const open = d[0], close = d[1], low = d[2], high = d[3];
-                    const change = open !== 0 ? ((close - open) / open * 100).toFixed(2) : '0.00';
+                    const open = d[0], close = d[1], low = d[2], high = d[3], changeRatio = d[4];
+                    const change = open !== 0 ? changeRatio : '0.00';
                     const changeColor = close >= open ? '#ff4757' : '#2ed573';
                     const vol = volumes[idx] ? (volumes[idx] / 10000).toFixed(2) + '万' : '--';
-
+                    const reason = "我想卖就卖"
                     let html = `<div style="font-weight:700;margin-bottom:4px;">${dateStr}</div>`;
                     html += `<div>开盘: <span style="font-weight:600;">¥${open.toFixed(2)}</span></div>`;
                     html += `<div>收盘: <span style="font-weight:600;">¥${close.toFixed(2)}</span></div>`;
@@ -679,6 +679,7 @@ export const BacktestResultManager = {
                         html += `<div style="margin-top:4px;color:#ff4757;font-weight:700;">📈 买入日 @¥${trade.buy_price?.toFixed(2)}</div>`;
                     }
                     if (dateStr === trade.sell_date) {
+                        html += `<div>卖出原因: ${trade.sellReason}</div>`;
                         html += `<div style="margin-top:4px;color:#2ed573;font-weight:700;">📉 卖出日 @¥${trade.sell_price?.toFixed(2)}</div>`;
                     }
 

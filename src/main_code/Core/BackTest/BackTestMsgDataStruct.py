@@ -112,6 +112,7 @@ class TradeRecord:
     sell_price: float = 0.0            # 卖出价
     profit_pct: float = 0.0            # 盈利百分比 (%)
     profit_money: float = 0.0          # 盈利金额 (元)
+    sellReason: str = ""            # 卖出原因
     kline_data: Optional[dict] = None  # K线数据 (KlineData的dict形式)
 
 

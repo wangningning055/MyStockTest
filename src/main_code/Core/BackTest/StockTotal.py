@@ -135,6 +135,8 @@ class BaseClass:
         self.changeRatioCurve.positions.append(dailyList)
         self.changeRatioCurve.equity.append
         
+
+        #更新操作时的仓价
         for key, part in self.partList.items():
             for newOperate in part.newOperate_recorder_List:
                 newOperate.curTotalStockValue = self.curValue
@@ -161,11 +163,9 @@ class BaseClass:
         avgRatio = 0
         if len(self.changeRatioList) > 0:
             addCount = 0
-            totalRatio = 0
             for ratio in self.changeRatioList:
-                totalRatio += ratio
                 addCount += 1
-            avgRatio = totalRatio / addCount
+            avgRatio = self.changeRatio / addCount
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
 
@@ -219,7 +219,7 @@ class BaseClass:
         #创建结果
         res = BackTestMsgDataStruct.BacktestResult()
         totalStock = BackTestMsgDataStruct.DivisionResult()
-        res.divisions = []
+        res.divisions = {}
 
         #构造基本数据
         totalStock.division_name = self.name
@@ -239,12 +239,14 @@ class BaseClass:
         totalStock.summary = asdict(totalSummary)
 
         tradeRecorderList = []
-        count = 0
+        count_sell = 0
+        count_buy = 0
         #构造收益率曲线
         for key, stockPart in self.partList.items():
             for operate in stockPart.operate_recorder_List:
-                if operate.operate == "buy":
-                    
+                if operate.operate == "buy" and operate.isSuccess == True:
+                    print(f"++++++++创建买入结果：名字：{operate.stockName}， 买入日期：{operate.buy_date}")
+                    count_buy += 1
                     dt = datetime.strptime(operate.buy_date, "%Y%m%d")
                     operate_date = dt.strftime("%Y-%m-%d")
                     marker = BackTestMsgDataStruct.TradeMarker()
@@ -253,12 +255,11 @@ class BaseClass:
                     marker.name = operate.stockName
                     marker.price = operate.buy_price
                     marker.equity = operate.curTotalStockValue
-          
                     self.changeRatioCurve.buy_markers.append(marker)
 
-
-                elif operate.operate == "sell":
-                    count +=1
+                if operate.operate == "sell" and operate.isSuccess == True:
+                    count_sell +=1
+                    print(f"--------创建卖出结果：名字：{operate.stockName}， 卖出日期：{operate.sell_date}")
                     dt = datetime.strptime(operate.sell_date, "%Y%m%d")
                     operate_date = dt.strftime("%Y-%m-%d")
                     marker = BackTestMsgDataStruct.TradeMarker()
@@ -277,7 +278,7 @@ class BaseClass:
 
 
                     tradeRecorder = BackTestMsgDataStruct.TradeRecord()
-                    tradeRecorder.trade_id = count
+                    tradeRecorder.trade_id = count_sell
                     tradeRecorder.buy_date = buy_date
                     tradeRecorder.sell_date = sell_date
                     tradeRecorder.hold_days = (dt_sell - dt_buy).days
@@ -285,6 +286,7 @@ class BaseClass:
                     tradeRecorder.name = operate.stockName
                     tradeRecorder.buy_price = operate.sell_price_start
                     tradeRecorder.sell_price = operate.sell_price_end
+                    tradeRecorder.sellReason = operate.successReason
 
                     profitMoney = (operate.sell_price_end - operate.sell_price_start) * operate.buy_volume
                     profit = (operate.sell_price_end - operate.sell_price_start) / operate.sell_price_start
@@ -292,10 +294,13 @@ class BaseClass:
                     tradeRecorder.profit_money = profitMoney
                     tradeRecorder.kline_data = asdict(operate.kline_data)
                     tradeRecorderList.append(asdict(tradeRecorder))
-                
+        print(f"########买入数量：{count_buy}，  卖出数量：{count_sell}")
         totalStock.equity_curve = asdict(self.changeRatioCurve)
         totalStock.trades = tradeRecorderList
 
+        for key, stockPart in self.partList.items():
+            divisions = stockPart.GetResult()
+            res.divisions[stockPart.name] = divisions
 
         res.total = asdict(totalStock)
 

@@ -269,7 +269,7 @@ class BaseClass :
         for resSingle in codeList:
             code = resSingle[0]
             score = resSingle[1]
-            cls = self.main.calculationDataHandle.GetBaseDataClass(code ,self.main.todayStockDate)
+            cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code ,self.main.todayStockDate)
             componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(code)
             industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(code)
             single = {
@@ -2083,7 +2083,7 @@ class BaseClass :
 
     def CreateSearchResponseSingle(self, stockCode):
         componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(stockCode)
-        cls = self.main.calculationDataHandle.GetBaseDataClass(stockCode, self.main.todayStockDate, False)
+        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(stockCode, self.main.todayStockDate, False)
         print(f"查询结果：{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
         stock = {
         'code': stockCode,
@@ -2170,7 +2170,7 @@ class BaseClass :
         response = {}
         response["code"] = code
         response["kline"] = []
-        cls = self.main.calculationDataHandle.GetBaseDataClass(code, self.main.todayStockDate, False)
+        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code, self.main.todayStockDate, False)
         for single in cls.dataList_240:
             date_obj = datetime.strptime(single.trade_date, "%Y%m%d")
             targetDate = date_obj.strftime("%Y-%m-%d")

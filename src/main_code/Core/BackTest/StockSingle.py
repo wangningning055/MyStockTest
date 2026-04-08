@@ -26,6 +26,7 @@ class BaseClass:
     kline_data_stopRecorderCount : int    #K线图结尾记录
     isEndUpdateKLine : bool
 
+
     #开仓价
     start_price : float
     start_oriPrice_avg : float
@@ -77,19 +78,20 @@ class BaseClass:
         main = partStock.totalStock.handler.main
         backTestCalculationHandle = partStock.totalStock.handler.backTestCalculationHandle
         todayStr = backTestCalculationHandle.todayStr
-        cls = backTestCalculationHandle.GetBaseDataClass(self.stockCode, todayStr)
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(self.stockCode, todayStr)
         count = 0
         for singleCls in cls.dataList_240:
-            if count > 20:
-                break
+            #if count > 120:
+            #    break
             count += 1
             dt = datetime.strptime(singleCls.trade_date, "%Y%m%d")
             date = dt.strftime("%Y-%m-%d")
             priceList = []
-            priceList.append(singleCls.open_ori)
-            priceList.append(singleCls.close_ori)
-            priceList.append(singleCls.low_ori)
-            priceList.append(singleCls.high_ori)
+            priceList.append(singleCls.open)
+            priceList.append(singleCls.close)
+            priceList.append(singleCls.low)
+            priceList.append(singleCls.high)
+            priceList.append(singleCls.change_Ratio)
 
             volume = singleCls.volume            #手
 
@@ -101,16 +103,23 @@ class BaseClass:
     def UpdateRecorderKLine(self):
         if self.isEndUpdateKLine == True:
             return
-        if self.isEnd == True and self.kline_data_stopRecorderCount > 20:
-            self.isEndUpdateKLine = True
+        if self.isEnd == True:
             self.kline_data_stopRecorderCount += 1
+            
+        if self.kline_data_stopRecorderCount > 240:
+            self.isEndUpdateKLine = True
             return
+
         partStock = self.stockPart
         main = partStock.totalStock.handler.main
         backTestCalculationHandle = partStock.totalStock.handler.backTestCalculationHandle
         todayStr = backTestCalculationHandle.todayStr
-        cls = backTestCalculationHandle.GetBaseDataClass(self.stockCode, todayStr)
-
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(self.stockCode, todayStr)
+        if cls == None:
+            self.isEndUpdateKLine = True
+            return
+        if cls.trade_state == 0:
+            return
         dt = datetime.strptime(cls.trade_date, "%Y%m%d")
         date = dt.strftime("%Y-%m-%d")
         if date in self.kline_data.dates:
@@ -120,6 +129,7 @@ class BaseClass:
         priceList.append(cls.close)
         priceList.append(cls.low)
         priceList.append(cls.high)
+        priceList.append(cls.change_Ratio)
 
         volume = cls.volume           #万手
 
@@ -170,7 +180,7 @@ class BaseClass:
 
         todayStr = backTestCalculationHandle.todayStr
         stockCode = self.stockCode
-        cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(stockCode, todayStr)
         if cls != None:
             if cls.trade_state != 0:
                 nowPrice = cls.close_ori
@@ -205,7 +215,7 @@ class BaseClass:
 
         todayStr = backTestCalculationHandle.todayStr
         stockCode = self.stockCode
-        cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(stockCode, todayStr)
         if cls == None:
             return self.curValue
         nowPrice = cls.close_ori

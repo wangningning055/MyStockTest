@@ -4,6 +4,8 @@ import src.main_code.Core.BackTest.BackTestMsgDataStruct as BackTestMsgDataStruc
 from typing import List, Optional, Callable, Dict, Any, Union
 import src.main_code.Core.Select.Models as Models
 import numpy as np
+from dataclasses import dataclass, field, asdict
+from datetime import datetime
 
 # 1. 先导入TYPE_CHECKING常量
 from typing import TYPE_CHECKING
@@ -21,6 +23,7 @@ class BaseClass:
     startValue : float          #开仓资金
     curValue : float            #当前可用资金
     totalValue : float          #当前仓位总价值
+    lastVal : int                                   #昨日价
 
 
     buyCondition : List[Models.FactorConfig]       #买入策略
@@ -57,6 +60,7 @@ class BaseClass:
     changeRatioList : List[float]                   #涨跌列表记录，用于计算波动率
     lastUpVal : float                               #上次涨的时候的价格，用于计算最大回撤
     maxReturn : float                               #最大回撤记录
+    changeRatioCurve : BackTestMsgDataStruct.EquityCurve      #用于前端显示的曲线列表记录
 
 
 
@@ -96,6 +100,9 @@ class BaseClass:
         self.changeRatioList = []
         self.maxReturn = 0
         self.lastUpVal = self.curValue
+        self.lastVal = self.curValue
+
+        self.changeRatioCurve = BackTestMsgDataStruct.EquityCurve()
 
         #print("=====================================================")
         #print(f"名字：{self.name}")
@@ -216,7 +223,7 @@ class BaseClass:
 
         todayStr = backTestCalculationHandle.todayStr
         stockCode = singleStock.stockCode
-        cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(stockCode, todayStr)
         componyCls = backTestCalculationHandle.totalComponyIns.GetComponyInfo(stockCode)
         state = singleStock.GetState()
 
@@ -225,6 +232,8 @@ class BaseClass:
         operate.stockCode = stockCode
         operate.operate = "sell"
         operate.stockName = componyCls.Name
+        if cls == None:
+            print(f"卖出错误，尝试卖出：{componyCls.Name}， 日期是：{todayStr}， 日期列表是：{backTestCalculationHandle.totalDateList}")
         if cls.trade_state == 0 and isForce == False:
             operate.isSuccess = False
             operate.failReason = "停牌无法卖出"
@@ -304,7 +313,7 @@ class BaseClass:
         todayStr = backTestCalculationHandle.todayStr
 
         singleStock = StockSingle.BaseClass()
-        cls = backTestCalculationHandle.GetBaseDataClass(stockCode, todayStr)
+        cls = backTestCalculationHandle.GetBaseDataClass_WithTradeState(stockCode, todayStr)
         componyCls = backTestCalculationHandle.totalComponyIns.GetComponyInfo(stockCode)
 
         operate.date = todayStr
@@ -395,17 +404,39 @@ class BaseClass:
         backTestCalculationHandle = self.totalStock.handler.backTestCalculationHandle
 
 
-        if self.curChangeRatio > 0:
+        #计算回撤
+        lastChange = (self.totalValue - self.lastVal) / self.lastVal
+        if lastChange > 0:
             self.lastUpVal = self.totalValue
         else:
             ratio = (self.totalValue - self.lastUpVal) / self.lastUpVal
+            self.changeRatioCurve.drawdown.append(ratio)
             if abs(ratio) > abs(self.maxReturn):
-                self.maxReturn = ratio
+                self.maxReturn = ratio * 100
+        self.lastVal = self.totalValue
+                
+        #构造曲线数据
+        dt = datetime.strptime(date, "%Y%m%d")
+        self.changeRatioCurve.dates.append(dt.strftime("%Y-%m-%d"))
+        self.changeRatioCurve.returns.append(self.curChangeRatio)
+        self.changeRatioCurve.equity.append(self.totalValue)
+
+        dailyList = []
+        for singleStock in self.stockList:
+            position = BackTestMsgDataStruct.Position()
+            position.code = singleStock.stockCode
+            position.name = singleStock.stockName
+            position.shares = singleStock.volume
+            dailyList.append(position)
+
+        self.changeRatioCurve.positions.append(dailyList)
+        self.changeRatioCurve.equity.append
 
 
         todayStr = backTestCalculationHandle.todayStr
         for historyStock  in self.stockList_history:
             historyStock.UpdateRecorderKLine()
+
 
 
     #清空仓位，立即卖出，用以计算结果
@@ -439,18 +470,14 @@ class BaseClass:
         return len(self.stockList_history)
         
 
-
-
     def GetResult(self):
         #平均日收益率
         avgRatio = 0
         if len(self.changeRatioList) > 0:
             addCount = 0
-            totalRatio = 0
             for ratio in self.changeRatioList:
-                totalRatio += ratio
                 addCount += 1
-            avgRatio = totalRatio / addCount
+            avgRatio = self.curChangeRatio / addCount
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
 
@@ -474,7 +501,7 @@ class BaseClass:
             if singleStock.curChangeRatio > 0:
                 successCount += 1
 
-        successRatio = successCount / totalCount
+        successRatio = (successCount / totalCount) * 100
 
 
         #平均年化收益率
@@ -500,7 +527,83 @@ class BaseClass:
         #成交笔数
         totalDealCount = totalCount
 
+        divisionStock = BackTestMsgDataStruct.DivisionResult()
 
+        #构造基本数据
+        divisionStock.division_name = self.name
+        totalSummary = BackTestMsgDataStruct.TradeSummary()
+
+        totalSummary.initial_fund = startVal
+        totalSummary.final_fund = curVal
+        totalSummary.total_return = changeRatio
+        totalSummary.win_rate = successRatio
+        totalSummary.annual_return = yearAvgRatio
+        totalSummary.annual_volatility = year_volatility
+        totalSummary.monthly_return = monthAvgRatio
+        totalSummary.monthly_volatility = month_volatility
+        totalSummary.max_drawdown = maxReturn
+        totalSummary.sharpe_ratio = sharpe
+
+        divisionStock.summary = asdict(totalSummary)
+
+        tradeRecorderList = []
+        count = 0
+        #构造收益率曲线
+        for operate in self.operate_recorder_List:
+            if operate.operate == "buy" and operate.isSuccess == True:
+                
+                dt = datetime.strptime(operate.buy_date, "%Y%m%d")
+                operate_date = dt.strftime("%Y-%m-%d")
+                marker = BackTestMsgDataStruct.TradeMarker()
+                marker.date = operate_date
+                marker.code = operate.stockCode
+                marker.name = operate.stockName
+                marker.price = operate.buy_price
+                marker.equity = operate.curPartStockValue
+        
+                self.changeRatioCurve.buy_markers.append(marker)
+
+
+            elif operate.operate == "sell" and operate.isSuccess == True:
+                count +=1
+                dt = datetime.strptime(operate.sell_date, "%Y%m%d")
+                operate_date = dt.strftime("%Y-%m-%d")
+                marker = BackTestMsgDataStruct.TradeMarker()
+                marker.date = operate_date
+                marker.code = operate.stockCode
+                marker.name = operate.stockName
+                marker.price = operate.sell_price_end
+                marker.equity = operate.curPartStockValue 
+                self.changeRatioCurve.sell_markers.append(marker)
+
+                dt_buy = datetime.strptime(operate.buy_date, "%Y%m%d")
+                buy_date = dt_buy.strftime("%Y-%m-%d")
+
+                dt_sell = datetime.strptime(operate.sell_date, "%Y%m%d")
+                sell_date = dt_sell.strftime("%Y-%m-%d")
+
+
+                tradeRecorder = BackTestMsgDataStruct.TradeRecord()
+                tradeRecorder.trade_id = count
+                tradeRecorder.buy_date = buy_date
+                tradeRecorder.sell_date = sell_date
+                tradeRecorder.hold_days = (dt_sell - dt_buy).days
+                tradeRecorder.code = operate.stockCode
+                tradeRecorder.name = operate.stockName
+                tradeRecorder.buy_price = operate.sell_price_start
+                tradeRecorder.sell_price = operate.sell_price_end
+                tradeRecorder.sellReason = operate.successReason
+
+                profitMoney = (operate.sell_price_end - operate.sell_price_start) * operate.buy_volume
+                profit = (operate.sell_price_end - operate.sell_price_start) / operate.sell_price_start
+                tradeRecorder.profit_pct = profit * 100
+                tradeRecorder.profit_money = profitMoney
+                tradeRecorder.kline_data = asdict(operate.kline_data)
+                tradeRecorderList.append(asdict(tradeRecorder))
+                
+        divisionStock.equity_curve = asdict(self.changeRatioCurve)
+        divisionStock.trades = tradeRecorderList
+        return asdict(divisionStock)
 
 
 
@@ -511,4 +614,4 @@ class BaseClass:
             opera.Log()
 
     def Log(self):
-        print(f"----更新分仓：日期：{self.totalStock.handler.backTestCalculationHandle.todayStr}， 分仓名：{self.name}， 开仓价：{self.startValue}， 当前价：{self.curValue}， 涨跌幅：{self.curChangeRatio}")
+        print(f"----更新分仓：日期：{self.totalStock.handler.backTestCalculationHandle.todayStr}， 分仓名：{self.name}， 开仓价：{self.startValue}， 当前价：{self.totalValue}， 涨跌幅：{self.curChangeRatio}")
