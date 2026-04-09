@@ -245,15 +245,16 @@ class BaseClass :
             return ""
         self.todayStr = nextDayStr
         
+        #老的日期列表
         oldDataList = self.totalDateList
 
-
-        #-------------------------------------------
         #初始化新的日期列表
         newDataList = self.InitDateList(nextDayStr, Const.dateListLength)
         self.totalDateList = newDataList
-        diff_list =  [item for item in oldDataList if item not in newDataList]
 
+        #找到两个列表的差别
+        diff_list =  [item for item in oldDataList if item not in newDataList]
+        
 
         delCount = 0
         addCount = 0

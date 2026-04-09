@@ -6,6 +6,7 @@ from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 import src.main_code.Core.Calculate.CalculationDataHandle as CalculationDataHandle
 import src.main_code.Core.Const as const
+from typing import List, Optional, Callable, Dict, Any, Union
 import time
 import psutil
 import os
@@ -127,8 +128,6 @@ class BaseClass :
         if(self.evaluator == None):
             print("评估器未初始化，正在初始化")
             self.InitEvaluator(calculationHandle)
-
-
         listCode = []
         res = {}
         count = 1
@@ -176,6 +175,65 @@ class BaseClass :
 
 
         return res
+
+
+
+    def RunGetStockListByPatternMatch(self, calculationHandle : CalculationDataHandle.BaseClass, isOutKC, isOutCY, isOutST,  valueWindow, priceWindow, dayTarget, targetChangeRatio, newList) -> List[CalculationDataStruct.StructBaseClass]:
+        res = []
+        for val, single in calculationHandle.totalComponyIns.allStockList.items():
+            #如果状态不是成交状态就跳过
+            todayStr = calculationHandle.todayStr
+            cls = calculationHandle.GetBaseDataClass(val, todayStr ,False)
+            if cls == None:
+                continue
+            if cls.trade_state != 1:
+                #print(f"股票{cls.componyInfo.Name}：{val} 在 {todayStr} 停牌，不执行")
+                continue
+            if len(cls.dataList_240) < 10:
+                #print(f"股票{cls.componyInfo.Name}：{val} 新上市交易日不足十天，跳过")
+                continue
+            if isOutST == True:
+                if cls.isST == 1:
+                    continue
+            if isOutKC == True:
+                if const.GetIsKC(val):
+                    continue
+            if isOutCY == True:
+                if const.GetIsCy(val):
+                    continue
+            for pairs in newList:
+                if pairs[0] == cls.code:
+                    continue
+
+            valueMin = valueWindow[0]
+            valueMax = valueWindow[1]
+
+            priceMin = priceWindow[0]
+            priceMax = priceWindow[1]
+
+            if valueMin != -1:
+                if cls.total_value < valueMin:
+                    continue
+
+            if valueMax != -1:
+                if cls.total_value > valueMax:
+                    continue
+
+            if priceMin != -1:
+                if cls.close_ori < priceMin:
+                    continue
+
+            if priceMax != -1:
+                if cls.close_ori > priceMax:
+                    continue
+
+            windowData = calculationHandle.GetWindowDataClass(cls.code, todayStr, 0, dayTarget)
+            if windowData.change_Ratio >= targetChangeRatio:
+                res.append(cls)
+        
+        return res
+
+
 
 
 
@@ -2186,4 +2244,7 @@ class BaseClass :
             response["kline"].append(singleKline)
         response["kline"].reverse()
         self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_KLINE_DATA, response)
-        
+
+
+
+

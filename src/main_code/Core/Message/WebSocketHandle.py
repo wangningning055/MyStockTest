@@ -237,7 +237,8 @@ def HandleMsg(msg):
 
 
     elif(msgType == MessageType.CS_PATTERN_MATCH):
-        mainProcessor.patternMatchHandle.StartMatch(data)
+        task = asyncio.get_running_loop().create_task(mainProcessor.patternMatchHandle.StartMatch(data))
+       
     
     elif(msgType == MessageType.SC_PATTERN_MATCH):
         mainProcessor.patternMatchHandle.SendMatchResult()
