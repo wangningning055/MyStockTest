@@ -25,6 +25,8 @@ class BaseClass:
         print("模式匹配模块初始化成功")
         self.main = main
         self.isNeedStop = False
+        self.ValueWindow = []
+        self.PriceWindow = []
         self.ValueWindow.append(-1)
         self.ValueWindow.append(-1)
         self.PriceWindow.append(-1)
