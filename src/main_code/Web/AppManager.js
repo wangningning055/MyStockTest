@@ -410,6 +410,7 @@ class AppManager {
         this.registerHandler(SocketModule.MessageType.SC_PATTERN_MATCH, (data) => {
             this.app.log("🔍 收到模式匹配结果", "success");
             if (this.patternMatchManager) {
+                this.patternMatchManager.stopMatch();
                 this.patternMatchManager.setResultData(data.msg);
             }
         });

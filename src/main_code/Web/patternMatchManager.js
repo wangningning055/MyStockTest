@@ -77,6 +77,12 @@ export const PatternMatchManager = {
             runMatchBtn.addEventListener('click', () => this.runMatch());
         }
 
+        const stopMatchBtn = document.getElementById('pm-stop-match');
+        if (stopMatchBtn) {
+            stopMatchBtn.addEventListener('click', () => this.stopMatch());
+            stopMatchBtn.addEventListener('click', () => this.sendStopMatch());
+        }
+
         // 查看结果
         const viewResultBtn = document.getElementById('pm-view-result');
         if (viewResultBtn) {
@@ -171,7 +177,7 @@ export const PatternMatchManager = {
     // ============================
 
     addDefaultCondition() {
-        this.addCondition(1, 30, 100, null);
+        this.addCondition(0, 20, 100, null);
     },
 
     /**
@@ -181,7 +187,7 @@ export const PatternMatchManager = {
      * @param {number} changeMin - 涨幅最小值(%)
      * @param {number|null} changeMax - 涨幅最大值(%)，null表示不限
      */
-    addCondition(daysMin = 1, daysMax = 30, changeMin = 0, changeMax = null) {
+    addCondition(daysMin = 1, daysMax = 30, changeMin = 0, changeMax = null,  unlimited = false) {
         const id = `pm-cond-${++conditionIdCounter}`;
         const container = document.getElementById('pm-conditions-list');
         if (!container) return;
@@ -190,15 +196,26 @@ export const PatternMatchManager = {
         row.className = 'pm-condition-row';
         row.id = id;
 
+        const changeMaxValue = unlimited ? '' : (changeMax !== null ? changeMax : '');
+        const isUnlimitedChecked = unlimited || changeMax === null;
+
+
+
         row.innerHTML = `
-            <span class="pm-cond-label">天数：</span>
-            <input type="number" class="pm-cond-input pm-days-min" value="${daysMin}" min="1" placeholder="最小">
+            <span class="pm-cond-label">天数(前X天-前X天)：</span>
+            <input type="number" class="pm-cond-input pm-days-min" value="${daysMin}" min="0" placeholder="最小">
             <span class="pm-cond-separator">~</span>
             <input type="number" class="pm-cond-input pm-days-max" value="${daysMax}" min="1" placeholder="最大">
             <span class="pm-cond-label" style="margin-left:12px;">涨幅(%)：</span>
-            <input type="number" class="pm-cond-input pm-change-min" value="${changeMin}" step="0.1" placeholder="最小">
+            <input type="number" class="pm-cond-input pm-change-min" value="${changeMin}" step="1" placeholder="最小">
             <span class="pm-cond-separator">~</span>
-            <input type="number" class="pm-cond-input pm-change-max" value="${changeMax !== null ? changeMax : ''}" step="0.1" placeholder="不限">
+            <input type="number" class="pm-cond-input pm-change-max" value="${changeMax !== null ? changeMax : ''}" step="1" placeholder="不限">
+            <label style="margin-left: 4px; font-size: 12px; white-space: nowrap;">
+                <input type="checkbox" class="pm-change-unlimited" 
+                    ${changeMax === null ? 'checked' : ''} title="不限涨幅">
+                无限
+            </label>
+
             <button class="pm-cond-delete" title="删除此条件">✕</button>
         `;
 
@@ -207,6 +224,21 @@ export const PatternMatchManager = {
             row.remove();
         });
 
+        // 新增：绑定无限制复选框事件
+        const unlimitCheckbox = row.querySelector('.pm-change-unlimited');
+        const changeMaxInput = row.querySelector('.pm-change-max');
+        
+        unlimitCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                changeMaxInput.value = '';
+                changeMaxInput.disabled = true;
+                changeMaxInput.style.opacity = '0.5';
+            } else {
+                changeMaxInput.disabled = false;
+                changeMaxInput.style.opacity = '1';
+                changeMaxInput.focus();
+            }
+        });
 
         container.appendChild(row);
     },
@@ -219,9 +251,12 @@ export const PatternMatchManager = {
         const rows = document.querySelectorAll('.pm-condition-row');
         const conditions = [];
         rows.forEach(row => {
-            const daysMin = parseInt(row.querySelector('.pm-days-min').value) || 1;
+            const daysMin = parseInt(row.querySelector('.pm-days-min').value) || 0;
             const daysMax =  parseInt(row.querySelector('.pm-days-max').value) || 30;
             const changeMin = parseFloat(row.querySelector('.pm-change-min').value);
+
+
+            const isUnlimited = row.querySelector('.pm-change-unlimited')?.checked ?? false;
             const changeMaxStr = row.querySelector('.pm-change-max').value.trim();
             const changeMax = changeMaxStr === '' ? null : parseFloat(changeMaxStr);
 
@@ -229,7 +264,8 @@ export const PatternMatchManager = {
                 days_min: daysMin,
                 days_max: daysMax,
                 change_min: isNaN(changeMin) ? null : changeMin,
-                change_max: isNaN(changeMax) ? null : changeMax
+                change_max: isNaN(changeMax) ? null : changeMax,
+                unlimited: isUnlimited
             });
         });
         return conditions;
@@ -260,14 +296,36 @@ export const PatternMatchManager = {
             App.log('❌ 请至少添加一个匹配条件', 'error');
             return;
         }
-
         const startDate = document.getElementById('pm-start-date')?.value || '';
         const endDate = document.getElementById('pm-end-date')?.value || '';
+
+
+        const marketCapMin = document.getElementById('pm-market-cap-min')?.value || '0';
+        const marketCapMax = document.getElementById('pm-market-cap-max')?.value;
+        const marketCapUnlimited = document.getElementById('pm-market-cap-unlimited')?.checked ?? false;
+        
+        const priceMin = document.getElementById('pm-price-min')?.value || '0';
+        const priceMax = document.getElementById('pm-price-max')?.value;
+        const priceUnlimited = document.getElementById('pm-price-unlimited')?.checked ?? false;
 
         const payload = {
             start_date: startDate.replace(/-/g, ''),
             end_date: endDate ? endDate.replace(/-/g, '') : '',
             conditions: conditions,
+
+            // 新增：市值范围
+            market_cap_range: {
+                min: parseFloat(marketCapMin) || 0,
+                max: marketCapUnlimited ? null : (parseFloat(marketCapMax) || null),
+                unlimited: marketCapUnlimited
+            },
+            // 新增：股价范围
+            price_range: {
+                min: parseFloat(priceMin) || 0,
+                max: priceUnlimited ? null : (parseFloat(priceMax) || null),
+                unlimited: priceUnlimited
+            },
+
             exclude_st: document.getElementById('pm-filter-exclude-st')?.checked ?? true,
             exclude_kc: document.getElementById('pm-filter-exclude-kc')?.checked ?? true,
             exclude_cy: document.getElementById('pm-filter-exclude-cy')?.checked ?? true,
@@ -277,8 +335,14 @@ export const PatternMatchManager = {
         // 显示loading
         PMState.isMatching = true;
         const loadingEl = document.getElementById('pm-loading');
-        if (loadingEl) loadingEl.style.display = 'inline-flex';
+        const runBtn = document.getElementById('pm-run-match');
+        const stopBtn = document.getElementById('pm-stop-match');
         const viewBtn = document.getElementById('pm-view-result');
+
+
+        if (runBtn) runBtn.style.display = 'none';
+        if (stopBtn) stopBtn.style.display = 'inline-flex';
+        if (loadingEl) loadingEl.style.display = 'inline-flex';
         if (viewBtn) viewBtn.style.display = 'none';
 
         App.log(`📤 发送模式匹配请求, 条件数: ${conditions.length}`, 'system');
@@ -286,6 +350,31 @@ export const PatternMatchManager = {
 
         if (manager && manager.socket) {
             manager.socket.sendMessage(SocketModule.MessageType.CS_PATTERN_MATCH, payload);
+        }
+    },
+
+
+    stopMatch() {
+        PMState.isMatching = false;
+        App.log('⏹️ 匹配已停止', 'warning');
+        
+        const loadingEl = document.getElementById('pm-loading');
+        const runBtn = document.getElementById('pm-run-match');
+        const stopBtn = document.getElementById('pm-stop-match');
+        
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (runBtn) runBtn.style.display = 'inline-flex';
+        if (stopBtn) stopBtn.style.display = 'none';
+
+
+    },
+    
+    sendStopMatch() {
+        
+        if (manager && manager.socket) {
+            manager.socket.sendMessage(SocketModule.MessageType.CS_PATTERN_MATCH_STOP, {
+                timestamp: new Date().toISOString()
+            });
         }
     },
 
@@ -335,6 +424,14 @@ export const PatternMatchManager = {
         PMState.searchKeyword = '';
         PMState.sortField = 'match_start';
         PMState.sortDirection = 'desc';
+
+        const runBtn = document.getElementById('pm-run-match');
+        const stopBtn = document.getElementById('pm-stop-match');
+        
+        if (runBtn) runBtn.style.display = 'inline-flex';
+        if (stopBtn) stopBtn.style.display = 'none';
+ 
+
 
         // 隐藏loading
         const loadingEl = document.getElementById('pm-loading');
@@ -682,10 +779,22 @@ export const PatternMatchManager = {
                 const fragment = document.createDocumentFragment();
                 PMState.lastExportedParams.forEach(p => {
                     const tr = document.createElement('tr');
-                    const formattedVal = typeof p.value === 'number' ? p.value.toFixed(4) : String(p.value);
+                    // 新增：检查是否为范围值
+                    let displayVal;
+                    if (p.value && typeof p.value === 'object' && (p.value.min !== undefined || p.value.max !== undefined)) {
+                        // 范围值格式：[min ~ max]
+                        const minVal = p.value.min !== undefined ? p.value.min.toFixed(4) : '无限';
+                        const maxVal = p.value.max !== undefined ? p.value.max.toFixed(4) : '无限';
+                        displayVal = `[${minVal} ~ ${maxVal}]`;
+                    } else if (typeof p.value === 'number') {
+                        // 单值格式
+                        displayVal = p.value.toFixed(4);
+                    } else {
+                        displayVal = String(p.value);
+                    }
                     tr.innerHTML = `
                         <td style="color:#4facfe;font-weight:500;">${p.name || '--'}</td>
-                        <td style="font-family:monospace;">${formattedVal}</td>
+                        <td style="font-family:monospace;">${displayVal}</td>
                     `;
                     fragment.appendChild(tr);
                 });

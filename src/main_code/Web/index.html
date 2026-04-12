@@ -928,13 +928,58 @@
                         <div class="pm-panel-header">
                             <h3>🔍 模式匹配配置</h3>
                         </div>
+                        <!-- 股票筛选 -->
+                        <div class="pm-section">
+                            <div class="pm-section-title">🏷 股票筛选</div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-st" checked> 剔除ST股</label>
+                            </div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-kc" checked> 剔除科创板</label>
+                            </div>
+                            <div class="pm-filter-item">
+                                <label><input type="checkbox" id="pm-filter-exclude-cy" checked> 剔除创业板</label>
+                            </div>
+                        </div>
+
+                        <!-- 新增：市值和股价范围设置 -->
+                        <div class="pm-section">
+                            <div class="pm-section-title">💰 股票筛选范围</div>
+                            
+                            <!-- 市值范围 -->
+                            <div class="pm-range-group">
+                                <label>流通市值(亿)：</label>
+                                <input type="number" id="pm-market-cap-min" class="pm-input" 
+                                    placeholder="最小" value="0" min="0" step="100">
+                                <span class="pm-range-sep">~</span>
+                                <input type="number" id="pm-market-cap-max" class="pm-input" 
+                                    placeholder="最大(留空=无限)" value="" step="100">
+                                <label style="margin-left: 8px;">
+                                    <input type="checkbox" id="pm-market-cap-unlimited"> 不限
+                                </label>
+                            </div>
+                            
+                            <!-- 股价范围 -->
+                            <div class="pm-range-group" style="margin-top: 8px;">
+                                <label>股价(元)：</label>
+                                <input type="number" id="pm-price-min" class="pm-input" 
+                                    placeholder="最小" value="0" min="0" step="0.1">
+                                <span class="pm-range-sep">~</span>
+                                <input type="number" id="pm-price-max" class="pm-input" 
+                                    placeholder="最大(留空=无限)" value="" step="0.1">
+                                <label style="margin-left: 8px;">
+                                    <input type="checkbox" id="pm-price-unlimited"> 不限
+                                </label>
+                            </div>
+                        </div>
+
 
                         <!-- 时间设置 -->
                         <div class="pm-section">
                             <div class="pm-section-title">📅 匹配起始时间</div>
                             <div class="pm-form-row">
                                 <label>开始日期</label>
-                                <input type="date" id="pm-start-date" class="pm-input" value="2020-01-01">
+                                <input type="date" id="pm-start-date" class="pm-input" value="2025-01-01">
                             </div>
                             <div class="pm-form-row">
                                 <label>结束日期（可选，留空则到最新）</label>
@@ -956,23 +1001,11 @@
                             </button>
                         </div>
 
-                        <!-- 股票筛选 -->
-                        <div class="pm-section">
-                            <div class="pm-section-title">🏷 股票筛选</div>
-                            <div class="pm-filter-item">
-                                <label><input type="checkbox" id="pm-filter-exclude-st" checked> 剔除ST股</label>
-                            </div>
-                            <div class="pm-filter-item">
-                                <label><input type="checkbox" id="pm-filter-exclude-kc" checked> 剔除科创板</label>
-                            </div>
-                            <div class="pm-filter-item">
-                                <label><input type="checkbox" id="pm-filter-exclude-cy" checked> 剔除创业板</label>
-                            </div>
-                        </div>
 
                         <!-- 操作按钮区 -->
                         <div class="pm-action-area">
                             <button class="btn btn-primary" id="pm-run-match">🚀 开始匹配</button>
+                            <button class="btn btn-danger" id="pm-stop-match" style="display:none;">🛑 停止匹配</button>
 
                             <div id="pm-loading" class="pm-loading" style="display:none;">
                                 <span class="spinner-sm"></span>

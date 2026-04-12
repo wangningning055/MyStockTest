@@ -61,6 +61,7 @@ progress_interval_backTesting = 1     #回测阶段的进度间隔
 
 
 dateListLength = 30     #缓存的日期长度
+dateList240Length = 30     #缓存的240日期长度
 
 
 def GetIsCy(stockCode):

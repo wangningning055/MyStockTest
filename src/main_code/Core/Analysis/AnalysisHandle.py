@@ -3,7 +3,6 @@ from src.main_code.Core.Select.ConditionEvaluator import FactorEvaluator, load_f
 from src.main_code.Core.Const import FactorsJsonPath
 from src.main_code.Core import Main
 from src.main_code.Core.DataStruct.Base import CalculationDataStruct
-from src.main_code.Core.DataStruct.Base import CalculationDataStruct
 import src.main_code.Core.Calculate.CalculationDataHandle as CalculationDataHandle
 import src.main_code.Core.Const as const
 from typing import List, Optional, Callable, Dict, Any, Union
@@ -178,7 +177,7 @@ class BaseClass :
 
 
 
-    def RunGetStockListByPatternMatch(self, calculationHandle : CalculationDataHandle.BaseClass, isOutKC, isOutCY, isOutST,  valueWindow, priceWindow, dayTarget, targetChangeRatio, newList) -> List[CalculationDataStruct.StructBaseClass]:
+    def RunGetStockListByPatternMatch(self, calculationHandle : CalculationDataHandle.BaseClass, isOutKC, isOutCY, isOutST,  valueWindow, priceWindow, conditionList, newList) -> List[CalculationDataStruct.StructBaseClass]:
         res = []
         for val, single in calculationHandle.totalComponyIns.allStockList.items():
             #如果状态不是成交状态就跳过
@@ -201,9 +200,13 @@ class BaseClass :
             if isOutCY == True:
                 if const.GetIsCy(val):
                     continue
+            isHaveSame = False
             for pairs in newList:
                 if pairs[0] == cls.code:
-                    continue
+                    isHaveSame = True
+                    break
+            if isHaveSame == True:
+                continue
 
             valueMin = valueWindow[0]
             valueMax = valueWindow[1]
@@ -227,9 +230,25 @@ class BaseClass :
                 if cls.close_ori > priceMax:
                     continue
 
-            windowData = calculationHandle.GetWindowDataClass(cls.code, todayStr, 0, dayTarget)
-            if windowData.change_Ratio >= targetChangeRatio:
+
+            isSuccess = True
+            for condition in conditionList:
+                startDay = condition["startDay"]
+                toDay = condition["toDay"]
+                minChange = condition["minChange"]
+                maxChange = condition["maxChange"]
+
+                windowData = calculationHandle.GetWindowDataClass(cls.code, todayStr, startDay, toDay)
+                if windowData.change_Ratio < minChange:
+                    isSuccess = False
+                    break
+                if maxChange != -99999 and windowData.change_Ratio > maxChange:
+                    isSuccess = False
+                    break
+
+            if isSuccess == True:
                 res.append(cls)
+
         
         return res
 

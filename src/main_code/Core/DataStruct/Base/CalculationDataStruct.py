@@ -26,11 +26,12 @@ class StructBaseClass :
 
         self._computed_fields = set()
         self.calculateCount = 0
+        self.isDelete = False
 
     def Init(self, handler, stockCode, date, dbData):
         if(dbData == None):
             return None
-
+        self.isDelete =False
         self.handler = handler
         tempDailyCls = DailyDBStruct.DBStructClass()
         tempAdjustCls = AdjustDBStruct.DBStructClass()
@@ -212,6 +213,7 @@ class StructBaseClass :
     ValueScore:float     #价值股评分
     GrowScore:float      #成长股评分
 
+    isDelete:bool
     adjst:float #前复权因子
     trade_date:date #交易日期
     open: float     #当日开盘价
@@ -219,7 +221,7 @@ class StructBaseClass :
     last_close: float#当日昨收价
     high: float     #当日最高价
     low: float      #当日最低价
-    volume: float   #当日成交量
+    volume: float   #当日成交量*（手）
     change_Ratio:float      #当日涨跌幅
 
 

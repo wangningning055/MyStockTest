@@ -69,7 +69,9 @@ class BaseClass :
             self.todayStr = todayStr
 
     async def DataPreheating(self, isNeedLog = True, isJumpReadDb = False):
-        self.main.SetIsInHandle(True)
+        if isJumpReadDb == False:
+            self.main.SetIsInHandle(True)
+
         await asyncio.sleep(0)
         today = self.todayStr
         if today == None:
@@ -213,7 +215,8 @@ class BaseClass :
             print(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
             self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 数据预热花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
 
-        self.main.SetIsInHandle(False)
+        if isJumpReadDb == False:
+            self.main.SetIsInHandle(False)
 
         self.isPreheating = True
         if isJumpReadDb == False:
@@ -264,7 +267,6 @@ class BaseClass :
         for day in diff_list:
 
             #基本日线数据删除
-            #第一种删除方法
             keys_to_delete_base = [
                 key for key in self.totalBaseDailyData
                 if key == day
@@ -319,6 +321,7 @@ class BaseClass :
                 delCount += 1
                 del self.totalDbList[key]
                 
+
 
         #-------------------------------------------
         #重读数据库
@@ -1036,7 +1039,8 @@ class BaseClass :
     #获取前X天的交易数据
     def GetLastDateDataByNum(self, cls, dayNum):
         clsList = []
-        count = 0
+        clsList.append(cls)
+        count = 1
         stopCount = 0
         targetCode = ""
         if isinstance(cls, str):
@@ -1047,7 +1051,7 @@ class BaseClass :
 
         for day in self.totalDateList:
             cls_day = self.GetBaseDataClass(targetCode, day)
-            if cls_day is None or cls_day.trade_state == 0:
+            if cls_day is None or cls_day.trade_state != 1 or cls.isInit != True or cls_day.trade_date is None:
                 stopCount += 1
                 if stopCount > 60:
                     break

@@ -1,4 +1,5 @@
 #from src.main_code.Core.Calculate import CalculationDataHandle
+import traceback
 import src.main_code.Core.Calculate.CalculationSpecial as CalculationSpecial
 from operator import attrgetter
 from datetime import date,datetime, timedelta
@@ -108,6 +109,12 @@ def CalculateIndustryBase(industryCls: "CalculationDataStruct.StructIndustryInfo
 
 #获取上压力位
 def GetUpPressure(NowData:"CalculationDataStruct.StructBaseClass", BreakWindowCount, handler:"CalculationDataHandle.BaseClass"):
+    #print("")
+    #print("")
+    #print(f"获取上压力位，日期是：{NowData.trade_date},  {BreakWindowCount}, ")
+    #traceback.print_stack()
+    #print("")
+    #print("")
     return CalculationSpecial.CalculateUpPressure(NowData, 0, BreakWindowCount, handler)
 
 #获取下压力位
@@ -328,6 +335,19 @@ def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
 def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
     lastDay = NowData.dataList_240[1]
     target = (NowData.avg - lastDay.avg) / lastDay.avg if lastDay.avg != 0 else 0 
+    if NowData.code == "002917.SZ":
+        print("####################################")
+        print(NowData.trade_date)
+        print(NowData.close)
+        print(NowData.avg)
+        print("--------------")
+        print(lastDay.trade_date)
+        print(lastDay.close)
+        print(lastDay.avg)
+        print(target)
+        for cls in NowData.dataList_240:
+            print(cls.trade_date)
+        print("####################################")
     return target *100
 
 
@@ -1502,10 +1522,12 @@ def GetChange_Ratio_Window(NowData : "CalculationDataStruct.StructBaseClass", St
     for single in dataList_240:
         if count == StartDayCount:
             startVal = single.close
+            #print("-----------------------------------------------------")
             #print(f"正在算涨跌幅，开始日期是：{single.trade_date}, 涨跌幅开始值是：{startVal}， {StartDayCount}  {ToDayCount}")
         if count == ToDayCount or count == len(dataList_240) - 1:
             endVal = single.close
             #print(f"正在算涨跌幅，结束日期是：{single.trade_date}, 涨跌幅结束值是：{endVal}， {StartDayCount}  {ToDayCount}")
+            #print("-----------------------------------------------------")
             break
         count = count + 1
     return (startVal - endVal)*100 / endVal

@@ -124,7 +124,7 @@ window.TestPatternMatch = {
                         {
                             name: '价值指标',
                             items: [
-                                { label: '市盈率(PE)', value: +(5 + Math.random() * 50).toFixed(2), type: 'number' },
+                                { label: '市盈率(PE)', value:+(0.5 + Math.random() * 5).toFixed(2), type: 'number' },
                                 { label: '市净率(PB)', value: +(0.5 + Math.random() * 5).toFixed(2), type: 'number' },
                                 { label: '市销率(PS)', value: +(0.3 + Math.random() * 10).toFixed(2), type: 'number' },
                                 { label: '市现率(PCF)', value: +(1 + Math.random() * 20).toFixed(2), type: 'number' },
@@ -190,19 +190,19 @@ window.TestPatternMatch = {
             const mockExportData = {
                 export_type: 'mean',
                 params: [
-                    { name: '市盈率(PE)', value: 25.67 },
-                    { name: '市净率(PB)', value: 2.34 },
-                    { name: '市销率(PS)', value: 4.56 },
-                    { name: '市现率(PCF)', value: 8.91 },
-                    { name: 'ROE(%)', value: 15.23 },
-                    { name: '净利润同比增长率(%)', value: 22.45 },
-                    { name: '营收同比增长率(%)', value: 18.67 },
-                    { name: '净资产同比增长(%)', value: 12.34 },
-                    { name: '5日均线偏离度(%)', value: 2.15 },
-                    { name: '20日均线偏离度(%)', value: 5.67 },
-                    { name: '60日均线偏离度(%)', value: -3.21 },
-                    { name: '换手率(%)', value: 3.45 },
-                    { name: '流通市值(亿)', value: 856.78 },
+                    { name: '市盈率(PE)', value: { min: 15.5, max: 35.8 } },           // 范围值
+                    { name: '市净率(PB)', value: { min: 1.2, max: 3.5 } },             // 范围值
+                    { name: '市销率(PS)', value: { min: 2.1, max: 6.8 } },             // 范围值
+                    { name: '市现率(PCF)', value: { min: 5.2, max: 12.3 } },           // 范围值
+                    { name: 'ROE(%)', value: { min: 8.5, max: 22.1 } },                // 范围值
+                    { name: '净利润同比增长率(%)', value: { min: 5.2, max: 45.7 } },   // 范围值
+                    { name: '营收同比增长率(%)', value: { min: -2.1, max: 35.4 } },    // 范围值
+                    { name: '净资产同比增长(%)', value: { min: 3.2, max: 28.9 } },     // 范围值
+                    { name: '5日均线偏离度(%)', value: { min: -1.5, max: 4.2 } },      // 范围值
+                    { name: '20日均线偏离度(%)', value: { min: -3.1, max: 8.5 } },     // 范围值
+                    { name: '60日均线偏离度(%)', value: { min: -8.2, max: 12.3 } },    // 范围值
+                    { name: '换手率(%)', value: { min: 1.2, max: 5.8 } },              // 范围值
+                    { name: '流通市值(亿)', value: { min: 200.5, max: 3500.2 } },  
                 ]
             };
 

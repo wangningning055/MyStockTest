@@ -875,3 +875,72 @@
 .pm-config-panel::-webkit-scrollbar-thumb:hover {
     background: rgba(79, 172, 254, 0.5);
 }
+
+/* 范围输入组 */
+.pm-range-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.pm-range-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.pm-range-group input[type="number"] {
+    width: 100px;
+    padding: 6px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 13px;
+}
+
+.pm-range-sep {
+    margin: 0 4px;
+    color: #888;
+}
+
+/* 无限制复选框样式 */
+.pm-range-group input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: #4facfe;
+}
+
+.pm-range-group input[type="checkbox"]:hover {
+    accent-color: #00d4ff;
+}
+
+/* 条件行中的无限制复选框 */
+.pm-condition-row .pm-change-unlimited {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: #4facfe;
+    margin-left: 2px;
+}
+
+/* 停止按钮样式 */
+.btn-danger {
+    background-color: #ff4757;
+    color: #fff;
+    border: 1px solid #ff3838;
+}
+
+.btn-danger:hover {
+    background-color: #ff3838;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+}
+
+.btn-danger:active {
+    background-color: #ff2d2d;
+    transform: scale(0.98);
+}

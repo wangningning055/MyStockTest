@@ -58,9 +58,11 @@ export const MessageType = Object.freeze({
 
     //模式匹配相关，未实现
     CS_PATTERN_MATCH: 'cs_pattern_match',
+    CS_PATTERN_MATCH_STOP : 'cs_pattern_match_stop',
     SC_PATTERN_MATCH: 'sc_pattern_match',
     CS_PATTERN_EXPORT_PARAMS: 'cs_pattern_export_params',
     SC_PATTERN_EXPORT_PARAMS: 'sc_pattern_export_params',
+    
 
 });
 

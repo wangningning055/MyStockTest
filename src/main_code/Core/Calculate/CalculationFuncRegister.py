@@ -1,3 +1,4 @@
+from src.main_code.Core import Const
 def RegisterCalculateFunc(calculationHandler):
     from src.main_code.Core.Calculate import CalculationUtil
     from functools import partial
@@ -151,7 +152,7 @@ def RegisterCalculateFunc(calculationHandler):
 
 
     calculationHandler.CalculateBaseAttrDic = {
-        "dataList_240" :partial(calculationHandler.GetLastDateDataByNum, dayNum = 240),
+        "dataList_240" :partial(calculationHandler.GetLastDateDataByNum, dayNum = Const.dateList240Length),
 
         "isInIndustryUp" :partial(CalculationUtil.GetIsInIndustryUp, handler = calculationHandler),
 

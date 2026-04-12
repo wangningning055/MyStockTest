@@ -697,6 +697,21 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
         """计算 trade_date 起向后 num 日的 ATR"""
         tr, count = 0.0, 0
         for s in nowData.dataList_240:
+            if s is None or s.trade_state == 0 or s.high is None or s.low is None:
+                print("")
+                print("")
+                moduleDataList = handler.totalDateList
+                print(f"!!!!!!!!!错误：是否为空：{s is None}， 计算的当日日期：{handler.todayStr}，类的日期是：{nowData.trade_date}  240长度{len(nowData.dataList_240)}， 模块日期长度：{len(moduleDataList)} 日期列表{moduleDataList}")
+                print(f"!!!!!!!!!!!!!!!!!空2“：{s.high}，  {s.low} {s.trade_date}")
+                print("________________________________________")
+                temCount = 0
+                for testS in nowData.dataList_240:
+                    temCount += 1
+                    print(f"错误日期：{testS.trade_date},  {temCount}")
+                
+                print("")
+                print("")
+                continue
             if s.trade_date == trade_date or count > 0:
                 tr += max(
                     s.high - s.low,
