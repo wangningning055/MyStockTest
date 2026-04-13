@@ -323,16 +323,16 @@ class BaseClass :
                 
 
         #清理240List
-        print(f"240清洗开始,需要的240长度：{Const.dateList240Length} 今天的日期：{self.todayStr} 日期列表长度：{len(self.totalDateList)} 缓存长度：{len(self.totalBaseDailyData)}")
-        print("")
-        print(f"日期列表：{self.totalDateList}")
-        print("")
+        #print(f"240清洗开始,需要的240长度：{Const.dateList240Length} 今天的日期：{self.todayStr} 日期列表长度：{len(self.totalDateList)} 缓存长度：{len(self.totalBaseDailyData)}")
+        #print("")
+        #print(f"日期列表：{self.totalDateList}")
+        #print("")
         
         tempDateList = []
         for k, v in self.totalBaseDailyData.items():
             tempDateList.append(k)
-        print("")
-        print(f"缓存的日期列表：{tempDateList}")
+        #print("")
+        #print(f"缓存的日期列表：{tempDateList}")
 
         cleanCount = 0
         tempDateList = []
@@ -343,8 +343,8 @@ class BaseClass :
                     tempDateList.append(k)
                     cleanCount += 1
 
-        print("")
-        print(f"240清洗结束, 清洗数量：{cleanCount}， 需要清洗的日期列表：{tempDateList}")
+        #print("")
+        #print(f"240清洗结束, 清洗数量：{cleanCount}， 需要清洗的日期列表：{tempDateList}")
 
         #-------------------------------------------
         #重读数据库
@@ -1064,7 +1064,6 @@ class BaseClass :
     #获取前X天的交易数据
     def GetLastDateDataByNum(self, cls, dayNum):
         clsList = []
-        clsList.append(cls)
         count = 1
         stopCount = 0
         targetCode = ""
@@ -1072,6 +1071,7 @@ class BaseClass :
             targetCode = cls
         if isinstance(cls, CalculationDataStruct.StructBaseClass):
             targetCode = cls.code
+            clsList.append(cls)
         date_format = "%Y%m%d"
 
         nowDayStd = datetime.strptime(cls.trade_date, date_format)
@@ -1098,6 +1098,11 @@ class BaseClass :
                 stopCount = 0
                 if count > dayNum:
                     break
+        if cls.trade_date == "20250113":
+            print("")
+            print("")
+            for clsTest in clsList:
+                print(f"我是{cls.trade_date}, 正在获取240：{clsTest.trade_date}，名字：{clsTest.componyInfo.Name}")
         return clsList
     #60 20251203   120 20250902   240 20250311
 

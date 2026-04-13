@@ -238,8 +238,16 @@ class StructBaseClass :
             #print(f"22222222222需要删除 :240长度：{len(self.dataList_240)} 模块日期长度： {len(self.handler.totalDateList)}， 列表：{self.handler.totalDateList}")
             #print("")
             #print(f"cls日期：{self.trade_date}  模块当日日期：{self.handler.todayStr}")
+
+
+            #print("")
+            #print(f"我是：{self.trade_date}， 我要被删除的天是：{tempDelList}")
+            #print("")
+             
             #for singleCls in self.dataList_240:
-            #    print(f"单个240日期：{singleCls.trade_date}")
+            #    print(f"日期是：{self.trade_date}, 单个240日期：{singleCls.trade_date}, 名字：{self.componyInfo.Name}")
+
+
 
             for i in reversed(range(len(self.dataList_240))):
                 singleCls = self.dataList_240[i]
@@ -252,9 +260,7 @@ class StructBaseClass :
                 else:
                     break
 
-            print("")
-            print(f"我是：{self.trade_date}， 我要被删除的天是：{tempDelList}")
-            print("")
+
             
             return True
             #print(f"删除后的240长度：{len(self.dataList_240)}")
