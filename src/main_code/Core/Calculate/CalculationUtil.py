@@ -335,19 +335,19 @@ def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
 def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
     lastDay = NowData.dataList_240[1]
     target = (NowData.avg - lastDay.avg) / lastDay.avg if lastDay.avg != 0 else 0 
-    if NowData.code == "002917.SZ":
-        print("####################################")
-        print(NowData.trade_date)
-        print(NowData.close)
-        print(NowData.avg)
-        print("--------------")
-        print(lastDay.trade_date)
-        print(lastDay.close)
-        print(lastDay.avg)
-        print(target)
-        for cls in NowData.dataList_240:
-            print(cls.trade_date)
-        print("####################################")
+    #if NowData.code == "002917.SZ":
+    #    print("####################################")
+    #    print(NowData.trade_date)
+    #    print(NowData.close)
+    #    print(NowData.avg)
+    #    print("--------------")
+    #    print(lastDay.trade_date)
+    #    print(lastDay.close)
+    #    print(lastDay.avg)
+    #    print(target)
+    #    for cls in NowData.dataList_240:
+    #        print(cls.trade_date)
+    #    print("####################################")
     return target *100
 
 

@@ -41,6 +41,8 @@ const PMState = {
     // 最近一次导出结果
     lastExportedParams: null,
     lastExportedType: '',
+    scatterChart: null,
+    scatterParamName: null,
 };
 
 export function setPatternMatchManager(_manager) {
@@ -163,6 +165,26 @@ export const PatternMatchManager = {
             });
         }
 
+        // 散点图弹窗关闭
+        const scatterClose = document.getElementById('pm-scatter-close');
+        const scatterOverlay = document.getElementById('pm-scatter-overlay');
+
+        const scatterModalBox = document.querySelector('.pm-modal-box');
+        const scatterHeader = document.querySelector('.pm-modal-header');
+
+        if (scatterClose) scatterClose.addEventListener('click', () => this.closeScatterModal());
+
+        if (scatterOverlay) scatterOverlay.addEventListener('click', (e) => {
+            if (e.target === scatterOverlay) {
+                this.closeScatterModal();
+            }
+        });
+
+        //if (scatterOverlay) scatterOverlay.addEventListener('click', () => this.closeScatterModal());
+
+        if (scatterHeader && scatterModalBox) {
+            this.initDraggable(scatterHeader, scatterModalBox);
+        }
         // ESC 关闭弹窗
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -177,7 +199,7 @@ export const PatternMatchManager = {
     // ============================
 
     addDefaultCondition() {
-        this.addCondition(0, 20, 100, null);
+        this.addCondition(0, 5, 30, null);
     },
 
     /**
@@ -1174,7 +1196,12 @@ export const PatternMatchManager = {
                 row.innerHTML = `
                     <span class="pm-param-label" title="${item.label || ''}">${item.label || '--'}</span>
                     <span class="pm-param-value ${valCls}">${valStr}</span>
+                    <button class="pm-scatter-btn" title="查看此参数散点图" data-param="${item.label || ''}">⊙</button>
                 `;
+                row.querySelector('.pm-scatter-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openScatterModal(item.label);
+                });
                 bodyDiv.appendChild(row);
             });
 
@@ -1251,5 +1278,256 @@ export const PatternMatchManager = {
 
     getSelectedRecord() {
         return PMState.selectedRecord;
-    }
+    },
+
+    // ============================
+    // 参数散点图弹窗
+    // ============================
+
+    openScatterModal(paramName) {
+        if (!PMState.rawResults || PMState.rawResults.length === 0) {
+            App.log('❌ 暂无匹配结果', 'error');
+            return;
+        }
+
+        PMState.scatterParamName = paramName;
+
+        // 收集所有匹配中该参数的值
+        const points = [];
+        PMState.rawResults.forEach((record, idx) => {
+            if (!record.params || !record.params.groups) return;
+            record.params.groups.forEach(group => {
+                (group.items || []).forEach(item => {
+                    if (item.label === paramName && item.value !== null && item.value !== undefined) {
+                        points.push({
+                            idx: idx + 1,
+                            value: Number(item.value),
+                            code: record.code,
+                            name: record.name,
+                            match_start: record.match_start,
+                            type: item.type
+                        });
+                    }
+                });
+            });
+        });
+
+        // 填充标题
+        const titleEl = document.getElementById('pm-scatter-title');
+        if (titleEl) titleEl.textContent = `📊 参数分布散点图 — ${paramName}`;
+
+        const countEl = document.getElementById('pm-scatter-count');
+        if (countEl) countEl.textContent = `共 ${points.length} 个数据点`;
+
+        // 显示弹窗
+        document.getElementById('pm-scatter-modal')?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // 等DOM渲染后绘图
+        requestAnimationFrame(() => {
+            this.drawScatterChart(points, paramName);
+        });
+    },
+
+    closeScatterModal() {
+        document.getElementById('pm-scatter-modal')?.classList.remove('open');
+        if (!document.querySelector('.pm-detail-modal.open')) {
+            document.body.style.overflow = '';
+        }
+        if (PMState.scatterChart) {
+            PMState.scatterChart.dispose();
+            PMState.scatterChart = null;
+        }
+        PMState.scatterParamName = null;
+    },
+
+    // ============================
+    // 弹窗拖动功能
+    // ============================
+
+    initDraggable(dragHandle, dragElement) {
+        let isDragging = false;
+        let currentX = 0;
+        let currentY = 0;
+        let initialX = 0;
+        let initialY = 0;
+
+        dragHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            initialX = e.clientX - currentX;
+            initialY = e.clientY - currentY;
+            dragHandle.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                dragElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragHandle.style.cursor = 'grab';
+        });
+    },
+
+
+
+    drawScatterChart(points, paramName) {
+        const container = document.getElementById('pm-scatter-chart');
+        if (!container || points.length === 0) return;
+
+        if (PMState.scatterChart) PMState.scatterChart.dispose();
+        PMState.scatterChart = echarts.init(container, 'dark');
+
+        const values = points.map(p => p.value);
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const sorted = [...values].sort((a, b) => a - b);
+        const median = sorted.length % 2 === 0
+            ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+            : sorted[Math.floor(sorted.length / 2)];
+
+        // 计算密集区间（25% ~ 75% 分位数）
+        const q1 = sorted[Math.floor(sorted.length * 0.25)];
+        const q3 = sorted[Math.floor(sorted.length * 0.75)];
+
+        const scatterData = points.map(p => ({
+            value: [p.idx, p.value],
+            code: p.code,
+            name: p.name,
+            match_start: p.match_start
+        }));
+
+        const option = {
+            backgroundColor: 'transparent',
+            tooltip: {
+                trigger: 'item',
+                backgroundColor: 'rgba(0,0,0,0.85)',
+                borderColor: '#4facfe',
+                textStyle: { fontSize: 12 },
+                formatter: (params) => {
+                    // 防御性取值
+                    const d = params.data;
+                    if (!d) return '';
+                    const val = Array.isArray(d.value) ? d.value[1] : d.value;
+                    if (val === undefined || val === null) return '';
+                    const valStr = (typeof val === 'number') ? val.toFixed(4) : val;
+                    return `${d.code || ''} ${d.name || ''}<br/>日期：${d.match_start || '--'}<br/>${paramName}：<b>${valStr}</b><br/><span style="color:#4facfe; font-size:11px;">💡 点击查看K线详情</span>`;
+                }
+            },
+            grid: { left: '10%', right: '5%', top: '15%', bottom: '18%' },
+            xAxis: {
+                type: 'value',
+                name: '匹配序号',
+                nameTextStyle: { color: '#aaa', fontSize: 11 },
+                axisLine: { lineStyle: { color: '#444' } },
+                axisLabel: { color: '#aaa', fontSize: 10 },
+                splitLine: { lineStyle: { color: '#1e1e1e' } },
+                min: 0,
+                max: points.length + 1
+            },
+            yAxis: {
+                type: 'value',
+                name: paramName,
+                nameTextStyle: { color: '#aaa', fontSize: 11 },
+                axisLine: { lineStyle: { color: '#444' } },
+                axisLabel: { color: '#aaa', fontSize: 10 },
+                splitLine: { lineStyle: { color: '#222' } },
+                scale: true
+            },
+            visualMap: {
+                show: false,
+                dimension: 1,
+                pieces: [
+                    { min: q1, max: q3, color: '#4facfe' },
+                    { min: -Infinity, max: q1, color: '#7a9bb5' },
+                    { min: q3, max: Infinity, color: '#7a9bb5' }
+                ]
+            },
+            series: [
+                {
+                    name: paramName,
+                    type: 'scatter',
+                    zlevel: 10, 
+                    data: scatterData,
+                    symbolSize: 7,
+                    emphasis: { scale: 2, itemStyle: { shadowBlur: 10, shadowColor: '#4facfe' } },
+                    markArea: {
+                        itemStyle: { color: 'rgba(79, 172, 254, 0.08)', borderColor: '#4facfe', borderWidth: 1, borderType: 'dashed' },
+                        data: [[{ yAxis: q1 }, { yAxis: q3 }]]
+                    },
+                    markLine: {
+                        z: -10,
+                        symbol: 'none',
+                        animation: false,
+                        label: { fontSize: 11 },
+                        data: [
+                            {
+                                yAxis: mean,
+                                lineStyle: { color: '#f5a623', width: 1.5, type: 'dashed' },
+                                label: { formatter: `均值 ${mean.toFixed(2)}`, color: '#f5a623', position: 'end' }
+                            },
+                            {
+                                yAxis: median,
+                                lineStyle: { color: '#f093fb', width: 1.5, type: 'dashed' },
+                                label: { formatter: `中位 ${median.toFixed(2)}`, color: '#f093fb', position: 'end' }
+                            },
+                            {
+                                yAxis: q1,
+                                lineStyle: { color: '#2ed573', width: 1, type: 'dotted' },
+                                label: { formatter: `Q1 ${q1.toFixed(2)}`, color: '#2ed573', position: 'end' }
+                            },
+                            {
+                                yAxis: q3,
+                                lineStyle: { color: '#2ed573', width: 1, type: 'dotted' },
+                                label: { formatter: `Q3 ${q3.toFixed(2)}`, color: '#2ed573', position: 'end' }
+                            }
+                        ]
+                    }
+
+                }
+            ]
+        };
+
+        PMState.scatterChart.setOption(option, true);
+
+        //  - 打开K线详情弹窗
+        PMState.scatterChart.on('click', (params) => {
+            if (params.data && params.data.code) {
+                // 从 rawResults 中查找对应的记录
+                const record = PMState.rawResults.find(r => 
+                    r.code === params.data.code && 
+                    r.match_start === params.data.match_start
+                );
+                
+                if (record) {
+                    // 先关闭散点图弹窗
+                    //this.closeScatterModal();
+                    
+                    // 再打开K线详情弹窗
+                    setTimeout(() => {
+                        this.openDetailModal(record);
+                    }, 100);
+                } else {
+                    App.log(`⚠️ 未找到对应的匹配记录: ${params.data.code} ${params.data.match_start}`, 'warn');
+                }
+            }
+        });
+
+        // 更新统计摘要
+        const statsEl = document.getElementById('pm-scatter-stats');
+        if (statsEl) {
+            statsEl.innerHTML = `
+                <span style="color:#f5a623">均值: ${mean.toFixed(4)}</span>
+                <span style="color:#f093fb">中位数: ${median.toFixed(4)}</span>
+                <span style="color:#2ed573">密集区间(Q1~Q3): [${q1.toFixed(4)} ~ ${q3.toFixed(4)}]</span>
+                <span style="color:#aaa">最小: ${sorted[0].toFixed(4)} / 最大: ${sorted[sorted.length-1].toFixed(4)}</span>
+            `;
+        }
+
+        const resizeObserver = new ResizeObserver(() => PMState.scatterChart?.resize());
+        resizeObserver.observe(container);
+    },
 };

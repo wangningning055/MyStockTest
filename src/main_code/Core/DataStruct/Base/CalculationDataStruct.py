@@ -1,5 +1,6 @@
 from __future__ import annotations
-from datetime import date
+from typing import TYPE_CHECKING
+from datetime import  date, datetime, timedelta
 from typing import List, Optional, Callable, Dict, Any, Union
 from dataclasses import dataclass
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
@@ -8,6 +9,8 @@ from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core.Calculate import CalculationUtil
 import time
 import src.main_code.Core.Const as ConstVal
+if TYPE_CHECKING:
+    import src.main_code.Core.Calculate.CalculationDataHandle as CalculationDataHandle
 #用于条件指标记录类
 class AllDateStructBaseClass:
     def __init__(self):
@@ -28,7 +31,7 @@ class StructBaseClass :
         self.calculateCount = 0
         self.isDelete = False
 
-    def Init(self, handler, stockCode, date, dbData):
+    def Init(self, handler: "CalculationDataHandle.BaseClass", stockCode, date, dbData):
         if(dbData == None):
             return None
         self.isDelete =False
@@ -143,6 +146,8 @@ class StructBaseClass :
         self.isInit = True
 
         self.totalCacheLength = 60
+        self.isInitList = False
+        self.dayStopStd = datetime.strptime("20010101", "%Y%m%d")
 
     def Clear(self):
         """
@@ -151,6 +156,7 @@ class StructBaseClass :
         """
         self.dataList_240.clear()
         self.dataList_240 = None
+        trade_date = self.trade_date
         # 1. 清空所有动态计算的字段集合
         self._computed_fields.clear()
         
@@ -169,6 +175,9 @@ class StructBaseClass :
 
         # 3. 强制标记未初始化
         self.isInit = False
+        self.isInitList = False
+        self.trade_date = trade_date
+        self.dayStopStd = datetime.strptime("20010101", "%Y%m%d")
 
 
     def __getattr__(self, field_name):
@@ -204,10 +213,59 @@ class StructBaseClass :
         # 3. 返回计算后的属性值（此时已存入__dict__，直接取）
         return calc_result
 
+    def RefreshDataList240(self):
+        if self.isInitList == True and self.isInit == True:
+            newList = []
+            date_format = "%Y%m%d"
+            dayStopStd = self.dayStopStd
+            has_delete_item = False
+            #找到最近的需要删除的天
+            tempDelList = []
+            for singleCls in self.dataList_240:
+                if singleCls.isInit == False:
+                    has_delete_item = True
+                    tempDelList.append(singleCls.trade_date)
+                    dayDleStd = datetime.strptime(singleCls.trade_date, date_format)
+                    if dayDleStd > dayStopStd:
+                        dayStopStd = dayDleStd
 
+
+
+            if has_delete_item == False:
+                return False
+            #print("")
+            #print("----------------------------")
+            #print(f"22222222222需要删除 :240长度：{len(self.dataList_240)} 模块日期长度： {len(self.handler.totalDateList)}， 列表：{self.handler.totalDateList}")
+            #print("")
+            #print(f"cls日期：{self.trade_date}  模块当日日期：{self.handler.todayStr}")
+            #for singleCls in self.dataList_240:
+            #    print(f"单个240日期：{singleCls.trade_date}")
+
+            for i in reversed(range(len(self.dataList_240))):
+                singleCls = self.dataList_240[i]
+                current_day = datetime.strptime(singleCls.trade_date, date_format)
+                
+                # 老日期 < 分界日期 → 删除
+                if current_day <= dayStopStd:
+                    del self.dataList_240[i]
+                # 遇到新日期 → 直接停止，不用再往前看
+                else:
+                    break
+
+            print("")
+            print(f"我是：{self.trade_date}， 我要被删除的天是：{tempDelList}")
+            print("")
+            
+            return True
+            #print(f"删除后的240长度：{len(self.dataList_240)}")
+            
+            #print("")
+        return False
 
 
     dataList_240 : list[StructBaseClass]
+    isInitList :bool
+    dayStopStd : datetime
     componyInfo: StructComponyInfoClass
     code:str
     ValueScore:float     #价值股评分

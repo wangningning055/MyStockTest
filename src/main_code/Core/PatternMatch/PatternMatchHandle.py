@@ -45,6 +45,8 @@ class BaseClass:
 
     async def StartMatch(self, msg):
         print(f"开始模式匹配: {msg}")
+        self.matchRes = MatchResStruct.Response()
+        self.matchRes.matches = []
         self.startDate = msg["start_date"]
         endDate = msg["end_date"]
         if endDate == "":
@@ -96,7 +98,7 @@ class BaseClass:
 
         #更新新的缓存长度
         oldLength = Const.dateListLength
-        Const.dateListLength = oldLength + self.daysContains
+        Const.dateListLength = oldLength + self.daysContains + 20
 
         self.isInMatch = True
         self.main.calculationDataHandle.ClearDic()
@@ -165,7 +167,6 @@ class BaseClass:
 
             removeList.clear()
             await asyncio.sleep(0)
-
             res = self.main.analysisHandle.RunGetStockListByPatternMatch(self.matchCalculationHandle, self.isOutKC, self.isOutCY, self.isOutST, self.ValueWindow, self.PriceWindow, self.ConditionList, newAdd)
             await asyncio.sleep(0)
             
@@ -180,7 +181,6 @@ class BaseClass:
 
             self.matchCalculationHandle.totalBaseWindowData.clear()
             #移动到下一天
-
 
 
 
@@ -605,8 +605,8 @@ class BaseClass:
                 "name": "成交量",
                 "items": [
                     {
-                        "label": "当日成交量",
-                        "value": cls.volume,
+                        "label": "当日成交量(万手)",
+                        "value": cls.volume / 10000,
                         "type": "number"
                     },
                     {
@@ -710,8 +710,8 @@ class BaseClass:
                 "name": "市值与估值",
                 "items": [
                     {
-                        "label": "总市值",
-                        "value": cls.total_value,
+                        "label": "总市值（亿）",
+                        "value": cls.total_value / 100000000,
                         "type": "market_cap"
                     },
                     {
@@ -2024,16 +2024,4 @@ class BaseClass:
         ]
         }
         return params
-    
-
-    def SendMatchResult(self):
-        print("结束模式匹配")
-
-
-    def StartHandleResult(self, msg):
-        print("开始结果处理")
-
-
-    def SendHandleResult(self):
-        print("结果处理完毕发送")
     

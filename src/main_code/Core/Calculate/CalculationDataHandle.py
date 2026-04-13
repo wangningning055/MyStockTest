@@ -322,6 +322,29 @@ class BaseClass :
                 del self.totalDbList[key]
                 
 
+        #清理240List
+        print(f"240清洗开始,需要的240长度：{Const.dateList240Length} 今天的日期：{self.todayStr} 日期列表长度：{len(self.totalDateList)} 缓存长度：{len(self.totalBaseDailyData)}")
+        print("")
+        print(f"日期列表：{self.totalDateList}")
+        print("")
+        
+        tempDateList = []
+        for k, v in self.totalBaseDailyData.items():
+            tempDateList.append(k)
+        print("")
+        print(f"缓存的日期列表：{tempDateList}")
+
+        cleanCount = 0
+        tempDateList = []
+        for k, v in self.totalBaseDailyData.items():
+            for code, cls in v.items():
+                isNeedClean = cls.RefreshDataList240()
+                if isNeedClean == True:
+                    tempDateList.append(k)
+                    cleanCount += 1
+
+        print("")
+        print(f"240清洗结束, 清洗数量：{cleanCount}， 需要清洗的日期列表：{tempDateList}")
 
         #-------------------------------------------
         #重读数据库
@@ -459,6 +482,8 @@ class BaseClass :
             return None
         cls = dateItem.get(stockCode)
         if cls is None:
+            return None
+        if cls.isInit == False:
             return None
         if cls.trade_state == 1:
             return cls
@@ -1047,20 +1072,32 @@ class BaseClass :
             targetCode = cls
         if isinstance(cls, CalculationDataStruct.StructBaseClass):
             targetCode = cls.code
+        date_format = "%Y%m%d"
 
+        nowDayStd = datetime.strptime(cls.trade_date, date_format)
+        isStart = False
+
+        if dayNum >= Const.dateList240Length:
+            cls.isInitList = True
 
         for day in self.totalDateList:
-            cls_day = self.GetBaseDataClass(targetCode, day)
-            if cls_day is None or cls_day.trade_state != 1 or cls.isInit != True or cls_day.trade_date is None:
-                stopCount += 1
-                if stopCount > 60:
+            if isStart == False:
+                curDayStd = datetime.strptime(day, date_format)
+                if curDayStd < nowDayStd:
+                    isStart = True
+
+            if isStart == True:
+                cls_day = self.GetBaseDataClass(targetCode, day)
+                if cls_day is None or cls_day.trade_state != 1 or cls.isInit != True or cls_day.trade_date is None:
+                    stopCount += 1
+                    if stopCount > 60:
+                        break
+                    continue
+                clsList.append(cls_day)
+                count = count + 1
+                stopCount = 0
+                if count > dayNum:
                     break
-                continue
-            clsList.append(cls_day)
-            count = count + 1
-            stopCount = 0
-            if count > dayNum:
-                break
         return clsList
     #60 20251203   120 20250902   240 20250311
 

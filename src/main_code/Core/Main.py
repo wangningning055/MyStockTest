@@ -102,7 +102,7 @@ class processor:
         mem_info = process.memory_info()
         current, peak = tracemalloc.get_traced_memory()
         #rss_memory = mem_info.rss / (1024 * 1024)
-        rss_memory = current / (1024 * 1024)
+        rss_memory = current / (1024 * 1024 * 1024)
         available_memory = mem.available /(1024*1024*1024)
 
 

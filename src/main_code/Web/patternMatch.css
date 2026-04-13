@@ -944,3 +944,98 @@
     background-color: #ff2d2d;
     transform: scale(0.98);
 }
+
+/* 参数行散点图按钮 */
+.pm-scatter-btn {
+    margin-left: 6px;
+    padding: 1px 5px;
+    font-size: 12px;
+    background: transparent;
+    border: 1px solid #4facfe44;
+    border-radius: 4px;
+    color: #4facfe;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.pm-param-row:hover .pm-scatter-btn {
+    opacity: 1;
+}
+.pm-scatter-btn:hover {
+    background: rgba(79, 172, 254, 0.15);
+}
+
+/* ===== 参数散点图弹窗 ===== */
+.pm-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 11000;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.pm-modal-overlay.open {
+    display: flex;
+    pointer-events: auto;
+}
+
+.pm-modal-box {
+    position: relative;
+    background: linear-gradient(135deg, #0b0e14 0%, #151a24 100%);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    scrollbar-gutter: stable;
+    touch-action: none;
+    user-select: none;
+}
+
+.pm-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(20, 25, 35, 0.95);
+    border-bottom: 1px solid rgba(79, 172, 254, 0.2);
+    flex-shrink: 0;
+    color: #4facfe;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: grab;
+}
+
+.pm-modal-header:active {
+    cursor: grabbing;
+}
+
+.pm-modal-close {
+    background: none;
+    border: none;
+    color: #8b95aa;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pm-modal-close:hover {
+    color: #ff4757;
+}
+
+.pm-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    color: #e6eaf2;
+}

@@ -1698,6 +1698,7 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
         month = 1
         while month <= 12:
             count += 1
+            main.SetIsInHandle(True)
             main.SendProgress(count / totalCount)
             await asyncio.sleep(0)
             # 1. 先构造当月1号的日期对象

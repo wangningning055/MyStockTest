@@ -1051,17 +1051,17 @@
                     </div>
 
                     <!-- 参数导出按钮组 -->
-                    <div class="pm-export-bar">
+                    <!--<div class="pm-export-bar">
                         <span class="pm-export-label">📤 参数导出：</span>
                         <button class="btn btn-sm pm-export-btn" data-export-type="mean"
                             id="pm-export-mean">导出参数均值</button>
                         <button class="btn btn-sm pm-export-btn" data-export-type="median"
                             id="pm-export-median">导出参数中位数</button>
                         <button class="btn btn-sm pm-export-btn" data-export-type="aggregate"
-                            id="pm-export-aggregate">导出参数聚合</button>
+                            id="pm-export-aggregate">导出参数聚合</button>-->
                         <!-- 后续可在此添加更多导出按钮 -->
 
-                        <div id="pm-export-loading" class="pm-loading-inline" style="display:none;">
+                        <!--<div id="pm-export-loading" class="pm-loading-inline" style="display:none;">
                             <span class="spinner-sm"></span>
                             <span>计算中...</span>
                         </div>
@@ -1070,7 +1070,7 @@
                             style="display:none;">
                             📋 查看导出结果
                         </button>
-                    </div>
+                    </div>-->
 
                     <!-- 结果排序栏 -->
                     <div class="pm-sort-bar">
@@ -1181,6 +1181,30 @@
             </div>
         </div>
 
+        
+        <!-- 参数散点图弹窗 -->
+        <div id="pm-scatter-modal" class="pm-modal-overlay" id="pm-scatter-overlay">
+            <div class="pm-modal-box" style="width:780px; max-width:95vw;">
+                <div class="pm-modal-header">
+                    <span id="pm-scatter-title">📊 参数分布散点图</span>
+                    <button class="pm-modal-close" id="pm-scatter-close">✕</button>
+                </div>
+                <div class="pm-modal-body" style="padding:12px 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span id="pm-scatter-count" style="color:#aaa; font-size:12px;"></span>
+                    </div>
+                    <!-- 统计摘要 -->
+                    <div id="pm-scatter-stats" style="
+                        display:flex; gap:16px; flex-wrap:wrap;
+                        font-size:11px; padding:8px 10px;
+                        background:rgba(255,255,255,0.04);
+                        border-radius:6px; margin-bottom:10px;
+                    "></div>
+                    <!-- 散点图 -->
+                    <div id="pm-scatter-chart" style="width:100%; height:380px;"></div>
+                </div>
+            </div>
+        </div>
 
     </div>
 

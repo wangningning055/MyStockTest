@@ -242,7 +242,11 @@ window.TestPatternMatch = {
             console.log('✅ 请检查是否下载了JSON文件');
             console.log('   然后可以用"导入结果JSON"按钮重新导入');
         });
-    }
+    },
+
+
+
+
 };
 
 console.log('📦 模式匹配测试模块已加载');
@@ -250,3 +254,31 @@ console.log('   TestPatternMatch.testSetResult()       - 测试匹配结果');
 console.log('   TestPatternMatch.testExportedParams()   - 测试参数导出');
 console.log('   TestPatternMatch.testFullFlow()         - 完整流程测试');
 console.log('   TestPatternMatch.testExportImport()     - 测试导出');
+
+/**
+ * 测试5：测试散点图功能
+ * 使用方法：
+ *   1. 先执行 TestPatternMatch.testSetResult() 设置数据
+ *   2. 点击"查看匹配结果"
+ *   3. 点击任意一行"📈 K线"打开详情
+ *   4. 在参数列表中，鼠标悬停到任一参数行，点击出现的 ⊙ 按钮
+ *   或者直接运行：TestPatternMatch.testScatter()
+ */
+Object.assign(window.TestPatternMatch, {
+    testScatter() {
+        console.log('🧪 测试：散点图功能');
+        // 先设置数据
+        this.testSetResult();
+        setTimeout(() => {
+            import('./patternMatchManager.js').then(module => {
+                const mgr = module.PatternMatchManager;
+                // 直接触发散点图弹窗，测试第一个参数
+                mgr.openScatterModal('市盈率(PE)');
+                console.log('✅ 散点图弹窗已打开，参数：市盈率(PE)');
+                console.log('   蓝色散点 = Q1~Q3密集区间，橙线=均值，紫线=中位数，绿线=Q1/Q3');
+            });
+        }, 300);
+    }
+});
+
+console.log('   TestPatternMatch.testScatter()          - 测试散点图');
