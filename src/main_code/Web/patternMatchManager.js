@@ -43,6 +43,19 @@ const PMState = {
     lastExportedType: '',
     scatterChart: null,
     scatterParamName: null,
+
+    scatterZoomState: {
+        yMin: null,
+        yMax: null,
+        scale: 1,  // 缩放倍数
+        isDragging: false,
+        dragStartY: 0,
+        dragStartMin: 0
+
+    },
+    scatterChartContainer: null,
+    scatterChartPoints: null,
+    scatterChartParamName: null,
 };
 
 export function setPatternMatchManager(_manager) {
@@ -1339,6 +1352,16 @@ export const PatternMatchManager = {
             PMState.scatterChart = null;
         }
         PMState.scatterParamName = null;
+        PMState.scatterZoomState = {
+            yMin: null,
+            yMax: null,
+            scale: 1,
+            isDragging: false,
+            dragStartY: 0,
+            dragStartMin: 0
+
+        };
+
     },
 
     // ============================
@@ -1393,6 +1416,15 @@ export const PatternMatchManager = {
         const q1 = sorted[Math.floor(sorted.length * 0.25)];
         const q3 = sorted[Math.floor(sorted.length * 0.75)];
 
+        const absMin = sorted[0];
+        const absMax = sorted[sorted.length - 1];
+        if (PMState.scatterZoomState.originalMin === null) {
+            PMState.scatterZoomState.originalMin = absMin;
+            PMState.scatterZoomState.originalMax = absMax;
+            PMState.scatterZoomState.yMin = absMin;
+            PMState.scatterZoomState.yMax = absMax;
+        }
+
         const scatterData = points.map(p => ({
             value: [p.idx, p.value],
             code: p.code,
@@ -1435,7 +1467,9 @@ export const PatternMatchManager = {
                 axisLine: { lineStyle: { color: '#444' } },
                 axisLabel: { color: '#aaa', fontSize: 10 },
                 splitLine: { lineStyle: { color: '#222' } },
-                scale: true
+                scale: true,
+                min: PMState.scatterZoomState.yMin,
+                max: PMState.scatterZoomState.yMax
             },
             visualMap: {
                 show: false,
@@ -1493,6 +1527,46 @@ export const PatternMatchManager = {
 
         PMState.scatterChart.setOption(option, true);
 
+        PMState.scatterChartContainer = container;
+        PMState.scatterChartPoints = points;
+        PMState.scatterChartParamName = paramName;
+
+
+        if (container) {
+            // 滚轮缩放
+            container.addEventListener('wheel', (e) => {
+                this.handleScatterWheelZoom(e, points, paramName);
+            }, { passive: false });
+
+            // 拖动平移
+            container.addEventListener('mousedown', (e) => {
+                if (e.button === 0 && !e.ctrlKey) {  // 左键且不按Ctrl
+                    PMState.scatterZoomState.isDragging = true;
+                    PMState.scatterZoomState.dragStartY = e.clientY;
+                    PMState.scatterZoomState.dragStartMin = PMState.scatterZoomState.yMin;
+                    container.style.cursor = 'grabbing';
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (PMState.scatterZoomState.isDragging && PMState.scatterChart) {
+                    this.handleScatterDrag(e, points);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (PMState.scatterZoomState.isDragging) {
+                    PMState.scatterZoomState.isDragging = false;
+                    container.style.cursor = 'grab';
+                }
+            });
+        }
+
+        const resetBtn = document.getElementById('pm-scatter-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetScatterZoom());
+        }
+
         //  - 打开K线详情弹窗
         PMState.scatterChart.on('click', (params) => {
             if (params.data && params.data.code) {
@@ -1529,5 +1603,126 @@ export const PatternMatchManager = {
 
         const resizeObserver = new ResizeObserver(() => PMState.scatterChart?.resize());
         resizeObserver.observe(container);
+    },
+
+
+    handleScatterWheelZoom(e, points, paramName) {
+        // 防止页面滚动
+        e.preventDefault();
+
+        const values = points.map(p => p.value);
+        const sorted = [...values].sort((a, b) => a - b);
+        const absMin = sorted[0];
+        const absMax = sorted[sorted.length - 1];
+        
+        // 初始化缩放范围（如果还没有）
+        if (PMState.scatterZoomState.yMin === null) {
+            PMState.scatterZoomState.yMin = absMin;
+            PMState.scatterZoomState.yMax = absMax;
+        }
+
+        const currentMin = PMState.scatterZoomState.yMin;
+        const currentMax = PMState.scatterZoomState.yMax;
+        const currentRange = currentMax - currentMin;
+        
+        // 获取鼠标在Y轴上的相对位置
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mouseY = e.clientY - rect.top;
+        const gridHeight = rect.height * 0.67;
+        const gridTop = rect.height * 0.15;
+        
+        // 检查鼠标是否在图表区域内
+        if (mouseY < gridTop || mouseY > gridTop + gridHeight) {
+            return;
+        }
+        
+        const relativePos = (gridTop + gridHeight - mouseY) / gridHeight;
+        const mouseValue = currentMin + relativePos * currentRange;
+
+        // ✨ 改进：使用更平滑的缩放速度
+        const zoomSpeed = 0.1;
+        const deltaScale = e.deltaY > 0 ? (1 + zoomSpeed) : (1 - zoomSpeed);
+        
+        // 以鼠标位置为中心进行缩放
+        const newRange = currentRange * deltaScale;
+        const newMin = mouseValue - (mouseValue - currentMin) * deltaScale;
+        const newMax = newMin + newRange;
+
+        // ✨ 改进：限制范围，防止超出且允许完全还原
+        let finalMin = newMin;
+        let finalMax = newMax;
+
+        if (newMin < absMin) {
+            finalMin = absMin;
+            finalMax = finalMin + newRange;
+        }
+        if (newMax > absMax) {
+            finalMax = absMax;
+            finalMin = finalMax - newRange;
+        }
+
+        PMState.scatterZoomState.yMin = finalMin;
+        PMState.scatterZoomState.yMax = finalMax;
+
+
+        // 重新绘制
+        this.updateScatterChart();
+    },
+
+    handleScatterDrag(e, points) {
+        const values = points.map(p => p.value);
+        const sorted = [...values].sort((a, b) => a - b);
+        const absMin = sorted[0];
+        const absMax = sorted[sorted.length - 1];
+
+        const dragDelta = e.clientY - PMState.scatterZoomState.dragStartY;
+        const container = document.getElementById('pm-scatter-chart');
+        const rect = container.getBoundingClientRect();
+        const gridHeight = rect.height * 0.67;
+
+        // 将像素拖动转换为数据值变化
+        const currentRange = PMState.scatterZoomState.yMax - PMState.scatterZoomState.yMin;
+        const dataValueDelta = (dragDelta / gridHeight) * currentRange;
+
+        let newMin = PMState.scatterZoomState.dragStartMin + dataValueDelta;
+        let newMax = newMin + currentRange;
+
+        // 防止超出原始数据范围
+        if (newMin < absMin) {
+            newMin = absMin;
+            newMax = newMin + currentRange;
+        }
+        if (newMax > absMax) {
+            newMax = absMax;
+            newMin = newMax - currentRange;
+        }
+
+        PMState.scatterZoomState.yMin = newMin;
+        PMState.scatterZoomState.yMax = newMax;
+
+        // 重新绘制
+        this.updateScatterChart();
+    },
+
+    updateScatterChart() {
+        if (!PMState.scatterChart) return;
+            
+        PMState.scatterChart.setOption({
+            yAxis: [{
+                min: PMState.scatterZoomState.yMin,
+                max: PMState.scatterZoomState.yMax
+            }]
+        }, false);
+    },
+
+  
+
+    resetScatterZoom() {
+        PMState.scatterZoomState.yMin = PMState.scatterZoomState.originalMin;
+        PMState.scatterZoomState.yMax = PMState.scatterZoomState.originalMax;
+        PMState.scatterZoomState.scale = 1;
+        
+        this.updateScatterChart();
+        App.log('🔄 散点图已重置到原始视图', 'system');
     },
 };

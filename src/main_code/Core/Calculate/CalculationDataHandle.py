@@ -334,16 +334,21 @@ class BaseClass :
         #print("")
         #print(f"缓存的日期列表：{tempDateList}")
 
-        cleanCount = 0
+        print("")
+        print(f"240清洗开始")
+        cleanList = []
         tempDateList = []
         for k, v in self.totalBaseDailyData.items():
             for code, cls in v.items():
                 isNeedClean = cls.RefreshDataList240()
                 if isNeedClean == True:
                     tempDateList.append(k)
-                    cleanCount += 1
+                    if code not in cleanList:
+                        cleanList.append(code)
 
-        #print("")
+        print(f"240清洗结束, 清洗数量：{len(cleanList)}")
+        print("")
+        
         #print(f"240清洗结束, 清洗数量：{cleanCount}， 需要清洗的日期列表：{tempDateList}")
 
         #-------------------------------------------
@@ -1072,9 +1077,8 @@ class BaseClass :
         if isinstance(cls, CalculationDataStruct.StructBaseClass):
             targetCode = cls.code
             clsList.append(cls)
-        date_format = "%Y%m%d"
 
-        nowDayStd = datetime.strptime(cls.trade_date, date_format)
+        nowDayStd = int(cls.trade_date)
         isStart = False
 
         if dayNum >= Const.dateList240Length:
@@ -1082,7 +1086,7 @@ class BaseClass :
 
         for day in self.totalDateList:
             if isStart == False:
-                curDayStd = datetime.strptime(day, date_format)
+                curDayStd = int(day)
                 if curDayStd < nowDayStd:
                     isStart = True
 
@@ -1098,11 +1102,11 @@ class BaseClass :
                 stopCount = 0
                 if count > dayNum:
                     break
-        if cls.trade_date == "20250113":
-            print("")
-            print("")
-            for clsTest in clsList:
-                print(f"我是{cls.trade_date}, 正在获取240：{clsTest.trade_date}，名字：{clsTest.componyInfo.Name}")
+        #if cls.trade_date == "20250113":
+        #    print("")
+        #    print("")
+        #    for clsTest in clsList:
+        #        print(f"我是{cls.trade_date}, 正在获取240：{clsTest.trade_date}，名字：{clsTest.componyInfo.Name}")
         return clsList
     #60 20251203   120 20250902   240 20250311
 

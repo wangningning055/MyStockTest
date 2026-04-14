@@ -60,10 +60,11 @@ progress_interval_pull = 20     #拉取数据阶段的进度间隔
 progress_interval_backTesting = 1     #回测阶段的进度间隔
 
 
-dateListLength =340     #缓存的日期长度
-dateList240Length = 280    #缓存的240日期长度
-#dateListLength =30     #缓存的日期长度
-#dateList240Length = 30    #缓存的240日期长度
+#dateListLength =340     #缓存的日期长度
+#dateList240Length = 280    #缓存的240日期长度
+
+dateListLength = 70    #缓存的日期长度
+dateList240Length = 10    #缓存的240日期长度
 
 def GetIsCy(stockCode):
     if stockCode.startswith("300") or stockCode.startswith("301"):

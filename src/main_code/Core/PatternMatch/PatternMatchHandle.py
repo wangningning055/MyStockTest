@@ -93,7 +93,10 @@ class BaseClass:
             #记得发送匹配结束的消息
             self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_PATTERN_MATCH, "none")
             return
-
+#70   10
+# 95
+#70+5+20 :95
+#0 + 5 + length + 20
 
 
         #更新新的缓存长度
@@ -187,6 +190,8 @@ class BaseClass:
             nextDayStr = await matchCalculationHandle.MoveDateToNextDay()
             print("")
             print(f"    ######移动到下一天， 当前天是：{nextDayStr}, 结束天是：{stopStr}, 匹配数量：{len(self.matchRes.matches)}")
+            print("")
+            
             await asyncio.sleep(0)
             if(nextDayStr == ""):
                 return
@@ -255,7 +260,18 @@ class BaseClass:
             match.code = cls.code
             match.name = cls.componyInfo.Name
 
-            dt_start = datetime.strptime(cls.dataList_240[self.daysContains].trade_date, "%Y%m%d")
+            if len(cls.dataList_240) <= 0:
+                continue
+
+            endCls = cls.dataList_240[- 1]
+
+            if len(endCls.dataList_240) <= 0:
+                continue
+
+            if len(cls.dataList_240) > self.daysContains:
+                endCls = cls.dataList_240[self.daysContains]
+
+            dt_start = datetime.strptime(endCls.trade_date, "%Y%m%d")
             dt_end = datetime.strptime(cls.trade_date, "%Y%m%d")
 
             start_date = dt_start.strftime("%Y-%m-%d")
@@ -266,7 +282,7 @@ class BaseClass:
             match.match_end = end_date
             match.days = self.daysContains
 
-            match.change_pct = (cls.close - cls.dataList_240[self.daysContains].close) / cls.dataList_240[self.daysContains].close
+            match.change_pct = (cls.close - endCls.close) / endCls.close
             match.change_pct *= 100
 
             match.kline = []
@@ -285,7 +301,7 @@ class BaseClass:
                 klineData.change_Ratio = clsSingle.change_Ratio
                 match.kline.append(asdict(klineData))
             
-            match.params = self.CreateParam(self.matchCalculationHandle.GetBaseDataClass(cls.code, cls.dataList_240[self.daysContains].trade_date))
+            match.params = self.CreateParam(self.matchCalculationHandle.GetBaseDataClass(cls.code, endCls.trade_date))
             match.kline.reverse()
 
     def CreateParam(self, cls: CalculationDataStruct.StructBaseClass):
@@ -650,8 +666,8 @@ class BaseClass:
                 "name": "成交额",
                 "items": [
                     {
-                        "label": "当日成交额",
-                        "value": cls.volume_price,
+                        "label": "当日成交额（亿）",
+                        "value": cls.volume_price / 100000000,
                         "type": "currency"
                     },
                     {

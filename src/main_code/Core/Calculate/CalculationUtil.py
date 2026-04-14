@@ -333,6 +333,8 @@ def GetVolume_Price(NowData:"CalculationDataStruct.StructBaseClass", num):
 
 
 def GetAvg_Ratio(NowData:"CalculationDataStruct.StructBaseClass"):
+    if len(NowData.dataList_240) <= 1:
+        return 0
     lastDay = NowData.dataList_240[1]
     target = (NowData.avg - lastDay.avg) / lastDay.avg if lastDay.avg != 0 else 0 
     #if NowData.code == "002917.SZ":
@@ -374,6 +376,9 @@ def GetVolume_5(NowData : "CalculationDataStruct.StructBaseClass"):
 
 #换手率涨跌幅计算
 def GetTurn_Ratio(NowData : "CalculationDataStruct.StructBaseClass"):
+    if len(NowData.dataList_240) <= 1:
+        return 0
+
     lastDay = NowData.dataList_240[1]
     target = (NowData.turn - lastDay.turn) / lastDay.turn if lastDay.turn != 0 else 0 
     return target * 100

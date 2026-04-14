@@ -69,6 +69,10 @@ class StructBaseClass :
             average_price = (amount_price / amount) if amount != 0 else 0
             amplitude = ((high_price - low_price) / last_close_price) * 100
             #print(f"成交价：{amount_price}   成交量：{amount}，振幅：{amplitude}, 均价{average_price}， 日期：{date}，上市状态：{is_Trading}")
+        if len(cur_date) != 8:
+            return None
+        
+
 
         self.code = stockCode
         self.adjst = adjust
@@ -147,7 +151,7 @@ class StructBaseClass :
 
         self.totalCacheLength = 60
         self.isInitList = False
-        self.dayStopStd = datetime.strptime("20010101", "%Y%m%d")
+        self.dayStopStd = int("20010101")
 
     def Clear(self):
         """
@@ -177,7 +181,7 @@ class StructBaseClass :
         self.isInit = False
         self.isInitList = False
         self.trade_date = trade_date
-        self.dayStopStd = datetime.strptime("20010101", "%Y%m%d")
+        self.dayStopStd = int("20010101")
 
 
     def __getattr__(self, field_name):
@@ -215,7 +219,6 @@ class StructBaseClass :
 
     def RefreshDataList240(self):
         if self.isInitList == True and self.isInit == True:
-            newList = []
             date_format = "%Y%m%d"
             dayStopStd = self.dayStopStd
             has_delete_item = False
@@ -225,53 +228,45 @@ class StructBaseClass :
                 if singleCls.isInit == False:
                     has_delete_item = True
                     tempDelList.append(singleCls.trade_date)
-                    dayDleStd = datetime.strptime(singleCls.trade_date, date_format)
+                    dayDleStd = int(singleCls.trade_date)
                     if dayDleStd > dayStopStd:
                         dayStopStd = dayDleStd
 
-
-
             if has_delete_item == False:
                 return False
-            #print("")
-            #print("----------------------------")
-            #print(f"22222222222需要删除 :240长度：{len(self.dataList_240)} 模块日期长度： {len(self.handler.totalDateList)}， 列表：{self.handler.totalDateList}")
-            #print("")
-            #print(f"cls日期：{self.trade_date}  模块当日日期：{self.handler.todayStr}")
 
-
-            #print("")
-            #print(f"我是：{self.trade_date}， 我要被删除的天是：{tempDelList}")
-            #print("")
-             
-            #for singleCls in self.dataList_240:
-            #    print(f"日期是：{self.trade_date}, 单个240日期：{singleCls.trade_date}, 名字：{self.componyInfo.Name}")
-
-
-
-            for i in reversed(range(len(self.dataList_240))):
-                singleCls = self.dataList_240[i]
-                current_day = datetime.strptime(singleCls.trade_date, date_format)
-                
-                # 老日期 < 分界日期 → 删除
-                if current_day <= dayStopStd:
-                    del self.dataList_240[i]
-                # 遇到新日期 → 直接停止，不用再往前看
+            cut_index = -1
+            for i, item in enumerate(self.dataList_240):
+                curDay = int(item.trade_date)
+                if curDay > dayStopStd:
+                    cut_index = i
                 else:
                     break
+            else:
+                self.dataList_240.clear()
 
+            if cut_index == -1:
+                self.dataList_240.clear()
+            else:
+                self.dataList_240 = self.dataList_240[:cut_index + 1]
 
+            #for i in reversed(range(len(self.dataList_240))):
+            #    singleCls = self.dataList_240[i]
+            #    current_day = int(singleCls.trade_date)
+                
+            #    if current_day <= dayStopStd:
+            #        del self.dataList_240[i]
+            #    else:
+            #        break
             
             return True
-            #print(f"删除后的240长度：{len(self.dataList_240)}")
             
-            #print("")
         return False
 
 
     dataList_240 : list[StructBaseClass]
     isInitList :bool
-    dayStopStd : datetime
+    dayStopStd : int
     componyInfo: StructComponyInfoClass
     code:str
     ValueScore:float     #价值股评分
