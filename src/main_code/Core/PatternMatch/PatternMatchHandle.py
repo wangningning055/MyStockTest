@@ -93,10 +93,7 @@ class BaseClass:
             #记得发送匹配结束的消息
             self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_PATTERN_MATCH, "none")
             return
-#70   10
-# 95
-#70+5+20 :95
-#0 + 5 + length + 20
+
 
 
         #更新新的缓存长度
@@ -134,12 +131,33 @@ class BaseClass:
         newAdd = []  #code, count
         removeList = []
         passDayCount = 0
+
+        refreshLength = 90
+        refreshCount = 0
+        
         while nextDayStd < stopDayStd:
             await asyncio.sleep(0)
             if self.isNeedStop:
                 break
 
+            if refreshCount < refreshLength:
+                refreshCount += 1
+            else:
+                print("重初始化")
+                refreshCount = 0
+                now = self.matchCalculationHandle.todayStr
+                self.matchCalculationHandle.ClearDic()
+                matchCalculationHandle = CalculationDataHandle.BaseClass()
+                self.matchCalculationHandle = matchCalculationHandle
+                matchCalculationHandle.isOutST = self.isOutST
+                matchCalculationHandle.isOutCY = self.isOutCY
+                matchCalculationHandle.isOutKC = self.isOutKC
+                matchCalculationHandle.Init(self.main, now)
+                await matchCalculationHandle.DataPreheating()
 
+
+
+                
             #这里记得再更新已有的结果列表，把蜡烛图更新够240天
             for singleMatch in self.matchRes.matches:
                     if singleMatch.klineLength < 240:
@@ -189,7 +207,7 @@ class BaseClass:
 
             nextDayStr = await matchCalculationHandle.MoveDateToNextDay()
             print("")
-            print(f"    ######移动到下一天， 当前天是：{nextDayStr}, 结束天是：{stopStr}, 匹配数量：{len(self.matchRes.matches)}")
+            print(f"    ######移动到下一天， 当前天是：{nextDayStr}, 结束天是：{stopStr},已经过去：{passDayCount}， 总共有：{totalDay} 匹配数量：{len(self.matchRes.matches)}")
             print("")
             
             await asyncio.sleep(0)

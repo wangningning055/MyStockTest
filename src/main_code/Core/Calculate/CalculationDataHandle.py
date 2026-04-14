@@ -1189,7 +1189,9 @@ class BaseClass :
                 dateItem = {}
                 self.totalBaseDailyData[date] = dateItem
             if isLog:
-                print("正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}")
+                msg = "正在预热基础数据，日期是：", date, f"进度{count}/{len(totalDateList)}, "
+                sys.stdout.write(f"\r{msg}")
+                sys.stdout.flush()
 
                 progressInterval = progressInterval + 1
                 if progressInterval >= Const.progress_interval_preheat:

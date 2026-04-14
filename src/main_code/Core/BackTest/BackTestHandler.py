@@ -92,7 +92,8 @@ class BaseClass:
 
         totalDay = (stopDayStd - starDayStd).days
 
-
+        refreshLength = 90
+        refreshCount = 0
         #鉴于源数据源的滞后性，先依据昨天的数据执行买卖，再更新新一天的数据
         while nextDayStd < stopDayStd:
             if self.isNeedStop == True:
@@ -100,6 +101,24 @@ class BaseClass:
                 self.main.BoardCast("回测被停止")
                 self.isNeedStop = False
                 break
+
+            if refreshCount < refreshLength:
+                refreshCount += 1
+            else:
+                print("重初始化")
+                refreshCount = 0
+                now = self.backTestCalculationHandle.todayStr
+                self.backTestCalculationHandle.ClearDic()
+                backTestCalculationHandle = CalculationDataHandle.BaseClass()
+                self.backTestCalculationHandle = backTestCalculationHandle
+                backTestCalculationHandle.isOutST = self.isOutST
+                backTestCalculationHandle.isOutCY = self.isOutCY
+                backTestCalculationHandle.isOutKC = self.isOutKC
+                backTestCalculationHandle.Init(self.main, now)
+                await backTestCalculationHandle.DataPreheating()
+
+
+
             passDayCount = (nextDayStd - starDayStd).days
             print(f"------------------------开始新的一轮，这天是：{nextDayStr}， 结束天是：{stopStr}--过去了{passDayCount}天----总共是{totalDay}天------------------------------")
             self.main.SetIsInHandle(True)
