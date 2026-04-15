@@ -234,6 +234,15 @@ class StructBaseClass :
 
             if has_delete_item == False:
                 return False
+            
+            #print("-------------------清洗————————————————————————————————————")
+            #print(f"模块当日时间：{self.handler.todayStr}， 模块日期列表{self.handler.totalDateList}")
+            #print("")
+            #print(f"当前代码：{self.code}， 名字：{self.componyInfo.Name}， 日期：{self.trade_date}")
+            #print("")
+            #for single240 in self.dataList_240:
+            #    print(f"当前的240列表：{single240.trade_date}")
+            #print("-------------------清洗结束————————————————————————————————————")
 
             cut_index = -1
             for i, item in enumerate(self.dataList_240):
@@ -250,14 +259,7 @@ class StructBaseClass :
             else:
                 self.dataList_240 = self.dataList_240[:cut_index + 1]
 
-            #for i in reversed(range(len(self.dataList_240))):
-            #    singleCls = self.dataList_240[i]
-            #    current_day = int(singleCls.trade_date)
-                
-            #    if current_day <= dayStopStd:
-            #        del self.dataList_240[i]
-            #    else:
-            #        break
+
             
             return True
             

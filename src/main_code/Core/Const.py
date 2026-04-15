@@ -60,11 +60,19 @@ progress_interval_pull = 20     #拉取数据阶段的进度间隔
 progress_interval_backTesting = 1     #回测阶段的进度间隔
 
 
-#dateListLength =340     #缓存的日期长度
-#dateList240Length = 280    #缓存的240日期长度
 
-dateListLength = 70    #缓存的日期长度
-dateList240Length = 10    #缓存的240日期长度
+dateListLength = 340    #数据预热缓存的日期长度（剔除周末）
+dateList240Length = 280    #数据预热缓存的240日期长度（剔除非交易日及停牌日）
+
+dateListLength_BackTest = 380    #回测缓存的日期长度(前后各这么长)
+dateList240Length_BackTest = 280    #回测缓存的240日期长度
+dateListRefreshLength_BackTest = 240              #回测需要刷新的长度
+
+
+dateListLength_PatternMatch =380     #模式匹配缓存的日期长度(前后各这么长)
+dateList240Length_PatternMatch = 280              #模式匹配缓存的240日期长度
+dateListRefreshLength_PatternMatch = 240              #模式匹配需要刷新的长度
+
 
 def GetIsCy(stockCode):
     if stockCode.startswith("300") or stockCode.startswith("301"):
@@ -87,17 +95,6 @@ def GetStopRatio(stockCode):
         return 19.99
     else:
         return 9.99
-
-
-
-
-    #这是我的网页，我需要你关注其中的模式匹配页签
-    #现在在匹配完毕后，可以查看每个匹配结果的K线图，参数列表
-    #我需要你新加一个功能，匹配完毕后，还可以看参数列表中每个参数的散点图，图的横轴是一个一个的匹配，纵轴是该匹配的此参数值，并可以查看这些参数的密集范围在哪个区间
-    #你不需要给我完整文件，只需要告诉我哪里修改，并给出前端测试代码
-
-
-
 
 
 

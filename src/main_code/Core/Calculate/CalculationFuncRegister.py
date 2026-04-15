@@ -152,7 +152,7 @@ def RegisterCalculateFunc(calculationHandler):
 
 
     calculationHandler.CalculateBaseAttrDic = {
-        "dataList_240" :partial(calculationHandler.GetLastDateDataByNum, dayNum = Const.dateList240Length),
+        "dataList_240" :partial(calculationHandler.GetLast240Data, dayNum = Const.dateList240Length),
 
         "isInIndustryUp" :partial(CalculationUtil.GetIsInIndustryUp, handler = calculationHandler),
 

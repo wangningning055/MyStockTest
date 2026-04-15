@@ -69,7 +69,7 @@ class MessageType(str, Enum):
 
 ##发送消息
 async def SendMessage(msg_type, content):
-    if msg_type is not MessageType.SC_IN_PROGRESS:
+    if msg_type is not MessageType.SC_IN_PROGRESS and  msg_type is not MessageType.SC_IN_BUSY:
         print(f"发送消息：{msg_type}")
     data = json.dumps({"type": msg_type, "msg": content}, ensure_ascii=False, indent=2)
 

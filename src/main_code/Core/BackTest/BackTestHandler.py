@@ -8,6 +8,7 @@ import asyncio
 from src.main_code.Core.Calculate import CalculationDataHandle
 import json
 from dataclasses import dataclass, field, asdict
+from src.main_code.Core import Const
 class BaseClass:
     totalStock : StockTotal.BaseClass
     startDate : str     #开始日期
@@ -69,7 +70,7 @@ class BaseClass:
         print("开始执行回测")
         # 20210104
         self.main.SetIsInHandle(True)
-        backTestCalculationHandle = CalculationDataHandle.BaseClass()
+        backTestCalculationHandle = CalculationDataHandle.BaseClass(1)
         self.backTestCalculationHandle = backTestCalculationHandle
         backTestCalculationHandle.isOutST = self.isOutST
         backTestCalculationHandle.isOutCY = self.isOutCY
@@ -92,7 +93,7 @@ class BaseClass:
 
         totalDay = (stopDayStd - starDayStd).days
 
-        refreshLength = 90
+        refreshLength = Const.dateListRefreshLength_BackTest
         refreshCount = 0
         #鉴于源数据源的滞后性，先依据昨天的数据执行买卖，再更新新一天的数据
         while nextDayStd < stopDayStd:
@@ -109,7 +110,7 @@ class BaseClass:
                 refreshCount = 0
                 now = self.backTestCalculationHandle.todayStr
                 self.backTestCalculationHandle.ClearDic()
-                backTestCalculationHandle = CalculationDataHandle.BaseClass()
+                backTestCalculationHandle = CalculationDataHandle.BaseClass(1)
                 self.backTestCalculationHandle = backTestCalculationHandle
                 backTestCalculationHandle.isOutST = self.isOutST
                 backTestCalculationHandle.isOutCY = self.isOutCY
@@ -141,7 +142,7 @@ class BaseClass:
 
 
             #移动到下一天
-            nextDayStr = await backTestCalculationHandle.MoveDateToNextDay()
+            nextDayStr = await backTestCalculationHandle.MoveDateToNextDaySample()
             if(nextDayStr == ""):
                 return
             nextDayStd = datetime.strptime(nextDayStr, date_format)
@@ -158,7 +159,8 @@ class BaseClass:
         self.isInBackTest = False
         self.main.SetIsInHandle(False)
         print("回测结束")
-
+        self.backTestCalculationHandle.ClearDic()
+        self.backTestCalculationHandle = {}
 
 
     def StopBackTest(self):

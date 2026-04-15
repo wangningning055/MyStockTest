@@ -25,17 +25,33 @@ class BaseClass :
     isOutCY : bool
     isOutKC : bool
     isOutST : bool
+    calType : int           #0 是普通预热， 1 是回测预热  2是模式匹配预热
+    dataListLength : int
+    dataList240Length : int
 
-    def __init__(self):
+    def __init__(self, calType = 0):
         self.isOutCY = False
         self.isOutKC = False
         self.isOutST = False
         self.isNeedStop = False
+        self.calType = calType
         pass
     
     
     def Init(self, main, todayStr = "000000"):
         self.main :Main.processor = main
+
+        if self.calType == 0:
+            self.dateListLength = Const.dateListLength
+            self.dateList240Length = Const.dateList240Length
+        if self.calType == 1:
+            self.dateListLength = Const.dateListLength_BackTest
+            self.dateList240Length = Const.dateList240Length_BackTest
+        if self.calType == 2:
+            self.dateListLength = Const.dateListLength_PatternMatch
+            self.dateList240Length = Const.dateList240Length_PatternMatch
+
+
         self.task = None
         self.totalStockList = []
         self.totalComponyIns : CalculationDataStruct.StructIndustryTotalInfoClass = CalculationDataStruct.StructIndustryTotalInfoClass()
@@ -86,7 +102,7 @@ class BaseClass :
             
         ##################################################################
         if isJumpReadDb == False:
-            self.totalDateList = self.InitDateList(today, Const.dateListLength)
+            self.totalDateList = self.InitDateList(today, self.dateListLength)
             
         if isNeedLog:
             print(self.totalDateList)
@@ -182,8 +198,8 @@ class BaseClass :
 
 
         if isNeedLog:
-            print(f"开计算数据 数据日期长度{Const.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
-            self.main.BoardCast(f"开计算数据 数据日期长度{Const.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            print(f"开计算数据 数据日期长度{self.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
+            self.main.BoardCast(f"开计算数据 数据日期长度{self.dateListLength}  物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}")
         t0 = time.perf_counter()
 
         await asyncio.sleep(0)
@@ -212,8 +228,8 @@ class BaseClass :
 
 
         if isNeedLog:
-            print(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
-            self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 数据预热花费时间：{totalCostTimeStr1}, 数据日期长度：{Const.dateListLength}")
+            print(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 这个阶段花费时间：{totalCostTimeStr1}, 数据日期长度：{self.dateListLength}")
+            self.main.BoardCast(f"数据预热完毕   物理内存占用：{round(rss_memory, 2)}， 虚拟内存占用：{round(vms_memory, 2)}, 数据预热花费时间：{totalCostTimeStr1}, 数据日期长度：{self.dateListLength}")
 
         if isJumpReadDb == False:
             self.main.SetIsInHandle(False)
@@ -223,6 +239,16 @@ class BaseClass :
             growValueList = self.GetValueGrowStockListForWeb()
             self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.LAST_UPDATE_GROW_VALUE, growValueList)
 
+        if isJumpReadDb == False:
+            self.totalDbList = {}
+
+    async def MoveDateToNextDaySample(self):
+        if self.isPreheating == False:
+            print("请先预热数据")
+            return ""
+        nextDayStr = self.GetNextDay()
+        self.todayStr = nextDayStr
+        return nextDayStr
 
     #向前移动1天
     async def MoveDateToNextDay(self):
@@ -252,7 +278,7 @@ class BaseClass :
         oldDataList = self.totalDateList
 
         #初始化新的日期列表
-        newDataList = self.InitDateList(nextDayStr, Const.dateListLength)
+        newDataList = self.InitDateList(nextDayStr, self.dateListLength)
         self.totalDateList = newDataList
 
         #找到两个列表的差别
@@ -323,7 +349,7 @@ class BaseClass :
                 
 
         #清理240List
-        #print(f"240清洗开始,需要的240长度：{Const.dateList240Length} 今天的日期：{self.todayStr} 日期列表长度：{len(self.totalDateList)} 缓存长度：{len(self.totalBaseDailyData)}")
+        #print(f"240清洗开始,需要的240长度：{self.dateList240Length} 今天的日期：{self.todayStr} 日期列表长度：{len(self.totalDateList)} 缓存长度：{len(self.totalBaseDailyData)}")
         #print("")
         #print(f"日期列表：{self.totalDateList}")
         #print("")
@@ -1081,7 +1107,7 @@ class BaseClass :
         nowDayStd = int(cls.trade_date)
         isStart = False
 
-        if dayNum >= Const.dateList240Length:
+        if dayNum >= self.dateList240Length:
             cls.isInitList = True
 
         for day in self.totalDateList:
@@ -1109,6 +1135,10 @@ class BaseClass :
         #        print(f"我是{cls.trade_date}, 正在获取240：{clsTest.trade_date}，名字：{clsTest.componyInfo.Name}")
         return clsList
     #60 20251203   120 20250902   240 20250311
+
+    #获取前240天的交易数据
+    def GetLast240Data(self, cls, dayNum):
+        return self.GetLastDateDataByNum(cls, self.dateList240Length)
 
     #获取最近一次有效的交易日
     def GetToday(self):
@@ -1156,25 +1186,48 @@ class BaseClass :
 
 
 
-    #初始化日期列表
+    #初始化日期列表,从新日期往老日期初始化
     def InitDateList(self, today, length):
         dayList = []
         dt = datetime.strptime(today, "%Y%m%d")
         end_dt = datetime.strptime(Const.first_Data, "%Y%m%d")
+        if self.calType == 0:
+            if dt.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
+                dayList.append(today)
+            while len(dayList) <= length and dt >= end_dt:
+                if self.isInStop:
+                    dayList = []
+                    break
+                dt -= timedelta(days=1)  # 往前一天
 
-        if dt.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
-            dayList.append(today)
-        while len(dayList) < length and dt > end_dt:
-            if self.isInStop:
-                break
-            dt -= timedelta(days=1)  # 往前一天
+                if dt.weekday() >= 5:
+                    continue  # 跳过周末，不加入列表
+                date_str = dt.strftime("%Y%m%d")
+                dayList.append(date_str)
+            return dayList
+        
+        else:
+            dt_before = dt - timedelta(days=length)        #（过去）
+            dt_after = dt + timedelta(days=length)        #（未来）
+            dt_today = datetime.strptime(self.main.todayStockDate, "%Y%m%d")
+            if dt_after > dt_today:
+                dt_after = dt_today
+            dt_cur = dt_after
 
-            if dt.weekday() >= 5:
-                continue  # 跳过周末，不加入列表
-            date_str = dt.strftime("%Y%m%d")
-            dayList.append(date_str)
-        return dayList
-    
+            if dt_cur.weekday() < 5:  # 0-4 代表周一到周五，5=周六，6=周日
+                dayList.append(dt_cur.strftime("%Y%m%d"))
+
+            while dt_cur >= dt_before:
+                if self.isInStop:
+                    dayList = []
+                    break
+                dt_cur -= timedelta(days=1)  # 往前一天
+                if dt_cur.weekday() >= 5:
+                    continue  # 跳过周末，不加入列表
+                date_str = dt_cur.strftime("%Y%m%d")
+                dayList.append(date_str)
+
+            return dayList
 
     #构建整个基础类列表
     async def InitAllBaseDataClsList(self, totalDateList, totalDbList, isLog = False):

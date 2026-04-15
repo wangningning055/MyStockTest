@@ -97,8 +97,8 @@ class BaseClass:
 
 
         #更新新的缓存长度
-        oldLength = Const.dateListLength
-        Const.dateListLength = oldLength + self.daysContains + 20
+        #oldLength = Const.dateListLength_PatternMatch
+        #Const.dateListLength_PatternMatch = oldLength + self.daysContains + 20
 
         self.isInMatch = True
         self.main.calculationDataHandle.ClearDic()
@@ -106,7 +106,7 @@ class BaseClass:
         print("开始执行模式匹配")
 
         self.main.SetIsInHandle(True)
-        matchCalculationHandle = CalculationDataHandle.BaseClass()
+        matchCalculationHandle = CalculationDataHandle.BaseClass(2)
         self.matchCalculationHandle = matchCalculationHandle
         matchCalculationHandle.isOutST = self.isOutST
         matchCalculationHandle.isOutCY = self.isOutCY
@@ -132,7 +132,7 @@ class BaseClass:
         removeList = []
         passDayCount = 0
 
-        refreshLength = 90
+        refreshLength = Const.dateListRefreshLength_PatternMatch
         refreshCount = 0
         
         while nextDayStd < stopDayStd:
@@ -147,7 +147,7 @@ class BaseClass:
                 refreshCount = 0
                 now = self.matchCalculationHandle.todayStr
                 self.matchCalculationHandle.ClearDic()
-                matchCalculationHandle = CalculationDataHandle.BaseClass()
+                matchCalculationHandle = CalculationDataHandle.BaseClass(2)
                 self.matchCalculationHandle = matchCalculationHandle
                 matchCalculationHandle.isOutST = self.isOutST
                 matchCalculationHandle.isOutCY = self.isOutCY
@@ -205,18 +205,20 @@ class BaseClass:
 
 
 
-            nextDayStr = await matchCalculationHandle.MoveDateToNextDay()
-            print("")
-            print(f"    ######移动到下一天， 当前天是：{nextDayStr}, 结束天是：{stopStr},已经过去：{passDayCount}， 总共有：{totalDay} 匹配数量：{len(self.matchRes.matches)}")
-            print("")
+            nextDayStr = await matchCalculationHandle.MoveDateToNextDaySample()
+
             
             await asyncio.sleep(0)
             if(nextDayStr == ""):
                 return
             nextDayStd = datetime.strptime(nextDayStr, date_format)
-            passDayCount += 1
+            passDayCount = (nextDayStd - starDayStd).days
             self.main.SetIsInHandle(True)
-            self.main.SendProgress(passDayCount / totalDay if totalDay > 0 else 1)
+            progress = passDayCount / totalDay if totalDay > 0 else 1
+            print("")
+            print(f"    ######移动到下一天，进度：{progress} 当前天是：{nextDayStr}, 结束天是：{stopStr},已经过去：{passDayCount}， 总共有：{totalDay} 匹配数量：{len(self.matchRes.matches)}")
+            print("")
+            self.main.SendProgress(progress)
 
 
         #再执行消息发送
@@ -230,10 +232,12 @@ class BaseClass:
 
         self.isInMatch = False
         self.main.SetIsInHandle(False)
-        Const.dateListLength = oldLength
+        #Const.dateListLength_PatternMatch = oldLength
         self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_PATTERN_MATCH, self.matchRes)
 
         print("模式匹配结束")
+        self.matchCalculationHandle.ClearDic()
+        self.matchCalculationHandle = {}
 
     def InitConditions(self, conditions):
         totalMaxDay = 0
@@ -281,7 +285,7 @@ class BaseClass:
             if len(cls.dataList_240) <= 0:
                 continue
 
-            endCls = cls.dataList_240[- 1]
+            endCls = cls.dataList_240[-1]
 
             if len(endCls.dataList_240) <= 0:
                 continue

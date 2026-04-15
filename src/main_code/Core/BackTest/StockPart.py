@@ -296,7 +296,8 @@ class BaseClass:
 
         sellVal = singleStock.end_price * singleStock.volume
 
-        self.curValue += sellVal
+        #印花税默认按五块钱算
+        self.curValue += (sellVal - 5)
 
 
         operate.Log()
