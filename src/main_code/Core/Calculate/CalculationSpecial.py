@@ -1061,7 +1061,7 @@ def CalculateUpPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDa
 
 
 #高价值股筛选逻辑， 我需要你按下面的注释，拿着现有的字段参数，完成下面注释的逻辑，注意注释清晰明确，边界尽量都放到上面的字段中，方便设置
-def CalculateValueScore(nowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+def CalculateValueScore(nowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass", isNow = False):
     if nowData.isST == 1:
         return 0
     componyInfo = handler.totalComponyIns.GetComponyInfo(nowData.code)
@@ -1069,17 +1069,31 @@ def CalculateValueScore(nowData:"CalculationDataStruct.StructBaseClass", handler
     clean = nowData.clean                # 市净率
     cash = nowData.cash                  # 市现率
     sale = nowData.sale                  # 市销率
-    roe_year = componyInfo.Roe_Year      # 净资产收益率（年度）
-    yoyni_year = componyInfo.YOYNi_Year  # 净利润同比增长率（年度）
-    liabilityTo_year = componyInfo.LiabilityTo_Year  # 资产负债率（年度）
-    yoyEquity_year = componyInfo.YOYEquity_Year      # 净资产同比增长率（年度）
-    yoyLiability_year = componyInfo.YOYLiability_Year  # 负债同比增长率（年度）
+    if isNow == True:
+        roe_year = componyInfo.Roe_Year_Now      # 净资产收益率（年度）
+        yoyni_year = componyInfo.YOYNi_Year_Now  # 净利润同比增长率（年度）
+        liabilityTo_year = componyInfo.LiabilityTo_Year_Now  # 资产负债率（年度）
+        yoyEquity_year = componyInfo.YOYEquity_Year_Now      # 净资产同比增长率（年度）
+        yoyLiability_year = componyInfo.YOYLiability_Year_Now  # 负债同比增长率（年度）
 
-    roe_quarter = componyInfo.Roe        # 净资产收益率（季度）
-    yoyni_quarter = componyInfo.YOYNi    # 净利润同比增长率（季度）
-    liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
-    yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
-    yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
+        roe_quarter = componyInfo.Roe_Now        # 净资产收益率（季度）
+        yoyni_quarter = componyInfo.YOYNi_Now    # 净利润同比增长率（季度）
+        liabilityTo_quarter = componyInfo.LiabilityTo_Now    # 资产负债率（季度）
+        yoyEquity_quarter = componyInfo.YOYEquity_Now        # 净资产同比增长率（季度）
+        yoyLiability_quarter = componyInfo.YOYLiability_Now  # 负债同比增长率（季度）
+    else:
+        roe_year = componyInfo.Roe_Year      # 净资产收益率（年度）
+        yoyni_year = componyInfo.YOYNi_Year  # 净利润同比增长率（年度）
+        liabilityTo_year = componyInfo.LiabilityTo_Year  # 资产负债率（年度）
+        yoyEquity_year = componyInfo.YOYEquity_Year      # 净资产同比增长率（年度）
+        yoyLiability_year = componyInfo.YOYLiability_Year  # 负债同比增长率（年度）
+
+        roe_quarter = componyInfo.Roe        # 净资产收益率（季度）
+        yoyni_quarter = componyInfo.YOYNi    # 净利润同比增长率（季度）
+        liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
+        yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
+        yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
+
     value = nowData.total_value / 100000000                     #总市值
     #print("=" * 50)
     #print(f"【估值指标】{nowData.code}")
@@ -1310,28 +1324,41 @@ def CalculateValueScore(nowData:"CalculationDataStruct.StructBaseClass", handler
 
 
 #计算是否成长股，用于买入判断
-def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass", isNow = False):
     if nowData.isST == 1:
         return 0
     componyInfo = handler.totalComponyIns.GetComponyInfo(nowData.code)
-
-
-
     earn = nowData.earn                  # 市盈率
     clean = nowData.clean                # 市净率
     cash = nowData.cash                  # 市现率
     sale = nowData.sale                  # 市销率
-    roe_year = componyInfo.Roe_Year      # 净资产收益率（年度）
-    yoyni_year = componyInfo.YOYNi_Year  # 净利润同比增长率（年度）
-    liabilityTo_year = componyInfo.LiabilityTo_Year  # 资产负债率（年度）
-    yoyEquity_year = componyInfo.YOYEquity_Year      # 净资产同比增长率（年度）
-    yoyLiability_year = componyInfo.YOYLiability_Year  # 负债同比增长率（年度）
 
-    roe_quarter = componyInfo.Roe        # 净资产收益率（季度）
-    yoyni_quarter = componyInfo.YOYNi    # 净利润同比增长率（季度）
-    liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
-    yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
-    yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
+    if isNow == True:
+        roe_year = componyInfo.Roe_Year_Now      # 净资产收益率（年度）
+        yoyni_year = componyInfo.YOYNi_Year_Now  # 净利润同比增长率（年度）
+        liabilityTo_year = componyInfo.LiabilityTo_Year_Now  # 资产负债率（年度）
+        yoyEquity_year = componyInfo.YOYEquity_Year_Now      # 净资产同比增长率（年度）
+        yoyLiability_year = componyInfo.YOYLiability_Year_Now  # 负债同比增长率（年度）
+
+        roe_quarter = componyInfo.Roe_Now        # 净资产收益率（季度）
+        yoyni_quarter = componyInfo.YOYNi_Now    # 净利润同比增长率（季度）
+        liabilityTo_quarter = componyInfo.LiabilityTo_Now    # 资产负债率（季度）
+        yoyEquity_quarter = componyInfo.YOYEquity_Now        # 净资产同比增长率（季度）
+        yoyLiability_quarter = componyInfo.YOYLiability_Now  # 负债同比增长率（季度）
+    else:
+        roe_year = componyInfo.Roe_Year      # 净资产收益率（年度）
+        yoyni_year = componyInfo.YOYNi_Year  # 净利润同比增长率（年度）
+        liabilityTo_year = componyInfo.LiabilityTo_Year  # 资产负债率（年度）
+        yoyEquity_year = componyInfo.YOYEquity_Year      # 净资产同比增长率（年度）
+        yoyLiability_year = componyInfo.YOYLiability_Year  # 负债同比增长率（年度）
+
+        roe_quarter = componyInfo.Roe        # 净资产收益率（季度）
+        yoyni_quarter = componyInfo.YOYNi    # 净利润同比增长率（季度）
+        liabilityTo_quarter = componyInfo.LiabilityTo    # 资产负债率（季度）
+        yoyEquity_quarter = componyInfo.YOYEquity        # 净资产同比增长率（季度）
+        yoyLiability_quarter = componyInfo.YOYLiability  # 负债同比增长率（季度）
+
+
     value = nowData.total_value / 100000000                     #总市值
 
 
@@ -1345,7 +1372,7 @@ def CalculateGrowScore(nowData:"CalculationDataStruct.StructBaseClass", handler:
     veto_roe_min             = 8    # 年度且季度ROE < 此值(%): 一票否决
     veto_liability_max       = 75   # 年度且季度资产负债率 > 此值(%): 一票否决
     veto_equity_year_min     = 0    # 年度净资产增长率 < 此值(%): 一票否决
-    total_value_min = 10            # 小盘股，一票否决
+    total_value_min = 0.1            # 小盘股，一票否决
 
     # ==================== 打分边界 ====================
     # 市盈率（满6 半3 零0）：(0, b1] 满 | (b1, b2] 半 | >b2 或 ≤0 零

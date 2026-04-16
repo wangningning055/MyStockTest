@@ -251,6 +251,15 @@ def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"Calc
 def GetGrowScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateGrowScore(NowData, handler)
 
+#获取价值股分数
+def GetValueScore_Now(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateValueScore(NowData, handler, True)
+
+#获取成长股分数
+def GetGrowScore_Now(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateGrowScore(NowData, handler, True)
+
+
 #获取是否在行业上涨周期
 def GetIsInIndustryUp(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     now = datetime.now()

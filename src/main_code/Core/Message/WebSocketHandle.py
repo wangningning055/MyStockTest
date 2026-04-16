@@ -22,6 +22,9 @@ class MessageType(str, Enum):
     LAST_UPDATE_INDUSTRY = "last_update_data_industry"#服务器发送行业更新
     LAST_UPDATE_GROW_VALUE = "last_update_grow_value"#服务器发送价值成长股列表
 
+    EXPORT_VALUE = "export_value"                  #//导入价值数据
+    IMPORT_VALUE = "import_value"                  #//导出价值数据
+
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
@@ -211,6 +214,14 @@ def HandleMsg(msg):
     elif(msgType == MessageType.LAST_UPDATE_DATA):
         print("请求最近的更新日期")
         SendLastUpdateTime()
+
+    elif(msgType == MessageType.EXPORT_VALUE):
+        print("导出价值数据")
+        mainProcessor.Temp_ExportValue()
+
+    elif(msgType == MessageType.IMPORT_VALUE):
+        print("导入价值数据")
+        mainProcessor.Temp_ImportValue()
 
     elif(msgType == MessageType.CS_SELECT_STOCKS):
         print("处理选股消息")

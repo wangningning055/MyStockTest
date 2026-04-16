@@ -116,7 +116,9 @@ class BaseClass:
                 backTestCalculationHandle.isOutCY = self.isOutCY
                 backTestCalculationHandle.isOutKC = self.isOutKC
                 backTestCalculationHandle.Init(self.main, now)
+                self.main.analysisHandle.evaluator = None
                 await backTestCalculationHandle.DataPreheating()
+                self.main.analysisHandle.InitEvaluator(backTestCalculationHandle)
 
 
 
@@ -126,13 +128,13 @@ class BaseClass:
             self.main.SendProgress(passDayCount / totalDay if totalDay > 0 else 1)
             await asyncio.sleep(0)
 
-            #执行卖
+            #当天执行卖
             await self.ExecuteSell()
             await asyncio.sleep(0)
 
 
-            #执行买
-            await self.ExecuteBuy()
+            #当天执行选股
+            await self.ExecuteBuySelect()
             await asyncio.sleep(0)
 
 
@@ -143,11 +145,14 @@ class BaseClass:
 
             #移动到下一天
             nextDayStr = await backTestCalculationHandle.MoveDateToNextDaySample()
+            await asyncio.sleep(0)
             if(nextDayStr == ""):
                 return
             nextDayStd = datetime.strptime(nextDayStr, date_format)
 
-
+            #下一天用前一天的选股结果以收盘价买入
+            await self.ExecuteBuy()
+            await asyncio.sleep(0)
 
         #这里需要整理结果数据，然后传给前端
         res = self.totalStock.GetResult(nextDayStr)
@@ -167,6 +172,9 @@ class BaseClass:
         if self.isInBackTest == True:
             self.isNeedStop = True
             print("回测停止")
+
+    async def ExecuteBuySelect(self):
+        await self.totalStock.ExecuteBuySelect()
 
     async def ExecuteBuy(self):
         await self.totalStock.ExecuteBuy()

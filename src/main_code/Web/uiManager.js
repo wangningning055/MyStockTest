@@ -145,6 +145,7 @@ export const UIManagerUtils = {
 
     setLastValueUpdateTime(dateTime) {
         const elem = document.getElementById('last-update-value');
+        const elem2 = document.getElementById('last-update-value-now');
         if (elem) {
             if (dateTime) {
                 elem.textContent = dateTime;
@@ -152,6 +153,14 @@ export const UIManagerUtils = {
                 elem.textContent = '--';
             }
         }
+        if (elem2) {
+            if (dateTime) {
+                elem2.textContent = dateTime;
+            } else {
+                elem2.textContent = '--';
+            }
+        }
+
     },
 
 

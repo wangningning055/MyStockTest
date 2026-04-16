@@ -66,12 +66,12 @@ dateList240Length = 280    #数据预热缓存的240日期长度（剔除非交�
 
 dateListLength_BackTest = 380    #回测缓存的日期长度(前后各这么长)
 dateList240Length_BackTest = 280    #回测缓存的240日期长度
-dateListRefreshLength_BackTest = 240              #回测需要刷新的长度
+dateListRefreshLength_BackTest = 200              #回测需要刷新的长度
 
 
 dateListLength_PatternMatch =380     #模式匹配缓存的日期长度(前后各这么长)
 dateList240Length_PatternMatch = 280              #模式匹配缓存的240日期长度
-dateListRefreshLength_PatternMatch = 240              #模式匹配需要刷新的长度
+dateListRefreshLength_PatternMatch = 200              #模式匹配需要刷新的长度
 
 
 def GetIsCy(stockCode):

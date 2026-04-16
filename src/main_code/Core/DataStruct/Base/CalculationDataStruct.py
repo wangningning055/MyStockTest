@@ -274,6 +274,9 @@ class StructBaseClass :
     ValueScore:float     #价值股评分
     GrowScore:float      #成长股评分
 
+    ValueScore_Now:float     #最新价值股评分
+    GrowScore_Now:float      #最新成长股评分
+
     isDelete:bool
     adjst:float #前复权因子
     trade_date:date #交易日期
@@ -1194,9 +1197,33 @@ class StructComponyInfoClass:
     LiabilityTo: float      #资产负债率 
     YOYEquity : float       #净资产同比增长率
     YOYLiability: float     #负债同比增长率
+
+    Roe_Year:float               #roe：净资产收益率
+    YOYNi_Year : float           #净利润同比增长率
+    LiabilityTo_Year: float      #资产负债率 
+    YOYEquity_Year : float       #净资产同比增长率
+    YOYLiability_Year: float     #负债同比增长率
+
     
     Value_Score : float
     Grow_Score : float
+
+
+    Roe_Now: float               #roe：净资产收益率
+    YOYNi_Now : float           #净利润同比增长率
+    LiabilityTo_Now: float      #资产负债率
+    YOYEquity_Now : float       #净资产同比增长率
+    YOYLiability_Now: float     #负债同比增长率
+
+    Roe_Year_Now: float               #roe：净资产收益率
+    YOYNi_Year_Now : float           #净利润同比增长率
+    LiabilityTo_Year_Now: float      #资产负债率
+    YOYEquity_Year_Now : float       #净资产同比增长率
+    YOYLiability_Year_Now: float     #负债同比增长率
+
+    Value_Score_Now : float
+    Grow_Score_Now : float
+
 
     def __init__(self):
         self.Total_Value = 0
@@ -1204,6 +1231,8 @@ class StructComponyInfoClass:
         self.Clean = 0
         self.Cash = 0
         self.Sale = 0
+
+
         self.Roe = 0
         self.YOYNi = 0
         self.LiabilityTo = 0
@@ -1220,9 +1249,21 @@ class StructComponyInfoClass:
         self.Grow_Score = 0
 
 
-    #计算价值股或成长股得分, 计算指标得分，指标加权重，  判断优秀程度加不同的分，越优秀加的越多，越劣势减的越多， 为0的参数不参与计算
-    def CalculationValueScore():
-        pass
+        self.Roe_Now = 0
+        self.YOYNi_Now = 0
+        self.LiabilityTo_Now = 0
+        self.YOYEquity_Now = 0
+        self.YOYLiability_Now = 0
+
+        self.Roe_Year_Now = 0
+        self.YOYNi_Year_Now = 0
+        self.LiabilityTo_Year_Now = 0
+        self.YOYEquity_Year_Now = 0
+        self.YOYLiability_Year_Now = 0
+
+        self.Value_Score_Now = 0
+        self.Grow_Score_Now = 0
+
 
 
 class StructIndustryInfoClass:

@@ -29,6 +29,8 @@ export const MessageType = Object.freeze({
     SC_IN_BUSY: "sc_in_busy",              // #服务器返回是否忙碌
     LAST_UPDATE_INDUSTRY : "last_update_data_industry", //#服务器发送行业更新
     LAST_UPDATE_GROW_VALUE : "last_update_grow_value", //#服务器发送价值成长股列表
+    EXPORT_VALUE : "export_value",                  //导入价值数据
+    IMPORT_VALUE : "import_value",                  //导出价值数据
 
 
     CS_UPDATE_DATA: "cs_update_data",              // 客户端请求拉取数据

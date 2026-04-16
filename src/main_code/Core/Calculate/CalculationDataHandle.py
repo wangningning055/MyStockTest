@@ -1331,6 +1331,7 @@ class BaseClass :
 
         q_target_year = 0
         q_target_q = 0
+        #季报
         if month >= 5 and month <= 8:
             q_target_year = year
             q_target_q = 1
@@ -1350,7 +1351,7 @@ class BaseClass :
         y_target_q = 0
         if month >= 1 and month <= 4:
             y_target_year = year - 1
-            y_target_q = 2
+            y_target_q = 4
         if month >= 5 and month <= 8:
             y_target_year = year - 1
             y_target_q = 4
@@ -1358,9 +1359,9 @@ class BaseClass :
             y_target_year = year
             y_target_q = 2
 
+
         for code in allCodeList:
             componyInfo = self.totalComponyIns.GetComponyInfo(code)
-
 
             catchKey = (code, q_target_year, q_target_q)
             #print(f"获取价值季度数据字符串是{todayStr},  目标年份是：{q_target_year}，    目标季度是{q_target_q}")
@@ -1412,7 +1413,93 @@ class BaseClass :
                     haveNum_year += 1
                 if roe == 0 or yoyni == 0 or liabilityTo == 0 or yoyEquity == 0 or yoyLiability == 0:
                     wrongNum_year += 1
+            else:
+                noneNum_year += 1
 
+
+        haveNum_quarter = 0
+        haveNum_year = 0
+        noneNum_quarter = 0
+        noneNum_year = 0
+        wrongNum_quarter = 0
+        wrongNum_year = 0
+
+        #4.1-4.30  一季报和上一年年报      7.1-8.31  半年报     10.1- 11.30 三季报
+        q_target_year_now = 0
+        q_target_q_now = 0
+        #季报
+        if month == 4:
+            q_target_year_now = year
+            q_target_q_now = 1
+        if month >= 7 and month <= 8:
+            q_target_year_now = year
+            q_target_q_now = 2
+        if month >= 10 and month <= 11:
+            q_target_year_now = year
+            q_target_q_now = 3
+
+
+        #年报数据获取
+        y_target_year_now = 0
+        y_target_q_now = 0
+        if month == 4:
+            y_target_year = year - 1
+            y_target_q_now = 4
+        if month >= 7 and month <= 8:
+            y_target_year_now = year
+            y_target_q_now = 2
+
+        for code in allCodeList:
+            componyInfo = self.totalComponyIns.GetComponyInfo(code)
+            catchKey = (code, q_target_year_now, q_target_q_now)
+            val = self.totalValueDbDic.get(catchKey)
+            if val is not None: 
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)] * 100 
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)] * 100
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)] * 100
+
+                componyInfo.Roe_Now = roe
+                componyInfo.YOYNi_Now = yoyni
+                componyInfo.LiabilityTo_Now = liabilityTo
+                componyInfo.YOYEquity_Now = yoyEquity
+                componyInfo.YOYLiability_Now = yoyLiability
+
+                if roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0:
+                    noneNum_quarter += 1
+                if not (roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0):
+                    haveNum_quarter += 1
+                if roe == 0 or yoyni == 0 or liabilityTo == 0 or yoyEquity == 0 or yoyLiability == 0:
+                    wrongNum_quarter += 1
+
+            else:
+                noneNum_quarter += 1
+
+
+
+
+            #print(f"获取价值年度数据字符串是{todayStr},  目标年份是：{y_target_year}，    目标季度是{y_target_q}")
+            catchKey = (code, y_target_year_now, y_target_q_now)
+            val = self.totalValueDbDic.get(catchKey)
+            if val is not None: 
+                roe = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.Roe)] * 100
+                yoyni = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYNi)] * 100
+                liabilityTo = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.LiabilityTo)] * 100
+                yoyEquity = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYEquity)] * 100
+                yoyLiability = val[dbStruct.GetNameByEnum(ValueDBStruct.ColumnEnum.YOYLiability)] * 100
+
+                componyInfo.Roe_Year_Now = roe
+                componyInfo.YOYNi_Year_Now = yoyni
+                componyInfo.LiabilityTo_Year_Now = liabilityTo
+                componyInfo.YOYEquity_Year_Now = yoyEquity
+                componyInfo.YOYLiability_Year_Now = yoyLiability
+                if roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0:
+                    noneNum_year += 1
+                if not (roe == 0 and yoyni == 0 and liabilityTo == 0 and yoyEquity == 0 and yoyLiability == 0):
+                    haveNum_year += 1
+                if roe == 0 or yoyni == 0 or liabilityTo == 0 or yoyEquity == 0 or yoyLiability == 0:
+                    wrongNum_year += 1
             else:
                 noneNum_year += 1
         #print("##################################################")

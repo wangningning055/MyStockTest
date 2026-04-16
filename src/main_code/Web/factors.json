@@ -6,6 +6,8 @@
       "items": [
         { "id": 1, "name_field": "ValueScore", "name": "价值股评分", "type": "float", "description": "价值股评分" },
         { "id": 2, "name_field": "GrowScore", "name": "成长股评分", "type": "float", "description": "成长股评分" }
+
+
       ]
     },
 

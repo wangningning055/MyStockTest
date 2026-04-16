@@ -162,7 +162,6 @@ class BaseClass:
     async def ExecuteBuy(self):
         if len(self.stockList) >= self.maxCount:
                 return
-        await self.ExecuteBuySelect()
         #再执行买入
         for buyCode in self.buyCodeList:
             if len(self.stockList) >= self.maxCount:

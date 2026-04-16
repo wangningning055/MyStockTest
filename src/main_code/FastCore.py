@@ -16,32 +16,15 @@ from typing import Optional, Dict, Any
 import asyncio
 from src.main_code.Core.Message.MessageHandle import router as action_router
 from src.main_code.Core.Message.WebSocketHandle import register_ws
+import socket
+import webbrowser
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="src/main_code/Web"), name="static")
-#app.mount(
-#    "/web",
-#    StaticFiles(directory="src/main_code/Web"),
-#    name="web"
-#)
+
 app.include_router(action_router, prefix="/api")
 register_ws(app)
 
-#@app.websocket("/ws")
-#async def websocket_endpoint(ws: WebSocket):
-#    await ws.accept()
-#    print("客户端已连接")
-
-#    try:
-#        while True:
-#            # 接收前端消息
-#            data = await ws.receive_text()
-#            print("收到前端:", data)
-
-#            # 回传消息
-#            await ws.send_text(f"后端已收到：{data}")
-
-#    except WebSocketDisconnect:
-#        print("客户端断开连接")
 
 
 process = None
@@ -65,46 +48,23 @@ def startup_event():
 
 
 
-## 提供接口来控制停止
-#@app.post("/stop")
-#def stop():
-#    global stop_flag
-#    stop_flag = True
-#    return {"msg": "程序已设置停止"}
-
-
-
-
-
-#class actData(BaseModel):
-#    message:str
-
-## 服务器接受数据
-#@app.post("/To_Server")
-#async def act(data: actData):
-#    print(f"接受到了数据  {data.message}")
-#    return {"response": "执行动作aaaaaa"}
-
-##服务器发送数据
-#@app.get("/To_Web")
-#def get_messages():
-#    if process is None: return ""
-#async def to_frontend():
-#    return {
-#        "code": "000001.SZ",
-#        "price": 12.34
-#    }
-
-
-#@app.post("/send")
-#def send(msg: str):
-#    if process is None: return ""
-#    [process.messageHandler].send_message(msg)
-#    return {"msg": f"消息已发送: {msg}"}
-
-
 
 # 提供首页
 @app.get("/")
 def root():
     return FileResponse(os.path.join(os.path.dirname(__file__), const_proj.IndexHtmlPath))
+
+
+def is_port_in_use(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) == 0
+
+@app.on_event("startup")
+def open_browser():
+    port = 8000
+
+    # 如果端口已经被占用，说明不是第一次启动（是 reload）
+    if is_port_in_use(port):
+        return
+
+    webbrowser.open(f"http://127.0.0.1:{port}")

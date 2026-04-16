@@ -159,6 +159,9 @@ def RegisterCalculateFunc(calculationHandler):
         "ValueScore" :partial(CalculationUtil.GetValueScore, handler = calculationHandler),
         "GrowScore" :partial(CalculationUtil.GetGrowScore, handler = calculationHandler),
 
+        "ValueScore_Now" :partial(CalculationUtil.GetValueScore_Now, handler = calculationHandler),
+        "GrowScore_Now" :partial(CalculationUtil.GetGrowScore_Now, handler = calculationHandler),
+
         "up_pressure_20": partial(CalculationUtil.GetUpPressure, BreakWindowCount = 20, handler = calculationHandler),
         "down_pressure_20": partial(CalculationUtil.GetDownPressure, BreakWindowCount = 20, handler = calculationHandler),
 

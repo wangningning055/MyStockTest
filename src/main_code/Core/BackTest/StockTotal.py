@@ -84,6 +84,9 @@ class BaseClass:
         return part
     
 
+    async def ExecuteBuySelect(self):
+        for key, part in self.partList.items():
+            await part.ExecuteBuySelect()
 
     async def ExecuteBuy(self):
         for key, part in self.partList.items():

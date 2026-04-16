@@ -212,7 +212,7 @@ class RequestorClass:
         #task.add_done_callback(self.main.task_finished_callback_Daily)
         self.main.BoardCast("处理日线数据完成")
 
-    async def RequestValue(self, dateTo):
+    async def RequestValue(self, dateTo, isNow = False):
         self.main.BoardCast("处理价值数据")
         codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
         async def pullVal(year, quarter):
@@ -269,7 +269,15 @@ class RequestorClass:
                     print(f"写入数据库失败: {e}")
 
             self.main.BoardCast("处理价值数据完成")
-        year, quarter, isNeedYear = self.get_report_quarter(dateTo)
+
+            
+        if isNow == False:
+            year, quarter, isNeedYear = self.get_report_quarter(dateTo)
+        else:
+            year, quarter, isNeedYear = self.get_report_quarter_now(dateTo)
+        if year == -1 or quarter == -1:
+            self.main.BoardCast("不在披露时间：4.1-4.30  一季报和上一年年报      7.1-8.31  半年报     10.1- 11.30 三季报")
+            return
         if isNeedYear:
             await pullVal(year, quarter)
             await pullVal(year - 1, 4)
@@ -319,9 +327,13 @@ class RequestorClass:
         if type == 3:
             await self.OnMsgRequestAdjustData()
         if type == 4:
-            await self.OnMsgRequestValueData()
+            await self.OnMsgRequestValueDataTemp()
+            #await self.OnMsgRequestValueData()
         if type == 5:
             await self.OnMsgRequestAllData()
+        if type == 6:
+            await self.OnMsgRequestValueData(True)
+
 
         self.isInRequester = False
         self.main.recordHandler.WriteRecordData()
@@ -415,14 +427,67 @@ class RequestorClass:
 
 
 
+    async def OnMsgRequestValueDataTemp(self, isNow = False):
+        #直接拉
+        year = 2020
+        quarter = 1
+        clsList = []
+        count = 0
+        progressInterval = 0
+        codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
+        for code in codeList:
+            progressInterval = progressInterval + 1
+            if progressInterval >= const_proj.progress_interval_pull:
+                self.main.SendProgress(count / len(codeList))
+                progressInterval = 0
+                await asyncio.sleep(0)
+
+            ##测试边界
+            #if count > 10:
+            #    break
+            if self.isInStop:
+                break
+            df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
+            df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
+            df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
+            cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
+            
+            if cls is not None:
+                clsList.append(cls)
+                tempList = []
+                tempList.append(cls)
+                try:
+                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
+                except Exception as e:
+                    print(f"写入数据库失败: {e}")
+
+
+            #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+            #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
+
+            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
+            count = count + 1
+            #if count > 3:
+            #    break
+                #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
+
+        print(f"开始写入:长度为：{len(clsList)}")
+        if clsList is not None and len(clsList) > 0:
+            try:
+                await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
+            except Exception as e:
+                print(f"写入数据库失败: {e}")
+
+        self.main.BoardCast("处理价值数据完成")
 
     #拉取价值数据
-    async def OnMsgRequestValueData(self):
+    async def OnMsgRequestValueData(self, isNow = False):
         try:
             lastDateStr = self.main.recordDataCls.value_list_last_data
             isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
             if isNeedPull:
-                await self.RequestValue(dateTo)
+                await self.RequestValue(dateTo, isNow)
                 self.main.recordDataCls.value_list_last_data = dateTo
 
 
@@ -433,6 +498,11 @@ class RequestorClass:
             full_trace = traceback.format_exc()
             print(f"价值数据拉取失败失败: {full_trace}")
             self.main.BoardCast(f"价值数据拉取失败失败: {e}")
+
+
+
+
+
 
     #检查是否需要拉取
     def CheckIsNeedPull(self, dataStr):
@@ -470,14 +540,14 @@ class RequestorClass:
         else:
             #print(f"无需拉取:上次日期：{dataStr}，   当日日期{today_str}")
             return False, seven_days_ago_str, today_str
-            
+    #上季度数据
     def get_report_quarter(self, date_str):
         # 1. 校验并解析日期字符串
         try:
             date = datetime.datetime.strptime(date_str, "%Y%m%d")
         except ValueError:
             raise ValueError("输入日期格式错误，请使用YYYYMMDD格式，例如20200304")
-        
+        #4.30  一季报和上一年年报      8.31  半年报      11.30 三季报
         # 2. 提取年、月
         year = date.year
         month = date.month
@@ -506,6 +576,44 @@ class RequestorClass:
         else:
             return (report_year, report_quarter, False)
 
+    #当前季度数据
+    def get_report_quarter_now(self, date_str):
+        # 1. 校验并解析日期字符串
+        try:
+            date = datetime.datetime.strptime(date_str, "%Y%m%d")
+        except ValueError:
+            raise ValueError("输入日期格式错误，请使用YYYYMMDD格式，例如20200304")
+        
+        # 2. 提取年、月
+        year = date.year
+        month = date.month
+
+        report_year = -1
+        report_quarter = -1
+        #4.1-4.30  一季报和上一年年报      7.1-8.31  半年报     10.1- 11.30 三季报
+        
+        # 3. 根据月份判断对应的财报年度和季度
+        if month == 4:
+            # 1-4月：上一年年报，季度1
+            report_year = year
+            report_quarter = 1
+        elif 7 <= month <= 8:
+            # 5-8月：返回当年，季度2
+            report_year = year
+            report_quarter = 2
+        elif 10 <= month <= 11:
+            # 9-10月：返回当年，季度3
+            report_year = year
+            report_quarter = 3
+        else:
+            raise ValueError("无效的月份，月份范围应为1-12")
+        if month == 4:
+            return (report_year, report_quarter, True)
+        else:
+            return (report_year, report_quarter, False)
+
+
+
     def format_seconds(self, seconds: float) -> str:
         seconds = int(seconds)
         h = seconds // 3600
@@ -527,65 +635,4 @@ class RequestorClass:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    #async def RequestTotalValue_Ak(self):
-    #    df_value =await self.api.Request_Company_Value_AK()
-    #    df_info =await self.api.Request_Company_Info_AK()
-
-    #    df_base = self.normalize_individual_info(df_value)
-    #    df_base = self.rename_individual_columns(df_base)
-
-    #    df_business = self.normalize_business_info(df_info)
-
-    #    df_final = self.merge_company_info(df_base, df_business)
-    #    df_final["code"] = "000001.SZ"
-
-    #    self.main.fileProcessor.SaveCSV(df_value, "TotalValue_AK", FileProcessor.FileEnum.Basic)
-    #    self.main.fileProcessor.SaveCSV(df_info, "TotalInfo_AK", FileProcessor.FileEnum.Basic)
-    #    self.main.fileProcessor.SaveCSV(df_final, "Final_AK", FileProcessor.FileEnum.Basic)
-        
-
-    #async def RequestTotalValue(self):
-    #    codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
-    #    count_stock = 0
-    #    totalCostTime = 0
-    #    preCostTime = 0
-    #    totalCostTimeStr = ""
-    #    preCostTimeStr = ""
-    #    sameList = set()
-    #    count = 0
-    #    df_list = []
-    #    for code in codeList:
-    #        count = count + 1
-    #        #if(count > 30):
-    #        #    break
-    #        if code in sameList:
-    #            continue
-    #        df = await self.api.Request_TotalValue(code)
-    #        print(f"正在拉取股本数据，当前第{count}个")
-    #        df_list.append(df)
-    #        sameList.add(code)
-    #    big_df = pd.concat(df_list, axis=0, ignore_index=True)
-    #    return big_df
-        
 

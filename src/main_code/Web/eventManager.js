@@ -138,6 +138,16 @@ export const EventManager = {
             });
         }
 
+        const updateBtn4_2 = document.getElementById('api-fetch-value-now');
+        if (updateBtn4_2) {
+            updateBtn4_2.addEventListener('click', () => {
+                if (manager) {
+                    //setFetchButtonsLoading(true);
+                    manager.requestUpdateData(6);
+                }
+            });
+        }
+
         const updateBtn5 = document.getElementById('api-update-data');
         if (updateBtn5) {
             updateBtn5.addEventListener('click', () => {
@@ -176,6 +186,29 @@ export const EventManager = {
                 }
             });
         }
+
+
+
+        const valueImportBtn = document.getElementById('api-value-import');
+        if (valueImportBtn) {
+            valueImportBtn.addEventListener('click', () => {
+                if (manager) {
+                    manager.ImportValue();
+                }
+            });
+        }
+
+
+        const valueExportBtn = document.getElementById('api-value-export');
+        if (valueExportBtn) {
+            valueExportBtn.addEventListener('click', () => {
+                if (manager) {
+                    manager.ExportValue();
+                }
+            });
+        }
+
+
         
         //const selectBtn = document.getElementById('api-select-stock');
         //if (selectBtn) {

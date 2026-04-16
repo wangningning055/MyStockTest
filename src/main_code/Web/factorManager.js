@@ -166,7 +166,7 @@ export const FactorManager = {
             console.error('错误：容器不存在');
             return;
         }
-        const showDateRange = !((factorId >= 0 && factorId <= 200000) || (factorId >= 300000 && factorId <= 400000));
+        const showDateRange = (factorId >= 200000 && factorId <= 300000) || (factorId >= 400000);
 
         // 获取容器内已有的条件数量
         const existingConditions = Array.from(container.querySelectorAll(':scope > .condition-row'));
