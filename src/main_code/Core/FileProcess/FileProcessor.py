@@ -42,8 +42,18 @@ class FileProcessorClass:
             path = Core.Const.TempAdjustFilePath + Core.Const.TempAdjustFileName + StockCode+ ".csv"
         return path
     
+    def SaveJson(self,data):
+        path = Core.Const.TempBasicFilePath + "PatternMatch.json"
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(
+                data,
+                f,
+                ensure_ascii=False,  # 保留中文等非ASCII字符
+                indent=4,            # 格式化输出，便于阅读
+                sort_keys=False       # 不排序key，保持原有顺序
+            )
 
-
+        print(f"JSON文件已成功保存到: {path}")
 
 
     def SaveRecordJson(self, jsonStr):

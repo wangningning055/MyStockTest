@@ -106,19 +106,20 @@ class BaseClass:
             if refreshCount < refreshLength:
                 refreshCount += 1
             else:
-                print("重初始化")
-                refreshCount = 0
-                now = self.backTestCalculationHandle.todayStr
-                self.backTestCalculationHandle.ClearDic()
-                backTestCalculationHandle = CalculationDataHandle.BaseClass(1)
-                self.backTestCalculationHandle = backTestCalculationHandle
-                backTestCalculationHandle.isOutST = self.isOutST
-                backTestCalculationHandle.isOutCY = self.isOutCY
-                backTestCalculationHandle.isOutKC = self.isOutKC
-                backTestCalculationHandle.Init(self.main, now)
-                self.main.analysisHandle.evaluator = None
-                await backTestCalculationHandle.DataPreheating()
-                self.main.analysisHandle.InitEvaluator(backTestCalculationHandle)
+                if stopStr not in self.backTestCalculationHandle.totalDateList:
+                    print("重初始化")
+                    refreshCount = 0
+                    now = self.backTestCalculationHandle.todayStr
+                    self.backTestCalculationHandle.ClearDic()
+                    backTestCalculationHandle = CalculationDataHandle.BaseClass(1)
+                    self.backTestCalculationHandle = backTestCalculationHandle
+                    backTestCalculationHandle.isOutST = self.isOutST
+                    backTestCalculationHandle.isOutCY = self.isOutCY
+                    backTestCalculationHandle.isOutKC = self.isOutKC
+                    backTestCalculationHandle.Init(self.main, now)
+                    self.main.analysisHandle.evaluator = None
+                    await backTestCalculationHandle.DataPreheating()
+                    self.main.analysisHandle.InitEvaluator(backTestCalculationHandle)
 
 
 

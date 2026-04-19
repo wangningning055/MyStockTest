@@ -45,6 +45,8 @@ class BaseClass:
 
     async def StartMatch(self, msg):
         print(f"开始模式匹配: {msg}")
+        totalMatchDic = []
+
         self.matchRes = MatchResStruct.Response()
         self.matchRes.matches = []
         self.startDate = msg["start_date"]
@@ -143,17 +145,18 @@ class BaseClass:
             if refreshCount < refreshLength:
                 refreshCount += 1
             else:
-                print("重初始化")
-                refreshCount = 0
-                now = self.matchCalculationHandle.todayStr
-                self.matchCalculationHandle.ClearDic()
-                matchCalculationHandle = CalculationDataHandle.BaseClass(2)
-                self.matchCalculationHandle = matchCalculationHandle
-                matchCalculationHandle.isOutST = self.isOutST
-                matchCalculationHandle.isOutCY = self.isOutCY
-                matchCalculationHandle.isOutKC = self.isOutKC
-                matchCalculationHandle.Init(self.main, now)
-                await matchCalculationHandle.DataPreheating()
+                if stopStr not in self.matchCalculationHandle.totalDateList:
+                    print("重初始化")
+                    refreshCount = 0
+                    now = self.matchCalculationHandle.todayStr
+                    self.matchCalculationHandle.ClearDic()
+                    matchCalculationHandle = CalculationDataHandle.BaseClass(2)
+                    self.matchCalculationHandle = matchCalculationHandle
+                    matchCalculationHandle.isOutST = self.isOutST
+                    matchCalculationHandle.isOutCY = self.isOutCY
+                    matchCalculationHandle.isOutKC = self.isOutKC
+                    matchCalculationHandle.Init(self.main, now)
+                    await matchCalculationHandle.DataPreheating()
 
 
 
@@ -229,6 +232,7 @@ class BaseClass:
         
         self.matchRes.matches = totalMatchDic
         self.matchRes = asdict(self.matchRes)
+        self.main.fileProcessor.SaveJson(self.matchRes)
 
         self.isInMatch = False
         self.main.SetIsInHandle(False)

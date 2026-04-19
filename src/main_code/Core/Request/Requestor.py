@@ -429,7 +429,7 @@ class RequestorClass:
 
     async def OnMsgRequestValueDataTemp(self, isNow = False):
         #直接拉
-        year = 2020
+        year = 2019
         quarter = 1
         clsList = []
         count = 0

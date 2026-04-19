@@ -16,6 +16,8 @@ TempBasicFilePath = "../TempFile/BasicData/"
 TempAdjustFilePath = "../TempFile/AdjustData/"
 TempDailyFilePath = "../TempFile/DailyData/"
 
+TempJsonFilePath = "../TempFile/JsonData/"
+
 
 TempRecordFilePath = "../TempFile/RecordData/"
 TempRecord_Industry_Result_FileName = "Industry_Result.json"
@@ -72,6 +74,11 @@ dateListRefreshLength_BackTest = 200              #回测需要刷新的长度
 dateListLength_PatternMatch =380     #模式匹配缓存的日期长度(前后各这么长)
 dateList240Length_PatternMatch = 280              #模式匹配缓存的240日期长度
 dateListRefreshLength_PatternMatch = 200              #模式匹配需要刷新的长度
+
+
+#dateListLength_PatternMatch =38     #模式匹配缓存的日期长度(前后各这么长)
+#dateList240Length_PatternMatch = 28              #模式匹配缓存的240日期长度
+#dateListRefreshLength_PatternMatch = 20              #模式匹配需要刷新的长度
 
 
 def GetIsCy(stockCode):
