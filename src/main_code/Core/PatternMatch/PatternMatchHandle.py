@@ -213,7 +213,7 @@ class BaseClass:
             
             await asyncio.sleep(0)
             if(nextDayStr == ""):
-                return
+                break
             nextDayStd = datetime.strptime(nextDayStr, date_format)
             passDayCount = (nextDayStd - starDayStd).days
             self.main.SetIsInHandle(True)

@@ -6,6 +6,7 @@ from datetime import datetime
 from dataclasses import dataclass, field, asdict
 # 1. 先导入TYPE_CHECKING常量
 from typing import TYPE_CHECKING
+import asyncio
 
 # 2. 仅在类型检查时导入需要的类（运行时不执行）
 if TYPE_CHECKING:
@@ -108,9 +109,9 @@ class BaseClass:
 
         self.curValue = cur
         self.changeRatio = ((self.curValue - self.startValue) / self.startValue) * 100
-        self.changeRatioList.append((self.curValue - self.startValue) / self.startValue)
         #计算回撤
         lastChange = (self.curValue - self.lastVal) / self.lastVal
+        self.changeRatioList.append(lastChange)
         if lastChange > 0:
             self.lastUpVal = self.curValue
         else:
@@ -156,7 +157,7 @@ class BaseClass:
 
 
     #获取最终的回测结果
-    def GetResult(self, day):
+    async def GetResult(self, day):
         #立即清空仓位
         for key, stockPart in self.partList.items():
             stockPart.CleanStock()
@@ -212,7 +213,7 @@ class BaseClass:
         maxReturn = self.maxReturn
 
         #夏普比率
-        sharpe = yearAvgRatio / year_volatility if year_volatility != 0 else 0
+        sharpe = yearAvgRatio / (year_volatility * 100) if year_volatility != 0 else 0
 
         #成交笔数
         totalDealCount = totalCount
@@ -245,6 +246,7 @@ class BaseClass:
         #构造收益率曲线
         for key, stockPart in self.partList.items():
             for operate in stockPart.operate_recorder_List:
+                await asyncio.sleep(0)
                 if operate.operate == "buy" and operate.isSuccess == True:
                     print(f"++++++++创建买入结果：名字：{operate.stockName}， 买入日期：{operate.buy_date}")
                     count_buy += 1

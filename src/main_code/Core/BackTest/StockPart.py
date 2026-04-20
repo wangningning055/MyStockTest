@@ -404,7 +404,6 @@ class BaseClass:
 
 
         self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
-        self.changeRatioList.append(self.curChangeRatio / 100)
 
 
         main = self.totalStock.handler.main
@@ -413,6 +412,7 @@ class BaseClass:
 
         #计算回撤
         lastChange = (self.totalValue - self.lastVal) / self.lastVal
+        self.changeRatioList.append(lastChange)
         if lastChange > 0:
             self.lastUpVal = self.totalValue
         else:
@@ -526,7 +526,7 @@ class BaseClass:
         maxReturn = self.maxReturn
 
         #夏普比率
-        sharpe = yearAvgRatio / year_volatility if year_volatility != 0 else 0
+        sharpe = yearAvgRatio / (year_volatility * 100) if year_volatility != 0 else 0
 
         #成交笔数
         totalDealCount = totalCount

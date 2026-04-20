@@ -130,33 +130,40 @@ class BaseClass:
             await asyncio.sleep(0)
 
             #当天执行卖
+            print("     执行卖")
             await self.ExecuteSell()
             await asyncio.sleep(0)
 
 
             #当天执行选股
+            print("     执行选股")
             await self.ExecuteBuySelect()
             await asyncio.sleep(0)
 
 
             #更新今天的数据
+            print("     更新数据")
             await self.UpdateStock(nextDayStr)
             await asyncio.sleep(0)
 
 
             #移动到下一天
+            print("     移动到下一天")
             nextDayStr = await backTestCalculationHandle.MoveDateToNextDaySample()
             await asyncio.sleep(0)
             if(nextDayStr == ""):
-                return
+                break
             nextDayStd = datetime.strptime(nextDayStr, date_format)
 
             #下一天用前一天的选股结果以收盘价买入
+            print("     执行买")
             await self.ExecuteBuy()
             await asyncio.sleep(0)
 
         #这里需要整理结果数据，然后传给前端
-        res = self.totalStock.GetResult(nextDayStr)
+        print("开始整理回测结果")
+
+        res = await self.totalStock.GetResult(nextDayStr)
 
         self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_BACK_TEST, res)
 
