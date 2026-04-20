@@ -167,7 +167,7 @@ class BaseClass:
 
         #self.changeRatioList里面是每天没有乘100%的涨跌幅
         #平均日波动率
-        daily_volatility = np.std(self.changeRatioList)
+        daily_volatility = np.std(self.changeRatioList, ddof=1)
         #年化波动率
         year_volatility = daily_volatility * np.sqrt(252)
          #名称
@@ -230,9 +230,9 @@ class BaseClass:
         totalSummary.final_fund = curVal
         totalSummary.total_return = changeRatio
         totalSummary.win_rate = successRatio
-        totalSummary.annual_return = yearAvgRatio * 100
+        totalSummary.annual_return = yearAvgRatio
         totalSummary.annual_volatility = year_volatility * 100
-        totalSummary.monthly_return = monthAvgRatio * 100
+        totalSummary.monthly_return = monthAvgRatio
         totalSummary.monthly_volatility = month_volatility *100
         totalSummary.max_drawdown = maxReturn
         totalSummary.sharpe_ratio = sharpe

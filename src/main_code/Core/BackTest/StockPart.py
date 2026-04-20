@@ -480,7 +480,7 @@ class BaseClass:
     def GetResult(self):
         #平均日收益率
         avgRatio = 0
-        avgRatio = np.mean(self.changeRatioList)
+        avgRatio = self.curChangeRatio / self.totalStock.holdDay
         
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
@@ -541,9 +541,9 @@ class BaseClass:
         totalSummary.final_fund = curVal
         totalSummary.total_return = changeRatio
         totalSummary.win_rate = successRatio
-        totalSummary.annual_return = yearAvgRatio * 100
+        totalSummary.annual_return = yearAvgRatio
         totalSummary.annual_volatility = year_volatility * 100
-        totalSummary.monthly_return = monthAvgRatio * 100
+        totalSummary.monthly_return = monthAvgRatio
         totalSummary.monthly_volatility = month_volatility * 100
         totalSummary.max_drawdown = maxReturn
         totalSummary.sharpe_ratio = sharpe
