@@ -28,7 +28,7 @@ class BaseClass :
 
 
     #个股条件因子计算和筛选
-    def RunGetStockListByCondition(self, conditionJson):
+    async def RunGetStockListByCondition(self, conditionJson):
         print(f"开始进行条件筛选: {conditionJson}")
         evaluator : FactorEvaluator = FactorEvaluator(FACTORS_METADATA)
         evaluator.SetMain(self.main)
@@ -36,6 +36,7 @@ class BaseClass :
         pid = os.getpid()
         # 获取当前进程对象
         process = psutil.Process(pid)
+        self.main.SetIsInHandle(True)
 
         try:
             # Pydantic自动验证并转换
@@ -65,7 +66,7 @@ class BaseClass :
         t0 = time.perf_counter()
         for val, single in self.main.calculationDataHandle.totalComponyIns.allStockList.items():
             #如果状态不是成交状态就跳过
-            todayStr = self.main.todayStockDate
+            todayStr = self.main.calculationDataHandle.todayStr
             cls = self.main.calculationDataHandle.GetBaseDataClass(val, todayStr ,False)
             if cls == None:
                 continue
@@ -111,8 +112,9 @@ class BaseClass :
         totalCostTime = (t1 - t0)
         totalCostTimeStr1 = self.main.requestor.format_seconds(totalCostTime)
         
+        self.main.SetIsInHandle(False)
         print(f"结果长度：: {len(listCode)}， 花费时间：{totalCostTimeStr1}")
-        self.CreateSelectStockResponse(listCode)
+        await self.CreateSelectStockResponse(listCode)
 
 
 
@@ -337,16 +339,21 @@ class BaseClass :
 #    }
 
 
-    def CreateSelectStockResponse(self, codeList):
+    async def CreateSelectStockResponse(self, codeList):
         response = {}
         total = len(codeList)
         response["total"] = total
         response["timestamp"] = "2025-01-15T10:30:00"
         response["stocks"] = []
+        self.main.SetIsInHandle(True)
+        count = 0
         for resSingle in codeList:
+            count += 1
+            self.main.SendProgress(count / len(codeList))
+            print(f"正在处理选股结果，第{count}个， 总共有{len(codeList)}个")
             code = resSingle[0]
             score = resSingle[1]
-            cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code ,self.main.todayStockDate)
+            cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code ,self.main.calculationDataHandle.todayStr)
             componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(code)
             industryCls = self.main.calculationDataHandle.totalComponyIns.GetIndustryClsByCode(code)
             single = {
@@ -2101,6 +2108,7 @@ class BaseClass :
 
             response["stocks"].append(single)
 
+        self.main.SetIsInHandle(False)
         self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.SC_SELECT_STOCKS, response["stocks"])
 
 
@@ -2160,7 +2168,7 @@ class BaseClass :
 
     def CreateSearchResponseSingle(self, stockCode):
         componyInfo = self.main.calculationDataHandle.totalComponyIns.GetComponyInfo(stockCode)
-        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(stockCode, self.main.todayStockDate, False)
+        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(stockCode, self.main.calculationDataHandle.todayStr, False)
         print(f"查询结果：{componyInfo.Code}, {componyInfo.Name},  {componyInfo.Industry}")
         stock = {
         'code': stockCode,
@@ -2247,7 +2255,7 @@ class BaseClass :
         response = {}
         response["code"] = code
         response["kline"] = []
-        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code, self.main.todayStockDate, False)
+        cls = self.main.calculationDataHandle.GetBaseDataClass_WithTradeState(code, self.main.calculationDataHandle.todayStr, False)
         for single in cls.dataList_240:
             date_obj = datetime.strptime(single.trade_date, "%Y%m%d")
             targetDate = date_obj.strftime("%Y-%m-%d")

@@ -225,7 +225,7 @@ def HandleMsg(msg):
 
     elif(msgType == MessageType.CS_SELECT_STOCKS):
         print("处理选股消息")
-        mainProcessor.analysisHandle.RunGetStockListByCondition(data)
+        task = asyncio.get_running_loop().create_task(mainProcessor.analysisHandle.RunGetStockListByCondition(data))
 
 
     elif(msgType == MessageType.CS_PREHEAT_DATA):

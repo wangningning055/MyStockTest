@@ -94,7 +94,9 @@ class BaseClass:
         self.startValue = totalStock.startValue * self.share
         self.curValue = self.startValue
         self.totalValue = self.startValue
-        self.maxCount = 2
+        self.maxCount = self.curValue // 30000
+        if self.curValue % 30000 >= 10000:
+            self.maxCount += 1
         self.curChangeRatio = 0
 
         self.changeRatioList = []
@@ -135,6 +137,11 @@ class BaseClass:
         buyCodeList = []
 
         buyCodeDic_selectRes = {}
+
+        #当前处在满仓状态，不需要选股
+        if(len(self.stockList) >= self.maxCount):
+            return
+        
 
         #移出已经持仓的股票和已经在卖出列表里的股票
         buySelectCodeList = self.totalStock.handler.backTestCalculationHandle.totalStockList.copy()
@@ -397,7 +404,7 @@ class BaseClass:
 
 
         self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
-        self.changeRatioList.append(self.curChangeRatio)
+        self.changeRatioList.append(self.curChangeRatio / 100)
 
 
         main = self.totalStock.handler.main
@@ -447,7 +454,7 @@ class BaseClass:
 
         self.totalValue = self.curValue
         self.curChangeRatio = ((self.totalValue - self.startValue) / self.startValue) * 100
-        self.changeRatioList.append(self.curChangeRatio)
+        self.changeRatioList.append(self.curChangeRatio / 100)
 
     #获取当前可使用的分仓价
     def GetBuyVal(self):
@@ -473,11 +480,8 @@ class BaseClass:
     def GetResult(self):
         #平均日收益率
         avgRatio = 0
-        if len(self.changeRatioList) > 0:
-            addCount = 0
-            for ratio in self.changeRatioList:
-                addCount += 1
-            avgRatio = self.curChangeRatio / addCount
+        avgRatio = np.mean(self.changeRatioList)
+        
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
 
@@ -537,10 +541,10 @@ class BaseClass:
         totalSummary.final_fund = curVal
         totalSummary.total_return = changeRatio
         totalSummary.win_rate = successRatio
-        totalSummary.annual_return = yearAvgRatio
-        totalSummary.annual_volatility = year_volatility
-        totalSummary.monthly_return = monthAvgRatio
-        totalSummary.monthly_volatility = month_volatility
+        totalSummary.annual_return = yearAvgRatio * 100
+        totalSummary.annual_volatility = year_volatility * 100
+        totalSummary.monthly_return = monthAvgRatio * 100
+        totalSummary.monthly_volatility = month_volatility * 100
         totalSummary.max_drawdown = maxReturn
         totalSummary.sharpe_ratio = sharpe
 

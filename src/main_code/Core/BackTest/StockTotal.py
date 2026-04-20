@@ -108,7 +108,7 @@ class BaseClass:
 
         self.curValue = cur
         self.changeRatio = ((self.curValue - self.startValue) / self.startValue) * 100
-        self.changeRatioList.append(self.changeRatio)
+        self.changeRatioList.append((self.curValue - self.startValue) / self.startValue)
         #计算回撤
         lastChange = (self.curValue - self.lastVal) / self.lastVal
         if lastChange > 0:
@@ -163,12 +163,7 @@ class BaseClass:
         self.UpdateStock(day)
 
         #平均日收益率
-        avgRatio = 0
-        if len(self.changeRatioList) > 0:
-            addCount = 0
-            for ratio in self.changeRatioList:
-                addCount += 1
-            avgRatio = self.changeRatio / addCount
+        avgRatio = self.changeRatio / self.holdDay
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
 
@@ -232,10 +227,10 @@ class BaseClass:
         totalSummary.final_fund = curVal
         totalSummary.total_return = changeRatio
         totalSummary.win_rate = successRatio
-        totalSummary.annual_return = yearAvgRatio
-        totalSummary.annual_volatility = year_volatility
-        totalSummary.monthly_return = monthAvgRatio
-        totalSummary.monthly_volatility = month_volatility
+        totalSummary.annual_return = yearAvgRatio * 100
+        totalSummary.annual_volatility = year_volatility * 100
+        totalSummary.monthly_return = monthAvgRatio * 100
+        totalSummary.monthly_volatility = month_volatility *100
         totalSummary.max_drawdown = maxReturn
         totalSummary.sharpe_ratio = sharpe
 
