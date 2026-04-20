@@ -1,0 +1,566 @@
+{
+  "divisions": [
+    {
+      "id": "div-1774841847208-ho4xjzy2a",
+      "name": "涨买跌卖",
+      "weight": 1,
+      "holdingTimeMin": 3,
+      "holdingTimeMax": 10,
+      "stopLossPercent": -5,
+      "takeProfitPercent": 300,
+      "buyConfigTree": [
+        {
+          "factor_group_name": "条件列表",
+          "weight": 130,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1010,
+              "factor_name": "当日总流通市值",
+              "operator": "gt",
+              "value": 1000000000,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1010,
+              "factor_name": "当日总流通市值",
+              "operator": "lt",
+              "value": 15000000000,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1018,
+              "factor_name": "均价",
+              "operator": "gt",
+              "value": 3,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1018,
+              "factor_name": "均价",
+              "operator": "lt",
+              "value": 30,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1011,
+              "factor_name": "当日市盈率",
+              "operator": "gt",
+              "value": -5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1011,
+              "factor_name": "当日市盈率",
+              "operator": "lt",
+              "value": 100,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1012,
+              "factor_name": "当日市净率",
+              "operator": "gt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1012,
+              "factor_name": "当日市净率",
+              "operator": "lt",
+              "value": 4,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1009,
+              "factor_name": "当日换手率",
+              "operator": "gt",
+              "value": 1.5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1009,
+              "factor_name": "当日换手率",
+              "operator": "lt",
+              "value": 5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1029,
+              "factor_name": "3日距今涨跌幅",
+              "operator": "gt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1029,
+              "factor_name": "3日距今涨跌幅",
+              "operator": "lt",
+              "value": 2,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1148,
+              "factor_name": "60日整体涨跌幅",
+              "operator": "lt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1144,
+              "factor_name": "40日整体涨跌幅",
+              "operator": "lt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1031,
+              "factor_name": "10日距今涨跌幅",
+              "operator": "gt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1031,
+              "factor_name": "10日距今涨跌幅",
+              "operator": "lt",
+              "value": 5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1032,
+              "factor_name": "20日距今涨跌幅",
+              "operator": "gt",
+              "value": -5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1032,
+              "factor_name": "20日距今涨跌幅",
+              "operator": "lt",
+              "value": 15,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1067,
+              "factor_name": "5日振幅",
+              "operator": "gt",
+              "value": 3,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1067,
+              "factor_name": "5日振幅",
+              "operator": "lt",
+              "value": 5,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1083,
+              "factor_name": "10日振幅",
+              "operator": "gt",
+              "value": 3,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1083,
+              "factor_name": "10日振幅",
+              "operator": "lt",
+              "value": 5,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1087,
+              "factor_name": "当日均价与10日均价比",
+              "operator": "gt",
+              "value": 0.98,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1087,
+              "factor_name": "当日均价与10日均价比",
+              "operator": "lt",
+              "value": 1.05,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1142,
+              "factor_name": "当日均价与20日均价比",
+              "operator": "gt",
+              "value": 0.98,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1142,
+              "factor_name": "当日均价与20日均价比",
+              "operator": "lt",
+              "value": 1.05,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1152,
+              "factor_name": "当日均价与120日均价比",
+              "operator": "gt",
+              "value": 0.99,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1152,
+              "factor_name": "当日均价与120日均价比",
+              "operator": "lt",
+              "value": 1.2,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1154,
+              "factor_name": "当日均价与240日均价比",
+              "operator": "gt",
+              "value": 0.99,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1154,
+              "factor_name": "当日均价与240日均价比",
+              "operator": "lt",
+              "value": 1.3,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1148,
+              "factor_name": "60日整体涨跌幅",
+              "operator": "gt",
+              "value": -7,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1148,
+              "factor_name": "60日整体涨跌幅",
+              "operator": "lt",
+              "value": 10,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1151,
+              "factor_name": "120日整体涨跌幅",
+              "operator": "gt",
+              "value": -10,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1151,
+              "factor_name": "120日整体涨跌幅",
+              "operator": "lt",
+              "value": 20,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1153,
+              "factor_name": "240日整体涨跌幅",
+              "operator": "gt",
+              "value": -10,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1153,
+              "factor_name": "240日整体涨跌幅",
+              "operator": "lt",
+              "value": 30,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1034,
+              "factor_name": "60日距今涨跌幅",
+              "operator": "gt",
+              "value": -10,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1034,
+              "factor_name": "60日距今涨跌幅",
+              "operator": "lt",
+              "value": 20,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1035,
+              "factor_name": "120日距今涨跌幅",
+              "operator": "gt",
+              "value": -5,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1035,
+              "factor_name": "120日距今涨跌幅",
+              "operator": "lt",
+              "value": 50,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1036,
+              "factor_name": "240日距今涨跌幅",
+              "operator": "gt",
+              "value": -10,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1036,
+              "factor_name": "240日距今涨跌幅",
+              "operator": "lt",
+              "value": 50,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1143,
+              "factor_name": "40日整体成交额涨跌幅",
+              "operator": "gt",
+              "value": -13,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1143,
+              "factor_name": "40日整体成交额涨跌幅",
+              "operator": "lt",
+              "value": 70,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        }
+      ],
+      "sellConfigTree": [
+        {
+          "factor_group_name": "条件列表",
+          "weight": 10,
+          "logic_tree": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1007,
+              "factor_name": "当日涨跌幅",
+              "operator": "lt",
+              "value": -8,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        }
+      ],
+      "drawdownStartPercent": 50,
+      "maxDrawdownPercent": -15,
+      "createdAt": "2026-03-30T03:37:27.208Z",
+      "thresholdBuy": "0.51",
+      "thresholdSell": "0.07"
+    }
+  ],
+  "initialFund": 100000,
+  "timestamp": "2026-04-20T10:25:50.149Z",
+  "version": "1.0",
+  "description": "完整的持仓回测配置，包含所有分仓参数和条件"
+}

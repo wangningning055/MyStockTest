@@ -164,9 +164,12 @@ class BaseClass:
 
         #平均日收益率
         avgRatio = self.changeRatio / self.holdDay
+
+        #self.changeRatioList里面是每天没有乘100%的涨跌幅
         #平均日波动率
         daily_volatility = np.std(self.changeRatioList)
-
+        #年化波动率
+        year_volatility = daily_volatility * np.sqrt(252)
          #名称
         name = self.name
 
