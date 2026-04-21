@@ -4,7 +4,7 @@ from enum import Enum
 import json
 import asyncio
 import datetime
-
+from starlette.websockets import WebSocketState
 from typing import TYPE_CHECKING
 # 2. 仅在类型检查时导入需要的类（运行时不执行）
 if TYPE_CHECKING:
@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 clients: set[WebSocket] = set()
 mainProcessor : "Main.processor"
+pending_messages = []
+
 class MessageType(str, Enum):
     Log = "log"#服务器发送上次更新日期
     Test = "test"#测试
@@ -76,11 +78,17 @@ async def SendMessage(msg_type, content):
         print(f"发送消息：{msg_type}")
     data = json.dumps({"type": msg_type, "msg": content}, ensure_ascii=False, indent=2)
 
-
     dead_ws = []
 
     for ws in clients:
+        isSuccess = False
         try:
+            if ws.client_state != WebSocketState.CONNECTED:
+                print(f"发送失败0：{msg_type}")
+                dead_ws.append(ws)
+                continue
+            isSuccess = True
+
             await ws.send_text(data)
         except RuntimeError:
             # ws 已关闭
@@ -89,6 +97,9 @@ async def SendMessage(msg_type, content):
         except Exception as e:
             print(f"发送失败2：{msg_type}")
             dead_ws.append(ws)
+
+    if isSuccess == False:
+        pending_messages.append(data)
 
     # 统一清理
     for ws in dead_ws:
@@ -136,12 +147,18 @@ async def broadcast(message: str):
 def register_ws(app: FastAPI):
     @app.websocket("/ws")
     async def websocket_endpoint(ws: WebSocket):
-        clients.add(ws)
         await ws.accept()
+        clients.add(ws)
         print("客户端已连接")
         SendLastUpdateTime()
         SendLastUpdateIndustry()
         SendLastUpdateIndustryRotation()
+        #在这里发送缓存的消息：
+        for data in pending_messages:
+            await ws.send_text(data)
+        pending_messages.clear()
+
+
         try:
             while True:
                 data = await ws.receive_text()
@@ -150,6 +167,8 @@ def register_ws(app: FastAPI):
                 HandleMsg(msg)
         except WebSocketDisconnect:
             print("客户端断开连接")
+        finally:
+            clients.discard(ws)
 
 #发送上次更新日期
 def SendLastUpdateTime():

@@ -136,8 +136,17 @@ class BaseClass:
 
         refreshLength = Const.dateListRefreshLength_PatternMatch
         refreshCount = 0
+
+        lastDayStr = nextDayStr
+
+        nowDayStr = matchCalculationHandle.GetToday()
+        nowDayStd = datetime.strptime(nowDayStr, date_format)
+        if nowDayStd < stopDayStd:
+            stopDayStd = nowDayStd
+
         
         while nextDayStd < stopDayStd:
+            lastDayStr = nextDayStr
             await asyncio.sleep(0)
             if self.isNeedStop:
                 break
@@ -223,7 +232,8 @@ class BaseClass:
             print("")
             self.main.SendProgress(progress)
 
-
+        if nextDayStr == "":
+            nextDayStr = lastDayStr
         #再执行消息发送
 
         totalMatchDic = []

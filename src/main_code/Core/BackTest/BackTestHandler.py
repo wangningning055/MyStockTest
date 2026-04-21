@@ -70,6 +70,7 @@ class BaseClass:
         print("开始执行回测")
         # 20210104
         self.main.SetIsInHandle(True)
+        self.main.analysisHandle.evaluator = None
         backTestCalculationHandle = CalculationDataHandle.BaseClass(1)
         self.backTestCalculationHandle = backTestCalculationHandle
         backTestCalculationHandle.isOutST = self.isOutST
@@ -89,14 +90,23 @@ class BaseClass:
         stopStr = self.stopDate
         stopDayStd = datetime.strptime(stopStr, date_format)
 
+        nowDayStr = backTestCalculationHandle.GetToday()
+        nowDayStd = datetime.strptime(nowDayStr, date_format)
+        if nowDayStd < stopDayStd:
+            stopDayStd = nowDayStd
+
         tempStop = 0
 
         totalDay = (stopDayStd - starDayStd).days
 
         refreshLength = Const.dateListRefreshLength_BackTest
         refreshCount = 0
+
+        lastDayStr = starDayStr
         #鉴于源数据源的滞后性，先依据昨天的数据执行买卖，再更新新一天的数据
         while nextDayStd < stopDayStd:
+            lastDayStr = nextDayStr
+
             if self.isNeedStop == True:
                 print("回测被停止")
                 self.main.BoardCast("回测被停止")
@@ -162,6 +172,8 @@ class BaseClass:
 
         #这里需要整理结果数据，然后传给前端
         print("开始整理回测结果")
+        if nextDayStr == "":
+            nextDayStr = lastDayStr
 
         res = await self.totalStock.GetResult(nextDayStr)
 
