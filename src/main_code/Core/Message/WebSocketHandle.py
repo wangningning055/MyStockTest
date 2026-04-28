@@ -84,18 +84,21 @@ async def SendMessage(msg_type, content):
         isSuccess = False
         try:
             if ws.client_state != WebSocketState.CONNECTED:
-                print(f"发送失败0：{msg_type}")
+                print(f"发送失败1：{msg_type}")
                 dead_ws.append(ws)
                 continue
+            try:
+                await ws.send_text(data)
+            except e:
+                print(f"发送失败2：{msg_type}")
             isSuccess = True
 
-            await ws.send_text(data)
         except RuntimeError:
             # ws 已关闭
-            print(f"发送失败1：{msg_type}")
+            print(f"发送失败3：{msg_type}")
             dead_ws.append(ws)
         except Exception as e:
-            print(f"发送失败2：{msg_type}")
+            print(f"发送失败4：{msg_type}")
             dead_ws.append(ws)
 
     if isSuccess == False:

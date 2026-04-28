@@ -537,6 +537,15 @@
       ]
     },
 
+    "stock_window_Lower": {
+      "name": "个股日期区间低点趋势",
+      "description": "个股日期区间低点趋势",
+      "items": [
+        { "id": 200301, "name_field": "lower_tend_ratio", "name": "区间低点平均涨跌幅", "type": "int", "description": "区间低点是否处在上行趋势" },
+        { "id": 200302, "name_field": "lower_tend_two_ratio", "name": "最近两个低点之间的涨跌幅", "type": "int", "description": "最近两个低点之间的涨跌幅" }
+      ]
+    },
+
     "stock_window_ratio": {
       "name": "个股日期区间涨跌条件",
       "description": "个股日期区间涨跌条件",

@@ -168,7 +168,10 @@ class BaseClass:
 
         #self.changeRatioList里面是每天没有乘100%的涨跌幅
         #平均日波动率
-        daily_volatility = np.std(self.changeRatioList, ddof=1)
+        if(len(self.changeRatioList)<2):
+            daily_volatility = 0
+        else:
+            daily_volatility = np.std(self.changeRatioList, ddof=1)
         #年化波动率
         year_volatility = daily_volatility * np.sqrt(252)
          #名称
@@ -191,8 +194,10 @@ class BaseClass:
                 totalCount += 1
                 if singleStock.curChangeRatio > 0:
                     successCount += 1
-
-        successRatio = (successCount / totalCount)*100
+        if totalCount == 0:
+            successRatio = 0
+        else:
+            successRatio = (successCount / totalCount)*100
 
 
         #平均年化收益率
@@ -243,8 +248,13 @@ class BaseClass:
         tradeRecorderList = []
         count_sell = 0
         count_buy = 0
+        self.handler.main.SetIsInHandle(True)
+        count = 0
         #构造收益率曲线
         for key, stockPart in self.partList.items():
+            count += 1
+            self.handler.main.SendProgress(count / len(self.partList))
+            await asyncio.sleep(0)
             for operate in stockPart.operate_recorder_List:
                 await asyncio.sleep(0)
                 if operate.operate == "buy" and operate.isSuccess == True:
@@ -306,6 +316,7 @@ class BaseClass:
             res.divisions[stockPart.name] = divisions
 
         res.total = asdict(totalStock)
+        self.handler.main.SetIsInHandle(False)
 
         return asdict(res)
 

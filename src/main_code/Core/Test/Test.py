@@ -97,13 +97,22 @@ async def TestCalculate(handler : CalculationDataHandle.BaseClass):
         #await backTestHandle.DataPreheating()
 
         main.SetIsInHandle(True)
-        count = 0
-        totalCount = 10
-        while count < totalCount:
-            progress = (count + 1) / totalCount
-            main.SendProgress(progress)
-            await asyncio.sleep(1)
-            count += 1
+
+        def tempLog(code):
+            windowCls = handler.GetWindowDataClass(code, handler.todayStr, 0, 40)
+            if windowCls is None:
+                 return
+            downValue = windowCls.lower_tend_ratio
+            name = handler.totalComponyIns.GetComponyInfo(code).Name
+            industry = handler.totalComponyIns.GetComponyInfo(code).Industry
+            if downValue > 0:
+                print(f"****************************股票{code}，    {name}, 行业：{industry}   计算完毕， 下压力结果是：  {downValue}")
+
+        #随机取五个值
+        random_items = random.sample(handler.totalStockList, k=50)
+        for code in random_items:
+            tempLog(code)
+
 
 
 

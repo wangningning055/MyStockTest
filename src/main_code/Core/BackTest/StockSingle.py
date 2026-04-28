@@ -185,14 +185,14 @@ class BaseClass:
             if cls.trade_state != 0:
                 nowPrice = cls.close_ori
 
+                nowAdjPrice = cls.close
 
-                if nowPrice * self.volume > self.maxHistoryValue:
-                    self.maxHistoryValue = nowPrice * self.volume
+                ratio = ((nowAdjPrice - self.start_adjPrice_close) / self.start_adjPrice_close)
+                self.curChangeRatio = ratio * 100
+                self.curValue = (self.start_price * self.volume) + (self.start_price * self.volume) * ratio
 
-
-                self.curChangeRatio = ((nowPrice - self.start_price) / self.start_price) * 100
-                self.curValue = nowPrice * self.volume
-
+                if self.curValue > self.maxHistoryValue:
+                    self.maxHistoryValue = self.curValue
 
                 if self.isInBack == False and self.stockPart.backEnd != 0:
                     if self.curChangeRatio >= partStock.backStart:
@@ -203,8 +203,9 @@ class BaseClass:
 
     #清仓卖出
     def End(self):
-        self.curChangeRatio = ((self.end_price - self.start_price) / self.start_price) * 100
-        self.curValue = self.end_price * self.volume
+        ratio =  ((self.end_adjPrice_avg - self.start_adjPrice_close) / self.start_adjPrice_close)
+        self.curChangeRatio = ratio * 100
+        self.curValue = (self.start_price * self.volume) + (self.start_price * self.volume) * ratio
         self.isEnd = True
 
     #获取当前仓位总价值

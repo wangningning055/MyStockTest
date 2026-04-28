@@ -93,6 +93,9 @@ def RegisterCalculateFunc(calculationHandler):
         "is_pop_down": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == -1 else 0, ()),
 
 
+
+
+
         #break_upper_count_20: int      #区间突破20日上压力位次数
         "break_upper_count_20": (CalculationUtil.GetBreakUpCount_20, ("startDataCls", "startCount", "toCount")),
         #break_lower_count_20: int      #区间跌破20日下压力位次数
@@ -147,6 +150,9 @@ def RegisterCalculateFunc(calculationHandler):
         "ratio_avg_close_upper_240": (CalculationUtil.Get_Close_Break_Up_Ratio_240, ("startDataCls", "startCount", "toCount", "handler")),
         #ratio_avg_close_lower_240: float #区间平均收盘价与240日下压力位的比
         "ratio_avg_close_lower_240": (CalculationUtil.Get_Close_Break_Low_Ratio_240, ("startDataCls", "startCount", "toCount", "handler")),
+
+        "lower_tend_ratio": (CalculationUtil.GetDownPressurePointUpRatio, ("startDataCls", "startCount", "toCount", "handler")),
+        "lower_tend_two_ratio": (CalculationUtil.GetDownPressurePointUpRatio_Two, ("startDataCls", "startCount", "toCount", "handler")),
 
     }
 

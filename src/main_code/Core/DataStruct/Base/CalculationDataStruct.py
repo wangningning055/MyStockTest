@@ -852,6 +852,10 @@ class StructBaseWindowClass :
     avg_amplitude:float         #平均振幅
     avg_avg:float         #平均均价
 
+
+    lower_tend_ratio : float        #区间低点是否处在上行趋势
+    lower_tend_two_ratio : float    #最近两个低点之间的涨跌幅
+
     #压力位开始---------------------------------------------------------------------------
     # 区间压力位突破/跌破次数（整型）
     break_upper_count_20: int      #区间突破20日上压力位次数

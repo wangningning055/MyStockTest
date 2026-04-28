@@ -519,7 +519,7 @@ class AppManager {
         //);
     }
 
-    ImportValue() {
+    testData() {
         this.app.log("📤发送测试请求...", "system");
         return this.socket.sendMessage(SocketModule.MessageType.TEST, {
             timestamp: new Date().toISOString(),
@@ -533,7 +533,7 @@ class AppManager {
     }
 
 
-    testData() {
+    ImportValue() {
         this.app.log("📤导入价值数据...", "system");
         return this.socket.sendMessage(SocketModule.MessageType.IMPORT_VALUE, {
             timestamp: new Date().toISOString(),

@@ -31,18 +31,6 @@ if TYPE_CHECKING:
 def CalculateDownPressure(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
 # ══════════════════════════════════════════════════════════════════
     # 下压力位（支撑位）计算   nowData=当日数据   windowData=区间聚合数据
-    #
-    # ATR 计算说明：
-    #   TR  = max(当日最高-当日最低, |当日最高-昨收|, |当日最低-昨收|)
-    #   ATR = TR 的 14 日均值
-    #
-    # 本版新增（其余逻辑与原版完全一致）：
-    #   1. 所有边界参数统一提到最前方，方便直接修改
-    #   2. 每个低点叠加成交量密集度权重：附近换手越密集说明筹码承接越真实
-    #   3. 时间权重与成交量权重合并：时间越近 + 量越密集 = 权重越高
-    #      （权重仅作用于 3个及以上低点 的加权趋势计算，
-    #        原有的1个/2个低点分支、聚合检测逻辑均保持不变）
-    # ══════════════════════════════════════════════════════════════════
 
     # ----------------------------------------------------------------
     # ★ 可调边界参数（统一放在最前方，方便直接修改）
@@ -1831,3 +1819,232 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
     main.websocketHandler.SendLastUpdateTime()
     print("行业总结完毕")
 
+
+
+#计算低点，以及最近的低点是否在上涨趋势中
+def CalculateDownPressurePointUpRatio(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass", isTwo = False):
+# ══════════════════════════════════════════════════════════════════
+
+    # 【回调启动条件A】收盘价低于 MA5 - ATR * 此系数，视为下破启动
+    PARAM_BREAKDOWN_ATR_FACTOR      = 0.8
+    # 【回调启动条件B】单日跌幅绝对值超过此值（%）且超过近5日平均振幅，视为强势下杀
+    PARAM_SINGLE_DAY_DOWN_RATIO     = 3.0
+    # 【回调启动条件C】3日累计跌幅超过此值（%）且连续两日收跌，视为持续下行趋势
+    PARAM_3DAY_DOWN_RATIO           = 3.0
+
+    # 【回调结束】从本段低点反弹超过此比例，视为回调结束（原版固定5%）
+    PARAM_REBOUND_END_RATIO         = 0.05
+    # 【回调结束】最少持续交易日数，不足此数不结束（防止一日假反弹）
+    PARAM_MIN_PULLBACK_DAYS         = 2
+    # 【near_avg 修正】最近低点距今至少 N 日才做均价修正（太近修正意义不大）
+    PARAM_NEAR_AVG_MIN_DAYS         = 3
+   
+    # ----------------------------------------------------------------
+    # 初始化
+    # ----------------------------------------------------------------
+    todayStr  = nowData.trade_date
+    stockCode = nowData.code
+
+    # 获取区间窗口统计数据（StructBaseWindowClass，含均值/极值等聚合字段）
+    windowData: CalculationDataStruct.StructBaseWindowClass = handler.GetWindowDataClass(stockCode, todayStr, StartDayCount, ToDayCount)
+    if nowData == None or windowData == None:
+        return -99
+    #print(f"___________________________________开始计算：{stockCode}——————————————————————————————————————————————————————")
+
+    raw_list: list["CalculationDataStruct.StructBaseClass"] = nowData.dataList_240
+
+    use_count    = min(ToDayCount + 1, len(raw_list))
+    dataList_asc = list(reversed(raw_list[:use_count]))
+
+    if len(dataList_asc) < 15:
+        #print("下压力位计算：数据不足,直接返回")
+        return -99
+
+    avg_amp_window          = windowData.avg_amplitude         # 区间平均振幅（%）
+    avg_low_price_window        = windowData.avg_low               # 区间平均最低价
+
+
+    # 计算这个日期的前x日的均价
+    def calc_avg(trade_date, num = 5):
+        count = 0
+        totalVal = 0
+        for single in nowData.dataList_240:
+            if trade_date == single.trade_date or count > 0:
+                count = count + 1
+                totalVal += single.close
+                if count >= num:
+                    return totalVal / count
+        return windowData.avg_close
+
+    # 计算这个日期距前x日的涨跌幅
+    def calc_changeRatio(trade_date, num = 5):
+        count = 0
+        nowVal = 0
+        for single in nowData.dataList_240:
+            if trade_date == single.trade_date:
+                nowVal = single.close
+            if nowVal != 0:
+                count += 1
+                if count > num:
+                    endVal = single.close
+                    return (nowVal - endVal) * 100 / endVal
+        return windowData.avg_change_Ratio
+
+    # 计算这个日期附近x天的平均振幅
+    def calc_amplitude(trade_date, num = 5):
+        count = 0
+        nowVal = 0
+        for single in nowData.dataList_240:
+            if trade_date == single.trade_date or count > 0:
+                nowVal += single.amplitude
+                count += 1
+                if count >= num:
+                    return nowVal/ count
+        return windowData.avg_amplitude
+
+    def calc_atr(trade_date, num = 14):
+        tr = 0
+        count = 0
+        for single in nowData.dataList_240:
+            if trade_date == single.trade_date or count > 0:
+                maxtarget = max(
+                    single.high - single.low,
+                    abs(single.high - single.last_close),
+                    abs(single.low - single.last_close)
+                )
+                tr += maxtarget
+                count += 1
+                if count >= num:
+                    return tr / count
+        return windowData.avg_amplitude * windowData.avg_close / 100
+
+    # ----------------------------------------------------------------
+    # 第一步：识别每段回调的低点（逻辑与原版完全一致）
+    # ----------------------------------------------------------------
+    low_points : list["CalculationDataStruct.StructBaseClass"] = []  # 按时间升序记录每次回调的低点价格
+
+    n = len(dataList_asc)
+    i = 1
+    while i < n:
+        cur  = dataList_asc[i]      # 当天
+        prev = dataList_asc[i - 1]  # 昨天
+
+        # 跳过停牌日
+        if cur.trade_state != 1:
+            i += 1
+            continue
+
+        atr_14  = calc_atr(cur.trade_date, 14)
+        ma5_cur = calc_avg(cur.trade_date, 5)
+        if not ma5_cur:
+            i += 1
+            continue
+
+        cond_a = cur.low < (ma5_cur - PARAM_BREAKDOWN_ATR_FACTOR * atr_14)
+
+        amplitude_5 = calc_amplitude(cur.trade_date, 5)
+        amp5_cur    = amplitude_5 if amplitude_5 else avg_amp_window
+        cond_b      = cur.change_Ratio < -PARAM_SINGLE_DAY_DOWN_RATIO and abs(cur.change_Ratio) > amp5_cur
+
+        change_Ratio = calc_changeRatio(cur.trade_date, 3)
+        cond_c = change_Ratio < -PARAM_3DAY_DOWN_RATIO and prev.change_Ratio < 0 and cur.change_Ratio < 0
+
+        if not (cond_a or cond_b or cond_c):
+            i += 1
+            continue
+        else:
+            pass
+            #print(f"         下压力位开始调整的日期为：{cur.trade_date}:{cond_a}   {cond_b }    {cond_c}")
+
+
+        low_price_in_pullback = cur
+        rebound_idx           = None
+        start_pullback_price  = cur.close
+        j       = i + 1
+        low_num = 0
+
+        while j < n:
+            day_j = dataList_asc[j]
+            if day_j.trade_state != 1:
+                j += 1
+                continue
+
+            if day_j.close < low_price_in_pullback.close and day_j.is_down_stop == 0:
+                low_price_in_pullback = day_j
+
+            isBack = day_j.close >= start_pullback_price
+            isUp_5 = (day_j.close - low_price_in_pullback.close) / low_price_in_pullback.close > PARAM_REBOUND_END_RATIO
+            isUpTwo = day_j.change_Ratio > 0 and dataList_asc[j - 1].change_Ratio > 0
+            low_num += 1
+            #是否接近最近的日期
+            isClose = (n - j) <= 3
+            if ((isBack or isUp_5) and low_num > PARAM_MIN_PULLBACK_DAYS and isUpTwo) or isClose:
+                rebound_idx = j
+                break
+            j += 1
+
+        if rebound_idx is None:
+            break
+
+        low_points.append(low_price_in_pullback)
+
+        # 跳过已处理区间，避免重复识别同一段回调
+        i = rebound_idx + 1
+
+    # ----------------------------------------------------------------
+    # 无低点：说明区间内单边趋势，用均价 - 整体涨跌幅兜底（原版逻辑）
+    # ----------------------------------------------------------------
+    if len(low_points) <= 1:
+        support_price = avg_low_price_window - avg_low_price_window * abs(windowData.change_Ratio_Total) / 100
+        #print(f"下压力位计算：这是一个一直维持一个趋势的的：当日价是{nowData.close}，支撑价是：{support_price}，  ")
+        return -99
+
+    if not low_points or len(low_points) <= 0:
+        support_price = windowData.avg_low - windowData.avg_low * abs(windowData.change_Ratio_Total) / 100
+        #print(f"低点全被过滤完了，直接用区间均价乘区间整体涨跌幅,预测的支撑结果是:{support_price}")
+        return -99
+
+    avg_fix_add = 0
+    for single in nowData.dataList_240:
+        avg_fix_add += 1
+        if single.trade_date == low_points[len(low_points) - 1].trade_date:
+            if avg_fix_add >= PARAM_NEAR_AVG_MIN_DAYS:
+                #最近的低点太远了，直接返回
+                return -99
+
+
+    # —— 3个及以上低点 ——
+    low_points.reverse()
+    if isTwo:
+        for single in low_points:
+            print("----------------------------------------")
+            print(f"代码：{single.code}  低点日期：{single.trade_date}   低点价格：{single.low}, 低点收盘：{single.close}")
+
+    if isTwo == False:
+            
+        total_ratio = 0
+        count = 0
+
+        for i in range(len(low_points) - 1):
+            now_price = low_points[i].low       # 新日期
+            old_price = low_points[i + 1].low   # 更旧日期
+
+            ratio = (now_price - old_price) / old_price
+            total_ratio += ratio
+            count += 1
+
+            #print(f"{low_points[i+1].trade_date} -> {low_points[i].trade_date} 涨跌幅: {ratio:.2%}")
+
+        avg_ratio = total_ratio / count
+        #print("")
+        #print("平均涨跌幅:", f"{avg_ratio:.2%}")
+        #print("----------------------------------------")
+
+        return avg_ratio * 100
+    else:
+        now_price = low_points[0].low       # 新日期
+        old_price = low_points[1].low       # 新日期
+        ratio = (now_price - old_price) / old_price
+
+        return ratio * 100
+        

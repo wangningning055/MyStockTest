@@ -340,6 +340,7 @@ class BaseClass :
 
 
     async def CreateSelectStockResponse(self, codeList):
+        self.main.SetIsInHandle(True)
         response = {}
         total = len(codeList)
         response["total"] = total

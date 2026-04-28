@@ -20,6 +20,7 @@ class RequestAPIClass:
 
     def Login(self):
         try:
+            print("尝试登陆")
             self.bao = bs.login()
             # 显示登陆返回信息
             self.main.BoardCast('login respond error_code:'+self.bao.error_code)
@@ -157,7 +158,7 @@ class RequestAPIClass:
         )
         data_list = []
         if rs.error_code !='0':
-            self.main.BoardCast("接口调用失败：", rs.error_msg)
+            self.main.BoardCast(f"接口调用失败：{rs.error_msg}")
             return
         while rs.next():
             data_list.append(rs.get_row_data())

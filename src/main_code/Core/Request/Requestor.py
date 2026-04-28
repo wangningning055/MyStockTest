@@ -395,6 +395,7 @@ class RequestorClass:
             lastDateStr = self.main.recordDataCls.daily_list_last_data
             isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
             if isNeedPull:
+                print(f"拉取日期：{dateFrom}  {dateTo}")
                 await self.RequestDaily(dateFrom, dateTo)
                 self.main.recordDataCls.daily_list_last_data = dateTo
 

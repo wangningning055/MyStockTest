@@ -243,6 +243,7 @@ def GetRatioDayAvg_Down_PressureWindow(NowData:"CalculationDataStruct.StructBase
     return total / pressure
 
 
+
 #获取价值股分数
 def GetValueScore(NowData:"CalculationDataStruct.StructBaseClass", handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateValueScore(NowData, handler)
@@ -1333,6 +1334,16 @@ def Get_Close_Break_Low_Ratio_120(NowData : "CalculationDataStruct.StructBaseCla
 
 def Get_Close_Break_Low_Ratio_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 240, handler)
+
+#获取低点涨跌幅
+def GetDownPressurePointUpRatio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio(NowData, StartDayCount, ToDayCount, handler, False)
+
+#获取最近两个低点涨跌幅
+def GetDownPressurePointUpRatio_Two(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio(NowData, StartDayCount, ToDayCount, handler, True)
+
+
 
 
 

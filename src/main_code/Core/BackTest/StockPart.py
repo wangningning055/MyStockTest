@@ -289,10 +289,10 @@ class BaseClass:
         singleStock.end_adjPrice_low   = cls.low
 
 
-        operate.sell_price_start = singleStock.start_price
+        operate.sell_price_start = singleStock.start_adjPrice_close
         operate.buy_date = singleStock.startDate
         operate.sell_date = todayStr
-        operate.sell_price_end = singleStock.end_price
+        operate.sell_price_end = singleStock.end_adjPrice_close
         operate.buy_volume = singleStock.volume
         operate.kline_data = singleStock.kline_data
 
@@ -300,7 +300,7 @@ class BaseClass:
         self.stockList_history.append(singleStock)
         self.stockList.remove(singleStock)
 
-        sellVal = singleStock.end_price * singleStock.volume
+        sellVal = singleStock.curValue
 
         #印花税默认按五块钱算
         self.curValue += (sellVal - 5)
@@ -374,7 +374,7 @@ class BaseClass:
         singleStock.start_adjPrice_low   = cls.low
 
 
-        operate.buy_price = start_price
+        operate.buy_price = cls.close
         operate.buy_date = todayStr
         operate.buy_volume = handNum * 100
 
@@ -483,8 +483,10 @@ class BaseClass:
         avgRatio = self.curChangeRatio / self.totalStock.holdDay
         
         #平均日波动率
-        daily_volatility = np.std(self.changeRatioList)
-
+        if(len(self.changeRatioList)<2):
+            daily_volatility = 0
+        else:
+            daily_volatility = np.std(self.changeRatioList, ddof=1)
          #名称
         name = self.name
 
@@ -505,7 +507,10 @@ class BaseClass:
             if singleStock.curChangeRatio > 0:
                 successCount += 1
 
-        successRatio = (successCount / totalCount) * 100
+        if totalCount == 0:
+            successRatio = 0
+        else:
+            successRatio = (successCount / totalCount)*100
 
 
         #平均年化收益率

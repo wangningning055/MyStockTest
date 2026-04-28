@@ -55,6 +55,7 @@ class processor:
 
         self.dbHandler :DBHandler.DBHandlerClass = self.InitDB()
         self.requestor = self.InitRequest()
+        #self.requestor.api.Login()
         self.calculationDataHandle : CalculationDataHandle.BaseClass = self.InitCalculationDataHandle()
         self.analysisHandle = self.InitAnalysisHandle()
         self.backTestHandle = self.InitBackTestHandle()

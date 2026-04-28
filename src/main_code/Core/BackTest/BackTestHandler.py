@@ -65,9 +65,8 @@ class BaseClass:
 
     async def StartBackTest(self):
         self.isInBackTest = True
-        self.main.calculationDataHandle.ClearDic()
-        self.main.calculationDataHandle.isPreheating = False
-        print("开始执行回测")
+
+        #self.main.calculationDataHandle = {}
         # 20210104
         self.main.SetIsInHandle(True)
         self.main.analysisHandle.evaluator = None
@@ -78,6 +77,7 @@ class BaseClass:
         backTestCalculationHandle.isOutKC = self.isOutKC
         
         backTestCalculationHandle.Init(self.main, self.startDate)
+        print(f"开始执行回测,开始日期：{self.startDate}， 结束日期：{self.stopDate}")
         await backTestCalculationHandle.DataPreheating()
 
         #初始化数据
@@ -186,6 +186,7 @@ class BaseClass:
         print("回测结束")
         self.backTestCalculationHandle.ClearDic()
         self.backTestCalculationHandle = {}
+        self.totalStock = {}
 
 
     def StopBackTest(self):
