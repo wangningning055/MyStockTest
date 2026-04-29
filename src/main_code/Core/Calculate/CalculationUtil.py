@@ -1335,15 +1335,36 @@ def Get_Close_Break_Low_Ratio_120(NowData : "CalculationDataStruct.StructBaseCla
 def Get_Close_Break_Low_Ratio_240(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     return Get_Close_Break_Low_Ratio(NowData, StartDayCount, ToDayCount, 240, handler)
 
-#获取低点涨跌幅
+#获取低点趋势
 def GetDownPressurePointUpRatio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    return CalculationSpecial.CalculateDownPressurePointUpRatio(NowData, StartDayCount, ToDayCount, handler, False)
-
-#获取最近两个低点涨跌幅
-def GetDownPressurePointUpRatio_Two(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
-    return CalculationSpecial.CalculateDownPressurePointUpRatio(NowData, StartDayCount, ToDayCount, handler, True)
+    return CalculationSpecial.CalculateDownPressurePointUpRatio(NowData, StartDayCount, ToDayCount, handler)
 
 
+
+
+# 获取最近两个低点的涨跌幅
+def GetDownPressurePointUpRatio_two_ratio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_two_ratio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取上一个低点距离当前交易日天数
+def GetDownPressurePointUpRatio_tend_days(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_tend_days(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取上一个低点到当前天的涨跌幅
+def GetDownPressurePointUpRatio_now_ratio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_now_ratio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取最近的反弹点到当前天的涨跌幅
+def GetDownPressurePointUpRatio_rebound_now_ratio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_rebound_now_ratio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取最近的反弹点到最近的低点涨跌幅
+def GetDownPressurePointUpRatio_rebound_ratio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_rebound_ratio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取最近的反弹点在低点列表的排名
+def GetDownPressurePointUpRatio_rank(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateDownPressurePointUpRatio_rank(NowData, StartDayCount, ToDayCount, handler)
 
 
 

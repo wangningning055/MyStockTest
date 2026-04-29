@@ -538,11 +538,16 @@
     },
 
     "stock_window_Lower": {
-      "name": "个股日期区间低点趋势",
+      "name": "董sir的指标",
       "description": "个股日期区间低点趋势",
       "items": [
-        { "id": 200301, "name_field": "lower_tend_ratio", "name": "区间低点平均涨跌幅", "type": "int", "description": "区间低点是否处在上行趋势" },
-        { "id": 200302, "name_field": "lower_tend_two_ratio", "name": "最近两个低点之间的涨跌幅", "type": "int", "description": "最近两个低点之间的涨跌幅" }
+        { "id": 200301, "name_field": "lower_tend_ratio", "name": "低点趋势", "type": "int", "description": "低点：当天最低价低于前后两天的最低价\n反弹点：低于前后两个低点的低点\n可选股：最近4个低点中有反弹点，最近一个低点比上个低点值高" },
+        { "id": 200301, "name_field": "lower_tend_two_ratio", "name": "最近两个低点的涨跌幅", "type": "float", "description": "" },
+        { "id": 200301, "name_field": "lower_tend_days", "name": "上一个低点距离当前交易日天数", "type": "int", "description": "" },
+        { "id": 200301, "name_field": "lower_tend_now_ratio", "name": "上一个低点到当前天的涨跌幅", "type": "float", "description": "" },
+        { "id": 200301, "name_field": "lower_tend_rebound_now_ratio", "name": "最近的反弹点到当前天的涨跌幅", "type": "float", "description": "" },
+        { "id": 200301, "name_field": "lower_tend_rebound_ratio", "name": "最近的反弹点到最近的低点涨跌幅", "type": "float", "description": "" },
+        { "id": 200301, "name_field": "lower_tend_rank", "name": "最近的反弹点在低点列表的排名", "type": "int", "description": "" }
       ]
     },
 
