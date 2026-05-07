@@ -1367,6 +1367,22 @@ def GetDownPressurePointUpRatio_rank(NowData:"CalculationDataStruct.StructBaseCl
     return CalculationSpecial.CalculateDownPressurePointUpRatio_rank(NowData, StartDayCount, ToDayCount, handler)
 
 
+# 获取最近低点的成交量涨跌幅
+def CalculateLowPoint_LastLowVolumeRatio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowPoint_LastLowVolumeRatio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取最近反弹点的成交量涨跌幅
+def CalculateLowPoint_LastBackLowVolumeRatio(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowPoint_LastBackLowVolumeRatio(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取低点的平均成交量涨跌幅
+def CalculateLowPoint_LowVolumeRatio_Avg(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowPoint_LowVolumeRatio_Avg(NowData, StartDayCount, ToDayCount, handler)
+
+# 获取反弹点的平均成交量涨跌幅
+def CalculateLowPoint_BackLowVolumeRatio_Avg(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowPoint_BackLowVolumeRatio_Avg(NowData, StartDayCount, ToDayCount, handler)
+
 
 
 

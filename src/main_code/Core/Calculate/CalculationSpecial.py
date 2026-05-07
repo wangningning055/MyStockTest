@@ -1820,6 +1820,8 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
     print("行业总结完毕")
 
 
+
+
 #返回的列表从0开始，日期由近及远
 def CalculateDownPressurePointList(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     todayStr  = nowData.trade_date
@@ -1965,6 +1967,42 @@ def CalculateDownPressurePointUpRatio_rank(nowData:"CalculationDataStruct.Struct
         return count
     return -999
 
+#上一个低点的成交量涨跌幅
+def CalculateLowPoint_LastLowVolumeRatio(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        return lowPoints[0].volume_ratio
+    return -999
+
+#上一个反弹点的成交量涨跌幅
+def CalculateLowPoint_LastBackLowVolumeRatio(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        return backLow[0].volume_ratio
+    return -999
 
 
+#低点平均成交量涨跌幅
+def CalculateLowPoint_LowVolumeRatio_Avg(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        addCount = 0
+        totalRatio = 0
+        for low in lowPoints:
+            addCount += 1
+            totalRatio += low.volume_ratio
+        return totalRatio / addCount
+    return -999
+
+#反弹点平均成交量涨跌幅
+def CalculateLowPoint_BackLowVolumeRatio_Avg(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        addCount = 0
+        totalRatio = 0
+        for low in backLow:
+            addCount += 1
+            totalRatio += low.volume_ratio
         
+        return totalRatio / addCount
+    return -999

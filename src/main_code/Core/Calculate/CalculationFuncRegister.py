@@ -160,6 +160,13 @@ def RegisterCalculateFunc(calculationHandler):
         "lower_tend_rebound_ratio": (CalculationUtil.GetDownPressurePointUpRatio_rebound_ratio, ("startDataCls", "startCount", "toCount", "handler")),
         "lower_tend_rank": (CalculationUtil.GetDownPressurePointUpRatio_rank, ("startDataCls", "startCount", "toCount", "handler")),
 
+
+        "low_last_volumeRatio": (CalculationUtil.CalculateLowPoint_LastLowVolumeRatio, ("startDataCls", "startCount", "toCount", "handler")),
+        "backLow_last_volumeRatio": (CalculationUtil.CalculateLowPoint_LastBackLowVolumeRatio, ("startDataCls", "startCount", "toCount", "handler")),
+        "low_volumeRatio_avg": (CalculationUtil.CalculateLowPoint_LowVolumeRatio_Avg, ("startDataCls", "startCount", "toCount", "handler")),
+        "backLow_volumeRatio_avg": (CalculationUtil.CalculateLowPoint_BackLowVolumeRatio_Avg, ("startDataCls", "startCount", "toCount", "handler")),
+
+
     }
 
 

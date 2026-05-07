@@ -330,7 +330,6 @@ class RequestorClass:
         if type == 3:
             await self.OnMsgRequestAdjustData()
         if type == 4:
-            #await self.OnMsgRequestValueDataTemp()
             await self.OnMsgRequestValueData()
         if type == 5:
             await self.OnMsgRequestAllData()
@@ -431,59 +430,6 @@ class RequestorClass:
 
 
 
-    async def OnMsgRequestValueDataTemp(self, isNow = False):
-        #直接拉
-        year = 2019
-        quarter = 1
-        clsList = []
-        count = 0
-        progressInterval = 0
-        codeList = self.main.dbHandler.GetAllStockCodeFromBasicTable()
-        for code in codeList:
-            progressInterval = progressInterval + 1
-            if progressInterval >= const_proj.progress_interval_pull:
-                self.main.SendProgress(count / len(codeList))
-                progressInterval = 0
-                await asyncio.sleep(0)
-
-            ##测试边界
-            #if count > 10:
-            #    break
-            if self.isInStop:
-                break
-            df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
-            df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
-            df_LiabilityTo = await self.api.RequestValue_LiabilityTo(code, year, quarter)
-            cls = self.api.Df_To_ValueClass(code, year, quarter, df_Roe, df_YOYNi, df_LiabilityTo)
-            
-            if cls is not None:
-                clsList.append(cls)
-                tempList = []
-                tempList.append(cls)
-                try:
-                    await self.main.dbHandler.WriteTable(tempList, DBHandler.TableEnum.Value)
-                except Exception as e:
-                    print(f"写入数据库失败: {e}")
-
-
-            #self.main.fileProcessor.SaveCSV(df_Roe, f"Value_Roe_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            #self.main.fileProcessor.SaveCSV(df_YOYNi, f"Value_YOYNi_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-            #self.main.fileProcessor.SaveCSV(df_LiabilityTo, f"Value_LiabilityTo_{year}_{quarter}_{code}", FileProcessor.FileEnum.Basic)
-
-            print (f"正在通过api拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}, code:{code}")
-            count = count + 1
-            #if count > 3:
-            #    break
-                #print(f"正在拉取价值数据， 当前第{count}条,数据长度为:{len(codeList)}")
-
-        print(f"开始写入:长度为：{len(clsList)}")
-        if clsList is not None and len(clsList) > 0:
-            try:
-                await self.main.dbHandler.WriteTable(clsList, DBHandler.TableEnum.Value)
-            except Exception as e:
-                print(f"写入数据库失败: {e}")
-
-        self.main.BoardCast("处理价值数据完成")
 
     #拉取价值数据
     async def OnMsgRequestValueData(self, isNow = False):

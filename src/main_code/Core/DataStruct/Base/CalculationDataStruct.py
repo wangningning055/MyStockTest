@@ -862,6 +862,15 @@ class StructBaseWindowClass :
     lower_tend_rebound_ratio : float        #最近的反弹点到最近的低点涨跌幅
     lower_tend_rank : float        #最近的反弹点在低点列表的排名
 
+    low_last_volumeRatio: int          # 最近低点的成交量涨跌幅
+    backLow_last_volumeRatio: int      # 最近反弹点的成交量涨跌幅
+    low_volumeRatio_avg: int           # 低点的平均成交量涨跌幅
+    backLow_volumeRatio_avg: int       # 反弹点的平均成交量涨跌幅
+
+
+
+
+
 
     #压力位开始---------------------------------------------------------------------------
     # 区间压力位突破/跌破次数（整型）
