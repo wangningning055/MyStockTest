@@ -74,8 +74,8 @@ class BaseClass :
         CalculationFuncRegister.RegisterCalculateFunc(self)
         self.isPreheating = False
         if todayStr == "000000":
-            self.todayStr = "20260309"
-            #self.todayStr = self.GetToday()
+            #self.todayStr = "20260310"
+            self.todayStr = self.GetToday()
             self.main.recordDataCls.industry_list = []
             for key, industryCls in self.totalComponyIns.industryList.items():
                 if key is not None:

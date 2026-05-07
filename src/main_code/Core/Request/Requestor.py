@@ -279,9 +279,12 @@ class RequestorClass:
             self.main.BoardCast("不在披露时间：4.1-4.30  一季报和上一年年报      7.1-8.31  半年报     10.1- 11.30 三季报")
             return
         if isNeedYear:
+            print(f"需要拉取的数据，年份为：{year}， 季度为：{quarter}")
+            print(f"需要拉取的数据，年份为：{year-1}， 季度为：{4}")
             await pullVal(year, quarter)
             await pullVal(year - 1, 4)
         else:
+            print(f"需要拉取的数据，年份为：{year}， 季度为：{quarter}")
             await pullVal(year, quarter)
 
     async def _wait_task_cancel(self):
@@ -327,8 +330,8 @@ class RequestorClass:
         if type == 3:
             await self.OnMsgRequestAdjustData()
         if type == 4:
-            await self.OnMsgRequestValueDataTemp()
-            #await self.OnMsgRequestValueData()
+            #await self.OnMsgRequestValueDataTemp()
+            await self.OnMsgRequestValueData()
         if type == 5:
             await self.OnMsgRequestAllData()
         if type == 6:
@@ -487,8 +490,10 @@ class RequestorClass:
         try:
             lastDateStr = self.main.recordDataCls.value_list_last_data
             isNeedPull, dateFrom, dateTo = self.CheckIsNeedPull(lastDateStr)
+            isNeedPull = True
             if isNeedPull:
-                await self.RequestValue(dateTo, isNow)
+                print(f"拉取价值数据日期：{dateFrom}  {dateTo}")
+                await self.RequestValue(dateTo, False)
                 self.main.recordDataCls.value_list_last_data = dateTo
 
 

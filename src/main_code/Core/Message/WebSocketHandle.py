@@ -79,6 +79,7 @@ async def SendMessage(msg_type, content):
     data = json.dumps({"type": msg_type, "msg": content}, ensure_ascii=False, indent=2)
 
     dead_ws = []
+    isSuccess = False
 
     for ws in clients:
         isSuccess = False
