@@ -867,9 +867,8 @@ class StructBaseWindowClass :
     low_volumeRatio_avg: int           # 低点的平均成交量涨跌幅
     backLow_volumeRatio_avg: int       # 反弹点的平均成交量涨跌幅
 
-
-
-
+    low_tend_slop: int           # 低点趋势斜率
+    back_tend_slop: int           # 反弹点趋势斜率
 
 
     #压力位开始---------------------------------------------------------------------------

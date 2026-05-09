@@ -1,0 +1,224 @@
+{
+  "threshold": 0.6,
+  "configs": [
+    {
+      "factor_group_name": "条件列表",
+      "weight": 30,
+      "logic_tree": [
+        {
+          "type": "condition",
+          "relation": "START",
+          "factor_id": 200301,
+          "factor_name": "低点趋势",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200301,
+          "factor_name": "上一个低点距离当前交易日天数",
+          "operator": "lt",
+          "value": 3,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200309,
+          "factor_name": "最近反弹点的成交量涨跌幅",
+          "operator": "gt",
+          "value": 100,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200308,
+          "factor_name": "最近低点的成交量涨跌幅",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200310,
+          "factor_name": "低点的平均成交量涨跌幅",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200311,
+          "factor_name": "反弹点的平均成交量涨跌幅",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200312,
+          "factor_name": "低点趋势斜率",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 20
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200313,
+          "factor_name": "反弹点趋势斜率",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200305,
+          "factor_name": "最近的反弹点到当前天的涨跌幅",
+          "operator": "gt",
+          "value": 2,
+          "dateFrom": 0,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1032,
+          "factor_name": "20日距今涨跌幅",
+          "operator": "lt",
+          "value": 40,
+          "dateFrom": 0,
+          "dateTo": 1
+        }
+      ]
+    },
+    {
+      "factor_group_name": "条件列表",
+      "weight": 10,
+      "logic_tree": [
+        {
+          "type": "condition",
+          "relation": "START",
+          "factor_id": 1011,
+          "factor_name": "当日市盈率",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 1
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1011,
+          "factor_name": "当日市盈率",
+          "operator": "lt",
+          "value": 50,
+          "dateFrom": 0,
+          "dateTo": 1
+        }
+      ]
+    },
+    {
+      "factor_group_name": "条件列表",
+      "weight": 10,
+      "logic_tree": [
+        {
+          "type": "group",
+          "relation": "START",
+          "children": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1039,
+              "factor_name": "当日成交量涨跌幅",
+              "operator": "lt",
+              "value": -20,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1007,
+              "factor_name": "当日涨跌幅",
+              "operator": "gt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "relation": "OR",
+          "children": [
+            {
+              "type": "condition",
+              "relation": "START",
+              "factor_id": 1007,
+              "factor_name": "当日涨跌幅",
+              "operator": "lt",
+              "value": 0,
+              "dateFrom": 0,
+              "dateTo": 1
+            },
+            {
+              "type": "condition",
+              "relation": "AND",
+              "factor_id": 1039,
+              "factor_name": "当日成交量涨跌幅",
+              "operator": "gt",
+              "value": 20,
+              "dateFrom": 0,
+              "dateTo": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "factor_group_name": "条件列表",
+      "weight": 10,
+      "logic_tree": [
+        {
+          "type": "condition",
+          "relation": "START",
+          "factor_id": 1010,
+          "factor_name": "当日总流通市值",
+          "operator": "gt",
+          "value": 8000000000,
+          "dateFrom": 0,
+          "dateTo": 1
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1010,
+          "factor_name": "当日总流通市值",
+          "operator": "lt",
+          "value": 30000000000,
+          "dateFrom": 0,
+          "dateTo": 1
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-05-09T10:39:47.153Z",
+  "version": "1.0",
+  "description": "买入策略配置"
+}

@@ -334,7 +334,10 @@
         { "id": 200308, "name_field": "low_last_volumeRatio", "name": "最近低点的成交量涨跌幅", "type": "int", "description": "" },
         { "id": 200309, "name_field": "backLow_last_volumeRatio", "name": "最近反弹点的成交量涨跌幅", "type": "int", "description": "" },
         { "id": 200310, "name_field": "low_volumeRatio_avg", "name": "低点的平均成交量涨跌幅", "type": "int", "description": "" },
-        { "id": 200311, "name_field": "backLow_volumeRatio_avg", "name": "反弹点的平均成交量涨跌幅", "type": "int", "description": "" }
+        { "id": 200311, "name_field": "backLow_volumeRatio_avg", "name": "反弹点的平均成交量涨跌幅", "type": "int", "description": "" },
+
+        { "id": 200312, "name_field": "low_tend_slop", "name": "低点趋势斜率", "type": "int", "description": "" },
+        { "id": 200313, "name_field": "back_tend_slop", "name": "反弹点趋势斜率", "type": "int", "description": "" }
 
     ]
     },

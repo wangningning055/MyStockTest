@@ -1383,7 +1383,13 @@ def CalculateLowPoint_LowVolumeRatio_Avg(NowData:"CalculationDataStruct.StructBa
 def CalculateLowPoint_BackLowVolumeRatio_Avg(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateLowPoint_BackLowVolumeRatio_Avg(NowData, StartDayCount, ToDayCount, handler)
 
+# 获取反弹点的平均成交量涨跌幅
+def CalculateLowPoint_Tend_Slop(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowPoint_Tend_Slop(NowData, StartDayCount, ToDayCount, handler)
 
+# 获取反弹点的平均成交量涨跌幅
+def CalculateLowBack_Tend_Slop(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateLowBack_Tend_Slop(NowData, StartDayCount, ToDayCount, handler)
 
 
 #获取涨停次数

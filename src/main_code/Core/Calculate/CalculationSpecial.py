@@ -7,6 +7,7 @@ import math
 import time
 import datetime
 import asyncio
+import numpy as np
 from typing import TYPE_CHECKING
 # 2. 仅在类型检查时导入需要的类（运行时不执行）
 if TYPE_CHECKING:
@@ -1808,8 +1809,6 @@ async def CalculateIndustryInfoTotal(main:"Main.processor"):
     main.recordDataCls.industry_Increase_Month_Dic = resMonthUpDic
 
 
-
-
     now = datetime.datetime.now()
     todayStr = now.strftime("%Y%m%d")
     main.recordDataCls.industry_analyze_last_data = todayStr
@@ -2005,4 +2004,31 @@ def CalculateLowPoint_BackLowVolumeRatio_Avg(nowData:"CalculationDataStruct.Stru
             totalRatio += low.volume_ratio
         
         return totalRatio / addCount
+    return -999
+
+
+#低点趋势线斜率
+def CalculateLowPoint_Tend_Slop(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        x = np.arange(len(lowPoints))
+        tempArray = []
+        for point in lowPoints:
+            tempArray.append(point.close)
+        y = np.array(tempArray)
+        slope, intercept = np.polyfit(x, y, 1)
+        return -slope
+    return -999
+
+#反弹点趋势线斜率
+def CalculateLowBack_Tend_Slop(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 2:
+        x = np.arange(len(backLow))
+        tempArray = []
+        for point in backLow:
+            tempArray.append(point.close)
+        y = np.array(tempArray)
+        slope, intercept = np.polyfit(x, y, 1)
+        return -slope
     return -999

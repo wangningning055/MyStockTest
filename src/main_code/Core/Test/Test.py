@@ -4,6 +4,7 @@ from src.main_code.Core import Const
 from src.main_code.Core.Calculate import CalculationSpecial
 from src.main_code.Core.Calculate import CalculationDataHandle
 import time
+import numpy as np
 import psutil
 import os
 import bisect
@@ -98,21 +99,28 @@ async def TestCalculate(handler : CalculationDataHandle.BaseClass):
 
         main.SetIsInHandle(True)
 
-        def tempLog(code):
-            windowCls = handler.GetWindowDataClass(code, handler.todayStr, 0, 40)
-            if windowCls is None:
-                 return
-            downValue = windowCls.lower_tend_ratio
-            name = handler.totalComponyIns.GetComponyInfo(code).Name
-            industry = handler.totalComponyIns.GetComponyInfo(code).Industry
+        #def tempLog(code):
+        #    windowCls = handler.GetWindowDataClass(code, handler.todayStr, 0, 40)
+        #    if windowCls is None:
+        #         return
+        #    downValue = windowCls.lower_tend_ratio
+        #    name = handler.totalComponyIns.GetComponyInfo(code).Name
+        #    industry = handler.totalComponyIns.GetComponyInfo(code).Industry
 
-        #随机取五个值
-        random_items = random.sample(handler.totalStockList, k=10)
-        for code in random_items:
-            tempLog(code)
+        ##随机取五个值
+        #random_items = random.sample(handler.totalStockList, k=10)
+        #for code in random_items:
+        #    tempLog(code)
 
-
-
+        aaa = []
+        aaa.append(1)
+        aaa.append(-1)
+        aaa.append(1)
+        aaa.append(-1.5)
+        x = np.arange(len(aaa))
+        y = np.array(aaa)
+        slope, intercept = np.polyfit(x, y, 1)
+        print(f"斜率是：{slope}")
 
         main.SetIsInHandle(False)
 

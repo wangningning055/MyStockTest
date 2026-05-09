@@ -165,6 +165,9 @@ def RegisterCalculateFunc(calculationHandler):
         "backLow_last_volumeRatio": (CalculationUtil.CalculateLowPoint_LastBackLowVolumeRatio, ("startDataCls", "startCount", "toCount", "handler")),
         "low_volumeRatio_avg": (CalculationUtil.CalculateLowPoint_LowVolumeRatio_Avg, ("startDataCls", "startCount", "toCount", "handler")),
         "backLow_volumeRatio_avg": (CalculationUtil.CalculateLowPoint_BackLowVolumeRatio_Avg, ("startDataCls", "startCount", "toCount", "handler")),
+        
+        "low_tend_slop": (CalculationUtil.CalculateLowPoint_Tend_Slop, ("startDataCls", "startCount", "toCount", "handler")),
+        "back_tend_slop": (CalculationUtil.CalculateLowBack_Tend_Slop, ("startDataCls", "startCount", "toCount", "handler")),
 
 
     }
