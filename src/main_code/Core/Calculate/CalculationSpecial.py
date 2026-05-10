@@ -1875,8 +1875,8 @@ def CalculateDownPressurePointList(nowData:"CalculationDataStruct.StructBaseClas
             backLow.append(cur)
         i += 1
 
-    #反弹点数量要大于一个
-    if not backLow or len(backLow) <= 0:
+    #反弹点数量要大于2个
+    if not backLow or len(backLow) < 2:
         return None, None
 
     #最近一个低点高于上一个低点
@@ -1891,6 +1891,105 @@ def CalculateDownPressurePointList(nowData:"CalculationDataStruct.StructBaseClas
         return low_points, backLow
     
     return None, None
+
+#反弹点后的低点没有跌破反弹点前的高点
+def CalculateDownPressurePointUp_UpTend(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+
+    todayStr  = nowData.trade_date
+    stockCode = nowData.code
+
+    # 获取区间窗口统计数据（StructBaseWindowClass，含均值/极值等聚合字段）
+    windowData: CalculationDataStruct.StructBaseWindowClass = handler.GetWindowDataClass(stockCode, todayStr, StartDayCount, ToDayCount)
+    if nowData == None or windowData == None:
+        return 0
+    #print(f"___________________________________开始计算：{stockCode}——————————————————————————————————————————————————————")
+
+    raw_list: list["CalculationDataStruct.StructBaseClass"] = nowData.dataList_240
+
+    use_count    = min(ToDayCount + 1, len(raw_list))
+    dataList_asc = list(reversed(raw_list[:use_count]))
+
+    if len(dataList_asc) < 10:
+        return 0
+
+    low_points : list["CalculationDataStruct.StructBaseClass"] = []  # 按时间升序记录每次回调的低点价格
+    high_points : list["CalculationDataStruct.StructBaseClass"] = []  # 按时间升序记录每次回调的高点价格，用收盘价
+
+    n = len(dataList_asc)
+    i = 1
+    while i < n - 1:
+        prev = dataList_asc[i - 1]  # 昨天
+        cur  = dataList_asc[i]      # 当天
+        next = dataList_asc[i + 1] # 明天
+        # 跳过停牌日
+        if cur.trade_state != 1:
+            i += 1
+            continue
+        #找低点  中间一天的最低价比前后两天的最低价都低，那就是最低点， 得出低点列表
+        if cur.low < prev.low and cur.low < next.low:
+            low_points.append(cur)
+        #找高点  中间一天的最高价比前后两天的最高价都高，那就是最高点， 得出高点列表
+        if cur.close > prev.close and cur.close > next.close:
+            high_points.append(cur)
+        i+=1
+
+
+    #低点数量要大于3个， 低点小于3个直接返回无效值
+    if not low_points or len(low_points) < 3:
+        return 0
+
+
+    #找反弹点：中间的低点比前后两天的低点都低
+    backLow : list["CalculationDataStruct.StructBaseClass"] = []
+    n = len(low_points)
+    i = 1
+    while i < n - 1:
+        prev = low_points[i - 1]  # 上一个低点
+        cur  = low_points[i]      # 当前低点
+        next = low_points[i + 1] # 下一个低点
+        if cur.low < prev.low and cur.low < next.low:
+            backLow.append(cur)
+        i += 1
+    #反弹点数量要大于1， 小于1个直接返回无效值
+    if not backLow or len(backLow) < 1:
+        return 0
+
+    low_points.reverse()
+    backLow.reverse()
+    high_points.reverse()
+    near = low_points[0]
+    last = low_points[1]
+    if near.low <= last.low:
+        return 0
+    
+    if nowData.low < near.low:
+        return 0
+    
+
+    #找到最近的反弹点
+    near_back_day = backLow[0]
+    near_high_day = None
+    #找到最近的反弹点之前的高点
+    for single in high_points:
+        if int(single.trade_date) < int(near_back_day.trade_date):
+            if single.close > near.low:
+                near_high_day = single
+                break
+    if near_high_day == None:
+        return 0
+    print(f"{nowData.code}  最近的反弹点日期：{near_back_day.trade_date}， 反弹点价格：{near_back_day.low}， 反弹点之前的高点日期：{near_high_day.trade_date}， 反弹点之前的高点价格：{near_high_day.close}")
+    
+    #在反弹点之后的所有低点收盘价都要比反弹点之前的高点的收盘价高
+    for single in low_points:
+        if int(single.trade_date) > int(near_back_day.trade_date):
+            if single.close < near_high_day.close:
+                return 0
+    print(f"{nowData.code}  结果达成")
+
+    return 1
+    
+    
+
 
 
 #计算低点，以及最近的低点是否在上涨趋势中
@@ -1908,6 +2007,16 @@ def CalculateDownPressurePointUpRatio_two_ratio(nowData:"CalculationDataStruct.S
         last = lowPoints[1].low
         return ((near - last) / last) * 100
     return -999
+
+    #lower_tend_two_back_ratio : float        #最近两个反弹点的涨跌幅
+def CalculateDownPressurePointUpRatio_two_back_ratio(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    lowPoints, backLow = CalculateDownPressurePointList(nowData, StartDayCount, ToDayCount, handler)
+    if lowPoints is not None and backLow is not None and len(lowPoints) > 2 and len(backLow) >= 1:
+        near = lowPoints[0].low
+        last = lowPoints[1].low
+        return ((near - last) / last) * 100
+    return -999
+
 
     #lower_tend_days : float        #上一个低点距离当前交易日天数
 def CalculateDownPressurePointUpRatio_tend_days(nowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):

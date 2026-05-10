@@ -154,6 +154,8 @@ def RegisterCalculateFunc(calculationHandler):
         "lower_tend_ratio": (CalculationUtil.GetDownPressurePointUpRatio, ("startDataCls", "startCount", "toCount", "handler")),
 
         "lower_tend_two_ratio": (CalculationUtil.GetDownPressurePointUpRatio_two_ratio, ("startDataCls", "startCount", "toCount", "handler")),
+        "lower_tend_two_back_ratio": (CalculationUtil.GetDownPressurePointUpRatio_two_back_ratio, ("startDataCls", "startCount", "toCount", "handler")),
+        "down_pressure_pointUp_upTend": (CalculationUtil.GetDownPressurePointUp_UpTend, ("startDataCls", "startCount", "toCount", "handler")),
         "lower_tend_days": (CalculationUtil.GetDownPressurePointUpRatio_tend_days, ("startDataCls", "startCount", "toCount", "handler")),
         "lower_tend_now_ratio": (CalculationUtil.GetDownPressurePointUpRatio_now_ratio, ("startDataCls", "startCount", "toCount", "handler")),
         "lower_tend_rebound_now_ratio": (CalculationUtil.GetDownPressurePointUpRatio_rebound_now_ratio, ("startDataCls", "startCount", "toCount", "handler")),

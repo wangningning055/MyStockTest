@@ -66,8 +66,8 @@ progress_interval_backTesting = 1     #回测阶段的进度间隔
 dateListLength = 340    #数据预热缓存的日期长度（剔除周末）
 dateList240Length = 280    #数据预热缓存的240日期长度（剔除非交易日及停牌日）
 
-#dateListLength = 100    #数据预热缓存的日期长度（剔除周末）
-#dateList240Length = 70    #数据预热缓存的240日期长度（剔除非交易日及停牌日）
+#dateListLength = 70    #数据预热缓存的日期长度（剔除周末）
+#dateList240Length = 50    #数据预热缓存的240日期长度（剔除非交易日及停牌日）
 
 
 dateListLength_BackTest = 380    #回测缓存的日期长度(前后各这么长)

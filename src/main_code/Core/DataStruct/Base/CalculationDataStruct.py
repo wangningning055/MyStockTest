@@ -856,6 +856,8 @@ class StructBaseWindowClass :
     lower_tend_ratio : float        #区间低点是否处在上行趋势
 
     lower_tend_two_ratio : float        #最近两个低点的涨跌幅
+    lower_tend_two_back_ratio : float        #最近两个反弹点的涨跌幅
+    down_pressure_pointUp_upTend : float        #反弹点后的低点没有跌破反弹点前的高点
     lower_tend_days : float        #上一个低点距离当前交易日天数
     lower_tend_now_ratio : float        #上一个低点到当前天的涨跌幅
     lower_tend_rebound_now_ratio : float        #最近的反弹点到当前天的涨跌幅
