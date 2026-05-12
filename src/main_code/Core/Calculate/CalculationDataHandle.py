@@ -1026,6 +1026,8 @@ class BaseClass :
             for cls in valueList:
                 data = WebResultDataStruct.GrowValueStockListDataStruct()
                 data.code = cls.code
+                if Const.GetIsKC(data.code) or Const.GetIsCy(data.code):
+                    continue
                 data.name = cls.componyInfo.Name
                 data.industry = cls.industry
                 data.type = "value"   #'value' 或 'growth'
@@ -1057,6 +1059,9 @@ class BaseClass :
 
             for cls in growList:
                 data = WebResultDataStruct.GrowValueStockListDataStruct()
+                if Const.GetIsKC(data.code) or Const.GetIsCy(data.code):
+                    continue
+
                 data.code = cls.code
                 data.name = cls.componyInfo.Name
                 data.industry = cls.industry
