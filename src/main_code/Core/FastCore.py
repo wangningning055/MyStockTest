@@ -19,8 +19,47 @@ from src.main_code.Core.Message.WebSocketHandle import register_ws
 import socket
 import webbrowser
 
+
+stop_flag = False
+process = None
+update_thread = None
+
+
+def get_base_dir():
+    # PyInstaller 环境
+    if getattr(sys, "frozen", False):
+        return sys._MEIPASS
+    # 开发环境
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def is_port_open(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) == 0
+
+
+def open_browser_delay():
+    import time
+    time.sleep(1.5)
+
+    if not is_port_open(8000):
+        return
+
+    webbrowser.open("http://127.0.0.1:8000")
+
+
+BASE_DIR = get_base_dir()
+
+WEB_DIR = os.path.normpath(
+    os.path.join(BASE_DIR, "..", "Web")
+)
+
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="src/main_code/Web"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=WEB_DIR),
+    name="static"
+)
 
 app.include_router(action_router, prefix="/api")
 register_ws(app)
@@ -31,20 +70,31 @@ process = None
 
 def update_loop():
     global stop_flag, process
+
     while not stop_flag:
-        process.planner.UpdatePlane()
+        try:
+            if process:
+                process.planner.UpdatePlane()
+        except Exception as e:
+            print("update_loop error:", e)
+
         time.sleep(1)
 
 @app.on_event("startup")
-
 def startup_event():
-    global process
-    process = main.processor()  # 延迟创建
+    global process, update_thread
+
+    from src.main_code.Core import Main as main
+
+    process = main.processor()
     process.Init()
 
-    # 后台线程循环
-    t = threading.Thread(target=update_loop, daemon=True)
-    t.start()
+    update_thread = threading.Thread(
+        target=update_loop,
+        daemon=True
+    )
+    update_thread.start()
+    threading.Thread(target=open_browser_delay, daemon=True).start()
 
 
 
@@ -52,19 +102,20 @@ def startup_event():
 # 提供首页
 @app.get("/")
 def root():
-    return FileResponse(os.path.join(os.path.dirname(__file__), const_proj.IndexHtmlPath))
+    index_path = os.path.join(WEB_DIR, "index.html")
+    return FileResponse(index_path)
 
 
 def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(("127.0.0.1", port)) == 0
 
-@app.on_event("startup")
-def open_browser():
-    port = 8000
+#@app.on_event("startup")
+#def open_browser():
+#    port = 8000
 
-    # 如果端口已经被占用，说明不是第一次启动（是 reload）
-    if is_port_in_use(port):
-        return
+#    # 如果端口已经被占用，说明不是第一次启动（是 reload）
+#    if is_port_in_use(port):
+#        return
 
-    webbrowser.open(f"http://127.0.0.1:{port}")
+#    webbrowser.open(f"http://127.0.0.1:{port}")
