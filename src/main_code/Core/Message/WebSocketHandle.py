@@ -252,7 +252,10 @@ def HandleMsg(msg):
 
 
     elif(msgType == MessageType.CS_PREHEAT_DATA):
-        print("进行数据预热")
+        print(f"进行数据预热:{data}")
+        targetData = data["data"]
+        print(f"进行数据预热:{targetData}")
+        mainProcessor.calculationDataHandle.SetDate(targetData)
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
 
 

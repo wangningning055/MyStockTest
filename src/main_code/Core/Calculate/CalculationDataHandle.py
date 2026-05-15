@@ -85,7 +85,39 @@ class BaseClass :
         else:
             self.todayStr = todayStr
 
+    def SetDate(self, date):
+        if date == "":
+            print("设置当天")
+            self.todayStr = self.GetToday()
+            return
+        date_str = date
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        result = date_obj.strftime("%Y%m%d")
+
+        random_items = random.sample(self.totalStockList, k=200)
+        for code in random_items:
+            res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, result)
+            if res is not None:
+                print("设置目标天数")
+                self.todayStr = result
+                return
+            
+        self.main.BoardCast(f"无效的日期：{result}， 此日期可能并非交易日或超过日期范围 当前日期范围：2021-01-01  到{self.GetToday()}")
+        print(f"无效的日期：{result}， 此日期可能并非交易日或超过日期范围 当前日期范围：2021-01-01  到{self.GetToday()}")
+        self.todayStr = "000000"
+        
+
     async def DataPreheating(self, isNeedLog = True, isJumpReadDb = False):
+        if self.todayStr == "000000":
+            return
+        today = self.GetToday()
+        print(f"{int(self.todayStr)}  {int(today)}")
+        if int(self.todayStr) > int(today) or int(self.todayStr) < 20210101:
+            self.main.BoardCast(f"无效的日期：{self.todayStr}， 当前最新的日期是：{today}, 最旧的只支持到2021-01-01")
+            print(f"无效的日期：{self.todayStr}， 当前最新的日期是：{today}, 最旧的只支持到2021-01-01")
+            return
+
+        print(f"开始预热：{self.todayStr}")
         if isJumpReadDb == False:
             self.main.SetIsInHandle(True)
 
@@ -1024,6 +1056,7 @@ class BaseClass :
         resultList = []
         if valueList is not None and growList is not None:
             for cls in valueList:
+                print(f"价值股列表是：{cls.code},  {cls.componyInfo.Name}")
                 data = WebResultDataStruct.GrowValueStockListDataStruct()
                 data.code = cls.code
                 if Const.GetIsKC(data.code) or Const.GetIsCy(data.code):
@@ -1058,6 +1091,7 @@ class BaseClass :
                 resultList.append(data)
 
             for cls in growList:
+                print(f"成长股列表是：{cls.code},  {cls.componyInfo.Name}")
                 data = WebResultDataStruct.GrowValueStockListDataStruct()
                 if Const.GetIsKC(data.code) or Const.GetIsCy(data.code):
                     continue

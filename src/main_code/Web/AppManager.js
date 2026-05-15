@@ -505,8 +505,11 @@ class AppManager {
 
     preheatData() {
         this.app.log("📤发送数据预热请求...", "system");
+        const startDate = document.getElementById('pm-start-date-preheat')?.value || '';
+        console.log(startDate);
         return this.socket.sendMessage(SocketModule.MessageType.CS_PREHEAT_DATA, {
             timestamp: new Date().toISOString(),
+            data: startDate
         });
     }
 
