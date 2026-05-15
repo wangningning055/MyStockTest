@@ -1,7 +1,7 @@
 import traceback
 import uvicorn
 
-from src.main_code.FastCore import app
+from src.main_code.Core.FastCore import app
 
 
 def main():
