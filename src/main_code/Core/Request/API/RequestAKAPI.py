@@ -2,7 +2,6 @@ import src.main_code.Core.Const
 import baostock as bs
 import tushare as ts
 import pandas as pd
-import akshare as ak
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
@@ -12,26 +11,7 @@ from datetime import datetime
 import asyncio
 
 class RequestAPIClass:
-    def Request_Cur_Data(self):
-        stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
-        return stock_zh_a_spot_em_df
-    
 
-
-    #akshare拉取基本数据
-    async def Request_Company_AK(self, code):
-        df_info = ak.stock_individual_info_em(symbol="000001")
-        df_value = ak.stock_zyjs_ths(symbol="000001")
-
-        df_base = self.normalize_individual_info(df_info)
-        df_base = self.rename_individual_columns(df_base)
-
-        df_business = self.normalize_business_info(df_value)
-
-        df_final = self.merge_company_info(df_base, df_business)
-
-        await asyncio.sleep(0)
-        return df_final
     
     #拉取历史原始数据
 

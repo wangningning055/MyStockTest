@@ -2,7 +2,6 @@ import src.main_code.Core.Const
 import baostock as bs
 import tushare as ts
 import pandas as pd
-import akshare as ak
 from src.main_code.Core.DataStruct.DB import AdjustDBStruct
 from src.main_code.Core.DataStruct.DB import BasicDBStruct
 from src.main_code.Core.DataStruct.DB import DailyDBStruct
@@ -69,16 +68,7 @@ class RequestAPIClass:
         await asyncio.sleep(0)
         return df
     
-    #akshare拉取基本数据
-    async def Request_Company_Value_AK(self):
-        stock_individual_info_em_df = ak.stock_individual_info_em(symbol="000001")
-        await asyncio.sleep(0)
-        return stock_individual_info_em_df
-    
-    async def Request_Company_Info_AK(self):
-        stock_individual_info_em_df = ak.stock_zyjs_ths(symbol="000001")
-        await asyncio.sleep(0)
-        return stock_individual_info_em_df
+
 
     def get_last_quarter(self, ref_date=None):
         """
