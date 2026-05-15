@@ -28,8 +28,10 @@ update_thread = None
 def get_base_dir():
     # PyInstaller 环境
     if getattr(sys, "frozen", False):
+        print(f"软件环境: {sys._MEIPASS}")
         return sys._MEIPASS
     # 开发环境
+    print("开发环境")
     return os.path.dirname(os.path.abspath(__file__))
 
 
@@ -50,10 +52,8 @@ def open_browser_delay():
 
 BASE_DIR = get_base_dir()
 
-WEB_DIR = os.path.normpath(
-    os.path.join(BASE_DIR, "..", "Web")
-)
-
+WEB_DIR = os.path.join(BASE_DIR, "src", "main_code", "Web")
+print(f"查找查找{BASE_DIR}         ||||          {WEB_DIR}")
 app = FastAPI()
 app.mount(
     "/static",
