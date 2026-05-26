@@ -1399,6 +1399,10 @@ def CalculateLowBack_Tend_Slop(NowData:"CalculationDataStruct.StructBaseClass", 
     return CalculationSpecial.CalculateLowBack_Tend_Slop(NowData, StartDayCount, ToDayCount, handler)
 
 
+# 区间是否为上下2的箱体
+def CalculateIsCube_2(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 2)
+
 # 区间是否为上下3的箱体
 def CalculateIsCube_3(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
     return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 3)

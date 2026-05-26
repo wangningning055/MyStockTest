@@ -2157,13 +2157,14 @@ def CalculateIsCube(nowData:"CalculationDataStruct.StructBaseClass", StartDayCou
     newestDay = nowData.dataList_240[StartDayCount]
     oldestDay = nowData.dataList_240[ToDayCount]
     amplitude = abs(amplitude)
+    amplitude = amplitude / 100
     #开始和结束两个的涨幅要在1.5amplitude内
     start_endRatio = abs((newestDay.close - oldestDay.close) / oldestDay.close) * 100
     if(start_endRatio > amplitude * 1.5):
         return 0
     edge_avg = (newestDay.close + oldestDay.close) / 2
-    maxEdgePrice_1 = edge_avg + edge_avg * (amplitude / 100)
-    minEdgePrice_1 = edge_avg - edge_avg * (amplitude / 100)
+    maxEdgePrice_1 = edge_avg + edge_avg * amplitude
+    minEdgePrice_1 = edge_avg - edge_avg * amplitude
 
     #以开始和结束的平均值为准，上下在amplitude内的都加上,把这些区间内的点取平均
     allUseListPoint : list["CalculationDataStruct.StructBaseClass"] = []
@@ -2183,38 +2184,47 @@ def CalculateIsCube(nowData:"CalculationDataStruct.StructBaseClass", StartDayCou
 
     cube_avg = cube_avg / len(allUseListPoint)
 
-    maxCubePrice_1 = cube_avg + cube_avg * (amplitude / 100)
-    minCubePrice_1 = cube_avg - cube_avg * (amplitude / 100)
+    maxCubePrice_1 = cube_avg + cube_avg * (amplitude)
+    minCubePrice_1 = cube_avg - cube_avg * (amplitude)
 
-    maxCubePrice_1_5 = cube_avg + cube_avg * ((amplitude * 1.5) / 100)
-    minCubePrice_1_5 = cube_avg - cube_avg * ((amplitude * 1.5) / 100)
+    maxCubePrice_1_5 = cube_avg + cube_avg * (amplitude * 1.2)
+    minCubePrice_1_5 = cube_avg - cube_avg * (amplitude * 1.2)
 
-    maxCubePrice_2 = cube_avg + cube_avg * ((amplitude * 2) / 100)
-    minCubePrice_2 = cube_avg - cube_avg * ((amplitude * 2) / 100)
+    maxCubePrice_2 = cube_avg + cube_avg * (amplitude * 1.5)
+    minCubePrice_2 = cube_avg - cube_avg * (amplitude * 1.5)
     
-    #不能存在任何一个点超过 平均 + 2倍的amplitude上下
+    #不能存在任何一个点超过 平均 + 1.5倍的amplitude上下
+    index = 0
     for single in nowData.dataList_240:
         if index >= StartDayCount and index <= ToDayCount:
             if single.close > maxCubePrice_2 or single.close < minCubePrice_2:
                 return 0
+        index += 1
 
 
-    #不超过三个点在 平均 + 1.5倍的amplitude上下
+    #不超过百分之二十的点在 平均 + 1.2倍的amplitude外
     outCount = 0
+    targetOutCount = (ToDayCount - StartDayCount) * 0.2
+    index = 0
     for single in nowData.dataList_240:
         if index >= StartDayCount and index <= ToDayCount:
             if single.close > maxCubePrice_1_5 or single.close < minCubePrice_1_5:
                 outCount += 1
-                if outCount >= 3:
+                if outCount >= targetOutCount:
                     return 0
+        index += 1
 
     #不超过百分之三十的点在 平均 + 1倍的amplitude区域外
     outCount = 0
+    index = 0
     for single in nowData.dataList_240:
         if index >= StartDayCount and index <= ToDayCount:
             if single.close > maxCubePrice_1 or single.close < minCubePrice_1:
                 outCount += 1
+        index += 1
 
     if outCount > (ToDayCount - StartDayCount) * 0.3:
         return 0
+    #print(f"名字是：{nowData.componyInfo.Name}， 目标幅度：{amplitude}， 开始日期：{newestDay.trade_date}， 结束日期：{oldestDay.trade_date}， 开始结束价格中间价格：{edge_avg}， 箱体中间价格：{cube_avg}， 单倍箱体上沿：{maxCubePrice_1}， 单倍箱体下沿：{minCubePrice_1}")
+
     return 1

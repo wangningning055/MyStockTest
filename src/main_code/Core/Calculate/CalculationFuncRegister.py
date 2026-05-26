@@ -93,6 +93,7 @@ def RegisterCalculateFunc(calculationHandler):
         "is_pop_down": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == -1 else 0, ()),
 
         #箱体：
+        "cube_2": (CalculationUtil.CalculateIsCube_2, ("startDataCls", "startCount", "toCount", "handler")),
         "cube_3": (CalculationUtil.CalculateIsCube_3, ("startDataCls", "startCount", "toCount", "handler")),
         "cube_5": (CalculationUtil.CalculateIsCube_5, ("startDataCls", "startCount", "toCount", "handler")),
         "cube_10": (CalculationUtil.CalculateIsCube_10, ("startDataCls", "startCount", "toCount", "handler")),
