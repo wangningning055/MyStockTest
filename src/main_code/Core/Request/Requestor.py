@@ -19,6 +19,7 @@ class RequestorClass:
         self.isInStop = False
         self.isInRequester = False
         self.task = None
+        self.isCancelled = False
 
     async def RequestBasic(self):
         print("初始化tushare")
@@ -99,8 +100,14 @@ class RequestorClass:
         sameList = set()
         logCount = 0
         progressInterval = 0
+
+        intervalList = []
+        interval = 100
+        intervalCount = 0
+
         for code in codeList:
             if self.isInStop:
+                self.isCancelled = True
                 break
             progressInterval = progressInterval + 1
             if progressInterval >= const_proj.progress_interval_pull:
@@ -116,6 +123,11 @@ class RequestorClass:
                 self.main.BoardCast("已经拉取过，跳过")
                 continue
 
+
+            count_stock = count_stock + 1
+            #if(count_stock < 4000):
+            #    continue
+            
             t0 = time.perf_counter()
 
             df = await self.api.Request_Adjust(code)
@@ -124,7 +136,6 @@ class RequestorClass:
             dfList.append(df)
             self.main.fileProcessor.SaveCSV(df, code, FileProcessor.FileEnum.Adjust)
 
-            count_stock = count_stock + 1
             t1 = time.perf_counter()
             totalCostTime = totalCostTime + (t1 - t0)
             preCostTime = (totalCostTime / count_stock) * (len(codeList) - count_stock)
@@ -133,8 +144,19 @@ class RequestorClass:
             print(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             self.main.BoardCast(f"正在通过api拉取复权数据， 当前第{count_stock}条,数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
-            #await asyncio.sleep(1)
 
+            intervalCount = intervalCount + 1
+            intervalList.append(df)
+
+            if intervalCount >= interval:
+                df_all = pd.concat(intervalList, ignore_index=True)
+                
+                classList = self.api.Df_To_AdjustClass(df_all)
+                if classList is None:
+                    continue
+                await self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Adjust)
+                intervalCount = 0
+                intervalList = []
 
         df_all = pd.concat(dfList, ignore_index=True)
         classList = self.api.Df_To_AdjustClass(df_all)
@@ -165,6 +187,9 @@ class RequestorClass:
 
         count = 0
         progressInterval = 0
+        intervalList = []
+        interval = 100
+        intervalCount = 0
         for code in codeList:
             progressInterval = progressInterval + 1
             if progressInterval >= const_proj.progress_interval_pull:
@@ -172,8 +197,10 @@ class RequestorClass:
                 progressInterval = 0
                 await asyncio.sleep(0)
             if self.isInStop:
+                self.isCancelled = True
                 break
             count = count + 1
+   
             ##测试边界
             #if count > 10:
             #    break
@@ -199,17 +226,25 @@ class RequestorClass:
             print(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             self.main.BoardCast(f"正在通过api拉取日线数据， 当前第{count_stock}条,时间为从{startData}  到 {endData}，数据长度为:{len(codeList)}， 已消耗时间：{totalCostTimeStr}， 预计剩余时间{preCostTimeStr}")
             sameList.add(code)
-            #await asyncio.sleep(1)
+            intervalCount = intervalCount + 1
+            intervalList.append(df)
 
-        
+            if intervalCount >= interval:
+                df_all = pd.concat(intervalList, ignore_index=True)
+                
+                classList = self.api.Df_To_DailyClass(df_all)
+                if classList is None:
+                    continue
+                await self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Daily)
+                intervalCount = 0
+                intervalList = []
+
         df_all = pd.concat(dfList, ignore_index=True)
         
         classList = self.api.Df_To_DailyClass(df_all)
         if classList is None:
             return
         await self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Daily)
-        #task = asyncio.get_running_loop().create_task(self.main.dbHandler.WriteTable(classList, DBHandler.TableEnum.Daily))
-        #task.add_done_callback(self.main.task_finished_callback_Daily)
         self.main.BoardCast("处理日线数据完成")
 
     async def RequestValue(self, dateTo, isNow = False):
@@ -234,6 +269,7 @@ class RequestorClass:
                 #if count > 10:
                 #    break
                 if self.isInStop:
+                    self.isCancelled = True
                     break
                 df_Roe = await self.api.RequestValue_Roe(code, year, quarter)
                 df_YOYNi = await self.api.RequestValue_YOYNi(code, year, quarter)
@@ -301,6 +337,7 @@ class RequestorClass:
         if self.task == None:
             return
         if self.isInStop:
+            self.isCancelled = True
             return
         if self.task and not self.task.done():
             self.isInStop = True
@@ -318,6 +355,7 @@ class RequestorClass:
     async def OnMsgRequestDataByType(self, type):
         if self.isInRequester or self.main.isInHandle:
             return
+        self.isCancelled = False
         self.main.SetIsInHandle(True)
 
         self.isInRequester = True
@@ -338,7 +376,8 @@ class RequestorClass:
 
 
         self.isInRequester = False
-        self.main.recordHandler.WriteRecordData()
+        if self.isCancelled == False:
+            self.main.recordHandler.WriteRecordData()
         self.main.Init()
         self.main.SetIsInHandle(False)
         print("数据拉取完毕")
@@ -362,8 +401,16 @@ class RequestorClass:
         try:
 
             await self.OnMsgRequestStockListData()
+            if self.isCancelled == False:
+                self.main.recordHandler.WriteRecordData()
+
             await self.OnMsgRequestDailyData()
+            if self.isCancelled == False:
+                self.main.recordHandler.WriteRecordData()
+                
             await self.OnMsgRequestAdjustData()
+            if self.isCancelled == False:
+                self.main.recordHandler.WriteRecordData()
             #await self.OnMsgRequestValueData()
 
         except Exception as e:

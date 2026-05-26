@@ -28,11 +28,21 @@ update_thread = None
 def get_base_dir():
     # PyInstaller 环境
     if getattr(sys, "frozen", False):
-        print(f"软件环境: {sys._MEIPASS}")
+        print(f"软件环境1: {sys._MEIPASS}")
         return sys._MEIPASS
     # 开发环境
-    print("开发环境")
+    print("开发环境1")
     return os.path.dirname(os.path.abspath(__file__))
+
+
+def get_web_dir():
+    # PyInstaller 环境
+    if getattr(sys, "frozen", False):
+        print(f"软件环境2: {os.path.join(BASE_DIR, 'src', 'main_code', 'Web')}")
+        return os.path.join(BASE_DIR, "src", "main_code", "Web")
+    # 开发环境
+    print("开发环境2")
+    return "src/main_code/Web"
 
 
 def is_port_open(port):
@@ -52,7 +62,7 @@ def open_browser_delay():
 
 BASE_DIR = get_base_dir()
 
-WEB_DIR = os.path.join(BASE_DIR, "src", "main_code", "Web")
+WEB_DIR = get_web_dir()
 print(f"查找查找{BASE_DIR}         ||||          {WEB_DIR}")
 app = FastAPI()
 app.mount(

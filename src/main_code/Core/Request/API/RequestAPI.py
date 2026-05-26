@@ -112,18 +112,38 @@ class RequestAPIClass:
 
         #获取复权因子
         code = self.TuShare_to_BaoStock(stockCode)
-        rs_list = []
-        rs_factor = bs.query_adjust_factor(code=code)
-        while (rs_factor.error_code == '0') & rs_factor.next():
-            rs_list.append(rs_factor.get_row_data())
-
-        if rs_list.__len__() != 0:
-            result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
-        else:
+        if(code.__contains__("bj")):
             return None
+        if(code.__contains__("BJ")):
+            return None
+        
+        retry = 0
+        max_retry = 10
+        for retry in range(max_retry):
+            rs_list = []
+            rs_factor = bs.query_adjust_factor(code=code)
 
-        await asyncio.sleep(0)
-        return result_factor
+            if rs_factor.error_code != '0':
+                self.main.BoardCast(f"接口调用失败,5秒后重新尝试：{rs_factor.error_msg}")
+                print(f"接口调用失败,5秒后重新尝试：{rs_factor.error_msg}")
+                bs.logout()
+                await asyncio.sleep(5)
+                self.bao = bs.login()
+                retry += 1
+                continue
+
+            while (rs_factor.error_code == '0') & rs_factor.next():
+                rs_list.append(rs_factor.get_row_data())
+
+            if rs_list.__len__() != 0:
+                result_factor = pd.DataFrame(rs_list, columns=rs_factor.fields)
+            else:
+                return None
+
+            await asyncio.sleep(0)
+            return result_factor
+        
+        return None
 
     #拉取日线信息StockCode为xxxxx.SZ的格式
     async def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):
@@ -138,29 +158,42 @@ class RequestAPIClass:
         code = self.TuShare_to_BaoStock(baoStockCode)
         startData = self.Time_Convert_Base_To_Bao(startData_Base)
         endData = self.Time_Convert_Base_To_Bao(endData_Base)
-        rs = bs.query_history_k_data_plus(
-            baoStockCode,
-            fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
-            start_date=startData,
-            end_date=endData,
-            frequency="d",
-            adjustflag="3"
-        )
-        data_list = []
-        if rs.error_code !='0':
-            self.main.BoardCast(f"接口调用失败：{rs.error_msg}")
-            return
-        while rs.next():
-            data_list.append(rs.get_row_data())
+
+        retry = 0
+        max_retry = 10
+        for retry in range(max_retry):
+            rs = bs.query_history_k_data_plus(
+                baoStockCode,
+                fields="date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,pbMRQ,psTTM,pcfNcfTTM,isST",
+                start_date=startData,
+                end_date=endData,
+                frequency="d",
+                adjustflag="3"
+            )
+            data_list = []
+            if rs.error_code !='0':
+                self.main.BoardCast(f"接口调用失败,5秒后重新尝试：{rs.error_msg}")
+                print(f"接口调用失败,5秒后重新尝试：{rs.error_msg}")
+                bs.logout()
+
+                await asyncio.sleep(5)
+                self.bao = bs.login()
+                retry += 1
+                continue
+
+            while rs.next():
+                data_list.append(rs.get_row_data())
 
 
-        if data_list.__len__() != 0:
-            df = pd.DataFrame(data_list, columns=rs.fields)
-        else:
-            return None
+            if data_list.__len__() != 0:
+                df = pd.DataFrame(data_list, columns=rs.fields)
+            else:
+                return None
 
-        await asyncio.sleep(0)
-        return df
+            await asyncio.sleep(0)
+            return df
+        
+        return None
 
     #拉取股市价值信息StockCode为xxxxx.SZ的格式
     async def RequestValue_Roe(self, baoStockCode : str, year, quarter):

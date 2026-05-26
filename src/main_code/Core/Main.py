@@ -23,8 +23,7 @@ from fastapi.responses import FileResponse
 import src.main_code.Core.Message.WebSocketHandle as ws
 import asyncio
 from src.main_code.Core.DataStruct.Base import RecordDataStruct
-sys.stdout.reconfigure(encoding='utf-8')
-sys.stderr.reconfigure(encoding='utf-8')
+
 import tracemalloc
 class processor:
     lastDayStr = const_proj.first_Data

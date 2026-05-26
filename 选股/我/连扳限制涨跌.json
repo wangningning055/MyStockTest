@@ -1,0 +1,54 @@
+{
+  "threshold": 0.7,
+  "configs": [
+    {
+      "factor_group_name": "条件列表",
+      "weight": 10,
+      "logic_tree": [
+        {
+          "type": "condition",
+          "relation": "START",
+          "factor_id": 200198,
+          "factor_name": "区间涨停次数",
+          "operator": "gt",
+          "value": 5,
+          "dateFrom": 0,
+          "dateTo": 20
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200207,
+          "factor_name": "区间涨跌幅",
+          "operator": "lt",
+          "value": 80,
+          "dateFrom": 0,
+          "dateTo": 60
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200207,
+          "factor_name": "区间涨跌幅",
+          "operator": "lt",
+          "value": 5,
+          "dateFrom": 0,
+          "dateTo": 10
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200207,
+          "factor_name": "区间涨跌幅",
+          "operator": "gt",
+          "value": -2,
+          "dateFrom": 0,
+          "dateTo": 10
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-05-20T16:55:53.423Z",
+  "version": "1.0",
+  "description": "买入策略配置"
+}

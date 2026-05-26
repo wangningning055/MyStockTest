@@ -276,6 +276,7 @@ export const ConditionManager = {
                 row.className = 'condition-row';
                 row.dataset.type = 'condition';
                 row.dataset.factorId = node.factor_id;
+                const showDateRange = (node.factor_id >= 200000 && node.factor_id <= 300000) || (node.factor_id >= 400000);
 
                 const isFirst = index === 0;
                 const headerHtml = isFirst ? '<span class="first-tag">首选</span>' : `
@@ -297,12 +298,14 @@ export const ConditionManager = {
                             ${isFirst ? '' : '<button class="btn-del-cond" type="button">✕</button>'}
                         </div>
                     </div>
+                    ${showDateRange ? `
                     <div class="condition-row__date">
                         <span class="condition-row__date-label">日期范围:</span>
                         <input type="number" class="date-range-input" value="${node.dateFrom || 0}" min="0" placeholder="天前">
                         <span class="date-range-separator">～</span>
                         <input type="number" class="date-range-input" value="${node.dateTo || 1}" min="0" placeholder="天前">
                     </div>
+                    ` : ''}
                     <div class="condition-row__condition">
                         <select class="cond-op">
                             <option value="gt" ${node.operator === 'gt' ? 'selected' : ''}>></option>

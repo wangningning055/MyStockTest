@@ -1,0 +1,74 @@
+{
+  "threshold": 0.3,
+  "configs": [
+    {
+      "factor_group_name": "条件列表",
+      "weight": 10,
+      "logic_tree": [
+        {
+          "type": "condition",
+          "relation": "START",
+          "factor_id": 200218,
+          "factor_name": "区间平均换手率",
+          "operator": "lt",
+          "value": 4,
+          "dateFrom": 1,
+          "dateTo": 10
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200242,
+          "factor_name": "区间最高换手率",
+          "operator": "lt",
+          "value": 6,
+          "dateFrom": 1,
+          "dateTo": 10
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1009,
+          "factor_name": "当日换手率",
+          "operator": "gt",
+          "value": 6,
+          "dateFrom": 0,
+          "dateTo": 1
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1007,
+          "factor_name": "当日涨跌幅",
+          "operator": "gt",
+          "value": 0,
+          "dateFrom": 0,
+          "dateTo": 1
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 1039,
+          "factor_name": "当日成交量涨跌幅",
+          "operator": "gt",
+          "value": 300,
+          "dateFrom": 0,
+          "dateTo": 1
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200230,
+          "factor_name": "区间最低换手率",
+          "operator": "gt",
+          "value": 0.5,
+          "dateFrom": 0,
+          "dateTo": 10
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-05-17T17:11:19.194Z",
+  "version": "1.0",
+  "description": "买入策略配置"
+}

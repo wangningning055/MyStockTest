@@ -7,6 +7,7 @@ from src.main_code.Core.DataStruct.DB import DailyDBStruct
 from src.main_code.Core.DataStruct.DB import ValueDBStruct
 from src.main_code.Core import Const as const_proj
 import asyncio
+import os
 from collections import defaultdict
 class TableEnum(Enum):
     Basic = 1,
@@ -27,6 +28,10 @@ class DBHandlerClass:
 
     #读取数据库
     def ConnectDb(self):
+        db_dir = os.path.dirname(self.dbPath)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+
         self.dbConnect = sqlite3.connect(self.dbPath)
         self.dbConnect.row_factory = sqlite3.Row
         self.dbCursor = self.dbConnect.cursor()

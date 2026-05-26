@@ -1,5 +1,5 @@
 {
-  "threshold": 0.51,
+  "threshold": 0.7,
   "configs": [
     {
       "factor_group_name": "条件列表",
@@ -8,42 +8,52 @@
         {
           "type": "condition",
           "relation": "START",
-          "factor_id": 1007,
-          "factor_name": "当日涨跌幅",
-          "operator": "gt",
-          "value": 3,
-          "dateFrom": 0,
-          "dateTo": 1
-        },
-        {
-          "type": "condition",
-          "relation": "AND",
-          "factor_id": 1039,
-          "factor_name": "当日成交量涨跌幅",
+          "factor_id": 200204,
+          "factor_name": "区间整体成交量涨跌幅",
           "operator": "gt",
           "value": 100,
           "dateFrom": 0,
-          "dateTo": 1
+          "dateTo": 4
         },
         {
           "type": "condition",
           "relation": "AND",
-          "factor_id": 1007,
-          "factor_name": "当日涨跌幅",
-          "operator": "lt",
-          "value": 8,
-          "dateFrom": 0,
-          "dateTo": 1
-        },
-        {
-          "type": "condition",
-          "relation": "AND",
-          "factor_id": 200257,
-          "factor_name": "区间是否缩量降低",
+          "factor_id": 200218,
+          "factor_name": "区间平均换手率",
           "operator": "gt",
-          "value": 0,
-          "dateFrom": 1,
+          "value": 1.5,
+          "dateFrom": 2,
           "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200218,
+          "factor_name": "区间平均换手率",
+          "operator": "lt",
+          "value": 3,
+          "dateFrom": 2,
+          "dateTo": 40
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200218,
+          "factor_name": "区间平均换手率",
+          "operator": "gt",
+          "value": 5,
+          "dateFrom": 0,
+          "dateTo": 4
+        },
+        {
+          "type": "condition",
+          "relation": "AND",
+          "factor_id": 200218,
+          "factor_name": "区间平均换手率",
+          "operator": "lt",
+          "value": 15,
+          "dateFrom": 0,
+          "dateTo": 4
         },
         {
           "type": "condition",
@@ -51,7 +61,7 @@
           "factor_id": 200207,
           "factor_name": "区间涨跌幅",
           "operator": "lt",
-          "value": 10,
+          "value": 30,
           "dateFrom": 0,
           "dateTo": 20
         },
@@ -62,23 +72,23 @@
           "factor_name": "区间涨跌幅",
           "operator": "lt",
           "value": 30,
-          "dateFrom": 1,
-          "dateTo": 60
+          "dateFrom": 0,
+          "dateTo": 5
         },
         {
           "type": "condition",
           "relation": "AND",
-          "factor_id": 200207,
-          "factor_name": "区间涨跌幅",
+          "factor_id": 1039,
+          "factor_name": "当日成交量涨跌幅",
           "operator": "gt",
           "value": 0,
-          "dateFrom": 1,
-          "dateTo": 60
+          "dateFrom": 0,
+          "dateTo": 1
         }
       ]
     }
   ],
-  "timestamp": "2026-04-26T06:49:23.022Z",
+  "timestamp": "2026-05-20T17:17:47.506Z",
   "version": "1.0",
   "description": "买入策略配置"
 }
