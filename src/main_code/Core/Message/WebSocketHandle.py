@@ -30,7 +30,10 @@ class MessageType(str, Enum):
 
     CS_UPDATE_DATA = "cs_update_data"               #客户端请求拉取数据
     CS_Stop_UPDATE_DATA = "cs_stop_update_data"               #客户端请求停止拉取数据
-    CS_PREHEAT_DATA = "cs_preheat_data"               #客户端请求预热数据
+    CS_PREHEAT_DATA = "cs_preheat_data",               #客户端请求预热数据
+
+    CS_CHANGE_DATE = "cs_change_date",                  #客户端请求更改日期
+
 
     CS_INDUSTRY_ROTATION = "cs_industry_rotation",  # 客户端请求行业轮动分析
     SC_INDUSTRY_ROTATION = "sc_industry_rotation",  # 服务器返回行业轮动分析结果
@@ -254,9 +257,17 @@ def HandleMsg(msg):
     elif(msgType == MessageType.CS_PREHEAT_DATA):
         print(f"进行数据预热:{data}")
         targetData = data["data"]
-        print(f"进行数据预热:{targetData}")
+        length = int(data["num"])
+        print(f"进行数据预热:{targetData}, {length}")
         mainProcessor.calculationDataHandle.SetDate(targetData)
+        mainProcessor.calculationDataHandle.SetLength(length)
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
+
+    elif(msgType == MessageType.CS_CHANGE_DATE):
+        print(f"进行日期更改:{data}")
+        targetData = data["data"]
+        mainProcessor.calculationDataHandle.ChangeDate(targetData)
+        
 
 
     #需要修改成行业轮动分析

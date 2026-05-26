@@ -176,7 +176,14 @@ export const EventManager = {
                 }
             });
         }
-
+        const changeDateBtn = document.getElementById('api-change-date');
+        if (changeDateBtn) {
+            changeDateBtn.addEventListener('click', () => {
+                if (manager) {
+                    manager.changeData();
+                }
+            });
+        }
 
         const testBtn = document.getElementById('api-test');
         if (testBtn) {

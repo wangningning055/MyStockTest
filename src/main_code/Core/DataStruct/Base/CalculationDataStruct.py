@@ -907,6 +907,13 @@ class StructBaseWindowClass :
     ratio_avg_close_lower_240: float #区间平均收盘价与240日下压力位的比
     #压力位结束---------------------------------------------------------------------------
 
+    cube_3 : int  # 幅度为3的箱体
+    cube_5 : int  # 幅度为5的箱体
+    cube_10 : int  # 幅度为10的箱体
+    cube_15 : int  # 幅度为15的箱体
+    cube_20 : int  # 幅度为20的箱体
+    cube_30 : int  # 幅度为30的箱体
+    cube_50 : int  # 幅度为50的箱体
 
 
     min_open: float         #最低开盘价

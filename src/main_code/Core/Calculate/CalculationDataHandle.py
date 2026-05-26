@@ -85,9 +85,37 @@ class BaseClass :
         else:
             self.todayStr = todayStr
 
+    def ChangeDate(self, date):
+        if self.isPreheating == False:
+            print("请先预热数据")
+            self.main.BoardCast(f"请先预热数据")
+            return
+        
+        if date == "":
+            print("日期为空，无法设置")
+            self.main.BoardCast(f"日期为空，无法设置")
+            
+            return
+        target_date_obj = datetime.strptime(date, "%Y-%m-%d")
+        date_2021 = datetime.strptime("2021-01-01", "%Y-%m-%d")
+        if target_date_obj < date_2021:
+            print("日期不能早于2021-01-01")
+            self.main.BoardCast(f"日期不能早于2021-01-01")
+            return
+        
+        if self.todayStr != "000000" and date != "":
+            my_date_obj = datetime.strptime(self.todayStr, "%Y%m%d")
+            if target_date_obj >= my_date_obj:
+                print(f"日期只能早于当前预热日期：{self.todayStr}")
+                self.main.BoardCast(f"日期只能早于当前预热日期：{self.todayStr}, 并不能早于当前预热日期 + （预热长度 - 240）天，否则会报错")
+                return
+            
+        self.SetDate(date)
+
     def SetDate(self, date):
         if date == "":
             print("设置当天")
+            self.main.BoardCast(f"设置当天")
             self.todayStr = self.GetToday()
             return
         date_str = date
@@ -98,14 +126,19 @@ class BaseClass :
         for code in random_items:
             res = self.main.dbHandler.GetDailyRowByCodeAndDate(code, result)
             if res is not None:
-                print("设置目标天数")
+                self.main.BoardCast(f"日期设置完毕：{result}")
+                print(f"日期设置完毕：{result}")
                 self.todayStr = result
                 return
             
         self.main.BoardCast(f"无效的日期：{result}， 此日期可能并非交易日或超过日期范围 当前日期范围：2021-01-01  到{self.GetToday()}")
         print(f"无效的日期：{result}， 此日期可能并非交易日或超过日期范围 当前日期范围：2021-01-01  到{self.GetToday()}")
         self.todayStr = "000000"
-        
+
+    def SetLength(self, length):
+        if length > 0:
+            self.dateListLength = length
+
 
     async def DataPreheating(self, isNeedLog = True, isJumpReadDb = False):
         if self.todayStr == "000000":

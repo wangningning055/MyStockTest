@@ -92,8 +92,14 @@ def RegisterCalculateFunc(calculationHandler):
         "is_pop_up": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == 1 else 0, ()),
         "is_pop_down": (lambda cls: 1 if cls.amplitudeState == 1 and cls.priceState == -1 else 0, ()),
 
-
-
+        #箱体：
+        "cube_3": (CalculationUtil.CalculateIsCube_3, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_5": (CalculationUtil.CalculateIsCube_5, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_10": (CalculationUtil.CalculateIsCube_10, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_15": (CalculationUtil.CalculateIsCube_15, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_20": (CalculationUtil.CalculateIsCube_20, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_30": (CalculationUtil.CalculateIsCube_30, ("startDataCls", "startCount", "toCount", "handler")),
+        "cube_50": (CalculationUtil.CalculateIsCube_50, ("startDataCls", "startCount", "toCount", "handler")),
 
 
         #break_upper_count_20: int      #区间突破20日上压力位次数

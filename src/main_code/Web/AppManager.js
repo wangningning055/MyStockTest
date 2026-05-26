@@ -505,13 +505,28 @@ class AppManager {
 
     preheatData() {
         this.app.log("📤发送数据预热请求...", "system");
+        //
         const startDate = document.getElementById('pm-start-date-preheat')?.value || '';
+        const startNum = document.getElementById('pm-start-date-preheat-num')?.value || 340;
         console.log(startDate);
         return this.socket.sendMessage(SocketModule.MessageType.CS_PREHEAT_DATA, {
             timestamp: new Date().toISOString(),
-            data: startDate
+            data: startDate,
+            num:startNum
         });
     }
+
+    changeData() {
+        this.app.log("📤发送更改数据日期请求...", "system");
+        //
+        const startDate = document.getElementById('pm-set-date-preheat')?.value || '';
+        console.log(startDate);
+        return this.socket.sendMessage(SocketModule.MessageType.CS_CHANGE_DATE, {
+            timestamp: new Date().toISOString(),
+            data: startDate,
+        });
+    }
+
 
 
     requestIndustryRotationAnalysis() {

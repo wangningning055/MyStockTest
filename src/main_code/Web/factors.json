@@ -344,6 +344,21 @@
     ]
     },
 
+    
+    "stock_window_cube": {
+      "name": "个股日期区间箱体",
+      "description": "个股日期区间箱体",
+      "items": [
+        { "id": 200401, "name_field": "cube_3", "name": "是否为箱体（3%）", "type": "int", "description": "是否为在上下3%浮动的箱体" },
+        { "id": 200402, "name_field": "cube_5", "name": "是否为箱体（5%）", "type": "int", "description": "是否为在上下5%浮动的箱体" },
+        { "id": 200403, "name_field": "cube_10", "name": "是否为箱体（10%）", "type": "int", "description": "是否为在上下10%浮动的箱体" },
+        { "id": 200404, "name_field": "cube_15", "name": "是否为箱体（15%）", "type": "int", "description": "是否为在上下15%浮动的箱体" },
+        { "id": 200405, "name_field": "cube_20", "name": "是否为箱体（20%）", "type": "int", "description": "是否为在上下20%浮动的箱体" },
+        { "id": 200406, "name_field": "cube_30", "name": "是否为箱体（30%）", "type": "int", "description": "是否为在上下30%浮动的箱体" },
+        { "id": 200407, "name_field": "cube_50", "name": "是否为箱体（50%）", "type": "int", "description": "是否为在上下50%浮动的箱体" }
+      ]
+    },
+
     "stock_window_ratio": {
       "name": "个股日期区间涨跌条件",
       "description": "个股日期区间涨跌条件",

@@ -1399,6 +1399,35 @@ def CalculateLowBack_Tend_Slop(NowData:"CalculationDataStruct.StructBaseClass", 
     return CalculationSpecial.CalculateLowBack_Tend_Slop(NowData, StartDayCount, ToDayCount, handler)
 
 
+# 区间是否为上下3的箱体
+def CalculateIsCube_3(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 3)
+
+# 区间是否为上下5的箱体
+def CalculateIsCube_5(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 5)
+
+# 区间是否为上下10的箱体
+def CalculateIsCube_10(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 10)
+
+# 区间是否为上下15的箱体
+def CalculateIsCube_15(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 15)
+
+# 区间是否为上下20的箱体
+def CalculateIsCube_20(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 20)
+
+# 区间是否为上下30的箱体
+def CalculateIsCube_30(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 30)
+
+# 区间是否为上下50的箱体
+def CalculateIsCube_50(NowData:"CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount, handler:"CalculationDataHandle.BaseClass"):
+    return CalculationSpecial.CalculateIsCube(NowData, StartDayCount, ToDayCount, handler, 50)
+
+
 #获取涨停次数
 def GetUpStopCount(NowData : "CalculationDataStruct.StructBaseClass", StartDayCount, ToDayCount):
     dataList_240 = NowData.dataList_240
