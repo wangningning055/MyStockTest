@@ -105,26 +105,29 @@ class StructBaseClass :
         self.is_touch_down_stop = 1 if ((self.low - self.last_close) * 100 / self.last_close) <= -ConstVal.GetStopRatio(stockCode) else 0#是否触及跌停
 
 
-        self.is_one_ban = 1 if (self.open == self.close == self.high == self.low) else 0   #是否短十字
+        self.is_one_ban = 1 if (self.open == self.close == self.high == self.low) else 0   #是否一字板
 
-        self.is_short_entity = 1 if (self.open / self.close) < 1.003 and (self.open / self.close) > 0.997  else 0   #是否短实体
-        if self.change_Ratio >= 0:
-            self.is_long_shadow_up = 1 if ((self.high - self.close) / self.close) > 0.05 else 0#是否长上影线
-            self.is_long_shadow_down = 1 if ((self.open - self.low) / self.low) > 0.05 else 0#是否长下影线
-        elif self.change_Ratio < 0:
-            self.is_long_shadow_up = 1 if ((self.high - self.open) / self.close) > 0.05 else 0#是否长上影线
-            self.is_long_shadow_down = 1 if ((self.close - self.low) / self.low) > 0.05 else 0#是否长下影线
+        self.is_short_entity = 1 if abs((self.open - self.close) / self.close) < 0.02  else 0   #是否短实体
 
+        entity_up = 0
+        entity_down = 0
         if self.change_Ratio >= 0:
-            self.shortUp = 1 if ((self.high - self.close) / self.close) < 0.01 else 0#是否短上影线
-            self.shortDown = 1 if ((self.open - self.low) / self.low) < 0.01 else 0#是否短下影线
-        elif self.change_Ratio < 0:
-            self.shortUp = 1 if ((self.high - self.open) / self.close) < 0.01 else 0#是否短上影线
-            self.shortDown = 1 if ((self.close - self.low) / self.low) < 0.01 else 0#是否短下影线
+            entity_up = self.close
+            entity_down = self.open
+        else:
+            entity_up = self.open
+            entity_down = self.close
+
+        self.is_long_shadow_up = 1 if ((self.high - entity_up) / entity_up) > 0.04 else 0#是否长上影线
+        self.is_long_shadow_down = 1 if ((entity_down - self.low) / self.low) > 0.04 else 0#是否长下影线
+
+        self.shortUp = 1 if ((self.high - entity_up) / entity_up) < 0.01 else 0#是否短上影线
+        self.shortDown = 1 if ((entity_down - self.low) / self.low) < 0.01 else 0#是否短下影线
+
 
 
         self.is_long_cross = 1 if self.is_short_entity == 1 and self.is_long_shadow_up == 1 and self.is_long_shadow_down == 1 else 0#是否长十字
-        self.is_short_cross = 1 if self.is_short_entity == 1 and self.shortUp == 1 and self.shortDown == 1 else 0#是否长十字
+        self.is_short_cross = 1 if self.is_short_entity == 1 and self.shortUp == 1 and self.shortDown == 1 else 0#是否短十字
 
         self.is_T_up =  1 if self.change_Ratio >= 0 and self.is_short_entity == 1 and self.shortUp == 1 and self.is_long_shadow_down == 1 else 0#是否正T字
         self.is_T_down =  1 if self.change_Ratio <= 0 and self.is_short_entity == 1 and self.is_long_shadow_up == 1 and self.shortDown == 1 else 0##是否倒T字
