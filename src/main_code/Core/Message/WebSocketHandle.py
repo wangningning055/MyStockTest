@@ -259,7 +259,7 @@ def HandleMsg(msg):
         targetData = data["data"]
         length = int(data["num"])
         print(f"进行数据预热:{targetData}, {length}")
-        mainProcessor.calculationDataHandle.SetDate(targetData)
+        mainProcessor.calculationDataHandle.SetDate(targetData, isFirst=True)
         mainProcessor.calculationDataHandle.SetLength(length)
         task = asyncio.get_running_loop().create_task(mainProcessor.calculationDataHandle.DataPreheating())
 

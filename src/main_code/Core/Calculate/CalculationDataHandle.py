@@ -35,6 +35,7 @@ class BaseClass :
         self.isOutST = False
         self.isNeedStop = False
         self.calType = calType
+        self.firstSetDate = "000000"
         pass
     
     
@@ -90,7 +91,9 @@ class BaseClass :
             print("请先预热数据")
             self.main.BoardCast(f"请先预热数据")
             return
-        
+        if self.firstSetDate == "000000":
+            self.firstSetDate = self.todayStr
+
         if date == "":
             print("日期为空，无法设置")
             self.main.BoardCast(f"日期为空，无法设置")
@@ -104,19 +107,22 @@ class BaseClass :
             return
         
         if self.todayStr != "000000" and date != "":
-            my_date_obj = datetime.strptime(self.todayStr, "%Y%m%d")
-            if target_date_obj >= my_date_obj:
-                print(f"日期只能早于当前预热日期：{self.todayStr}")
-                self.main.BoardCast(f"日期只能早于当前预热日期：{self.todayStr}, 并不能早于当前预热日期 + （预热长度 - 240）天，否则会报错")
+            my_date_obj = datetime.strptime(self.firstSetDate, "%Y%m%d")
+            if target_date_obj > my_date_obj:
+                print(f"日期只能早于当前预热日期：{self.firstSetDate}")
+                self.main.BoardCast(f"日期只能早于当前预热日期：{self.firstSetDate}, 并不能早于当前预热日期 + （预热长度 - 240）天，否则会报错")
                 return
             
         self.SetDate(date)
 
-    def SetDate(self, date):
+    def SetDate(self, date, isFirst = False):
         if date == "":
             print("设置当天")
             self.main.BoardCast(f"设置当天")
             self.todayStr = self.GetToday()
+            if isFirst:
+                self.firstSetDate = self.todayStr
+
             return
         date_str = date
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
@@ -129,6 +135,8 @@ class BaseClass :
                 self.main.BoardCast(f"日期设置完毕：{result}")
                 print(f"日期设置完毕：{result}")
                 self.todayStr = result
+                if isFirst:
+                    self.firstSetDate = result
                 return
             
         self.main.BoardCast(f"无效的日期：{result}， 此日期可能并非交易日或超过日期范围 当前日期范围：2021-01-01  到{self.GetToday()}")
@@ -301,9 +309,9 @@ class BaseClass :
             self.main.SetIsInHandle(False)
 
         self.isPreheating = True
-        if isJumpReadDb == False:
-            growValueList = self.GetValueGrowStockListForWeb()
-            self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.LAST_UPDATE_GROW_VALUE, growValueList)
+        #if isJumpReadDb == False:
+        #    growValueList = self.GetValueGrowStockListForWeb()
+        #    self.main.websocketHandler.SendMessage_A(self.main.websocketHandler.MessageType.LAST_UPDATE_GROW_VALUE, growValueList)
 
         if isJumpReadDb == False:
             self.totalDbList = {}

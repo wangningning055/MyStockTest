@@ -288,7 +288,40 @@ class RequestAPIClass:
         return classList
     
 
-    def Df_To_BasicClass(self, dfBasic, dfSZSE, dfSSE, dfBSE):
+
+    def Df_To_BasicClass(self, dfBasic):
+        if dfBasic is None:
+            return None
+
+        classList = []
+        alldic = {}
+        for _, row in dfBasic.iterrows():
+            testClass = BasicDBStruct.DBStructClass()
+            alldic[row['ts_code']] = testClass
+            testClass.dic[BasicDBStruct.ColumnEnum.Ts_code] = row['ts_code']
+            testClass.dic[BasicDBStruct.ColumnEnum.Code] = row['symbol']
+            testClass.dic[BasicDBStruct.ColumnEnum.Name] = row['name']
+            testClass.dic[BasicDBStruct.ColumnEnum.Area] = row['area']
+            testClass.dic[BasicDBStruct.ColumnEnum.Industry] = row['industry']
+            testClass.dic[BasicDBStruct.ColumnEnum.Cn_spell] = row['cnspell']
+            testClass.dic[BasicDBStruct.ColumnEnum.Market] = row['market']
+            testClass.dic[BasicDBStruct.ColumnEnum.List_Status] = row['list_status']
+            testClass.dic[BasicDBStruct.ColumnEnum.List_date] = row['list_date']
+            testClass.dic[BasicDBStruct.ColumnEnum.Act_name] = row['act_name']
+            testClass.dic[BasicDBStruct.ColumnEnum.Act_ent_type] = row['act_ent_type']
+            classList.append(testClass)
+        self.main.BoardCast(f"基本数据处理完毕,数据长度是:{len(alldic)}")
+        self.main.BoardCast("开始单独处理深交所")
+
+        return classList
+
+
+
+
+
+
+
+    def Df_To_BasicClass_withComponey(self, dfBasic, dfSZSE, dfSSE, dfBSE):
         if dfBasic is None:
             return None
         if dfSZSE is None:

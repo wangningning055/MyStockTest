@@ -2175,7 +2175,7 @@ def CalculateIsCube(nowData:"CalculationDataStruct.StructBaseClass", StartDayCou
                 allUseListPoint.append(single)
         index += 1
     #区域内的点数要超过百分之五十
-    if len(allUseListPoint) < (ToDayCount - StartDayCount) / 2:
+    if len(allUseListPoint) < (ToDayCount - StartDayCount) * 0.7:
         return 0
     
     cube_avg = 0
