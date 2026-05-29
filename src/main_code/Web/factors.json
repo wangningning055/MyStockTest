@@ -77,11 +77,16 @@
 
         { "id": 1023, "name_field": "is_long_shadow_up", "name": "是否长上影线", "type": "int", "description": "是否长上影线" },
         { "id": 1024, "name_field": "is_long_shadow_down", "name": "是否长下影线", "type": "int", "description": "是否长下影线" },
+        
         { "id": 1025, "name_field": "is_long_cross", "name": "是否长十字", "type": "int", "description": "是否长十字" },
         { "id": 1026, "name_field": "is_short_cross", "name": "是否短十字", "type": "int", "description": "是否短十字" },
         { "id": 1027, "name_field": "is_T_up", "name": "是否正T字", "type": "int", "description": "是否正T字" },
-        { "id": 1028, "name_field": "is_T_down", "name": "是否倒T字", "type": "int", "description": "是否倒T字" }
+        { "id": 1028, "name_field": "is_T_down", "name": "是否倒T字", "type": "int", "description": "是否倒T字" },
         
+        { "id": 1029, "name_field": "shortUp", "name": "是否短上影线", "type": "int", "description": "是否短上影线" },
+        { "id": 1030, "name_field": "shortDown", "name": "是否短下影线", "type": "int", "description": "是否短下影线" },
+        { "id": 1031, "name_field": "is_short_entity", "name": "是否短实体", "type": "int", "description": "是否短实体" }
+
       ]
     },
 

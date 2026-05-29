@@ -118,19 +118,19 @@ class StructBaseClass :
             entity_up = self.open
             entity_down = self.close
 
-        self.is_long_shadow_up = 1 if ((self.high - entity_up) / entity_up) > 0.04 else 0#是否长上影线
-        self.is_long_shadow_down = 1 if ((entity_down - self.low) / self.low) > 0.04 else 0#是否长下影线
+        self.is_long_shadow_up = 1 if ((self.high - entity_up) / entity_up) > 0.03 else 0#是否长上影线
+        self.is_long_shadow_down = 1 if ((entity_down - self.low) / self.low) > 0.03 else 0#是否长下影线
 
-        self.shortUp = 1 if ((self.high - entity_up) / entity_up) < 0.01 else 0#是否短上影线
-        self.shortDown = 1 if ((entity_down - self.low) / self.low) < 0.01 else 0#是否短下影线
+        self.shortUp = 1 if ((self.high - entity_up) / entity_up) < 0.005 else 0#是否短上影线
+        self.shortDown = 1 if ((entity_down - self.low) / self.low) < 0.005 else 0#是否短下影线
 
 
 
         self.is_long_cross = 1 if self.is_short_entity == 1 and self.is_long_shadow_up == 1 and self.is_long_shadow_down == 1 else 0#是否长十字
         self.is_short_cross = 1 if self.is_short_entity == 1 and self.shortUp == 1 and self.shortDown == 1 else 0#是否短十字
 
-        self.is_T_up =  1 if self.change_Ratio >= 0 and self.is_short_entity == 1 and self.shortUp == 1 and self.is_long_shadow_down == 1 else 0#是否正T字
-        self.is_T_down =  1 if self.change_Ratio <= 0 and self.is_short_entity == 1 and self.is_long_shadow_up == 1 and self.shortDown == 1 else 0##是否倒T字
+        self.is_T_up =  1 if self.is_short_entity == 1 and self.shortUp == 1 and self.is_long_shadow_down == 1 else 0#是否正T字
+        self.is_T_down =  1 if self.is_short_entity == 1 and self.shortDown == 1 and self.is_long_shadow_up == 1 else 0##是否倒T字
 
 
         self.turn = turn
