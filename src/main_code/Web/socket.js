@@ -92,14 +92,14 @@ export function SocketInit() {
     isConnecting = true;
     
     try {
-        ws = new WebSocket("ws://127.0.0.1:8000/ws");
-
+        //ws = new WebSocket("ws://127.0.0.1:8000/ws");
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
         ws.onopen = () => {
             console.log("✅ 已连接后端 WebSocket");
             isConnecting = true;
             reconnectAttempts = 0;
             manager.ui.setConnectionStatus(true);
-            
         };
         ws.onmessage = (event) => {
             handleWebSocketMessage(event.data);

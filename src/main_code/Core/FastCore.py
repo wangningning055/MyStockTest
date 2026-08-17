@@ -57,7 +57,7 @@ def open_browser_delay():
     if not is_port_open(8000):
         return
 
-    webbrowser.open("http://127.0.0.1:8000")
+    #webbrowser.open("http://127.0.0.1:8000")
 
 
 BASE_DIR = get_base_dir()
