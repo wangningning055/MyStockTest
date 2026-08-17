@@ -54,10 +54,10 @@ def open_browser_delay():
     import time
     time.sleep(1.5)
 
-    if not is_port_open(8000):
+    if not is_port_open(8080):
         return
 
-    #webbrowser.open("http://127.0.0.1:8000")
+    #webbrowser.open("http://127.0.0.1:8080")
 
 
 BASE_DIR = get_base_dir()
@@ -122,7 +122,7 @@ def is_port_in_use(port: int) -> bool:
 
 #@app.on_event("startup")
 #def open_browser():
-#    port = 8000
+#    port = 8888
 
 #    # 如果端口已经被占用，说明不是第一次启动（是 reload）
 #    if is_port_in_use(port):

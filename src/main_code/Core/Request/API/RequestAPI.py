@@ -145,6 +145,7 @@ class RequestAPIClass:
         
         return None
 
+
     #拉取日线信息StockCode为xxxxx.SZ的格式
     async def RequestDaily(self, baoStockCode : str, startData_Base, endData_Base):
         if self.isLogin == False:
